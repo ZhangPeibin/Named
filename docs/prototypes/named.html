@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Named · Mobile UI/UX Design</title>
+  <link rel="stylesheet" href="named.css">
+  <script src="named-media.js" defer></script>
+  <script src="named-data.js" defer></script>
+  <script src="named.js" defer></script>
+</head>
+<body>
+  <main class="workspace">
+    <header class="masthead">
+      <div>
+        <h1>Named · Personal English World <span class="edition">MOBILE DESIGN</span></h1>
+        <p>从真实生活出发，建立自己的英语世界。</p>
+      </div>
+      <div class="review-controls"><label class="theme-control">外观<select id="review-theme" data-theme-select><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label><div class="mode-switch" aria-label="预览方式">
+        <button id="overview-mode" class="on" data-mode="gallery">页面总览</button>
+        <button id="flow-mode" data-mode="flow">点击体验 →</button>
+      </div>
+      </div>
+    </header>
+    <nav class="paths" aria-label="体验路径">
+      <button data-scenario="new">新用户</button>
+      <button data-scenario="returning">再次回来</button>
+      <button data-scenario="active">挑战进行中</button>
+      <button data-scenario="empty">空内容状态</button>
+    </nav>
+    <div id="gallery">
+      <section class="board-section">
+        <h2 class="board-title">01 · 认识你 <span>4 个小步骤，逐渐了解一个人</span></h2>
+        <div id="onboarding-gallery" class="gallery"></div>
+      </section>
+      <section class="board-section">
+        <h2 class="board-title">02 · 发现、理解与交流 <span>从一个真实发现，走向个人英语世界</span></h2>
+        <div id="core-gallery" class="gallery"></div>
+      </section>
+      <section class="board-section">
+        <h2 class="board-title">03 · 持续积累 <span>挑战、经历、完整历史和 Soul</span></h2>
+        <div id="personal-gallery" class="gallery"></div>
+      </section>
+      <section class="board-section">
+        <h2 class="board-title">04 · 关键状态 <span>第一次进入、倾听、未听清与重试</span></h2>
+        <div id="states-gallery" class="gallery"></div>
+      </section>
+    </div>
+    <div id="flow" class="flow" hidden>
+      <div id="device"></div>
+      <aside class="side">
+        <h2 id="flow-title"></h2>
+        <p id="flow-note"></p>
+        <div id="side-nav" class="side-nav"></div>
+        <div class="demo-tools">
+          <button id="sample-discovery" class="secondary" data-action="sample-tree" hidden>演示工具：使用 Tree 示例</button>
+          <button id="mock-recognition-error" class="secondary" data-action="mock-recognition-error" hidden>演示工具：识别失败与重试</button>
+          <button id="sample-message" class="secondary" data-action="sample-utterance" hidden>演示工具：发送示例发言</button>
+          <button id="mock-unclear" class="secondary" data-action="mock-unclear" hidden>演示工具：未听清</button>
+          <button id="mock-save-error" class="secondary" data-action="mock-save-error" hidden>演示工具：保存重试</button>
+          <button class="secondary" data-scenario="new">重置为新用户</button>
+        </div>
+        <p class="demo-note">高保真交互设计提案。AI、识别、语音、自动保存与经历提炼均为模拟；新增经历用用户原话作摘要。数据只在本页保留，刷新或重置后清空。示例解释使用简单英语与中文，其他母语未接入生成。</p>
+      </aside>
+    </div>
+    <footer class="demo-note">Named · Warm Editorial Minimalism · 探索、词语、回忆、我四个入口。Talk 独立展开，Soul 与 Challenge 保留。照片来源见 <a href="assets/README.md">素材说明</a>。浅色／深色默认跟随系统，可自行切换。照片为设计参考，不代表用户上传或真实导师。</footer>
+  </main>
+  <div id="modal" class="modal-shade" hidden></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
