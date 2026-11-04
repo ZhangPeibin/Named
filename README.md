@@ -35,4 +35,20 @@ Keep the prototype's HTML, CSS, JavaScript files, and `assets/` directory togeth
 
 ## Project status
 
-This repository contains product documentation, visual design assets, and a high-fidelity interactive design prototype. It does not yet contain a production mobile app or backend service. AI responses, image recognition, speech, persistence, and experience extraction in the prototype are simulated; prototype data is temporary apart from the locally saved appearance preference.
+This repository contains product documentation, visual design assets, a high-fidelity interactive design prototype, and an initial Python/FastAPI backend scaffold. It does not yet contain a production mobile app or product backend. AI responses, image recognition, speech, persistence, and experience extraction in the prototype are simulated; prototype data is temporary apart from the locally saved appearance preference.
+
+## Backend development
+
+The backend uses Python, FastAPI, SQLAlchemy async, Alembic, and MySQL. Install [uv](https://docs.astral.sh/uv/) and Docker, then from the repository root:
+
+```sh
+cp .env.example .env
+uv sync --all-groups
+docker compose up -d mysql
+make migrate
+make dev
+```
+
+The API is available at `http://127.0.0.1:8000`; interactive API docs are at `http://127.0.0.1:8000/docs`. Liveness is available at `/health/live`; readiness checks the database at `/health/ready`.
+
+Run project checks with `make test`, `make lint`, and `make format-check`. Database migrations are managed with Alembic. The backend is intentionally a minimal scaffold; product features and Agent framework choices will be added after their behavior is defined.
