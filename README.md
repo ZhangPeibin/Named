@@ -39,9 +39,10 @@ This repository contains product documentation, visual design assets, a high-fid
 
 ## Backend development
 
-The backend uses Python, FastAPI, SQLAlchemy async, Alembic, and MySQL. Install [uv](https://docs.astral.sh/uv/) and Docker, then from the repository root:
+The backend lives in [`backend/`](backend/) and uses Python, FastAPI, SQLAlchemy async, Alembic, and MySQL. Install [uv](https://docs.astral.sh/uv/) and Docker, then run from the backend directory:
 
 ```sh
+cd backend
 cp .env.example .env
 uv sync --all-groups
 docker compose up -d mysql
@@ -51,4 +52,4 @@ make dev
 
 The API is available at `http://127.0.0.1:8000`; interactive API docs are at `http://127.0.0.1:8000/docs`. Liveness is available at `/health/live`; readiness checks the database at `/health/ready`.
 
-Run project checks with `make test`, `make lint`, and `make format-check`. Database migrations are managed with Alembic. The backend is intentionally a minimal scaffold; product features and Agent framework choices will be added after their behavior is defined.
+Run backend checks from `backend/` with `make test`, `make lint`, and `make format-check`. Database migrations are managed with Alembic. The backend is intentionally a minimal scaffold; product features and Agent framework choices will be added after their behavior is defined.
