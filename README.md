@@ -1,16 +1,21 @@
 # Named
 
-### Build a personal English world through real life.
+### AI that turns everyday moments into English conversations.
 
-Named is a concept for learning English through the things people notice, the conversations they have, and the memories they build. Start with a photo, a word, or a moment from everyday life; explore how to express it, then return to the conversation and make it part of a growing personal history.
+Explore what you see, talk about what matters to you, and build your own world of English memories.
 
 **Discover → Talk → Understand → Save → Review → Reuse**
 
-Named is designed around three ideas:
+## Core experience
 
-- **Start with real context.** Learn from objects, places, and moments in everyday life.
-- **Keep conversations meaningful.** Preserve the learner's original words and the context needed to revisit or continue an exchange.
-- **Connect what you learn.** Link words, scenes, photos, expressions, and conversations so learning can be found again and built upon.
+Named turns everyday moments into English conversations. A learner can start with a photo, a word, or something they want to say, then carry that discovery through four connected steps:
+
+1. **Discover** — Start with a real object, place, or moment. AI helps identify what is in focus and introduces the relevant English.
+2. **Understand** — Explore meaning, pronunciation, usage, and related expressions, with simple English and native-language support.
+3. **Talk** — Have a natural AI conversation about the discovery and what matters to the learner. Get help expressing an idea without turning every exchange into a scripted lesson.
+4. **Remember** — Keep the original conversation and connect words, scenes, expressions, and learner-shared experiences, so they can be revisited and continued later.
+
+Over time, these connections are designed to build **your own world of English memories**: English grounded in the things you notice, the stories you share, and the conversations you return to.
 
 ## Explore the design
 
