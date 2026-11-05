@@ -22,6 +22,8 @@ from talk.router import router as talk_router
 from tts.router import audio_router
 
 settings = get_settings()
+if settings.auth_dev_log_codes:
+    logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("named.request")
 
 
