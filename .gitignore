@@ -1,6 +1,8 @@
 .DS_Store
+/.worktrees/
 /backend/.env
 /backend/.venv/
+/backend/media/
 __pycache__/
 *.py[cod]
 .pytest_cache/

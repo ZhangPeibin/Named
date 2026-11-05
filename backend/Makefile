@@ -1,10 +1,10 @@
-.PHONY: install dev test lint format-check format migrate migration
+.PHONY: install dev test lint format-check format migrate migration purge docker-up docker-down
 
 install:
 	uv sync --all-groups
 
 dev:
-	uv run uvicorn named_api.main:app --reload
+	uv run uvicorn main:app --reload --app-dir src
 
 test:
 	uv run pytest
@@ -24,3 +24,12 @@ migrate:
 
 migration:
 	uv run alembic revision --autogenerate -m "describe change"
+
+purge:
+	PYTHONPATH=src uv run python -m purge
+
+docker-up:
+	docker compose up --build
+
+docker-down:
+	docker compose down

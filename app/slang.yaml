@@ -1,0 +1,2 @@
+# Stable generated output is required for CI consistency checks.
+timestamp: false

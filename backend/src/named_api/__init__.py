@@ -1,1 +1,0 @@
-"""Named API application."""

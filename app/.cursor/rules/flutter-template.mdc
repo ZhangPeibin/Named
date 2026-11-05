@@ -1,0 +1,13 @@
+---
+description: Canonical Flutter template engineering policy
+alwaysApply: true
+---
+
+Follow `docs/engineering-standards.md` as the single source of truth for every
+change. Respect its architecture boundaries, preserve unrelated worktree
+changes, do not edit generated Dart files manually, and run `make check` before
+completion.
+
+For the correct way to perform common tasks (feature, API client, route,
+provider, translation key, test), follow `docs/agent/agent-playbook.md`. Prefer the
+scaffolder over hand-writing layers: `dart run tool/new_feature.dart <name>`.

@@ -1,0 +1,9 @@
+{
+  "APP_NAME": "Named",
+  "APP_ENV": "prod",
+  "API_BASE_URL": "https://api.example.com",
+  "USE_MOCK_API": false,
+  "REFRESH_TOKEN_PATH": "/api/v1/auth/refresh",
+  "APP_VERSION_CHECK_PATH": "/api/v1/app/version/check",
+  "WEBVIEW_ALLOWED_HOSTS": "example.com,www.example.com"
+}

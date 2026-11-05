@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "Named",
+    "subtitle": "A reusable starter project for Flutter apps.",
+    "openApiDemo": "Open API demo",
+    "languageSettings": "Language"
+  },
+  "common": {
+    "loadFailed": "Couldn't load. Please try again.",
+    "retry": "Retry",
+    "somethingWentWrong": "Something went wrong",
+    "pleaseTryAgain": "Please try again.",
+    "noDataHere": "No data here",
+    "tryAgain": "Try again",
+    "environment": "Environment",
+    "apiBaseUrl": "API Base URL",
+    "sendCode": "Send code",
+    "sendingCode": "Sending...",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you requested does not exist.",
+    "noRoute": "No route matches ${location}."
+  },
+  "error": {
+    "unknown": "Something went wrong. Please try again.",
+    "network": "Network connection failed. Please check your connection and try again.",
+    "timeout": "Request timed out. Please try again.",
+    "cancelled": "Request was cancelled.",
+    "badRequest": "Invalid request. Please check your input.",
+    "serverError": "Server error. Please try again later.",
+    "unauthorized": "Session expired. Please sign in again."
+  },
+  "validation": {},
+  "todoDemo": {
+    "title": "Todo Demo",
+    "loading": "Loading todo...",
+    "completedYes": "yes",
+    "completedNo": "no",
+    "completedLabel": "Completed: ${value}",
+    "todoNumber": "Todo #${id}",
+    "loadFailed": "Failed to load todo",
+    "mockEnabled": "USE_MOCK_API is on — empty/error scenarios run locally.",
+    "mockDisabled": "USE_MOCK_API is off — success uses the remote API; empty/error still use local mock.",
+    "scenarioSuccess": "Success",
+    "scenarioEmpty": "Empty",
+    "scenarioError": "Error",
+    "emptyTitle": "No todo",
+    "emptyMessage": "This is the empty state for the API demo."
+  },
+  "settings": {
+    "languageTitle": "Language",
+    "english": "English",
+    "chinese": "Chinese"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "devSignIn": "Dev Sign In",
+    "devSignInHint": "Writes a fake token so you can verify the auth session skeleton locally.",
+    "signOut": "Sign out"
+  },
+  "appUpdate": {
+    "checkOptional": "Check update (optional)",
+    "checkForce": "Check update (force)",
+    "updateAvailableTitle": "New version available",
+    "forceUpdateTitle": "Update required",
+    "updateAvailableDescription": "Version ${version} is available. Update now for the latest fixes and improvements.",
+    "later": "Later",
+    "updateNow": "Update now",
+    "storeUnavailable": "App store link is unavailable.",
+    "upToDate": "You're on the latest version."
+  },
+  "webView": {
+    "defaultTitle": "Web",
+    "openDemo": "Open WebView demo",
+    "linkNotAllowed": "This link is not allowed: ${url}",
+    "loadFailed": "Failed to load page"
+  }
+}

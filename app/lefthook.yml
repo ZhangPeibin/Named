@@ -1,0 +1,13 @@
+# pre-commit: fast checks only — runs on every commit
+pre-commit:
+  commands:
+    quality-fast:
+      run: make format-check architecture-check analyze
+      fail_text: "Fast quality checks failed. Run 'make fix', then retry."
+
+# pre-push: slower checks — runs before every push
+pre-push:
+  commands:
+    quality:
+      run: make check
+      fail_text: "Quality checks failed. Fix the issues above before pushing."
