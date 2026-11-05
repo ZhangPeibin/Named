@@ -29,7 +29,6 @@ class ApiException implements Exception {
 
   factory ApiException.fromDioException(DioException error) {
     return switch (error.type) {
-      DioExceptionType.transformTimeout ||
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
       DioExceptionType.receiveTimeout => const ApiException(

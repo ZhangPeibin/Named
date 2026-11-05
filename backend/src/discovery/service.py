@@ -10,7 +10,6 @@ from discovery.schemas import (
     DiscoveryAgentOutput,
     DiscoveryOut,
     FocusRequest,
-    WordCandidate,
     WordOut,
     WordPayload,
 )
@@ -149,34 +148,6 @@ async def _get_or_create_word_content(
     return word, payload
 
 
-async def _persist_candidates(
-    session: AsyncSession,
-    discovery_id: str,
-    candidates: list[WordCandidate],
-) -> list[DiscoveryCandidate]:
-    rows: list[DiscoveryCandidate] = []
-    for candidate in candidates:
-        row = DiscoveryCandidate(
-            discovery_id=discovery_id,
-            label_en=normalize_label(candidate.label_en),
-            label_zh=candidate.label_zh,
-            confidence=candidate.confidence,
-            reason=candidate.reason,
-            provider="ai",
-            raw_json=candidate.model_dump(mode="json"),
-        )
-        session.add(row)
-        rows.append(row)
-    await session.flush()
-    return rows
-
-
-def _select_candidate(rows: list[DiscoveryCandidate], label: str) -> None:
-    key = canonical_key(label)
-    for row in rows:
-        row.selected = canonical_key(row.label_en) == key
-
-
 async def _discovery_out(
     session: AsyncSession,
     discovery: Discovery,
@@ -269,29 +240,24 @@ async def create_discovery(
         image_key=image_key,
         input_language=output.input_language,
         focus_kind=output.focus.kind,
-        status="needs_confirmation",
+        status="ready",
         warnings_json=output.warnings,
     )
     session.add(discovery)
     await session.flush()
 
-    candidate_rows = await _persist_candidates(session, discovery.id, output.candidates)
-
-    if not output.needs_confirmation:
-        if output.focus.kind == "word":
-            word, _ = await _get_or_create_word_content(
-                session,
-                output.focus.label_en,
-                output.word,
-                native_language,
-                settings,
-                agent,
-                context,
-                confirmed_label=output.focus.label_en,
-            )
-            discovery.word_id = word.id
-            _select_candidate(candidate_rows, output.focus.label_en)
-        discovery.status = "ready"
+    if output.focus.kind == "word":
+        word, _ = await _get_or_create_word_content(
+            session,
+            output.focus.label_en,
+            output.word,
+            native_language,
+            settings,
+            agent,
+            context,
+            confirmed_label=output.focus.label_en,
+        )
+        discovery.word_id = word.id
 
     await session.commit()
     return await _discovery_out(session, discovery, settings, audio_service)

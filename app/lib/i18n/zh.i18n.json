@@ -17,7 +17,8 @@
     "sendCode": "发送验证码",
     "sendingCode": "发送中...",
     "confirm": "确认",
-    "cancel": "取消"
+    "cancel": "取消",
+    "comingSoon": "下一步接入。"
   },
   "notFound": {
     "title": "页面不存在",
@@ -51,6 +52,9 @@
     "emptyMessage": "这是 API 示例的空状态。"
   },
   "settings": {
+    "title": "设置",
+    "language": "语言",
+    "signOut": "退出登录",
     "languageTitle": "语言",
     "english": "English",
     "chinese": "中文"
@@ -74,7 +78,10 @@
     "back": "返回",
     "invalidEmail": "请输入有效邮箱。",
     "invalidCode": "请输入 6 位验证码。",
-    "nativeLanguageRequired": "请选择母语。"
+    "nativeLanguageRequired": "请选择母语。",
+    "brandEyebrow": "你的日常，用英语命名",
+    "languageTitle": "先认识一下你。",
+    "emailTitle": "把你的日常，带进英语。"
   },
   "appUpdate": {
     "checkOptional": "检查更新（可选）",
@@ -92,5 +99,105 @@
     "openDemo": "打开 WebView 示例",
     "linkNotAllowed": "不允许打开此链接：${url}",
     "loadFailed": "页面加载失败"
+  },
+  "explore": {
+    "headline": "探索你的世界。",
+    "prompt": "今天，什么吸引了你的注意？",
+    "capturePhoto": "拍一张",
+    "captureTalk": "聊一聊",
+    "captureWrite": "写点什么",
+    "comingSoon": "这个入口下一步接入。",
+    "capturePhotoHint": "今天注意到的一件小事。",
+    "recentlyLearned": "最近学到",
+    "learnedEmpty": "学过的词和表达会出现在这里。",
+    "learnedEmptyHint": "每一次发现，都会让你的世界多一点。"
+  },
+  "soul": {
+    "title": "我",
+    "eyebrow": "我的 SOUL",
+    "headline": "你的世界正在生长。",
+    "subtitle": "关于你注意到、说出口的事，慢慢留在这里。",
+    "profile": "我的 Soul",
+    "nativeLanguage": "母语",
+    "age": "年龄",
+    "gender": "性别",
+    "years": "岁",
+    "notSet": "未填写",
+    "items": "兴趣与偏好",
+    "noItems": "编辑时添加几个兴趣。",
+    "edit": "修改",
+    "editTitle": "编辑你的 Soul",
+    "editSubtitle": "这些细节会影响解释的方式。",
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "取消",
+    "nativeLanguageRequired": "请填写母语。",
+    "invalidAge": "请输入有效年龄。",
+    "saved": "Soul 已更新。",
+    "source": "来源：${source}",
+    "rhythm": "我的节奏",
+    "rhythmBody": "挑战会出现在这里。"
+  },
+  "navigation": {
+    "explore": "探索",
+    "words": "词语",
+    "history": "回忆",
+    "me": "我"
+  },
+  "write": {
+    "title": "写点什么",
+    "headline": "你想理解什么？",
+    "subtitle": "写下今天注意到的一个词或一句话。",
+    "inputLabel": "词或句子",
+    "inputHint": "例如：I noticed a small flower by the road.",
+    "submit": "理解",
+    "emptyInput": "先写点什么。"
+  },
+  "understand": {
+    "title": "理解",
+    "chooseTitle": "你指的是哪一个？",
+    "translation": "意思",
+    "example": "例句",
+    "grammar": "语法",
+    "related": "相关",
+    "talk": "聊聊它",
+    "talkScene": "聊聊这个场景",
+    "talkFailed": "无法开始对话，请重试。",
+    "sceneTitle": "一个小场景"
+  },
+  "talk": {
+    "title": "聊聊",
+    "empty": "围绕这个词说一句吧。",
+    "inputHint": "说点什么...",
+    "send": "发送",
+    "failed": "发送失败，请重试。"
+  },
+  "timeline": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "loadEarlier": "加载更早",
+    "emptyTitle": "今天看到了什么？",
+    "emptyCopy": "在下面命名一个东西，它会成为你时间线里的第一张卡片。",
+    "emptyHint": "一个词或一句话就够了。",
+    "composerHint": "你看到了什么？",
+    "send": "发送",
+    "nameFailed": "命名失败，请重试。",
+    "talk": "聊聊",
+    "commonUsage": "常用用法",
+    "example": "例句",
+    "loadFailed": "时间线加载失败。",
+    "talkFailed": "无法开始对话，请重试。",
+    "menuTitle": "前往",
+    "menuWords": "词语",
+    "menuMe": "我",
+    "menuSettings": "设置",
+    "chunks": "自然搭配",
+    "sceneExtensions": "同一场景",
+    "usUk": "美式 / 英式",
+    "grammar": "语法"
+  },
+  "words": {
+    "title": "词语",
+    "empty": "命名过的词会出现在这里。"
   }
 }

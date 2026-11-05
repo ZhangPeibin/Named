@@ -14,7 +14,9 @@ from discovery.agent import AgentFailed, get_discovery_agent
 from discovery.schemas import (
     DiscoveryAgentOutput,
     DiscoveryFocus,
-    WordCandidate,
+    SceneExtension,
+    VarietyNote,
+    WordChunk,
     WordPayload,
     WordSense,
 )
@@ -36,11 +38,7 @@ class FakeEmailSender:
         return self.messages[-1][1]
 
 
-def word_output(
-    label: str = "tree",
-    *,
-    needs_confirmation: bool = False,
-) -> DiscoveryAgentOutput:
+def word_output(label: str = "tree") -> DiscoveryAgentOutput:
     return DiscoveryAgentOutput(
         input_language="zh",
         focus=DiscoveryFocus(
@@ -49,14 +47,6 @@ def word_output(
             label_zh="树",
             confidence=0.95,
         ),
-        candidates=[
-            WordCandidate(
-                label_en=label,
-                label_zh="树",
-                confidence=0.95,
-                reason="最直接对应的英语名称",
-            )
-        ],
         word=WordPayload(
             spelling=label,
             ipa={"us": "/triː/", "uk": "/triː/"},
@@ -71,9 +61,46 @@ def word_output(
             ],
             grammar="可数名词；复数 trees。",
             related=["leaf", "branch"],
-            scene_extensions=["sit under a tree"],
+            chunks=[
+                WordChunk(
+                    phrase="a tall tree",
+                    meaning_zh="一棵高大的树",
+                    example_en="There is a tall tree by the lake.",
+                ),
+                WordChunk(
+                    phrase="under a tree",
+                    meaning_zh="在树下",
+                    example_en="We sat under a tree.",
+                ),
+            ],
+            variety_notes=[
+                VarietyNote(
+                    kind="spelling",
+                    description_zh="英式英语中 tree 的拼写相同，这里只用于测试结构化字段。",
+                    us="tree",
+                    uk="tree",
+                    example_en="The tree is old.",
+                )
+            ],
+            scene_extensions=[
+                SceneExtension(
+                    label_en="leaf",
+                    label_zh="树叶",
+                    relationship="part of a tree",
+                ),
+                SceneExtension(
+                    label_en="branch",
+                    label_zh="树枝",
+                    relationship="part of a tree",
+                ),
+                SceneExtension(
+                    label_en="shade",
+                    label_zh="树荫",
+                    relationship="what a tree gives",
+                ),
+            ],
         ),
-        needs_confirmation=needs_confirmation,
+        warnings=[],
     )
 
 
@@ -86,16 +113,8 @@ def scene_output() -> DiscoveryAgentOutput:
             label_zh="今天的一段生活",
             confidence=0.8,
         ),
-        candidates=[
-            WordCandidate(
-                label_en="a moment from my day",
-                label_zh="今天的一段生活",
-                confidence=0.8,
-                reason="输入更像一段情境",
-            )
-        ],
         word=None,
-        needs_confirmation=True,
+        warnings=[],
     )
 
 
@@ -224,7 +243,7 @@ async def request_and_verify(client, sender, email: str) -> dict:
 @pytest.mark.asyncio
 async def test_text_discovery_auto_ready(discovery_env) -> None:
     http, sender, _, agent, _ = discovery_env
-    agent.output = word_output(needs_confirmation=False)
+    agent.output = word_output()
     verified = await request_and_verify(http, sender, "discover@example.com")
     headers = bearer(verified["session_token"])
 
@@ -238,7 +257,11 @@ async def test_text_discovery_auto_ready(discovery_env) -> None:
     assert body["status"] == "ready"
     assert body["focus_kind"] == "word"
     assert body["word"]["spelling"] == "tree"
-    assert body["candidates"][0]["selected"] is True
+    assert body["candidates"] == []
+    assert body["needs_confirmation"] is False
+    assert body["word"]["chunks"][0]["phrase"] == "a tall tree"
+    assert body["word"]["scene_extensions"][0]["label_zh"] == "树叶"
+    assert body["word"]["variety_notes"][0]["kind"] == "spelling"
     assert body["word_id"]
 
     detail = await http.get(f"/api/v1/discoveries/{body['id']}", headers=headers)
@@ -251,40 +274,7 @@ async def test_text_discovery_auto_ready(discovery_env) -> None:
 
 
 @pytest.mark.asyncio
-async def test_text_discovery_needs_confirmation_then_focus(discovery_env) -> None:
-    http, sender, _, agent, _ = discovery_env
-    agent.output = word_output(needs_confirmation=True)
-    verified = await request_and_verify(http, sender, "confirm@example.com")
-    headers = bearer(verified["session_token"])
-
-    response = await http.post(
-        "/api/v1/discoveries",
-        headers=headers,
-        data={"text": "树"},
-    )
-    assert response.status_code == 201
-    body = response.json()
-    assert body["status"] == "needs_confirmation"
-    assert body["word"] is None
-
-    candidate_id = body["candidates"][0]["id"]
-    response = await http.post(
-        f"/api/v1/discoveries/{body['id']}/focus",
-        headers=headers,
-        json={"candidate_id": candidate_id},
-    )
-    assert response.status_code == 200, response.text
-    focused = response.json()
-    assert focused["status"] == "ready"
-    assert focused["word"]["spelling"] == "tree"
-    assert agent.calls[-1][3] == "tree"
-
-    detail = await http.get(f"/api/v1/discoveries/{body['id']}", headers=headers)
-    assert detail.json()["status"] == "ready"
-
-
-@pytest.mark.asyncio
-async def test_focus_can_choose_whole_scene(discovery_env) -> None:
+async def test_scene_discovery_is_ready(discovery_env) -> None:
     http, sender, _, agent, _ = discovery_env
     agent.output = scene_output()
     verified = await request_and_verify(http, sender, "scene@example.com")
@@ -297,44 +287,10 @@ async def test_focus_can_choose_whole_scene(discovery_env) -> None:
     )
     assert response.status_code == 201
     body = response.json()
-    assert body["status"] == "needs_confirmation"
+    assert body["status"] == "ready"
     assert body["focus_kind"] == "scene"
-
-    response = await http.post(
-        f"/api/v1/discoveries/{body['id']}/focus",
-        headers=headers,
-        json={"whole_scene": True},
-    )
-    assert response.status_code == 200
-    focused = response.json()
-    assert focused["status"] == "ready"
-    assert focused["focus_kind"] == "scene"
-    assert focused["word"] is None
-
-
-@pytest.mark.asyncio
-async def test_focus_can_override_label(discovery_env) -> None:
-    http, sender, _, agent, _ = discovery_env
-    agent.output = word_output(needs_confirmation=True)
-    verified = await request_and_verify(http, sender, "override@example.com")
-    headers = bearer(verified["session_token"])
-
-    response = await http.post(
-        "/api/v1/discoveries",
-        headers=headers,
-        data={"text": "树"},
-    )
-    body = response.json()
-
-    response = await http.post(
-        f"/api/v1/discoveries/{body['id']}/focus",
-        headers=headers,
-        json={"label_en": "big tree"},
-    )
-    assert response.status_code == 200, response.text
-    focused = response.json()
-    assert focused["word"]["spelling"] == "big tree"
-    assert agent.calls[-1][3] == "big tree"
+    assert body["word"] is None
+    assert body["candidates"] == []
 
 
 @pytest.mark.asyncio

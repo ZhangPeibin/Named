@@ -5,32 +5,44 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers/app_config_provider.dart';
 import '../../features/auth/presentation/sign_in_page.dart';
 import '../../features/auth/providers/auth_notifier.dart';
-import '../../features/home/presentation/home_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
 import '../../features/settings/presentation/language_page.dart';
+import '../../features/settings/presentation/settings_page.dart';
+import '../../features/soul/presentation/soul_page.dart';
+import '../../features/talk/presentation/talk_page.dart';
+import '../../features/timeline/presentation/timeline_page.dart';
 import '../../features/todo_demo/presentation/todo_demo_page.dart';
 import '../../features/webview/domain/webview_host_policy.dart';
 import '../../features/webview/presentation/web_view_page.dart';
+import '../../features/words/presentation/words_page.dart';
 
 class AppRoutePaths {
   const AppRoutePaths._();
 
-  static const home = '/';
+  static const timeline = '/';
   static const loading = '/loading';
   static const signIn = '/sign-in';
-  static const todoDemo = '/todo-demo';
+  static const words = '/words';
+  static const me = '/me';
+  static const settings = '/settings';
   static const language = '/settings/language';
+  static const talk = '/talk/:conversationId';
+  static const todoDemo = '/todo-demo';
   static const webView = '/webview';
 }
 
 class AppRouteNames {
   const AppRouteNames._();
-  static const home = 'home';
+  static const timeline = 'timeline';
   static const loading = 'loading';
   static const signIn = 'signIn';
-  static const todoDemo = 'todoDemo';
+  static const words = 'words';
+  static const me = 'me';
+  static const settings = 'settings';
   static const language = 'language';
+  static const talk = 'talk';
+  static const todoDemo = 'todoDemo';
   static const webView = 'webView';
 }
 
@@ -41,7 +53,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refreshListenable.dispose);
 
   final router = GoRouter(
-    initialLocation: AppRoutePaths.home,
+    initialLocation: AppRoutePaths.timeline,
     refreshListenable: refreshListenable,
     redirect: (context, state) {
       final auth = ref.read(authNotifierProvider);
@@ -57,14 +69,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final goingToPublic = _publicRoutePaths.contains(state.matchedLocation);
 
       if (state.matchedLocation == AppRoutePaths.loading) {
-        return isSignedIn ? AppRoutePaths.home : AppRoutePaths.signIn;
+        return isSignedIn ? AppRoutePaths.timeline : AppRoutePaths.signIn;
       }
 
       if (!isSignedIn && !goingToPublic) {
         return AppRoutePaths.signIn;
       }
       if (isSignedIn && goingToSignIn) {
-        return AppRoutePaths.home;
+        return AppRoutePaths.timeline;
       }
       return null;
     },
@@ -77,24 +89,45 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoadingPage(),
       ),
       GoRoute(
-        path: AppRoutePaths.home,
-        name: AppRouteNames.home,
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
         path: AppRoutePaths.signIn,
         name: AppRouteNames.signIn,
         builder: (context, state) => const SignInPage(),
       ),
       GoRoute(
-        path: AppRoutePaths.todoDemo,
-        name: AppRouteNames.todoDemo,
-        builder: (context, state) => const TodoDemoPage(),
+        path: AppRoutePaths.timeline,
+        name: AppRouteNames.timeline,
+        builder: (context, state) => const TimelinePage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.words,
+        name: AppRouteNames.words,
+        builder: (context, state) => const WordsPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.me,
+        name: AppRouteNames.me,
+        builder: (context, state) => const SoulPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.settings,
+        name: AppRouteNames.settings,
+        builder: (context, state) => const SettingsPage(),
       ),
       GoRoute(
         path: AppRoutePaths.language,
         name: AppRouteNames.language,
         builder: (context, state) => const LanguagePage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.talk,
+        name: AppRouteNames.talk,
+        builder: (context, state) =>
+            TalkPage(conversationId: state.pathParameters['conversationId']!),
+      ),
+      GoRoute(
+        path: AppRoutePaths.todoDemo,
+        name: AppRouteNames.todoDemo,
+        builder: (context, state) => const TodoDemoPage(),
       ),
       GoRoute(
         path: AppRoutePaths.webView,
@@ -103,7 +136,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final url = state.uri.queryParameters['url'] ?? '';
           final uri = Uri.tryParse(url);
           if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
-            return AppRoutePaths.home;
+            return AppRoutePaths.timeline;
           }
           return null;
         },

@@ -6,6 +6,8 @@
 
 The reference PDF supplies visual and interaction guidance only. Its “Everyday” name and its proposed MVP phases do not replace Named or change our agreed features and delivery priorities. Soul, Experience, Personal English World and flexible-cycle Challenge remain in scope.
 
+**Implementation contract:** [Mobile UI Design System](ui-design-system.md)
+
 ## 1. Visual direction
 
 **Warm Editorial Minimalism.** A thoughtful lifestyle journal, personal memory and an efficient conversation companion.
@@ -48,62 +50,53 @@ Targets are 4.5:1 for normal text and 3:1 for large text. Validate rendered fore
 
 ## 3. Information architecture
 
-Four mobile destinations organize the five responsibilities from the visual reference:
+The home surface is a personal **Timeline**. Secondary destinations are reached from the composer's `+` menu:
 
-| Root destination | Responsibility |
+| Destination | Responsibility |
 | --- | --- |
-| **Explore · 探索** | Take a photo, start talking, type a word; return to a current Challenge or recent discovery |
-| **Words · 词语** | Search personal words/scenes and their connected content |
-| **History · 回忆** | Find meaningful exchanges by date, scene or topic, then reread and continue |
-| **Me · 我** | Actual personal activity, Soul, Challenges and preferences |
+| **Timeline** | Name what you see; read word cards and talk events in a day-grouped IM timeline |
+| **Words · 词语** | The named words collected from the timeline |
+| **Me · 我** | Soul, personal activity, and preferences |
+| **Settings · 设置** | Language and account actions |
 
-**Talk** opens as a focused full-screen experience from a discovery, a thought or saved context. It is not a competing bottom tab.
+**Talk** opens as a focused full-screen experience from a word card or talk event. It is not a tab.
 
-### Complete screen map — 20 main screens
+### Current screen map
 
-1–4. Interests, age, gender, native language and short daily-life introduction.  
-5. Explore.  
-6. Photo/text Discover.  
-7. Discovery result and focus confirmation.  
-8. Word understanding.  
-9. Talk.  
-10. Conversation summary.  
-11. Words / Personal English World collection.  
-12. Global History.  
-13. Connected word: Discovery / Conversation / Knowledge / History.  
-14. Full original conversation.  
-15. Experience detail and summary editing.  
-16. Me / Soul.  
-17. Challenge list.  
-18. Challenge creation.  
-19. Challenge detail.  
-20. Preferences, including appearance.
+1. Sign in and native language.
+2. Timeline empty state.
+3. Timeline with a word card.
+4. Talk event.
+5. Talk.
+6. Words.
+7. Me / Soul.
+8. Settings and language.
 
-Key states include first use, an empty collection, processing, listening, thinking, pause, unclear input and save/recognition retry. Sheets cover language help, sentence understanding, recognition adjustment and Experience editing.
+Key states include first use, empty timeline, processing, request failure, long history, and keyboard-visible composer. There is no candidate confirmation in MVP: the agent returns one top-1 result.
 
 ## 4. Main journeys
 
-### First discovery
+### First naming
 
-Four-step Soul → Explore → Photo or text → Confirm focus → Word → Talk → Experience → Words.
+Soul → Timeline → Name a thing → Word card → Talk → Talk event.
 
-Capture is immediately available. A current Challenge is placed before the recent-story list; it does not become a course dashboard. Missing demographic answers remain unset and do not infer language level or interests.
+The composer is the product entry point: the learner sees something, names it, and gets one English result. There is no candidate picker. Challenge/task prompts are deferred; when added they must not turn the timeline into a course dashboard.
 
-### Start with something to share
+### Return to a conversation
 
-Explore → Start talking → A short thought or situation → Talk → Experience.
+Timeline → Talk event → Continue → Additional messages → Return.
 
-This establishes its own scene context. It does not silently reuse an unrelated previous word or force the user to say they were walking in a park.
+The talk event shows the last message snippet. Returning to the timeline refreshes the snippet without creating a new conversation.
 
-### Return to a memory
+### Revisit a word
 
-History → Scene/topic card → Complete source conversation → Continue → Additional personal contribution → New Experience.
+`+` → Words → Named word → Talk.
 
-Alternatively: Words → Connected word → History or Conversation → the same source exchange.
+Words is a filtered view of the same timeline; it does not keep a second copy of the data.
 
 ### Challenge
 
-Explore or Me → Challenges → Name, duration, explicit content selection → Continue selected discoveries → End the round → Revisit later.
+Me → Challenges → Name, duration, explicit content selection → Continue selected discoveries → End the round → Revisit later.
 
 Duration is a plan; reaching a date does not delete content or imply mastery. Visited-content progress is labelled accordingly. Multiple rounds can remain accessible. These interaction details remain design proposals within the existing Challenge feature.
 

@@ -1,6 +1,7 @@
 class AppSpacing {
   const AppSpacing._();
 
+  static const double s2 = 2;
   static const double s4 = 4;
   static const double s6 = 6;
   static const double s8 = 8;
@@ -8,6 +9,7 @@ class AppSpacing {
   static const double s12 = 12;
   static const double s14 = 14;
   static const double s16 = 16;
+  static const double s18 = 18;
   static const double s20 = 20;
   static const double s24 = 24;
   static const double s32 = 32;
@@ -29,16 +31,20 @@ class AppRadius {
   static const double r10 = 10;
   static const double r12 = 12;
   static const double r16 = 16;
+  static const double r24 = 24;
   static const double pill = 999;
 }
 
 class AppSize {
   const AppSize._();
 
+  static const double size16 = 16;
   static const double size17 = 17;
   static const double size18 = 18;
   static const double size20 = 20;
+  static const double size22 = 22;
   static const double size32 = 32;
+  static const double size34 = 34;
   static const double size40 = 40;
   static const double size54 = 54;
 

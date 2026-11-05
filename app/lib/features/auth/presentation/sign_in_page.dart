@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_otp_field.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -183,28 +186,67 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t.auth;
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    final isLanguageStep = _step == _SignInStep.nativeLanguage;
 
     return AppScaffold(
-      title: t.signInTitle,
+      title: '',
+      showAppBar: false,
       centerBody: false,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: AppSpacing.s32),
-            Text(
-              _step == _SignInStep.nativeLanguage
-                  ? t.nativeLanguageIntro
-                  : t.emailIntro,
-              style: Theme.of(context).textTheme.bodyLarge,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s8,
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s32,
+      ),
+      body: ListView(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Named', style: textTheme.displayMedium),
+              const SizedBox(width: AppSpacing.s6),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.s10),
+                child: Icon(
+                  Icons.eco_outlined,
+                  color: palette.primary,
+                  size: AppSize.size18,
+                ),
+              ),
+              const Spacer(),
+              Flexible(
+                child: Text(
+                  t.brandEyebrow,
+                  textAlign: TextAlign.right,
+                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s32),
+          _StepProgress(current: isLanguageStep ? 1 : 2),
+          const SizedBox(height: AppSpacing.s24),
+          Text(
+            isLanguageStep ? t.languageTitle : t.emailTitle,
+            style: textTheme.displayMedium,
+          ),
+          const SizedBox(height: AppSpacing.s10),
+          Text(
+            isLanguageStep ? t.nativeLanguageIntro : t.emailIntro,
+            style: textTheme.bodyLarge?.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s24),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: isLanguageStep
+                  ? _languageStep(context)
+                  : _emailStep(context),
             ),
-            const SizedBox(height: AppSpacing.s24),
-            if (_step == _SignInStep.nativeLanguage)
-              ..._languageStep(context)
-            else
-              ..._emailStep(context),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -278,7 +320,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       if (_codeSent)
         AppButton(
           key: const Key('signIn.verify'),
-          label: _isVerifying ? t.verifying : t.verify,
+          label: t.verify,
+          isLoading: _isVerifying,
           onPressed: _isVerifying ? null : _verify,
         ),
       const SizedBox(height: AppSpacing.s8),
@@ -302,12 +345,42 @@ class _ErrorText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appPalette;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.s12),
       child: Text(
         message,
-        style: TextStyle(color: Theme.of(context).colorScheme.error),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: palette.error),
       ),
+    );
+  }
+}
+
+class _StepProgress extends StatelessWidget {
+  const _StepProgress({required this.current});
+
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return Row(
+      children: [
+        for (var step = 1; step <= 2; step++) ...[
+          if (step > 1) const SizedBox(width: AppSpacing.s6),
+          Expanded(
+            child: Container(
+              height: 3,
+              decoration: BoxDecoration(
+                color: step <= current ? palette.primary : palette.line,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

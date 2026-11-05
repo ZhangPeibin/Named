@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from tts.schemas import AudioOut
 
@@ -32,6 +32,32 @@ class WordSense(BaseModel):
     example_zh: str = Field(min_length=1, max_length=1000)
 
 
+class WordChunk(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    phrase: str = Field(min_length=1, max_length=300)
+    meaning_zh: str = Field(min_length=1, max_length=500)
+    example_en: str = Field(min_length=1, max_length=1000)
+
+
+class VarietyNote(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    kind: Literal["vocabulary", "spelling", "pronunciation", "usage"]
+    description_zh: str = Field(min_length=1, max_length=1000)
+    us: str | None = Field(default=None, max_length=500)
+    uk: str | None = Field(default=None, max_length=500)
+    example_en: str | None = Field(default=None, max_length=1000)
+
+
+class SceneExtension(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    label_en: str = Field(min_length=1, max_length=200)
+    label_zh: str = Field(default="", max_length=200)
+    relationship: str = Field(default="", max_length=500)
+
+
 class WordPayload(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -41,7 +67,22 @@ class WordPayload(BaseModel):
     senses: list[WordSense] = Field(default_factory=list, min_length=1, max_length=3)
     grammar: str = ""
     related: list[str] = Field(default_factory=list)
-    scene_extensions: list[str] = Field(default_factory=list)
+    chunks: list[WordChunk] = Field(default_factory=list, max_length=5)
+    variety_notes: list[VarietyNote] = Field(default_factory=list, max_length=4)
+    scene_extensions: list[SceneExtension] = Field(default_factory=list, max_length=6)
+
+    @field_validator("scene_extensions", mode="before")
+    @classmethod
+    def normalize_legacy_scene_extensions(cls, value):
+        if not value:
+            return []
+        normalized = []
+        for item in value:
+            if isinstance(item, str):
+                normalized.append({"label_en": item, "label_zh": "", "relationship": ""})
+            else:
+                normalized.append(item)
+        return normalized
 
 
 class DiscoveryAgentOutput(BaseModel):
@@ -49,9 +90,7 @@ class DiscoveryAgentOutput(BaseModel):
 
     input_language: str = Field(min_length=2, max_length=16)
     focus: DiscoveryFocus
-    candidates: list[WordCandidate] = Field(min_length=1, max_length=5)
     word: WordPayload | None = None
-    needs_confirmation: bool = False
     warnings: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")

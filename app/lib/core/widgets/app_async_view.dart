@@ -37,10 +37,15 @@ class AppAsyncView<T> extends StatelessWidget {
     final t = context.t.common;
 
     return value.when(
-      loading: () => loading ?? const AppLoadingView(),
-      error: (err, stack) =>
-          error?.call(err, stack) ??
-          AppErrorView(title: t.somethingWentWrong, message: t.pleaseTryAgain),
+      loading: () => Center(child: loading ?? const AppLoadingView()),
+      error: (err, stack) => Center(
+        child:
+            error?.call(err, stack) ??
+            AppErrorView(
+              title: t.somethingWentWrong,
+              message: t.pleaseTryAgain,
+            ),
+      ),
       data: data,
     );
   }

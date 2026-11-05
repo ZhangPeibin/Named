@@ -23,6 +23,10 @@ Future<void> main() async {
     if (slangConfig.existsSync()) {
       await _copyFile(slangConfig, File('${temporaryRoot.path}/slang.yaml'));
     }
+    final lockFile = File('${projectRoot.path}/pubspec.lock');
+    if (lockFile.existsSync()) {
+      await _copyFile(lockFile, File('${temporaryRoot.path}/pubspec.lock'));
+    }
     await _copyDirectory(
       Directory('${projectRoot.path}/lib/i18n'),
       Directory('${temporaryRoot.path}/lib/i18n'),

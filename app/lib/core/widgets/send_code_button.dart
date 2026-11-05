@@ -88,8 +88,8 @@ class _SendCodeButtonState extends State<SendCodeButton> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final t = context.t.common;
+    final palette = context.appPalette;
     final disabled = !widget.enabled || _isSending || _isCountingDown;
     final label = _isSending
         ? t.sendingCode
@@ -97,44 +97,24 @@ class _SendCodeButtonState extends State<SendCodeButton> {
         ? _formatRemaining(_remaining)
         : t.sendCode;
 
-    return Material(
-      color: Colors.transparent,
-      child: Ink(
-        decoration: BoxDecoration(
-          color: disabled ? AppColors.sendCodeDisabledBg : AppColors.brand,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          boxShadow: disabled
-              ? null
-              : [
-                  BoxShadow(
-                    color: AppColors.brand.withValues(alpha: 0.20),
-                    blurRadius: AppSpacing.s10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+    return TextButton(
+      onPressed: disabled ? null : _sendCode,
+      style: TextButton.styleFrom(
+        backgroundColor: disabled ? palette.surfaceMuted : palette.surface,
+        foregroundColor: disabled ? palette.muted : palette.primary,
+        disabledForegroundColor: palette.muted,
+        minimumSize: const Size(44, 38),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s14,
+          vertical: AppSpacing.s8,
         ),
-        child: InkWell(
-          onTap: disabled ? null : _sendCode,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s14,
-              vertical: AppSpacing.s8,
-            ),
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.labelSmall?.copyWith(
-                color: disabled ? AppColors.textMuted : AppColors.textOnBrand,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.24,
-              ),
-            ),
-          ),
-        ),
+        side: BorderSide(color: disabled ? palette.line : palette.primary),
+        shape: const StadiumBorder(),
+        textStyle: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(fontSize: 12),
       ),
+      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
   }
 

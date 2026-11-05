@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     auth_dev_log_codes: bool = False
 
     ai_model: str = "deepseek:deepseek-flash"
-    ai_prompt_version: str = "discover-v1"
+    ai_prompt_version: str = "discover-v3"
     deepseek_api_key: str | None = None
     openai_api_key: str | None = None
 

@@ -29,9 +29,10 @@ class AppOtpField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
-    final baseTextStyle = textTheme.titleMedium?.copyWith(
-      color: AppColors.textPrimary,
+    final baseTextStyle = textTheme.labelLarge?.copyWith(
+      color: palette.ink,
       fontWeight: FontWeight.w600,
     );
 
@@ -40,8 +41,8 @@ class AppOtpField extends StatelessWidget {
       height: 46,
       textStyle: baseTextStyle,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: AppColors.inputBorder),
+        color: palette.surface,
+        border: Border.all(color: palette.line),
         borderRadius: BorderRadius.circular(AppRadius.r12),
       ),
     );
@@ -53,11 +54,11 @@ class AppOtpField extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       defaultPinTheme: defaultPinTheme,
       focusedPinTheme: defaultPinTheme.copyDecorationWith(
-        border: Border.all(color: AppColors.brand, width: 1.4),
+        border: Border.all(color: palette.primary, width: 1.4),
         borderRadius: BorderRadius.circular(AppRadius.r12),
       ),
       submittedPinTheme: defaultPinTheme.copyDecorationWith(
-        border: Border.all(color: AppColors.brand.withValues(alpha: 0.45)),
+        border: Border.all(color: palette.primary.withValues(alpha: 0.45)),
         borderRadius: BorderRadius.circular(AppRadius.r12),
       ),
       keyboardType: TextInputType.number,

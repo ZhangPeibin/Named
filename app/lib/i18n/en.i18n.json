@@ -17,7 +17,8 @@
     "sendCode": "Send code",
     "sendingCode": "Sending...",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "comingSoon": "Coming next."
   },
   "notFound": {
     "title": "Page not found",
@@ -51,6 +52,9 @@
     "emptyMessage": "This is the empty state for the API demo."
   },
   "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "signOut": "Sign out",
     "languageTitle": "Language",
     "english": "English",
     "chinese": "Chinese"
@@ -74,7 +78,10 @@
     "back": "Back",
     "invalidEmail": "Enter a valid email.",
     "invalidCode": "Enter the 6-digit code.",
-    "nativeLanguageRequired": "Choose your native language."
+    "nativeLanguageRequired": "Choose your native language.",
+    "brandEyebrow": "YOUR EVERYDAY, IN ENGLISH",
+    "languageTitle": "Let’s start with you.",
+    "emailTitle": "Your everyday, in English."
   },
   "appUpdate": {
     "checkOptional": "Check update (optional)",
@@ -92,5 +99,105 @@
     "openDemo": "Open WebView demo",
     "linkNotAllowed": "This link is not allowed: ${url}",
     "loadFailed": "Failed to load page"
+  },
+  "explore": {
+    "headline": "Explore your world.",
+    "prompt": "What caught your attention today?",
+    "capturePhoto": "Take a photo",
+    "captureTalk": "Talk",
+    "captureWrite": "Write",
+    "comingSoon": "This step is coming next.",
+    "capturePhotoHint": "A small thing you noticed today.",
+    "recentlyLearned": "Recently learned",
+    "learnedEmpty": "Words and expressions you learn will appear here.",
+    "learnedEmptyHint": "Every discovery adds a little to your world."
+  },
+  "soul": {
+    "title": "Me",
+    "eyebrow": "MY SOUL",
+    "headline": "Your world is growing.",
+    "subtitle": "A quiet record of what you noticed and said.",
+    "profile": "My Soul",
+    "nativeLanguage": "Native language",
+    "age": "Age",
+    "gender": "Gender",
+    "years": "years",
+    "notSet": "Not set",
+    "items": "Interests and preferences",
+    "noItems": "Add a few interests when you edit.",
+    "edit": "Edit",
+    "editTitle": "Edit your Soul",
+    "editSubtitle": "These details shape how explanations sound.",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "nativeLanguageRequired": "Native language is required.",
+    "invalidAge": "Enter a valid age.",
+    "saved": "Soul updated.",
+    "source": "Source: ${source}",
+    "rhythm": "My rhythm",
+    "rhythmBody": "Challenges will appear here."
+  },
+  "navigation": {
+    "explore": "Explore",
+    "words": "Words",
+    "history": "History",
+    "me": "Me"
+  },
+  "write": {
+    "title": "Write",
+    "headline": "What do you want to understand?",
+    "subtitle": "Write a word or a sentence you noticed today.",
+    "inputLabel": "Word or sentence",
+    "inputHint": "e.g. I noticed a small flower by the road.",
+    "submit": "Understand",
+    "emptyInput": "Write something first."
+  },
+  "understand": {
+    "title": "Understand",
+    "chooseTitle": "Which one did you mean?",
+    "translation": "Meaning",
+    "example": "Example",
+    "grammar": "Grammar",
+    "related": "Related",
+    "talk": "Talk about it",
+    "talkScene": "Talk about this scene",
+    "talkFailed": "Could not start the conversation. Try again.",
+    "sceneTitle": "A small scene"
+  },
+  "talk": {
+    "title": "Talk",
+    "empty": "Start with a sentence about this word.",
+    "inputHint": "Say something...",
+    "send": "Send",
+    "failed": "Could not send. Try again."
+  },
+  "timeline": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "loadEarlier": "Load earlier",
+    "emptyTitle": "What did you see today?",
+    "emptyCopy": "Name one thing below. It becomes the first card in your timeline.",
+    "emptyHint": "A word or a short sentence is enough.",
+    "composerHint": "What did you see?",
+    "send": "Send",
+    "nameFailed": "Could not name that. Try again.",
+    "talk": "Talk",
+    "commonUsage": "Common usage",
+    "example": "Example",
+    "loadFailed": "Could not load your timeline.",
+    "talkFailed": "Could not start the conversation. Try again.",
+    "menuTitle": "Go to",
+    "menuWords": "Words",
+    "menuMe": "Me",
+    "menuSettings": "Settings",
+    "chunks": "Natural chunks",
+    "sceneExtensions": "In this scene",
+    "usUk": "US / UK",
+    "grammar": "Grammar"
+  },
+  "words": {
+    "title": "Words",
+    "empty": "Named words will appear here."
   }
 }

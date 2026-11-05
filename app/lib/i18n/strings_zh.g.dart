@@ -16,21 +16,20 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsZh({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  _meta = meta ?? TranslationMetadata(
+		  $meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.zh,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ) {
-		_meta.setFlatMapFunction(_flatMapFunction);
+		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh>.
-	final TranslationMetadata<AppLocale, Translations> _meta;
-	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
+	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => _meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key);
 
 	late final TranslationsZh _root = this; // ignore: unused_field
 
@@ -47,6 +46,14 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$auth$zh auth = _Translations$auth$zh._(_root);
 	@override late final _Translations$appUpdate$zh appUpdate = _Translations$appUpdate$zh._(_root);
 	@override late final _Translations$webView$zh webView = _Translations$webView$zh._(_root);
+	@override late final _Translations$explore$zh explore = _Translations$explore$zh._(_root);
+	@override late final _Translations$soul$zh soul = _Translations$soul$zh._(_root);
+	@override late final _Translations$navigation$zh navigation = _Translations$navigation$zh._(_root);
+	@override late final _Translations$write$zh write = _Translations$write$zh._(_root);
+	@override late final _Translations$understand$zh understand = _Translations$understand$zh._(_root);
+	@override late final _Translations$talk$zh talk = _Translations$talk$zh._(_root);
+	@override late final _Translations$timeline$zh timeline = _Translations$timeline$zh._(_root);
+	@override late final _Translations$words$zh words = _Translations$words$zh._(_root);
 }
 
 // Path: app
@@ -81,6 +88,7 @@ class _Translations$common$zh implements Translations$common$en {
 	@override String get sendingCode => '发送中...';
 	@override String get confirm => '确认';
 	@override String get cancel => '取消';
+	@override String get comingSoon => '下一步接入。';
 }
 
 // Path: notFound
@@ -141,6 +149,9 @@ class _Translations$settings$zh implements Translations$settings$en {
 	final TranslationsZh _root; // ignore: unused_field
 
 	// Translations
+	@override String get title => '设置';
+	@override String get language => '语言';
+	@override String get signOut => '退出登录';
 	@override String get languageTitle => '语言';
 	@override String get english => 'English';
 	@override String get chinese => '中文';
@@ -172,6 +183,9 @@ class _Translations$auth$zh implements Translations$auth$en {
 	@override String get invalidEmail => '请输入有效邮箱。';
 	@override String get invalidCode => '请输入 6 位验证码。';
 	@override String get nativeLanguageRequired => '请选择母语。';
+	@override String get brandEyebrow => '你的日常，用英语命名';
+	@override String get languageTitle => '先认识一下你。';
+	@override String get emailTitle => '把你的日常，带进英语。';
 }
 
 // Path: appUpdate
@@ -205,6 +219,162 @@ class _Translations$webView$zh implements Translations$webView$en {
 	@override String get loadFailed => '页面加载失败';
 }
 
+// Path: explore
+class _Translations$explore$zh implements Translations$explore$en {
+	_Translations$explore$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get headline => '探索你的世界。';
+	@override String get prompt => '今天，什么吸引了你的注意？';
+	@override String get capturePhoto => '拍一张';
+	@override String get captureTalk => '聊一聊';
+	@override String get captureWrite => '写点什么';
+	@override String get comingSoon => '这个入口下一步接入。';
+	@override String get capturePhotoHint => '今天注意到的一件小事。';
+	@override String get recentlyLearned => '最近学到';
+	@override String get learnedEmpty => '学过的词和表达会出现在这里。';
+	@override String get learnedEmptyHint => '每一次发现，都会让你的世界多一点。';
+}
+
+// Path: soul
+class _Translations$soul$zh implements Translations$soul$en {
+	_Translations$soul$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '我';
+	@override String get eyebrow => '我的 SOUL';
+	@override String get headline => '你的世界正在生长。';
+	@override String get subtitle => '关于你注意到、说出口的事，慢慢留在这里。';
+	@override String get profile => '我的 Soul';
+	@override String get nativeLanguage => '母语';
+	@override String get age => '年龄';
+	@override String get gender => '性别';
+	@override String get years => '岁';
+	@override String get notSet => '未填写';
+	@override String get items => '兴趣与偏好';
+	@override String get noItems => '编辑时添加几个兴趣。';
+	@override String get edit => '修改';
+	@override String get editTitle => '编辑你的 Soul';
+	@override String get editSubtitle => '这些细节会影响解释的方式。';
+	@override String get save => '保存';
+	@override String get saving => '保存中...';
+	@override String get cancel => '取消';
+	@override String get nativeLanguageRequired => '请填写母语。';
+	@override String get invalidAge => '请输入有效年龄。';
+	@override String get saved => 'Soul 已更新。';
+	@override String source({required Object source}) => '来源：${source}';
+	@override String get rhythm => '我的节奏';
+	@override String get rhythmBody => '挑战会出现在这里。';
+}
+
+// Path: navigation
+class _Translations$navigation$zh implements Translations$navigation$en {
+	_Translations$navigation$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get explore => '探索';
+	@override String get words => '词语';
+	@override String get history => '回忆';
+	@override String get me => '我';
+}
+
+// Path: write
+class _Translations$write$zh implements Translations$write$en {
+	_Translations$write$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '写点什么';
+	@override String get headline => '你想理解什么？';
+	@override String get subtitle => '写下今天注意到的一个词或一句话。';
+	@override String get inputLabel => '词或句子';
+	@override String get inputHint => '例如：I noticed a small flower by the road.';
+	@override String get submit => '理解';
+	@override String get emptyInput => '先写点什么。';
+}
+
+// Path: understand
+class _Translations$understand$zh implements Translations$understand$en {
+	_Translations$understand$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '理解';
+	@override String get chooseTitle => '你指的是哪一个？';
+	@override String get translation => '意思';
+	@override String get example => '例句';
+	@override String get grammar => '语法';
+	@override String get related => '相关';
+	@override String get talk => '聊聊它';
+	@override String get talkScene => '聊聊这个场景';
+	@override String get talkFailed => '无法开始对话，请重试。';
+	@override String get sceneTitle => '一个小场景';
+}
+
+// Path: talk
+class _Translations$talk$zh implements Translations$talk$en {
+	_Translations$talk$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '聊聊';
+	@override String get empty => '围绕这个词说一句吧。';
+	@override String get inputHint => '说点什么...';
+	@override String get send => '发送';
+	@override String get failed => '发送失败，请重试。';
+}
+
+// Path: timeline
+class _Translations$timeline$zh implements Translations$timeline$en {
+	_Translations$timeline$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => '今天';
+	@override String get yesterday => '昨天';
+	@override String get loadEarlier => '加载更早';
+	@override String get emptyTitle => '今天看到了什么？';
+	@override String get emptyCopy => '在下面命名一个东西，它会成为你时间线里的第一张卡片。';
+	@override String get emptyHint => '一个词或一句话就够了。';
+	@override String get composerHint => '你看到了什么？';
+	@override String get send => '发送';
+	@override String get nameFailed => '命名失败，请重试。';
+	@override String get talk => '聊聊';
+	@override String get commonUsage => '常用用法';
+	@override String get example => '例句';
+	@override String get loadFailed => '时间线加载失败。';
+	@override String get talkFailed => '无法开始对话，请重试。';
+	@override String get menuTitle => '前往';
+	@override String get menuWords => '词语';
+	@override String get menuMe => '我';
+	@override String get menuSettings => '设置';
+	@override String get chunks => '自然搭配';
+	@override String get sceneExtensions => '同一场景';
+	@override String get usUk => '美式 / 英式';
+	@override String get grammar => '语法';
+}
+
+// Path: words
+class _Translations$words$zh implements Translations$words$en {
+	_Translations$words$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '词语';
+	@override String get empty => '命名过的词会出现在这里。';
+}
+
 /// The flat map containing all translations for locale <zh>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -229,6 +399,7 @@ extension on TranslationsZh {
 			'common.sendingCode' => '发送中...',
 			'common.confirm' => '确认',
 			'common.cancel' => '取消',
+			'common.comingSoon' => '下一步接入。',
 			'notFound.title' => '页面不存在',
 			'notFound.description' => '你访问的页面不存在。',
 			'notFound.noRoute' => ({required Object location}) => '没有匹配 ${location} 的路由。',
@@ -253,6 +424,9 @@ extension on TranslationsZh {
 			'todoDemo.scenarioError' => '错误',
 			'todoDemo.emptyTitle' => '没有 Todo',
 			'todoDemo.emptyMessage' => '这是 API 示例的空状态。',
+			'settings.title' => '设置',
+			'settings.language' => '语言',
+			'settings.signOut' => '退出登录',
 			'settings.languageTitle' => '语言',
 			'settings.english' => 'English',
 			'settings.chinese' => '中文',
@@ -275,6 +449,9 @@ extension on TranslationsZh {
 			'auth.invalidEmail' => '请输入有效邮箱。',
 			'auth.invalidCode' => '请输入 6 位验证码。',
 			'auth.nativeLanguageRequired' => '请选择母语。',
+			'auth.brandEyebrow' => '你的日常，用英语命名',
+			'auth.languageTitle' => '先认识一下你。',
+			'auth.emailTitle' => '把你的日常，带进英语。',
 			'appUpdate.checkOptional' => '检查更新（可选）',
 			'appUpdate.checkForce' => '检查更新（强制）',
 			'appUpdate.updateAvailableTitle' => '发现新版本',
@@ -288,6 +465,90 @@ extension on TranslationsZh {
 			'webView.openDemo' => '打开 WebView 示例',
 			'webView.linkNotAllowed' => ({required Object url}) => '不允许打开此链接：${url}',
 			'webView.loadFailed' => '页面加载失败',
+			'explore.headline' => '探索你的世界。',
+			'explore.prompt' => '今天，什么吸引了你的注意？',
+			'explore.capturePhoto' => '拍一张',
+			'explore.captureTalk' => '聊一聊',
+			'explore.captureWrite' => '写点什么',
+			'explore.comingSoon' => '这个入口下一步接入。',
+			'explore.capturePhotoHint' => '今天注意到的一件小事。',
+			'explore.recentlyLearned' => '最近学到',
+			'explore.learnedEmpty' => '学过的词和表达会出现在这里。',
+			'explore.learnedEmptyHint' => '每一次发现，都会让你的世界多一点。',
+			'soul.title' => '我',
+			'soul.eyebrow' => '我的 SOUL',
+			'soul.headline' => '你的世界正在生长。',
+			'soul.subtitle' => '关于你注意到、说出口的事，慢慢留在这里。',
+			'soul.profile' => '我的 Soul',
+			'soul.nativeLanguage' => '母语',
+			'soul.age' => '年龄',
+			'soul.gender' => '性别',
+			'soul.years' => '岁',
+			'soul.notSet' => '未填写',
+			'soul.items' => '兴趣与偏好',
+			'soul.noItems' => '编辑时添加几个兴趣。',
+			'soul.edit' => '修改',
+			'soul.editTitle' => '编辑你的 Soul',
+			'soul.editSubtitle' => '这些细节会影响解释的方式。',
+			'soul.save' => '保存',
+			'soul.saving' => '保存中...',
+			'soul.cancel' => '取消',
+			'soul.nativeLanguageRequired' => '请填写母语。',
+			'soul.invalidAge' => '请输入有效年龄。',
+			'soul.saved' => 'Soul 已更新。',
+			'soul.source' => ({required Object source}) => '来源：${source}',
+			'soul.rhythm' => '我的节奏',
+			'soul.rhythmBody' => '挑战会出现在这里。',
+			'navigation.explore' => '探索',
+			'navigation.words' => '词语',
+			'navigation.history' => '回忆',
+			'navigation.me' => '我',
+			'write.title' => '写点什么',
+			'write.headline' => '你想理解什么？',
+			'write.subtitle' => '写下今天注意到的一个词或一句话。',
+			'write.inputLabel' => '词或句子',
+			'write.inputHint' => '例如：I noticed a small flower by the road.',
+			'write.submit' => '理解',
+			'write.emptyInput' => '先写点什么。',
+			'understand.title' => '理解',
+			'understand.chooseTitle' => '你指的是哪一个？',
+			'understand.translation' => '意思',
+			'understand.example' => '例句',
+			'understand.grammar' => '语法',
+			'understand.related' => '相关',
+			'understand.talk' => '聊聊它',
+			'understand.talkScene' => '聊聊这个场景',
+			'understand.talkFailed' => '无法开始对话，请重试。',
+			'understand.sceneTitle' => '一个小场景',
+			'talk.title' => '聊聊',
+			'talk.empty' => '围绕这个词说一句吧。',
+			'talk.inputHint' => '说点什么...',
+			'talk.send' => '发送',
+			'talk.failed' => '发送失败，请重试。',
+			'timeline.today' => '今天',
+			'timeline.yesterday' => '昨天',
+			'timeline.loadEarlier' => '加载更早',
+			'timeline.emptyTitle' => '今天看到了什么？',
+			'timeline.emptyCopy' => '在下面命名一个东西，它会成为你时间线里的第一张卡片。',
+			'timeline.emptyHint' => '一个词或一句话就够了。',
+			'timeline.composerHint' => '你看到了什么？',
+			'timeline.send' => '发送',
+			'timeline.nameFailed' => '命名失败，请重试。',
+			'timeline.talk' => '聊聊',
+			'timeline.commonUsage' => '常用用法',
+			'timeline.example' => '例句',
+			'timeline.loadFailed' => '时间线加载失败。',
+			'timeline.talkFailed' => '无法开始对话，请重试。',
+			'timeline.menuTitle' => '前往',
+			'timeline.menuWords' => '词语',
+			'timeline.menuMe' => '我',
+			'timeline.menuSettings' => '设置',
+			'timeline.chunks' => '自然搭配',
+			'timeline.sceneExtensions' => '同一场景',
+			'timeline.usUk' => '美式 / 英式',
+			'timeline.grammar' => '语法',
+			'words.title' => '词语',
+			'words.empty' => '命名过的词会出现在这里。',
 			_ => null,
 		};
 	}

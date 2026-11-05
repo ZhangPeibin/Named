@@ -1,0 +1,170 @@
+import '../../domain/talk.dart';
+
+class MessageCorrectionDto {
+  const MessageCorrectionDto({
+    required this.original,
+    required this.suggestion,
+    required this.note,
+  });
+
+  factory MessageCorrectionDto.fromJson(Map<String, dynamic> json) {
+    return MessageCorrectionDto(
+      original: json['original'] as String? ?? '',
+      suggestion: json['suggestion'] as String? ?? '',
+      note: json['note'] as String? ?? '',
+    );
+  }
+
+  final String original;
+  final String suggestion;
+  final String note;
+
+  MessageCorrection toDomain() {
+    return MessageCorrection(
+      original: original,
+      suggestion: suggestion,
+      note: note,
+    );
+  }
+}
+
+class MessageAnnotationDto {
+  const MessageAnnotationDto({
+    required this.text,
+    required this.kind,
+    required this.meaningZh,
+  });
+
+  factory MessageAnnotationDto.fromJson(Map<String, dynamic> json) {
+    return MessageAnnotationDto(
+      text: json['text'] as String? ?? '',
+      kind: json['kind'] as String? ?? 'word',
+      meaningZh: json['meaning_zh'] as String? ?? '',
+    );
+  }
+
+  final String text;
+  final String kind;
+  final String meaningZh;
+
+  MessageAnnotation toDomain() {
+    return MessageAnnotation(text: text, kind: kind, meaningZh: meaningZh);
+  }
+}
+
+class TalkMessageDto {
+  const TalkMessageDto({
+    required this.id,
+    required this.role,
+    required this.text,
+    required this.corrections,
+    required this.annotations,
+  });
+
+  factory TalkMessageDto.fromJson(Map<String, dynamic> json) {
+    return TalkMessageDto(
+      id: json['id'] as String? ?? '',
+      role: json['role'] as String? ?? 'assistant',
+      text: json['text'] as String? ?? '',
+      corrections: (json['corrections'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(MessageCorrectionDto.fromJson)
+          .toList(),
+      annotations: (json['annotations'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(MessageAnnotationDto.fromJson)
+          .toList(),
+    );
+  }
+
+  final String id;
+  final String role;
+  final String text;
+  final List<MessageCorrectionDto> corrections;
+  final List<MessageAnnotationDto> annotations;
+
+  TalkMessage toDomain() {
+    return TalkMessage(
+      id: id,
+      role: role,
+      text: text,
+      corrections: corrections
+          .map((correction) => correction.toDomain())
+          .toList(),
+      annotations: annotations
+          .map((annotation) => annotation.toDomain())
+          .toList(),
+    );
+  }
+}
+
+class ConversationDto {
+  const ConversationDto({
+    required this.id,
+    required this.focusType,
+    required this.focusId,
+    required this.status,
+    required this.messages,
+  });
+
+  factory ConversationDto.fromJson(Map<String, dynamic> json) {
+    return ConversationDto(
+      id: json['id'] as String? ?? '',
+      focusType: json['focus_type'] as String? ?? 'word',
+      focusId: json['focus_id'] as String? ?? '',
+      status: json['status'] as String? ?? 'active',
+      messages: (json['messages'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(TalkMessageDto.fromJson)
+          .toList(),
+    );
+  }
+
+  final String id;
+  final String focusType;
+  final String focusId;
+  final String status;
+  final List<TalkMessageDto> messages;
+
+  Conversation toDomain() {
+    return Conversation(
+      id: id,
+      focusType: focusType,
+      focusId: focusId,
+      status: status,
+      messages: messages.map((message) => message.toDomain()).toList(),
+    );
+  }
+}
+
+class TurnDto {
+  const TurnDto({required this.userMessage, required this.assistantMessage});
+
+  factory TurnDto.fromJson(Map<String, dynamic> json) {
+    return TurnDto(
+      userMessage: TalkMessageDto.fromJson(
+        json['user_message'] as Map<String, dynamic>? ?? const {},
+      ),
+      assistantMessage: TalkMessageDto.fromJson(
+        json['assistant_message'] as Map<String, dynamic>? ?? const {},
+      ),
+    );
+  }
+
+  final TalkMessageDto userMessage;
+  final TalkMessageDto assistantMessage;
+
+  Turn toDomain() {
+    return Turn(
+      userMessage: userMessage.toDomain(),
+      assistantMessage: assistantMessage.toDomain(),
+    );
+  }
+}
+
+class Turn {
+  const Turn({required this.userMessage, required this.assistantMessage});
+
+  final TalkMessage userMessage;
+  final TalkMessage assistantMessage;
+}

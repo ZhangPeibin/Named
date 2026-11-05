@@ -81,6 +81,9 @@ Future<T?> showAppBottomSheet<T>({
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.r16)),
     ),
-    builder: (context) => AppBottomSheet(child: builder(context)),
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: AppBottomSheet(child: builder(context)),
+    ),
   );
 }

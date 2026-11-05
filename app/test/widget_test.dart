@@ -1,21 +1,30 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:named/app/app.dart';
 import 'package:named/core/config/app_config.dart';
 import 'package:named/core/providers/app_config_provider.dart';
 import 'package:named/features/auth/providers/auth_notifier.dart';
-import 'package:named/features/todo_demo/domain/todo.dart';
-import 'package:named/features/todo_demo/providers/todo_demo_providers.dart';
+import 'package:named/features/soul/domain/soul.dart';
+import 'package:named/features/soul/providers/soul_providers.dart';
 import 'package:named/i18n/strings.g.dart';
 
 import 'support/i18n_test_helpers.dart';
 
 void main() {
-  testWidgets('renders template home page when signed in', (tester) async {
+  testWidgets('renders the timeline without tabs and opens the page menu', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     const config = AppConfig(
       appName: 'Test App',
       environment: AppEnvironment.dev,
       apiBaseUrl: 'https://api.test',
+      useMockApi: true,
     );
 
     await pumpTemplateApp(
@@ -24,10 +33,8 @@ void main() {
         overrides: [
           appConfigProvider.overrideWithValue(config),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
-          demoTodoProvider.overrideWithValue(
-            const AsyncValue.data(
-              Todo(id: 1, userId: 1, title: 'Test todo', completed: false),
-            ),
+          soulProvider.overrideWith(
+            (ref) async => const Soul(nativeLanguage: 'en'),
           ),
         ],
         child: const TemplateApp(),
@@ -35,16 +42,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Test App'), findsNWidgets(2));
-    expect(find.text('Environment: '), findsOneWidget);
-    expect(find.text('dev'), findsOneWidget);
-    expect(find.text('https://api.test'), findsOneWidget);
-    expect(find.text(t.app.openApiDemo), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text(t.timeline.emptyTitle), findsOneWidget);
+    expect(find.byKey(const Key('timeline.composer')), findsOneWidget);
 
-    await tester.tap(find.text(t.app.openApiDemo));
+    await tester.tap(find.byKey(const Key('timeline.menu')));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.todoDemo.title), findsOneWidget);
+    expect(find.text(t.timeline.menuWords), findsOneWidget);
+    expect(find.text(t.timeline.menuMe), findsOneWidget);
+    expect(find.text(t.timeline.menuSettings), findsOneWidget);
+
+    await tester.tap(find.text(t.timeline.menuWords));
+    await tester.pumpAndSettle();
+    expect(find.text(t.words.empty), findsOneWidget);
   });
 }
 

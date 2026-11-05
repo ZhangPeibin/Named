@@ -9,38 +9,61 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.variant = AppButtonVariant.primary,
+    this.isLoading = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final Widget? icon;
   final AppButtonVariant variant;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
-    final child = Text(label);
+    final colorScheme = Theme.of(context).colorScheme;
+    final child = isLoading
+        ? SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: variant == AppButtonVariant.primary
+                  ? colorScheme.onPrimary
+                  : colorScheme.primary,
+            ),
+          )
+        : Text(label);
 
     return switch (variant) {
       AppButtonVariant.primary =>
         icon == null
-            ? FilledButton(onPressed: onPressed, child: child)
+            ? FilledButton(
+                onPressed: isLoading ? null : onPressed,
+                child: child,
+              )
             : FilledButton.icon(
-                onPressed: onPressed,
+                onPressed: isLoading ? null : onPressed,
                 icon: icon!,
                 label: child,
               ),
       AppButtonVariant.secondary =>
         icon == null
-            ? FilledButton.tonal(onPressed: onPressed, child: child)
-            : FilledButton.tonalIcon(
-                onPressed: onPressed,
+            ? OutlinedButton(
+                onPressed: isLoading ? null : onPressed,
+                child: child,
+              )
+            : OutlinedButton.icon(
+                onPressed: isLoading ? null : onPressed,
                 icon: icon!,
                 label: child,
               ),
       AppButtonVariant.text =>
         icon == null
-            ? TextButton(onPressed: onPressed, child: child)
-            : TextButton.icon(onPressed: onPressed, icon: icon!, label: child),
+            ? TextButton(onPressed: isLoading ? null : onPressed, child: child)
+            : TextButton.icon(
+                onPressed: isLoading ? null : onPressed,
+                icon: icon!,
+                label: child,
+              ),
     };
   }
 }
