@@ -38,6 +38,31 @@ void main() {
     expect(apiException.data, {'message': 'User not found'});
   });
 
+  test('maps problem+json detail and code', () {
+    final apiException = ApiException.fromDioException(
+      DioException(
+        requestOptions: RequestOptions(path: '/auth/verify'),
+        response: Response<dynamic>(
+          requestOptions: RequestOptions(path: '/auth/verify'),
+          statusCode: 400,
+          data: {
+            'type': 'about:blank',
+            'title': 'Invalid Code',
+            'status': 400,
+            'detail': 'The code is invalid or has expired.',
+            'code': 'invalid_code',
+            'request_id': 'req-1',
+          },
+        ),
+        type: DioExceptionType.badResponse,
+      ),
+    );
+
+    expect(apiException.message, 'The code is invalid or has expired.');
+    expect(apiException.code, 'invalid_code');
+    expect(apiException.statusCode, 400);
+  });
+
   test('maps HTTP status codes to specific exception types', () {
     // Status-code categories allow callers to handle auth, missing resources,
     // and server failures differently.

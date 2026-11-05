@@ -7,9 +7,9 @@ import '../device/device_info_service.dart';
 import '../network/auth_interceptor.dart';
 import '../network/device_info_interceptor.dart';
 import '../network/dio_logging_interceptor.dart';
-import '../network/error_interceptor.dart';
 import '../network/refresh_token_interceptor.dart';
 import 'app_config_provider.dart';
+import 'error_interceptor_provider.dart';
 import 'logger_provider.dart';
 import 'secure_storage_provider.dart';
 
@@ -18,10 +18,6 @@ final deviceInfoServiceProvider = Provider<DeviceInfoService>((ref) {
     secureStorage: ref.watch(secureStorageProvider),
     config: ref.watch(appConfigProvider),
   );
-});
-
-final errorInterceptorProvider = Provider<ErrorInterceptor>((ref) {
-  return ErrorInterceptor();
 });
 
 final dioProvider = Provider<Dio>((ref) {

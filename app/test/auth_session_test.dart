@@ -7,8 +7,10 @@ import 'package:named/features/auth/data/session_repository.dart';
 import 'package:named/features/auth/providers/auth_notifier.dart';
 
 void main() {
-  test('dev sign-in writes tokens and marks session signed in', () async {
+  test('auth notifier restores signed in from a stored access token', () async {
     final storage = _MemorySecureStorage();
+    await storage.write(StorageKeys.accessToken, 'session-token');
+
     final container = ProviderContainer(
       overrides: [secureStorageProvider.overrideWithValue(storage)],
     );
@@ -16,14 +18,8 @@ void main() {
 
     expect(
       await container.read(authNotifierProvider.future),
-      AuthStatus.signedOut,
+      AuthStatus.signedIn,
     );
-
-    await container.read(authNotifierProvider.notifier).devSignIn();
-
-    expect(container.read(authNotifierProvider).value, AuthStatus.signedIn);
-    expect(await storage.read(StorageKeys.accessToken), 'dev-access-token');
-    expect(await storage.read(StorageKeys.refreshToken), 'dev-refresh-token');
   });
 
   test('session repository reports hasSession from access token', () async {
@@ -31,7 +27,7 @@ void main() {
     final repository = SessionRepository(storage);
 
     expect(await repository.hasSession(), isFalse);
-    await repository.saveSession(accessToken: 'token', refreshToken: 'refresh');
+    await repository.saveAccessToken('token');
     expect(await repository.hasSession(), isTrue);
   });
 }

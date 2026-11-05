@@ -59,7 +59,22 @@
     "signInTitle": "登录",
     "devSignIn": "开发登录",
     "devSignInHint": "写入假 token，用于本地验证登录态骨架。",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "nativeLanguageIntro": "选择你希望用来理解内容的语言，之后可以修改。",
+    "emailIntro": "用邮箱登录，我们会发送 6 位验证码。",
+    "nativeLanguage": "母语",
+    "nativeLanguageHint": "例如 zh、en、es",
+    "continueLabel": "继续",
+    "alreadyHaveAccount": "我已有账号",
+    "email": "邮箱",
+    "emailHint": "you@example.com",
+    "code": "验证码",
+    "verify": "验证",
+    "verifying": "验证中...",
+    "back": "返回",
+    "invalidEmail": "请输入有效邮箱。",
+    "invalidCode": "请输入 6 位验证码。",
+    "nativeLanguageRequired": "请选择母语。"
   },
   "appUpdate": {
     "checkOptional": "检查更新（可选）",

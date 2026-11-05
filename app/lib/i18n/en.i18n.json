@@ -59,7 +59,22 @@
     "signInTitle": "Sign in",
     "devSignIn": "Dev Sign In",
     "devSignInHint": "Writes a fake token so you can verify the auth session skeleton locally.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "nativeLanguageIntro": "Choose the language you want explanations in. You can change it later.",
+    "emailIntro": "Sign in with your email. We will send a 6-digit code.",
+    "nativeLanguage": "Native language",
+    "nativeLanguageHint": "e.g. zh, en, es",
+    "continueLabel": "Continue",
+    "alreadyHaveAccount": "I already have an account",
+    "email": "Email",
+    "emailHint": "you@example.com",
+    "code": "Verification code",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "back": "Back",
+    "invalidEmail": "Enter a valid email.",
+    "invalidCode": "Enter the 6-digit code.",
+    "nativeLanguageRequired": "Choose your native language."
   },
   "appUpdate": {
     "checkOptional": "Check update (optional)",

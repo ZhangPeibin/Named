@@ -17,12 +17,14 @@ class ApiException implements Exception {
     required this.type,
     required this.message,
     this.statusCode,
+    this.code,
     this.data,
   });
 
   final ApiExceptionType type;
   final String message;
   final int? statusCode;
+  final String? code;
   final Object? data;
 
   factory ApiException.fromDioException(DioException error) {
@@ -42,6 +44,7 @@ class ApiException implements Exception {
         type: _typeFromStatusCode(error.response?.statusCode),
         message: _responseMessage(error.response),
         statusCode: error.response?.statusCode,
+        code: _responseCode(error.response),
         data: error.response?.data,
       ),
       DioExceptionType.cancel => const ApiException(
@@ -65,6 +68,10 @@ class ApiException implements Exception {
   static String _responseMessage(Response<dynamic>? response) {
     final data = response?.data;
 
+    if (data case {'detail': final String detail}) {
+      return detail;
+    }
+
     if (data case {'message': final String message}) {
       return message;
     }
@@ -74,6 +81,14 @@ class ApiException implements Exception {
     }
 
     return response?.statusMessage ?? 'Request failed';
+  }
+
+  static String? _responseCode(Response<dynamic>? response) {
+    final data = response?.data;
+    if (data case {'code': final String code}) {
+      return code;
+    }
+    return null;
   }
 
   static ApiExceptionType _typeFromStatusCode(int? statusCode) {

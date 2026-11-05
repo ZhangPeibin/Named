@@ -157,6 +157,21 @@ class _Translations$auth$zh implements Translations$auth$en {
 	@override String get devSignIn => '开发登录';
 	@override String get devSignInHint => '写入假 token，用于本地验证登录态骨架。';
 	@override String get signOut => '退出登录';
+	@override String get nativeLanguageIntro => '选择你希望用来理解内容的语言，之后可以修改。';
+	@override String get emailIntro => '用邮箱登录，我们会发送 6 位验证码。';
+	@override String get nativeLanguage => '母语';
+	@override String get nativeLanguageHint => '例如 zh、en、es';
+	@override String get continueLabel => '继续';
+	@override String get alreadyHaveAccount => '我已有账号';
+	@override String get email => '邮箱';
+	@override String get emailHint => 'you@example.com';
+	@override String get code => '验证码';
+	@override String get verify => '验证';
+	@override String get verifying => '验证中...';
+	@override String get back => '返回';
+	@override String get invalidEmail => '请输入有效邮箱。';
+	@override String get invalidCode => '请输入 6 位验证码。';
+	@override String get nativeLanguageRequired => '请选择母语。';
 }
 
 // Path: appUpdate
@@ -245,6 +260,21 @@ extension on TranslationsZh {
 			'auth.devSignIn' => '开发登录',
 			'auth.devSignInHint' => '写入假 token，用于本地验证登录态骨架。',
 			'auth.signOut' => '退出登录',
+			'auth.nativeLanguageIntro' => '选择你希望用来理解内容的语言，之后可以修改。',
+			'auth.emailIntro' => '用邮箱登录，我们会发送 6 位验证码。',
+			'auth.nativeLanguage' => '母语',
+			'auth.nativeLanguageHint' => '例如 zh、en、es',
+			'auth.continueLabel' => '继续',
+			'auth.alreadyHaveAccount' => '我已有账号',
+			'auth.email' => '邮箱',
+			'auth.emailHint' => 'you@example.com',
+			'auth.code' => '验证码',
+			'auth.verify' => '验证',
+			'auth.verifying' => '验证中...',
+			'auth.back' => '返回',
+			'auth.invalidEmail' => '请输入有效邮箱。',
+			'auth.invalidCode' => '请输入 6 位验证码。',
+			'auth.nativeLanguageRequired' => '请选择母语。',
 			'appUpdate.checkOptional' => '检查更新（可选）',
 			'appUpdate.checkForce' => '检查更新（强制）',
 			'appUpdate.updateAvailableTitle' => '发现新版本',

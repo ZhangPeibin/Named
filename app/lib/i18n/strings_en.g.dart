@@ -254,6 +254,51 @@ class Translations$auth$en {
 
 	/// en: 'Sign out'
 	String get signOut => 'Sign out';
+
+	/// en: 'Choose the language you want explanations in. You can change it later.'
+	String get nativeLanguageIntro => 'Choose the language you want explanations in. You can change it later.';
+
+	/// en: 'Sign in with your email. We will send a 6-digit code.'
+	String get emailIntro => 'Sign in with your email. We will send a 6-digit code.';
+
+	/// en: 'Native language'
+	String get nativeLanguage => 'Native language';
+
+	/// en: 'e.g. zh, en, es'
+	String get nativeLanguageHint => 'e.g. zh, en, es';
+
+	/// en: 'Continue'
+	String get continueLabel => 'Continue';
+
+	/// en: 'I already have an account'
+	String get alreadyHaveAccount => 'I already have an account';
+
+	/// en: 'Email'
+	String get email => 'Email';
+
+	/// en: 'you@example.com'
+	String get emailHint => 'you@example.com';
+
+	/// en: 'Verification code'
+	String get code => 'Verification code';
+
+	/// en: 'Verify'
+	String get verify => 'Verify';
+
+	/// en: 'Verifying...'
+	String get verifying => 'Verifying...';
+
+	/// en: 'Back'
+	String get back => 'Back';
+
+	/// en: 'Enter a valid email.'
+	String get invalidEmail => 'Enter a valid email.';
+
+	/// en: 'Enter the 6-digit code.'
+	String get invalidCode => 'Enter the 6-digit code.';
+
+	/// en: 'Choose your native language.'
+	String get nativeLanguageRequired => 'Choose your native language.';
 }
 
 // Path: appUpdate
@@ -368,6 +413,21 @@ extension on Translations {
 			'auth.devSignIn' => 'Dev Sign In',
 			'auth.devSignInHint' => 'Writes a fake token so you can verify the auth session skeleton locally.',
 			'auth.signOut' => 'Sign out',
+			'auth.nativeLanguageIntro' => 'Choose the language you want explanations in. You can change it later.',
+			'auth.emailIntro' => 'Sign in with your email. We will send a 6-digit code.',
+			'auth.nativeLanguage' => 'Native language',
+			'auth.nativeLanguageHint' => 'e.g. zh, en, es',
+			'auth.continueLabel' => 'Continue',
+			'auth.alreadyHaveAccount' => 'I already have an account',
+			'auth.email' => 'Email',
+			'auth.emailHint' => 'you@example.com',
+			'auth.code' => 'Verification code',
+			'auth.verify' => 'Verify',
+			'auth.verifying' => 'Verifying...',
+			'auth.back' => 'Back',
+			'auth.invalidEmail' => 'Enter a valid email.',
+			'auth.invalidCode' => 'Enter the 6-digit code.',
+			'auth.nativeLanguageRequired' => 'Choose your native language.',
 			'appUpdate.checkOptional' => 'Check update (optional)',
 			'appUpdate.checkForce' => 'Check update (force)',
 			'appUpdate.updateAvailableTitle' => 'New version available',

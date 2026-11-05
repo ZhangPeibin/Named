@@ -20,6 +20,10 @@ class SessionRepository {
     await _secureStorage.write(StorageKeys.refreshToken, refreshToken);
   }
 
+  Future<void> saveAccessToken(String accessToken) async {
+    await _secureStorage.write(StorageKeys.accessToken, accessToken);
+  }
+
   Future<void> clearSession() async {
     await _secureStorage.delete(StorageKeys.accessToken);
     await _secureStorage.delete(StorageKeys.refreshToken);
