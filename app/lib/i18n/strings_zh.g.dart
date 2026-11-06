@@ -327,10 +327,21 @@ class _Translations$talk$zh implements Translations$talk$en {
 
 	// Translations
 	@override String get title => '聊聊';
-	@override String get empty => '围绕这个词说一句吧。';
+	@override String get empty => '从这个词说一句话开始。';
 	@override String get inputHint => '说点什么...';
 	@override String get send => '发送';
 	@override String get failed => '发送失败，请重试。';
+	@override String get playReply => '听语音';
+	@override String get pauseReply => '暂停';
+	@override String get audioUnavailable => '音频暂时不可用。';
+	@override String get titleFallback => '对话';
+	@override String get nativeShort => '中';
+	@override String get showNative => '显示中文';
+	@override String get hideNative => '隐藏中文';
+	@override String get speed => '播放速度';
+	@override String get naturalWay => '更自然的说法';
+	@override String get youWrote => '你写的是';
+	@override String get useThis => '用这句';
 }
 
 // Path: timeline
@@ -362,6 +373,12 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get sceneExtensions => '同一场景';
 	@override String get usUk => '美式 / 英式';
 	@override String get grammar => '语法';
+	@override String get moreDetails => '更多内容';
+	@override String get wordDetails => '词语详情';
+	@override String get play => '播放发音';
+	@override String get pause => '暂停播放';
+	@override String get speed => '播放速度';
+	@override String get audioUnavailable => '音频暂时不可用。';
 }
 
 // Path: words
@@ -521,10 +538,21 @@ extension on TranslationsZh {
 			'understand.talkFailed' => '无法开始对话，请重试。',
 			'understand.sceneTitle' => '一个小场景',
 			'talk.title' => '聊聊',
-			'talk.empty' => '围绕这个词说一句吧。',
+			'talk.empty' => '从这个词说一句话开始。',
 			'talk.inputHint' => '说点什么...',
 			'talk.send' => '发送',
 			'talk.failed' => '发送失败，请重试。',
+			'talk.playReply' => '听语音',
+			'talk.pauseReply' => '暂停',
+			'talk.audioUnavailable' => '音频暂时不可用。',
+			'talk.titleFallback' => '对话',
+			'talk.nativeShort' => '中',
+			'talk.showNative' => '显示中文',
+			'talk.hideNative' => '隐藏中文',
+			'talk.speed' => '播放速度',
+			'talk.naturalWay' => '更自然的说法',
+			'talk.youWrote' => '你写的是',
+			'talk.useThis' => '用这句',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
 			'timeline.loadEarlier' => '加载更早',
@@ -547,6 +575,12 @@ extension on TranslationsZh {
 			'timeline.sceneExtensions' => '同一场景',
 			'timeline.usUk' => '美式 / 英式',
 			'timeline.grammar' => '语法',
+			'timeline.moreDetails' => '更多内容',
+			'timeline.wordDetails' => '词语详情',
+			'timeline.play' => '播放发音',
+			'timeline.pause' => '暂停播放',
+			'timeline.speed' => '播放速度',
+			'timeline.audioUnavailable' => '音频暂时不可用。',
 			'words.title' => '词语',
 			'words.empty' => '命名过的词会出现在这里。',
 			_ => null,

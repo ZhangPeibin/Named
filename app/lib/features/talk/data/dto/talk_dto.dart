@@ -52,6 +52,24 @@ class MessageAnnotationDto {
   }
 }
 
+class TalkAudioDto {
+  const TalkAudioDto({required this.url, required this.status});
+
+  factory TalkAudioDto.fromJson(Map<String, dynamic> json) {
+    return TalkAudioDto(
+      url: json['url'] as String?,
+      status: json['status'] as String? ?? 'unavailable',
+    );
+  }
+
+  final String? url;
+  final String status;
+
+  TalkAudio toDomain() {
+    return TalkAudio(url: url, status: status);
+  }
+}
+
 class TalkMessageDto {
   const TalkMessageDto({
     required this.id,
@@ -59,13 +77,17 @@ class TalkMessageDto {
     required this.text,
     required this.corrections,
     required this.annotations,
+    this.nativeText,
+    this.audio,
   });
 
   factory TalkMessageDto.fromJson(Map<String, dynamic> json) {
+    final rawAudio = json['audio'];
     return TalkMessageDto(
       id: json['id'] as String? ?? '',
       role: json['role'] as String? ?? 'assistant',
       text: json['text'] as String? ?? '',
+      nativeText: json['native_text'] as String?,
       corrections: (json['corrections'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(MessageCorrectionDto.fromJson)
@@ -74,26 +96,33 @@ class TalkMessageDto {
           .whereType<Map<String, dynamic>>()
           .map(MessageAnnotationDto.fromJson)
           .toList(),
+      audio: rawAudio is Map<String, dynamic>
+          ? TalkAudioDto.fromJson(rawAudio)
+          : null,
     );
   }
 
   final String id;
   final String role;
   final String text;
+  final String? nativeText;
   final List<MessageCorrectionDto> corrections;
   final List<MessageAnnotationDto> annotations;
+  final TalkAudioDto? audio;
 
   TalkMessage toDomain() {
     return TalkMessage(
       id: id,
       role: role,
       text: text,
+      nativeText: nativeText,
       corrections: corrections
           .map((correction) => correction.toDomain())
           .toList(),
       annotations: annotations
           .map((annotation) => annotation.toDomain())
           .toList(),
+      audio: audio?.toDomain(),
     );
   }
 }
@@ -101,6 +130,7 @@ class TalkMessageDto {
 class ConversationDto {
   const ConversationDto({
     required this.id,
+    this.title = 'Conversation',
     required this.focusType,
     required this.focusId,
     required this.status,
@@ -110,6 +140,7 @@ class ConversationDto {
   factory ConversationDto.fromJson(Map<String, dynamic> json) {
     return ConversationDto(
       id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? 'Conversation',
       focusType: json['focus_type'] as String? ?? 'word',
       focusId: json['focus_id'] as String? ?? '',
       status: json['status'] as String? ?? 'active',
@@ -121,6 +152,7 @@ class ConversationDto {
   }
 
   final String id;
+  final String title;
   final String focusType;
   final String focusId;
   final String status;
@@ -129,6 +161,7 @@ class ConversationDto {
   Conversation toDomain() {
     return Conversation(
       id: id,
+      title: title,
       focusType: focusType,
       focusId: focusId,
       status: status,

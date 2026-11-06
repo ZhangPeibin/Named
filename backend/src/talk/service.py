@@ -200,6 +200,7 @@ async def _message_out(
         id=message.id,
         role=message.role,
         text=message.text,
+        native_text=message.native_text,
         source=message.source,
         transcript_state=message.transcript_state,
         status=message.status,
@@ -208,6 +209,21 @@ async def _message_out(
         annotations=[AnnotationOut.model_validate(row) for row in annotations],
         created_at=message.created_at,
     )
+
+
+async def _conversation_title(
+    session: AsyncSession,
+    conversation: Conversation,
+) -> str:
+    if conversation.focus_type == "word":
+        word = await session.get(Word, conversation.focus_id)
+        if word is not None:
+            return word.label_en
+    elif conversation.focus_type == "scene":
+        discovery = await session.get(Discovery, conversation.focus_id)
+        if discovery is not None and discovery.input_text:
+            return discovery.input_text.strip() or "Conversation"
+    return "Conversation"
 
 
 async def _conversation_out(
@@ -222,6 +238,7 @@ async def _conversation_out(
     )
     return ConversationOut(
         id=conversation.id,
+        title=await _conversation_title(session, conversation),
         focus_type=conversation.focus_type,
         focus_id=conversation.focus_id,
         status=conversation.status,
@@ -348,11 +365,16 @@ async def send_message(
             code="talk_agent_failed",
         ) from exc
 
+    native_text = (response.native_reply or "").strip() or None
+    if native_language.lower().startswith("en"):
+        native_text = None
+
     assistant = ConversationMessage(
         conversation_id=conversation_id,
         sequence=user_message.sequence + 1,
         role="assistant",
         text=response.reply,
+        native_text=native_text,
         source="text",
         transcript_state="confirmed",
         status="saved",

@@ -22,6 +22,15 @@ class MessageAnnotation {
   final String meaningZh;
 }
 
+class TalkAudio {
+  const TalkAudio({required this.url, required this.status});
+
+  final String? url;
+  final String status;
+
+  bool get isReady => status == 'ready' && url != null && url!.isNotEmpty;
+}
+
 class TalkMessage {
   const TalkMessage({
     required this.id,
@@ -29,13 +38,17 @@ class TalkMessage {
     required this.text,
     required this.corrections,
     required this.annotations,
+    this.nativeText,
+    this.audio,
   });
 
   final String id;
   final String role;
   final String text;
+  final String? nativeText;
   final List<MessageCorrection> corrections;
   final List<MessageAnnotation> annotations;
+  final TalkAudio? audio;
 
   bool get isUser => role == 'user';
 }
@@ -43,6 +56,7 @@ class TalkMessage {
 class Conversation {
   const Conversation({
     required this.id,
+    required this.title,
     required this.focusType,
     required this.focusId,
     required this.status,
@@ -50,6 +64,7 @@ class Conversation {
   });
 
   final String id;
+  final String title;
   final String focusType;
   final String focusId;
   final String status;

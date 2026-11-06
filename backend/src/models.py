@@ -224,6 +224,7 @@ class ConversationMessage(Base):
     sequence: Mapped[int] = mapped_column(Integer, nullable=False)
     role: Mapped[str] = mapped_column(String(16), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
+    native_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     source: Mapped[str] = mapped_column(String(16), default="text", nullable=False)
     transcript_state: Mapped[str] = mapped_column(String(16), default="confirmed", nullable=False)
     status: Mapped[str] = mapped_column(String(16), default="saved", nullable=False)

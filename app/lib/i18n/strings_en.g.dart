@@ -618,6 +618,39 @@ class Translations$talk$en {
 
 	/// en: 'Could not send. Try again.'
 	String get failed => 'Could not send. Try again.';
+
+	/// en: 'Listen'
+	String get playReply => 'Listen';
+
+	/// en: 'Pause'
+	String get pauseReply => 'Pause';
+
+	/// en: 'Audio is unavailable.'
+	String get audioUnavailable => 'Audio is unavailable.';
+
+	/// en: 'Conversation'
+	String get titleFallback => 'Conversation';
+
+	/// en: '中'
+	String get nativeShort => '中';
+
+	/// en: 'Show Chinese'
+	String get showNative => 'Show Chinese';
+
+	/// en: 'Hide Chinese'
+	String get hideNative => 'Hide Chinese';
+
+	/// en: 'Playback speed'
+	String get speed => 'Playback speed';
+
+	/// en: 'A more natural way'
+	String get naturalWay => 'A more natural way';
+
+	/// en: 'You wrote'
+	String get youWrote => 'You wrote';
+
+	/// en: 'Use this'
+	String get useThis => 'Use this';
 }
 
 // Path: timeline
@@ -693,6 +726,24 @@ class Translations$timeline$en {
 
 	/// en: 'Grammar'
 	String get grammar => 'Grammar';
+
+	/// en: 'More details'
+	String get moreDetails => 'More details';
+
+	/// en: 'Word details'
+	String get wordDetails => 'Word details';
+
+	/// en: 'Play word'
+	String get play => 'Play word';
+
+	/// en: 'Pause word'
+	String get pause => 'Pause word';
+
+	/// en: 'Playback speed'
+	String get speed => 'Playback speed';
+
+	/// en: 'Audio is unavailable.'
+	String get audioUnavailable => 'Audio is unavailable.';
 }
 
 // Path: words
@@ -860,6 +911,17 @@ extension on Translations {
 			'talk.inputHint' => 'Say something...',
 			'talk.send' => 'Send',
 			'talk.failed' => 'Could not send. Try again.',
+			'talk.playReply' => 'Listen',
+			'talk.pauseReply' => 'Pause',
+			'talk.audioUnavailable' => 'Audio is unavailable.',
+			'talk.titleFallback' => 'Conversation',
+			'talk.nativeShort' => '中',
+			'talk.showNative' => 'Show Chinese',
+			'talk.hideNative' => 'Hide Chinese',
+			'talk.speed' => 'Playback speed',
+			'talk.naturalWay' => 'A more natural way',
+			'talk.youWrote' => 'You wrote',
+			'talk.useThis' => 'Use this',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
 			'timeline.loadEarlier' => 'Load earlier',
@@ -882,6 +944,12 @@ extension on Translations {
 			'timeline.sceneExtensions' => 'In this scene',
 			'timeline.usUk' => 'US / UK',
 			'timeline.grammar' => 'Grammar',
+			'timeline.moreDetails' => 'More details',
+			'timeline.wordDetails' => 'Word details',
+			'timeline.play' => 'Play word',
+			'timeline.pause' => 'Pause word',
+			'timeline.speed' => 'Playback speed',
+			'timeline.audioUnavailable' => 'Audio is unavailable.',
 			'words.title' => 'Words',
 			'words.empty' => 'Named words will appear here.',
 			_ => null,

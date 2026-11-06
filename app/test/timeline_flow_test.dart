@@ -41,6 +41,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('timeline.composer')), 'tree');
+    await tester.pump();
     await tester.tap(find.byKey(const Key('timeline.send')));
     await tester.pumpAndSettle();
 
@@ -48,6 +49,26 @@ void main() {
       find.byKey(const Key('timeline.word.mock-discovery')),
       findsOneWidget,
     );
+    expect(find.text('a tall tree'), findsOneWidget);
+    expect(find.text('under a tree'), findsOneWidget);
+    expect(find.text('plant a tree'), findsNothing);
+    expect(find.text('GRAMMAR'), findsNothing);
+
+    await tester.ensureVisible(
+      find.byKey(const Key('timeline.moreDetails.mock-discovery')),
+    );
+    await tester.tap(
+      find.byKey(const Key('timeline.moreDetails.mock-discovery')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(t.timeline.wordDetails), findsOneWidget);
+    expect(find.text('plant a tree'), findsOneWidget);
+    expect(find.text('GRAMMAR'), findsOneWidget);
+    expect(find.text(t.timeline.sceneExtensions.toUpperCase()), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('wordDetails.close')));
+    await tester.pumpAndSettle();
 
     await tester.ensureVisible(
       find.byKey(const Key('timeline.talk.mock-discovery')),
@@ -55,11 +76,13 @@ void main() {
     await tester.tap(find.byKey(const Key('timeline.talk.mock-discovery')));
     await tester.pumpAndSettle();
     expect(find.text(t.talk.empty), findsOneWidget);
+    expect(find.text('tree'), findsOneWidget);
 
     await tester.enterText(
       find.byKey(const Key('talk.input')),
       'I saw a tree.',
     );
+    await tester.pump();
     await tester.tap(find.byKey(const Key('talk.send')));
     await tester.pumpAndSettle();
 
@@ -70,6 +93,33 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);
+
+    final nativeToggle = find.byKey(
+      const Key('talk.native.toggle.mock-message-2'),
+    );
+    await tester.ensureVisible(nativeToggle);
+    await tester.tap(nativeToggle);
+    await tester.pumpAndSettle();
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsNothing);
+
+    await tester.tap(nativeToggle);
+    await tester.pumpAndSettle();
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);
+
+    final correctionCard = find.byKey(
+      const Key('talk.correction.mock-message-1.0'),
+    );
+    await tester.ensureVisible(correctionCard);
+    expect(correctionCard, findsOneWidget);
+    expect(find.text(t.talk.naturalWay.toUpperCase()), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(const Key('talk.correction.use.mock-message-1.0')),
+    );
+    await tester.pumpAndSettle();
+    final input = tester.widget<TextField>(find.byKey(const Key('talk.input')));
+    expect(input.controller?.text, 'I saw a tree today.');
 
     await tester.pageBack();
     await tester.pumpAndSettle();

@@ -19,6 +19,7 @@ from timeline.schemas import (
     TimelineTalkMessage,
     TimelineWordItem,
 )
+from tts.service import WordAudioService
 
 
 def _parse_before(value: str | None) -> datetime | None:
@@ -47,6 +48,7 @@ async def _native_language(session: AsyncSession, account_id: str) -> str:
 async def _word_items(
     session: AsyncSession,
     account_id: str,
+    audio_service: WordAudioService,
     *,
     limit: int,
     before: datetime | None,
@@ -81,6 +83,11 @@ async def _word_items(
         for content in contents:
             content_by_word.setdefault(content.word_id, content)
 
+    words_by_id = {}
+    if word_ids:
+        words = await session.scalars(select(Word).where(Word.id.in_(word_ids)))
+        words_by_id = {word.id: word for word in words}
+
     conversation_by_word: dict[str, str] = {}
     if word_ids:
         conversations = await session.scalars(
@@ -103,6 +110,8 @@ async def _word_items(
         if content is None:
             continue
         word = WordPayload.model_validate(content.payload_json)
+        word_row = words_by_id.get(row.word_id)
+        audio = await audio_service.for_word(session, word_row) if word_row is not None else None
         items.append(
             TimelineWordItem(
                 id=row.id,
@@ -112,6 +121,7 @@ async def _word_items(
                 focus_kind=row.focus_kind,
                 word_id=row.word_id,
                 word=word,
+                audio=audio,
                 conversation_id=conversation_by_word.get(row.word_id),
             )
         )
@@ -217,6 +227,7 @@ async def _talk_items(
 async def get_timeline(
     session: AsyncSession,
     account_id: str,
+    audio_service: WordAudioService,
     *,
     limit: int,
     before: str | None,
@@ -230,6 +241,7 @@ async def get_timeline(
         word_items = await _word_items(
             session,
             account_id,
+            audio_service,
             limit=limit,
             before=before_at,
         )

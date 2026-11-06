@@ -5,6 +5,7 @@ void main() {
   test('parses a conversation with corrections and annotations', () {
     final conversation = ConversationDto.fromJson({
       'id': 'conversation-1',
+      'title': 'tree',
       'focus_type': 'word',
       'focus_id': 'word-1',
       'status': 'active',
@@ -15,6 +16,7 @@ void main() {
           'id': 'message-1',
           'role': 'assistant',
           'text': 'What did you notice?',
+          'native_text': '你注意到了什么？',
           'source': 'text',
           'transcript_state': 'confirmed',
           'status': 'saved',
@@ -27,14 +29,25 @@ void main() {
               'meaning_zh': '注意到',
             },
           ],
+          'audio': {
+            'url': 'https://api.test/media/reply.mp3',
+            'status': 'ready',
+          },
           'created_at': '2026-11-05T10:00:01Z',
         },
       ],
     }).toDomain();
 
     expect(conversation.id, 'conversation-1');
+    expect(conversation.title, 'tree');
     expect(conversation.messages, hasLength(1));
+    expect(conversation.messages.first.nativeText, '你注意到了什么？');
     expect(conversation.messages.first.annotations.first.meaningZh, '注意到');
+    expect(conversation.messages.first.audio?.isReady, isTrue);
+    expect(
+      conversation.messages.first.audio?.url,
+      'https://api.test/media/reply.mp3',
+    );
   });
 
   test('parses a turn with user and assistant messages', () {

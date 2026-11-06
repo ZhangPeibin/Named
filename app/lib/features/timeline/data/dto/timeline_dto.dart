@@ -14,11 +14,13 @@ class TimelineWordItemDto extends TimelineItemDto {
     required this.inputText,
     required this.wordId,
     required this.word,
+    required this.audio,
     required this.conversationId,
   });
 
   factory TimelineWordItemDto.fromJson(Map<String, dynamic> json) {
     final rawWord = json['word'];
+    final rawAudio = json['audio'];
     return TimelineWordItemDto(
       id: json['id'] as String? ?? '',
       createdAt: _parseDate(json['created_at']),
@@ -26,6 +28,9 @@ class TimelineWordItemDto extends TimelineItemDto {
       wordId: json['word_id'] as String?,
       word: rawWord is Map<String, dynamic>
           ? DiscoveredWordDto.fromJson(rawWord)
+          : null,
+      audio: rawAudio is Map<String, dynamic>
+          ? WordAudioDto.fromJson(rawAudio)
           : null,
       conversationId: json['conversation_id'] as String?,
     );
@@ -36,6 +41,7 @@ class TimelineWordItemDto extends TimelineItemDto {
   final String? inputText;
   final String? wordId;
   final DiscoveredWordDto? word;
+  final WordAudioDto? audio;
   final String? conversationId;
 
   @override
@@ -46,6 +52,7 @@ class TimelineWordItemDto extends TimelineItemDto {
       inputText: inputText,
       wordId: wordId,
       word: word?.toDomain(),
+      audio: audio?.toDomain(),
       conversationId: conversationId,
     );
   }

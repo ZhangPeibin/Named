@@ -162,6 +162,7 @@ class MockDiscoverApi implements DiscoverApi {
         ),
       ],
       word: null,
+      audio: null,
       needsConfirmation: true,
       warnings: const [],
     );
@@ -182,6 +183,7 @@ class MockDiscoverApi implements DiscoverApi {
       wordId: 'mock-word',
       candidates: const [],
       word: word,
+      audio: null,
       needsConfirmation: false,
       warnings: const [],
     );

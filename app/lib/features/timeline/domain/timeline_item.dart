@@ -13,6 +13,7 @@ class TimelineWordItem extends TimelineItem {
     required this.inputText,
     required this.wordId,
     required this.word,
+    required this.audio,
     required this.conversationId,
   });
 
@@ -20,6 +21,7 @@ class TimelineWordItem extends TimelineItem {
   final String? inputText;
   final String? wordId;
   final DiscoveredWord? word;
+  final WordAudio? audio;
   final String? conversationId;
 
   TimelineWordItem copyWith({String? conversationId}) {
@@ -29,6 +31,7 @@ class TimelineWordItem extends TimelineItem {
       inputText: inputText,
       wordId: wordId,
       word: word,
+      audio: audio,
       conversationId: conversationId ?? this.conversationId,
     );
   }

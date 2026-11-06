@@ -121,8 +121,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutePaths.talk,
         name: AppRouteNames.talk,
-        builder: (context, state) =>
-            TalkPage(conversationId: state.pathParameters['conversationId']!),
+        builder: (context, state) => TalkPage(
+          conversationId: state.pathParameters['conversationId']!,
+          title: state.uri.queryParameters['title'],
+        ),
       ),
       GoRoute(
         path: AppRoutePaths.todoDemo,

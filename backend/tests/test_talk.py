@@ -32,6 +32,7 @@ class FakeTalkAgent:
         self.fail = False
         self.response = TalkResponse(
             reply="That sounds lovely. How do you take care of it?",
+            native_reply="这听起来很可爱。你平时怎么照顾它？",
             corrections=[
                 Correction(
                     original="I am grow mint on my balcony.",
@@ -188,6 +189,7 @@ async def test_create_conversation_and_send_message(talk_env) -> None:
     )
     assert body["assistant_message"]["annotations"][0]["text"] == "growing"
     assert body["assistant_message"]["audio"]["status"] == "ready"
+    assert body["assistant_message"]["native_text"].startswith("这听起来")
     assert agent.calls[-1]["native_language"] == "zh"
     assert "tree" in agent.calls[-1]["focus_context"]
 
@@ -196,6 +198,7 @@ async def test_create_conversation_and_send_message(talk_env) -> None:
         headers=headers,
     )
     assert detail.status_code == 200
+    assert detail.json()["title"] == "tree"
     assert len(detail.json()["messages"]) == 2
 
 

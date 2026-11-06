@@ -257,6 +257,26 @@ List<SceneExtensionDto> _sceneExtensionsFromJson(List<dynamic> raw) {
   return result;
 }
 
+class WordAudioDto {
+  const WordAudioDto({required this.usUrl, required this.ukUrl});
+
+  factory WordAudioDto.fromJson(Map<String, dynamic> json) {
+    final us = json['us'];
+    final uk = json['uk'];
+    return WordAudioDto(
+      usUrl: us is Map<String, dynamic> ? us['url'] as String? : null,
+      ukUrl: uk is Map<String, dynamic> ? uk['url'] as String? : null,
+    );
+  }
+
+  final String? usUrl;
+  final String? ukUrl;
+
+  WordAudio toDomain() {
+    return WordAudio(usUrl: usUrl, ukUrl: ukUrl);
+  }
+}
+
 class DiscoverDto {
   const DiscoverDto({
     required this.id,
@@ -268,12 +288,14 @@ class DiscoverDto {
     required this.wordId,
     required this.candidates,
     required this.word,
+    required this.audio,
     required this.needsConfirmation,
     required this.warnings,
   });
 
   factory DiscoverDto.fromJson(Map<String, dynamic> json) {
     final rawWord = json['word'];
+    final rawAudio = json['audio'];
     return DiscoverDto(
       id: json['id'] as String? ?? '',
       inputText: json['input_text'] as String?,
@@ -288,6 +310,9 @@ class DiscoverDto {
           .toList(),
       word: rawWord is Map<String, dynamic>
           ? DiscoveredWordDto.fromJson(rawWord)
+          : null,
+      audio: rawAudio is Map<String, dynamic>
+          ? WordAudioDto.fromJson(rawAudio)
           : null,
       needsConfirmation: json['needs_confirmation'] as bool? ?? false,
       warnings: (json['warnings'] as List<dynamic>? ?? const [])
@@ -305,6 +330,7 @@ class DiscoverDto {
   final String? wordId;
   final List<DiscoveryCandidateDto> candidates;
   final DiscoveredWordDto? word;
+  final WordAudioDto? audio;
   final bool needsConfirmation;
   final List<String> warnings;
 
@@ -319,6 +345,7 @@ class DiscoverDto {
       wordId: wordId,
       candidates: candidates.map((candidate) => candidate.toDomain()).toList(),
       word: word?.toDomain(),
+      audio: audio?.toDomain(),
       needsConfirmation: needsConfirmation,
       warnings: warnings,
     );

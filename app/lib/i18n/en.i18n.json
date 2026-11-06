@@ -170,7 +170,18 @@
     "empty": "Start with a sentence about this word.",
     "inputHint": "Say something...",
     "send": "Send",
-    "failed": "Could not send. Try again."
+    "failed": "Could not send. Try again.",
+    "playReply": "Listen",
+    "pauseReply": "Pause",
+    "audioUnavailable": "Audio is unavailable.",
+    "titleFallback": "Conversation",
+    "nativeShort": "中",
+    "showNative": "Show Chinese",
+    "hideNative": "Hide Chinese",
+    "speed": "Playback speed",
+    "naturalWay": "A more natural way",
+    "youWrote": "You wrote",
+    "useThis": "Use this"
   },
   "timeline": {
     "today": "Today",
@@ -194,7 +205,13 @@
     "chunks": "Natural chunks",
     "sceneExtensions": "In this scene",
     "usUk": "US / UK",
-    "grammar": "Grammar"
+    "grammar": "Grammar",
+    "moreDetails": "More details",
+    "wordDetails": "Word details",
+    "play": "Play word",
+    "pause": "Pause word",
+    "speed": "Playback speed",
+    "audioUnavailable": "Audio is unavailable."
   },
   "words": {
     "title": "Words",

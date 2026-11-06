@@ -1,23 +1,26 @@
 import 'dart:async';
+import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
-import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/talk.dart';
 import '../providers/talk_providers.dart';
 
 class TalkPage extends ConsumerStatefulWidget {
-  const TalkPage({super.key, required this.conversationId});
+  const TalkPage({super.key, required this.conversationId, this.title});
 
   final String conversationId;
+  final String? title;
 
   @override
   ConsumerState<TalkPage> createState() => _TalkPageState();
@@ -25,21 +28,52 @@ class TalkPage extends ConsumerStatefulWidget {
 
 class _TalkPageState extends ConsumerState<TalkPage> {
   final _controller = TextEditingController();
+  final _composerFocusNode = FocusNode();
   final _scrollController = ScrollController();
   List<TalkMessage> _messages = const [];
+  String? _title;
   String? _error;
   bool _isLoading = true;
   bool _isSending = false;
+  final _hiddenNativeMessageIds = <String>{};
+  double _playbackRate = 1.0;
+  late final AudioPlayer _player;
+  late final StreamSubscription<PlayerState> _playerStateSub;
+  late final StreamSubscription<void> _playerCompleteSub;
+  final _audioCache = <String, Uint8List>{};
+  String? _playingMessageId;
+  String? _loadingMessageId;
+  bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
+    _player = AudioPlayer();
+    unawaited(_player.setReleaseMode(ReleaseMode.stop));
+    _playerStateSub = _player.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() => _isPlaying = state == PlayerState.playing);
+      }
+    });
+    _playerCompleteSub = _player.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _playingMessageId = null;
+        });
+      }
+    });
     unawaited(_load());
   }
 
   @override
   void dispose() {
+    unawaited(_playerStateSub.cancel());
+    unawaited(_playerCompleteSub.cancel());
+    unawaited(_player.stop());
+    unawaited(_player.dispose());
     _controller.dispose();
+    _composerFocusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -55,6 +89,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           .fetch(widget.conversationId);
       if (mounted) {
         setState(() {
+          _title = conversation.title;
           _messages = conversation.messages;
           _isLoading = false;
         });
@@ -88,11 +123,15 @@ class _TalkPageState extends ConsumerState<TalkPage> {
             clientMessageId: DateTime.now().microsecondsSinceEpoch.toString(),
           );
       if (mounted) {
+        final assistant = turn.assistantMessage;
         setState(() {
-          _messages = [..._messages, turn.userMessage, turn.assistantMessage];
+          _messages = [..._messages, turn.userMessage, assistant];
           _controller.clear();
         });
         _scrollToBottom();
+        if (assistant.audio?.isReady == true) {
+          unawaited(_playAudio(assistant));
+        }
       }
     } on ApiException catch (error) {
       if (mounted) {
@@ -103,6 +142,79 @@ class _TalkPageState extends ConsumerState<TalkPage> {
         setState(() => _isSending = false);
       }
     }
+  }
+
+  Future<void> _playAudio(TalkMessage message) async {
+    final audio = message.audio;
+    final url = audio?.url;
+    if (audio?.isReady != true || url == null) {
+      return;
+    }
+
+    if (_playingMessageId == message.id && _isPlaying) {
+      await _player.pause();
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _playingMessageId = null;
+        });
+      }
+      return;
+    }
+
+    final requestId = message.id;
+    setState(() {
+      _loadingMessageId = requestId;
+      _playingMessageId = null;
+      _isPlaying = false;
+    });
+    try {
+      final bytes = await _loadAudio(url);
+      if (!mounted || _loadingMessageId != requestId) {
+        return;
+      }
+      await _player.stop();
+      await _player.setPlaybackRate(_playbackRate);
+      await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+      if (mounted && _loadingMessageId == requestId) {
+        setState(() {
+          _loadingMessageId = null;
+          _playingMessageId = requestId;
+        });
+      }
+    } catch (_) {
+      if (mounted && _loadingMessageId == requestId) {
+        setState(() => _loadingMessageId = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t.talk.audioUnavailable)),
+        );
+      }
+    }
+  }
+
+  Future<void> _setPlaybackRate(double rate) async {
+    setState(() => _playbackRate = rate);
+    if (_isPlaying) {
+      await _player.setPlaybackRate(rate);
+    }
+  }
+
+  void _useSuggestion(String suggestion) {
+    _controller.text = suggestion;
+    _controller.selection = TextSelection.collapsed(offset: suggestion.length);
+    _composerFocusNode.requestFocus();
+    setState(() => _error = null);
+  }
+
+  Future<Uint8List> _loadAudio(String url) async {
+    final cached = _audioCache[url];
+    if (cached != null) {
+      return cached;
+    }
+    final data = await ref.read(audioBytesApiProvider).fetch(url);
+    final bytes = Uint8List.fromList(data);
+    _audioCache[url] = bytes;
+    return bytes;
   }
 
   void _scrollToBottom() {
@@ -125,20 +237,26 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     final t = context.t.talk;
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
+    final title = _title ?? widget.title ?? t.titleFallback;
 
     return AppScaffold(
-      title: t.title,
+      title: '',
+      showAppBar: false,
       centerBody: false,
       padding: EdgeInsets.zero,
       body: Column(
         children: [
+          _TalkHeader(
+            title: title,
+            onBack: () => Navigator.of(context).maybePop(),
+          ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null && _messages.isEmpty
                 ? Center(
                     child: AppErrorView(
-                      title: t.title,
+                      title: title,
                       message: _error!,
                       onRetry: _load,
                     ),
@@ -165,62 +283,641 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                     itemCount: _messages.length,
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: AppSpacing.s12),
-                    itemBuilder: (context, index) =>
-                        _MessageBubble(message: _messages[index]),
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return _MessageBubble(
+                        message: message,
+                        showNative: !_hiddenNativeMessageIds.contains(
+                          message.id,
+                        ),
+                        playbackRate: _playbackRate,
+                        isPlaying:
+                            _playingMessageId == message.id && _isPlaying,
+                        isLoading: _loadingMessageId == message.id,
+                        onPlay: message.audio?.isReady == true
+                            ? () => _playAudio(message)
+                            : null,
+                        onPlaybackRateChanged: (rate) {
+                          unawaited(_setPlaybackRate(rate));
+                        },
+                        onToggleNative: () {
+                          setState(() {
+                            if (!_hiddenNativeMessageIds.add(message.id)) {
+                              _hiddenNativeMessageIds.remove(message.id);
+                            }
+                          });
+                        },
+                        onUseSuggestion: _useSuggestion,
+                      );
+                    },
                   ),
           ),
           SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.pageHorizontalPadding,
-                AppSpacing.s8,
-                AppSpacing.pageHorizontalPadding,
-                AppSpacing.s16,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_error != null && _messages.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.s8),
-                      child: Text(
-                        _error!,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: palette.error,
-                        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_error != null && _messages.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontalPadding,
+                      AppSpacing.s8,
+                      AppSpacing.pageHorizontalPadding,
+                      0,
+                    ),
+                    child: Text(
+                      _error!,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: palette.error,
                       ),
                     ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  ),
+                _TalkComposer(
+                  controller: _controller,
+                  focusNode: _composerFocusNode,
+                  hintText: t.inputHint,
+                  sendTooltip: t.send,
+                  isSending: _isSending,
+                  onSend: _send,
+                  onChanged: (_) => setState(() => _error = null),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TalkHeader extends StatelessWidget {
+  const _TalkHeader({required this.title, required this.onBack});
+
+  final String title;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s4,
+        AppSpacing.s4,
+        AppSpacing.s16,
+        AppSpacing.s8,
+      ),
+      decoration: BoxDecoration(
+        color: palette.canvas,
+        border: Border(bottom: BorderSide(color: palette.line)),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            key: const Key('talk.back'),
+            onPressed: onBack,
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            style: IconButton.styleFrom(
+              minimumSize: const Size.square(40),
+              maximumSize: const Size.square(40),
+              padding: EdgeInsets.zero,
+            ),
+            icon: const Icon(Icons.arrow_back, size: 20),
+          ),
+          const SizedBox(width: AppSpacing.s4),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.displayMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TalkComposer extends StatelessWidget {
+  const _TalkComposer({
+    required this.controller,
+    required this.focusNode,
+    required this.hintText,
+    required this.sendTooltip,
+    required this.isSending,
+    required this.onSend,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hintText;
+  final String sendTooltip;
+  final bool isSending;
+  final VoidCallback onSend;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s8,
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s12,
+      ),
+      decoration: BoxDecoration(
+        color: palette.canvas,
+        border: Border(top: BorderSide(color: palette.line)),
+      ),
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s6),
+        decoration: BoxDecoration(
+          color: palette.surface,
+          borderRadius: BorderRadius.circular(AppRadius.r18),
+          border: Border.all(color: palette.line),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: AppSpacing.s6),
+            Expanded(
+              child: TextField(
+                key: const Key('talk.input'),
+                controller: controller,
+                focusNode: focusNode,
+                onChanged: onChanged,
+                onSubmitted: (_) => onSend(),
+                textInputAction: TextInputAction.send,
+                textCapitalization: TextCapitalization.sentences,
+                style: textTheme.bodyLarge,
+                cursorColor: palette.primary,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: textTheme.bodyMedium?.copyWith(
+                    color: palette.muted,
+                  ),
+                  filled: false,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  focusedErrorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                  isCollapsed: true,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s4),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, child) {
+                final enabled = value.text.trim().isNotEmpty && !isSending;
+                return SizedBox.square(
+                  dimension: 38,
+                  child: IconButton.filled(
+                    key: const Key('talk.send'),
+                    onPressed: enabled ? onSend : null,
+                    tooltip: sendTooltip,
+                    style: IconButton.styleFrom(
+                      backgroundColor: palette.primary,
+                      foregroundColor: palette.onPrimary,
+                      disabledBackgroundColor: palette.surfaceMuted,
+                      disabledForegroundColor: palette.muted,
+                      minimumSize: const Size.square(38),
+                      maximumSize: const Size.square(38),
+                      padding: EdgeInsets.zero,
+                    ),
+                    icon: isSending
+                        ? SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: palette.onPrimary,
+                            ),
+                          )
+                        : const Icon(Icons.arrow_upward, size: 18),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({
+    required this.message,
+    required this.showNative,
+    required this.playbackRate,
+    required this.isPlaying,
+    required this.isLoading,
+    required this.onPlay,
+    required this.onPlaybackRateChanged,
+    required this.onToggleNative,
+    required this.onUseSuggestion,
+  });
+
+  final TalkMessage message;
+  final bool showNative;
+  final double playbackRate;
+  final bool isPlaying;
+  final bool isLoading;
+  final VoidCallback? onPlay;
+  final ValueChanged<double> onPlaybackRateChanged;
+  final VoidCallback onToggleNative;
+  final ValueChanged<String> onUseSuggestion;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    final isUser = message.isUser;
+    final onPlay = this.onPlay;
+    final hasNative =
+        message.nativeText != null && message.nativeText!.trim().isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: isUser
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 320),
+            padding: const EdgeInsets.all(AppSpacing.s14),
+            decoration: BoxDecoration(
+              color: isUser ? palette.warm : palette.surface,
+              borderRadius: BorderRadius.circular(AppRadius.r16),
+              border: isUser ? null : Border.all(color: palette.line),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(message.text, style: textTheme.bodyLarge),
+                if (onPlay != null || hasNative) ...[
+                  const SizedBox(height: AppSpacing.s8),
+                  Wrap(
+                    spacing: AppSpacing.s6,
+                    runSpacing: AppSpacing.s6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Expanded(
-                        child: AppTextField(
-                          key: const Key('talk.input'),
-                          controller: _controller,
-                          hintText: t.inputHint,
-                          textInputAction: TextInputAction.send,
-                          onChanged: (_) => setState(() => _error = null),
-                          onSubmitted: (_) async => _send(),
+                      if (onPlay != null)
+                        _MessageAudioButton(
+                          messageId: message.id,
+                          playbackRate: playbackRate,
+                          isPlaying: isPlaying,
+                          isLoading: isLoading,
+                          onTap: onPlay,
+                          onPlaybackRateChanged: onPlaybackRateChanged,
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.s8),
-                      IconButton.filled(
-                        key: const Key('talk.send'),
-                        onPressed: _isSending ? null : _send,
-                        tooltip: t.send,
-                        icon: _isSending
-                            ? SizedBox.square(
-                                dimension: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: palette.onPrimary,
-                                ),
-                              )
-                            : const Icon(Icons.arrow_upward),
-                      ),
+                      if (hasNative)
+                        _NativeToggle(
+                          messageId: message.id,
+                          selected: showNative,
+                          onTap: onToggleNative,
+                        ),
                     ],
                   ),
+                ],
+                if (hasNative)
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.topLeft,
+                    child: showNative
+                        ? Padding(
+                            key: Key('talk.native.${message.id}'),
+                            padding: const EdgeInsets.only(top: AppSpacing.s8),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(
+                                left: AppSpacing.s10,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(
+                                    color: palette.accent,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                message.nativeText!,
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: palette.muted,
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                for (final annotation in message.annotations) ...[
+                  const SizedBox(height: AppSpacing.s8),
+                  Text(
+                    '${annotation.text} · ${annotation.meaningZh}',
+                    style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (message.corrections.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s8),
+          for (var index = 0; index < message.corrections.length; index++)
+            Align(
+              alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: index == message.corrections.length - 1
+                        ? 0
+                        : AppSpacing.s6,
+                  ),
+                  child: _CorrectionCard(
+                    messageId: message.id,
+                    index: index,
+                    correction: message.corrections[index],
+                    onUse: () =>
+                        onUseSuggestion(message.corrections[index].suggestion),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+class _CorrectionCard extends StatelessWidget {
+  const _CorrectionCard({
+    required this.messageId,
+    required this.index,
+    required this.correction,
+    required this.onUse,
+  });
+
+  final String messageId;
+  final int index;
+  final MessageCorrection correction;
+  final VoidCallback onUse;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    final t = context.t.talk;
+
+    return Container(
+      key: Key('talk.correction.$messageId.$index'),
+      padding: const EdgeInsets.all(AppSpacing.s12),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(AppRadius.r12),
+        border: Border.all(color: palette.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.auto_fix_high_outlined,
+                size: 16,
+                color: palette.primary,
+              ),
+              const SizedBox(width: AppSpacing.s6),
+              Text(
+                t.naturalWay.toUpperCase(),
+                style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s6),
+          Text(
+            correction.suggestion,
+            style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+          ),
+          if (correction.note.trim().isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.s4),
+            Text(
+              correction.note,
+              style: textTheme.bodySmall?.copyWith(color: palette.muted),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.s4),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${t.youWrote}: ${correction.original}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(color: palette.muted),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s8),
+              TextButton(
+                key: Key('talk.correction.use.$messageId.$index'),
+                onPressed: onUse,
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, 32),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s10,
+                  ),
+                  foregroundColor: palette.primary,
+                  textStyle: AppTextStyles.caption.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                child: Text(t.useThis),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NativeToggle extends StatelessWidget {
+  const _NativeToggle({
+    required this.messageId,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String messageId;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.talk;
+
+    return Semantics(
+      container: true,
+      button: true,
+      selected: selected,
+      label: selected ? t.hideNative : t.showNative,
+      onTap: onTap,
+      excludeSemantics: true,
+      child: Material(
+        color: selected ? palette.primary : palette.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: Key('talk.native.toggle.$messageId'),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s10,
+              vertical: AppSpacing.s6,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.translate,
+                  size: 16,
+                  color: selected ? palette.onPrimary : palette.primary,
+                ),
+                const SizedBox(width: AppSpacing.s6),
+                Text(
+                  t.nativeShort,
+                  style: AppTextStyles.caption.copyWith(
+                    color: selected ? palette.onPrimary : palette.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageAudioButton extends StatelessWidget {
+  const _MessageAudioButton({
+    required this.messageId,
+    required this.playbackRate,
+    required this.isPlaying,
+    required this.isLoading,
+    required this.onTap,
+    required this.onPlaybackRateChanged,
+  });
+
+  static const _rates = [0.5, 0.75, 1.0, 1.25, 1.5];
+
+  final String messageId;
+  final double playbackRate;
+  final bool isPlaying;
+  final bool isLoading;
+  final VoidCallback onTap;
+  final ValueChanged<double> onPlaybackRateChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.talk;
+
+    return Material(
+      color: palette.surfaceMuted,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            container: true,
+            button: true,
+            label: isPlaying ? t.pauseReply : t.playReply,
+            onTap: isLoading ? null : onTap,
+            excludeSemantics: true,
+            child: InkWell(
+              key: Key('talk.audio.$messageId'),
+              onTap: isLoading ? null : onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s10,
+                  vertical: AppSpacing.s6,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isLoading)
+                      SizedBox.square(
+                        dimension: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: palette.primary,
+                        ),
+                      )
+                    else
+                      Icon(
+                        isPlaying ? Icons.pause : Icons.volume_up_outlined,
+                        size: 16,
+                        color: palette.primary,
+                      ),
+                    const SizedBox(width: AppSpacing.s6),
+                    Text(
+                      isPlaying ? t.pauseReply : t.playReply,
+                      style: AppTextStyles.caption.copyWith(
+                        color: palette.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(width: 1, height: 18, color: palette.line),
+          PopupMenuButton<double>(
+            key: Key('talk.audio.speed.$messageId'),
+            tooltip: t.speed,
+            initialValue: playbackRate,
+            onSelected: onPlaybackRateChanged,
+            itemBuilder: (context) => [
+              for (final rate in _rates)
+                CheckedPopupMenuItem<double>(
+                  value: rate,
+                  checked: rate == playbackRate,
+                  child: Text(_rateLabel(rate)),
+                ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s8,
+                vertical: AppSpacing.s6,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _rateLabel(playbackRate),
+                    style: AppTextStyles.caption.copyWith(
+                      color: palette.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Icon(Icons.arrow_drop_down, size: 16, color: palette.primary),
                 ],
               ),
             ),
@@ -231,53 +928,8 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   }
 }
 
-class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.message});
-
-  final TalkMessage message;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-    final textTheme = Theme.of(context).textTheme;
-    final isUser = message.isUser;
-
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 320),
-        padding: const EdgeInsets.all(AppSpacing.s14),
-        decoration: BoxDecoration(
-          color: isUser ? palette.warm : palette.surface,
-          borderRadius: BorderRadius.circular(AppRadius.r16),
-          border: isUser ? null : Border.all(color: palette.line),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(message.text, style: textTheme.bodyLarge),
-            for (final annotation in message.annotations) ...[
-              const SizedBox(height: AppSpacing.s8),
-              Text(
-                '${annotation.text} · ${annotation.meaningZh}',
-                style: textTheme.bodySmall?.copyWith(color: palette.muted),
-              ),
-            ],
-            for (final correction in message.corrections) ...[
-              const SizedBox(height: AppSpacing.s8),
-              Text(
-                '${correction.original} → ${correction.suggestion}',
-                style: textTheme.bodySmall?.copyWith(color: palette.muted),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                correction.note,
-                style: AppTextStyles.caption.copyWith(color: palette.muted),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
+String _rateLabel(double rate) {
+  return rate == rate.roundToDouble()
+      ? '${rate.toInt()}×'
+      : '${rate.toStringAsFixed(2).replaceFirst(RegExp(r'0$'), '')}×';
 }

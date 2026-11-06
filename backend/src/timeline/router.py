@@ -5,6 +5,7 @@ from fastapi import APIRouter, Query
 from auth.router import CurrentAuthDep, SessionDep
 from timeline.schemas import TimelineResponse
 from timeline.service import get_timeline
+from tts.deps import WordAudioServiceDep
 
 router = APIRouter(prefix="/timeline", tags=["timeline"])
 
@@ -13,6 +14,7 @@ router = APIRouter(prefix="/timeline", tags=["timeline"])
 async def read_timeline(
     current: CurrentAuthDep,
     session: SessionDep,
+    audio_service: WordAudioServiceDep,
     limit: Annotated[int, Query(ge=1, le=50)] = 30,
     before: str | None = None,
     item_type: Annotated[
@@ -23,6 +25,7 @@ async def read_timeline(
     return await get_timeline(
         session,
         current.account.id,
+        audio_service,
         limit=limit,
         before=before,
         item_type=item_type,

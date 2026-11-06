@@ -35,7 +35,10 @@ class WordAudioService:
         self.store = store
 
     def _cache_key(self, text: str, region: str, voice: str) -> str:
-        payload = f"{text}|{region}|{voice}|{self.settings.tts_rate}|{self.settings.tts_format}"
+        payload = (
+            f"{text}|{region}|{voice}|{self.settings.tts_model}|"
+            f"{self.settings.tts_rate}|{self.settings.tts_format}"
+        )
         return hashlib.sha256(payload.encode()).hexdigest()
 
     def _url(self, object_key: str) -> str:
@@ -116,7 +119,10 @@ class SpeechAudioService:
         self.store = store
 
     def _cache_key(self, text: str, voice: str) -> str:
-        payload = f"{text}|{voice}|{self.settings.tts_rate}|{self.settings.tts_format}"
+        payload = (
+            f"{text}|{voice}|{self.settings.tts_model}|"
+            f"{self.settings.tts_rate}|{self.settings.tts_format}"
+        )
         return hashlib.sha256(payload.encode()).hexdigest()
 
     def _url(self, object_key: str) -> str:

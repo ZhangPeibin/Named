@@ -4,9 +4,11 @@ class AppTextStyles {
   const AppTextStyles._();
 
   static const editorialFallback = <String>[
-    'Georgia',
     'Songti SC',
     'Noto Serif CJK SC',
+    'Noto Serif SC',
+    'Noto Serif',
+    'Georgia',
     'serif',
   ];
 

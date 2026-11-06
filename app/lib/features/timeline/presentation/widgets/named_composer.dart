@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/widgets/app_text_field.dart';
 
 class NamedComposer extends StatelessWidget {
   const NamedComposer({
@@ -29,54 +28,109 @@ class NamedComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
+        AppSpacing.s16,
+        AppSpacing.s8,
+        AppSpacing.s16,
         AppSpacing.s12,
-        AppSpacing.s16,
-        AppSpacing.s16,
       ),
       decoration: BoxDecoration(
         color: palette.canvas,
         border: Border(top: BorderSide(color: palette.line)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: AppTextField(
-              key: const Key('timeline.composer'),
-              controller: controller,
-              hintText: hintText,
-              textInputAction: TextInputAction.send,
-              onChanged: onChanged,
-              onSubmitted: (_) async => onSend(),
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s6),
+        decoration: BoxDecoration(
+          color: palette.surface,
+          borderRadius: BorderRadius.circular(AppRadius.r18),
+          border: Border.all(color: palette.line),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: AppSpacing.s6),
+            Expanded(
+              child: TextField(
+                key: const Key('timeline.composer'),
+                controller: controller,
+                onChanged: onChanged,
+                onSubmitted: (_) => onSend(),
+                textInputAction: TextInputAction.send,
+                textCapitalization: TextCapitalization.sentences,
+                style: textTheme.bodyLarge,
+                cursorColor: palette.primary,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: textTheme.bodyMedium?.copyWith(
+                    color: palette.muted,
+                  ),
+                  filled: false,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  focusedErrorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                  isCollapsed: true,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.s8),
-          IconButton.filled(
-            key: const Key('timeline.send'),
-            onPressed: isSubmitting ? null : onSend,
-            tooltip: sendTooltip,
-            icon: isSubmitting
-                ? SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: palette.onPrimary,
+            const SizedBox(width: AppSpacing.s4),
+            SizedBox.square(
+              dimension: 34,
+              child: IconButton.filledTonal(
+                key: const Key('timeline.menu'),
+                onPressed: onOpenMenu,
+                tooltip: menuTooltip,
+                style: IconButton.styleFrom(
+                  backgroundColor: palette.surfaceMuted,
+                  foregroundColor: palette.primary,
+                  minimumSize: const Size.square(34),
+                  maximumSize: const Size.square(34),
+                  padding: EdgeInsets.zero,
+                ),
+                icon: const Icon(Icons.add, size: 18),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s4),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, child) {
+                final enabled = value.text.trim().isNotEmpty && !isSubmitting;
+                return SizedBox.square(
+                  dimension: 38,
+                  child: IconButton.filled(
+                    key: const Key('timeline.send'),
+                    onPressed: enabled ? onSend : null,
+                    tooltip: sendTooltip,
+                    style: IconButton.styleFrom(
+                      backgroundColor: palette.primary,
+                      foregroundColor: palette.onPrimary,
+                      disabledBackgroundColor: palette.surfaceMuted,
+                      disabledForegroundColor: palette.muted,
+                      minimumSize: const Size.square(38),
+                      maximumSize: const Size.square(38),
+                      padding: EdgeInsets.zero,
                     ),
-                  )
-                : const Icon(Icons.arrow_upward),
-          ),
-          const SizedBox(width: AppSpacing.s4),
-          IconButton.outlined(
-            key: const Key('timeline.menu'),
-            onPressed: onOpenMenu,
-            tooltip: menuTooltip,
-            icon: const Icon(Icons.add),
-          ),
-        ],
+                    icon: isSubmitting
+                        ? SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: palette.onPrimary,
+                            ),
+                          )
+                        : const Icon(Icons.arrow_upward, size: 18),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

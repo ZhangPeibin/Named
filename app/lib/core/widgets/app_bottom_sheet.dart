@@ -22,7 +22,7 @@ class AppBottomSheet extends StatelessWidget {
       AppSpacing.s24,
       0,
       AppSpacing.s24,
-      AppSpacing.s32,
+      0,
     ),
   });
 
@@ -83,7 +83,11 @@ Future<T?> showAppBottomSheet<T>({
     ),
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: AppBottomSheet(child: builder(context)),
+      child: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.only(bottom: AppSpacing.s20),
+        child: AppBottomSheet(child: builder(context)),
+      ),
     ),
   );
 }

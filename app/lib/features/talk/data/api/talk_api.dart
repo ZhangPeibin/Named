@@ -142,13 +142,20 @@ class MockTalkApi implements TalkApi {
       id: 'mock-message-${_nextMessage++}',
       role: 'user',
       text: text,
-      corrections: const [],
+      corrections: const [
+        MessageCorrectionDto(
+          original: 'I saw a tree.',
+          suggestion: 'I saw a tree today.',
+          note: '加一个时间词会更自然。',
+        ),
+      ],
       annotations: const [],
     );
     final assistant = TalkMessageDto(
       id: 'mock-message-${_nextMessage++}',
       role: 'assistant',
       text: 'That sounds like a small, real moment. What did you notice first?',
+      nativeText: '那听起来像一个真实的小瞬间。你最先注意到了什么？',
       corrections: const [],
       annotations: const [
         MessageAnnotationDto(
@@ -165,6 +172,7 @@ class MockTalkApi implements TalkApi {
   ConversationDto _conversation(String id, String focusType, String focusId) {
     return ConversationDto(
       id: id,
+      title: 'tree',
       focusType: focusType,
       focusId: focusId,
       status: 'active',

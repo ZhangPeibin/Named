@@ -96,6 +96,25 @@ class DiscoveredWord {
   WordSense? get primarySense => senses.isEmpty ? null : senses.first;
 }
 
+enum WordAudioAccent { us, uk }
+
+class WordAudio {
+  const WordAudio({required this.usUrl, required this.ukUrl});
+
+  final String? usUrl;
+  final String? ukUrl;
+
+  String? get preferredUrl => usUrl ?? ukUrl;
+  bool get hasAudio => preferredUrl != null;
+
+  String? urlFor(WordAudioAccent accent) {
+    return switch (accent) {
+      WordAudioAccent.us => usUrl ?? ukUrl,
+      WordAudioAccent.uk => ukUrl ?? usUrl,
+    };
+  }
+}
+
 class Discovery {
   const Discovery({
     required this.id,
@@ -107,6 +126,7 @@ class Discovery {
     required this.wordId,
     required this.candidates,
     required this.word,
+    required this.audio,
     required this.needsConfirmation,
     required this.warnings,
   });
@@ -120,6 +140,7 @@ class Discovery {
   final String? wordId;
   final List<DiscoveryCandidate> candidates;
   final DiscoveredWord? word;
+  final WordAudio? audio;
   final bool needsConfirmation;
   final List<String> warnings;
 

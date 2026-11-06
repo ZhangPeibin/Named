@@ -101,9 +101,13 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       if (!mounted) {
         return;
       }
+      final title = item.word?.spelling ?? item.inputText;
       await context.pushNamed(
         AppRouteNames.talk,
         pathParameters: {'conversationId': conversationId},
+        queryParameters: {
+          if (title != null && title.trim().isNotEmpty) 'title': title,
+        },
       );
       if (!mounted) {
         return;
@@ -128,6 +132,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     await context.pushNamed(
       AppRouteNames.talk,
       pathParameters: {'conversationId': item.conversationId},
+      queryParameters: {if (item.title.trim().isNotEmpty) 'title': item.title},
     );
     if (!mounted) {
       return;

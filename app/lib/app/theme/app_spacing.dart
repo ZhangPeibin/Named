@@ -31,6 +31,7 @@ class AppRadius {
   static const double r10 = 10;
   static const double r12 = 12;
   static const double r16 = 16;
+  static const double r18 = 18;
   static const double r24 = 24;
   static const double pill = 999;
 }

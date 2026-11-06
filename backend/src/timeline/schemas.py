@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, Field
 
 from discovery.schemas import WordPayload
+from tts.schemas import AudioOut
 
 
 class TimelineWordItem(BaseModel):
@@ -15,6 +16,7 @@ class TimelineWordItem(BaseModel):
     focus_kind: str | None
     word_id: str | None
     word: WordPayload | None
+    audio: AudioOut | None = None
     conversation_id: str | None = None
 
 

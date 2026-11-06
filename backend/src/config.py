@@ -26,10 +26,10 @@ class Settings(BaseSettings):
     dashscope_workspace: str | None = None
     dashscope_region: str = "cn-beijing"
     dashscope_websocket_url: str | None = None
-    tts_model: str = "qwen-audio-3.1-tts-plus"
-    tts_voice_us: str = "longanfengyue_v3.1"
-    tts_voice_uk: str = "longanfengyue_v3.1"
-    tts_voice_talk: str = "longanfengyue_v3.1"
+    tts_model: str = "qwen-audio-3.1-tts-flash"
+    tts_voice_us: str = "Cindy_v3.1"
+    tts_voice_uk: str = "Emily_v3.1"
+    tts_voice_talk: str = "Cindy_v3.1"
     tts_format: str = "mp3"
     tts_rate: float = 1.0
     talk_audio_ttl_seconds: int = 604800

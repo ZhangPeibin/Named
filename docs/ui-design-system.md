@@ -71,9 +71,10 @@ Use semantic tokens, never raw hex values in feature code. Feature widgets read 
 
 ### Families
 
-- **Editorial / display:** `Lora` (bundled), fallback `Georgia`, then the platform serif. Used for Latin headlines, numbers, and page titles.
-- **Interface / body:** platform sans (`SF Pro` on iOS, `Roboto` / `Noto Sans` on Android). Used for body copy, labels, controls, and CJK text.
-- **CJK editorial fallback:** `Songti SC`, `Noto Serif CJK SC`, then the system font. Do not ship a large CJK serif font in the first release.
+- **English editorial / display:** `Lora` (bundled). Used for English headlines, numbers, and page titles.
+- **Chinese editorial fallback:** `Songti SC` on iOS, `Noto Serif CJK SC` / `Noto Serif SC` on Android, then the system serif. Lora has no CJK glyphs, so Chinese display text uses this fallback; no large CJK font is bundled.
+- **English body / UI:** platform sans (`SF Pro` on iOS, `Roboto` on Android).
+- **Chinese body / UI:** platform sans (`PingFang SC` on iOS, `Noto Sans CJK SC` on Android).
 
 ### Scale
 
@@ -96,7 +97,7 @@ Use semantic tokens, never raw hex values in feature code. Feature widgets read 
 - Keep body text at 15–16 px; never shrink below 13 px for essential copy.
 - Limit editorial headlines to two lines on a 390 px canvas.
 - Use tabular figures for counts and dates when available.
-- English display type may use negative tracking (`-0.4` to `-1.0`); Chinese text must not.
+- English display type may use negative tracking (`-0.4` to `-0.8`); Chinese display text should be checked and kept close to zero tracking.
 
 ## 4. Layout, spacing, and shape
 
@@ -179,6 +180,14 @@ Use semantic tokens, never raw hex values in feature code. Feature widgets read 
 - Padding 24; title in `sectionTitle`; primary action at the bottom.
 - Respect keyboard insets; scroll content, never clip the primary action.
 
+### Named composer
+
+- Fixed at the bottom with a 1 px top `line` and `canvas` background.
+- Use one unified 52 px composer surface: `surface` fill, radius 18, 1 px `line`.
+- The text field is borderless inside the surface.
+- The `+` menu is a 34 px tonal circle; send is a 38 px primary circle.
+- Send is disabled until there is text and shows a small spinner while submitting. Do not clear the input until the request succeeds.
+
 ### Lists and dividers
 
 - Row minimum height 64; two-line rows 72.
@@ -234,7 +243,8 @@ Do not show a marketing carousel, social login wall, or fake testimonials.
 ### Named / Word card / Talk event / Talk
 
 - **Named entry:** one text input in the bottom composer. The agent returns a single top-1 result; there is no candidate or correction UI in MVP.
-- **Word card:** input → English word, IPA, POS, primary definition, 3–5 natural chunks with examples, grammar note, meaningful US/UK note when relevant, primary example, collapsed scene extensions, Talk. Keep it in the timeline; do not open a separate understanding page.
+- **Word card (summary):** input → English word, IPA, POS, primary definition, inline `0.5× / 1× / 2×` audio buttons with the word, first 2 chunks with phrase + meaning, and a split 44 px action pill: quiet `More details` on the left, primary `Talk` on the right. Tapping a speed button plays immediately at that speed.
+- **Word details sheet:** full word, all chunks with examples, grammar, US/UK, primary example, and scene extensions. Open from the summary card with `More details`. Audio defaults to US; a compact `US / UK` switch selects Cindy or Emily.
 - **Talk event:** after at least one message, show the last message snippet, time, and Continue. Tapping opens the same conversation.
 - **Talk:** focused full-screen chat with fixed text composer above the keyboard. Return refreshes the timeline snippet.
 - **Words:** filtered list of named words, reached from the `+` menu.

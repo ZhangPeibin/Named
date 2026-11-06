@@ -70,9 +70,13 @@ class WordsPage extends ConsumerWidget {
       if (!context.mounted) {
         return;
       }
+      final title = item.word?.spelling ?? item.inputText;
       await context.pushNamed(
         AppRouteNames.talk,
         pathParameters: {'conversationId': conversationId},
+        queryParameters: {
+          if (title != null && title.trim().isNotEmpty) 'title': title,
+        },
       );
       if (!context.mounted) {
         return;

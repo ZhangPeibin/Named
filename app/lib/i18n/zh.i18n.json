@@ -167,10 +167,21 @@
   },
   "talk": {
     "title": "聊聊",
-    "empty": "围绕这个词说一句吧。",
+    "empty": "从这个词说一句话开始。",
     "inputHint": "说点什么...",
     "send": "发送",
-    "failed": "发送失败，请重试。"
+    "failed": "发送失败，请重试。",
+    "playReply": "听语音",
+    "pauseReply": "暂停",
+    "audioUnavailable": "音频暂时不可用。",
+    "titleFallback": "对话",
+    "nativeShort": "中",
+    "showNative": "显示中文",
+    "hideNative": "隐藏中文",
+    "speed": "播放速度",
+    "naturalWay": "更自然的说法",
+    "youWrote": "你写的是",
+    "useThis": "用这句"
   },
   "timeline": {
     "today": "今天",
@@ -194,7 +205,13 @@
     "chunks": "自然搭配",
     "sceneExtensions": "同一场景",
     "usUk": "美式 / 英式",
-    "grammar": "语法"
+    "grammar": "语法",
+    "moreDetails": "更多内容",
+    "wordDetails": "词语详情",
+    "play": "播放发音",
+    "pause": "暂停播放",
+    "speed": "播放速度",
+    "audioUnavailable": "音频暂时不可用。"
   },
   "words": {
     "title": "词语",

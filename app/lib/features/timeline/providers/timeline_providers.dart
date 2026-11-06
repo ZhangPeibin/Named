@@ -113,6 +113,7 @@ class TimelineController extends AsyncNotifier<TimelineState> {
       inputText: discovery.inputText ?? text,
       wordId: discovery.wordId,
       word: word,
+      audio: discovery.audio,
       conversationId: null,
     );
     final currentState = state.value;

@@ -20,6 +20,7 @@ class Annotation(BaseModel):
 
 class TalkResponse(BaseModel):
     reply: str = Field(min_length=1, max_length=4000)
+    native_reply: str | None = Field(default=None, max_length=4000)
     corrections: list[Correction] = Field(default_factory=list)
     annotations: list[Annotation] = Field(default_factory=list)
     suggested_expressions: list[str] = Field(default_factory=list)
@@ -61,6 +62,7 @@ class MessageOut(BaseModel):
     id: str
     role: str
     text: str
+    native_text: str | None = None
     source: str
     transcript_state: str
     status: str
@@ -72,6 +74,7 @@ class MessageOut(BaseModel):
 
 class ConversationOut(BaseModel):
     id: str
+    title: str
     focus_type: str
     focus_id: str
     status: str
