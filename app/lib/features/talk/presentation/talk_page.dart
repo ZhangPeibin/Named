@@ -32,6 +32,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   final _scrollController = ScrollController();
   List<TalkMessage> _messages = const [];
   String? _title;
+  String? _focusType;
   String? _error;
   bool _isLoading = true;
   bool _isSending = false;
@@ -90,6 +91,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       if (mounted) {
         setState(() {
           _title = conversation.title;
+          _focusType = conversation.focusType;
           _messages = conversation.messages;
           _isLoading = false;
         });
@@ -264,7 +266,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                 : _messages.isEmpty
                 ? Center(
                     child: Text(
-                      t.empty,
+                      _focusType == 'scene' ? t.emptyScene : t.empty,
                       textAlign: TextAlign.center,
                       style: textTheme.bodyLarge?.copyWith(
                         color: palette.muted,
@@ -565,31 +567,6 @@ class _MessageBubble extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(message.text, style: textTheme.bodyLarge),
-                if (onPlay != null || hasNative) ...[
-                  const SizedBox(height: AppSpacing.s8),
-                  Wrap(
-                    spacing: AppSpacing.s6,
-                    runSpacing: AppSpacing.s6,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      if (onPlay != null)
-                        _MessageAudioButton(
-                          messageId: message.id,
-                          playbackRate: playbackRate,
-                          isPlaying: isPlaying,
-                          isLoading: isLoading,
-                          onTap: onPlay,
-                          onPlaybackRateChanged: onPlaybackRateChanged,
-                        ),
-                      if (hasNative)
-                        _NativeToggle(
-                          messageId: message.id,
-                          selected: showNative,
-                          onTap: onToggleNative,
-                        ),
-                    ],
-                  ),
-                ],
                 if (hasNative)
                   AnimatedSize(
                     duration: const Duration(milliseconds: 180),
@@ -627,6 +604,34 @@ class _MessageBubble extends StatelessWidget {
                   Text(
                     '${annotation.text} · ${annotation.meaningZh}',
                     style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                  ),
+                ],
+                if (onPlay != null || hasNative) ...[
+                  const SizedBox(height: AppSpacing.s8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Wrap(
+                      spacing: AppSpacing.s6,
+                      runSpacing: AppSpacing.s6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (hasNative)
+                          _NativeToggle(
+                            messageId: message.id,
+                            selected: showNative,
+                            onTap: onToggleNative,
+                          ),
+                        if (onPlay != null)
+                          _MessageAudioButton(
+                            messageId: message.id,
+                            playbackRate: playbackRate,
+                            isPlaying: isPlaying,
+                            isLoading: isLoading,
+                            onTap: onPlay,
+                            onPlaybackRateChanged: onPlaybackRateChanged,
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ],
@@ -697,7 +702,7 @@ class _CorrectionCard extends StatelessWidget {
               Icon(
                 Icons.auto_fix_high_outlined,
                 size: 16,
-                color: palette.primary,
+                color: palette.accent,
               ),
               const SizedBox(width: AppSpacing.s6),
               Text(

@@ -50,16 +50,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('a tall tree'), findsOneWidget);
-    expect(find.text('under a tree'), findsOneWidget);
+    expect(find.text('under a tree'), findsNothing);
     expect(find.text('plant a tree'), findsNothing);
     expect(find.text('GRAMMAR'), findsNothing);
 
-    await tester.ensureVisible(
-      find.byKey(const Key('timeline.moreDetails.mock-discovery')),
-    );
-    await tester.tap(
-      find.byKey(const Key('timeline.moreDetails.mock-discovery')),
-    );
+    await tester.tap(find.byKey(const Key('timeline.word.mock-discovery')));
     await tester.pumpAndSettle();
 
     expect(find.text(t.timeline.wordDetails), findsOneWidget);
@@ -73,6 +68,7 @@ void main() {
     await tester.ensureVisible(
       find.byKey(const Key('timeline.talk.mock-discovery')),
     );
+    expect(find.text(t.timeline.talkAboutIt), findsOneWidget);
     await tester.tap(find.byKey(const Key('timeline.talk.mock-discovery')));
     await tester.pumpAndSettle();
     expect(find.text(t.talk.empty), findsOneWidget);
@@ -128,6 +124,59 @@ void main() {
       find.byKey(const Key('timeline.talkEvent.mock-conversation-1')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('creates a moment card for a Chinese sentence', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const config = AppConfig(
+      appName: 'Test App',
+      environment: AppEnvironment.dev,
+      apiBaseUrl: 'https://api.test',
+      useMockApi: true,
+    );
+
+    await pumpTemplateApp(
+      tester,
+      app: ProviderScope(
+        overrides: [
+          appConfigProvider.overrideWithValue(config),
+          authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
+          soulProvider.overrideWith(
+            (ref) async => const Soul(nativeLanguage: 'zh'),
+          ),
+        ],
+        child: const TemplateApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('timeline.composer')),
+      '我在公园看到一棵树。',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('timeline.send')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('timeline.scene.mock-scene-discovery')),
+      findsOneWidget,
+    );
+    expect(find.text('I saw a tree in the park.'), findsOneWidget);
+    expect(
+      find.byKey(const Key('timeline.talk.mock-scene-discovery')),
+      findsOneWidget,
+    );
+
+    await tester.tap(
+      find.byKey(const Key('timeline.talk.mock-scene-discovery')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('talk.input')), findsOneWidget);
   });
 }
 

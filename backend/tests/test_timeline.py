@@ -7,6 +7,7 @@ from test_discovery import (
     FakeTTSProvider,
     bearer,
     request_and_verify,
+    scene_output,
     word_output,
 )
 from test_talk import FakeTalkAgent, create_conversation, create_word, talk_client
@@ -134,3 +135,42 @@ async def test_timeline_rejects_invalid_cursor(timeline_env) -> None:
     )
     assert response.status_code == 400
     assert response.json()["code"] == "invalid_cursor"
+
+
+@pytest.mark.asyncio
+async def test_timeline_returns_scene_items(timeline_env) -> None:
+    http, sender, _, discovery_agent, _ = timeline_env
+    discovery_agent.output = scene_output()
+    verified = await request_and_verify(http, sender, "scene-timeline@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "今天在公园里和女儿休息了一会儿"},
+    )
+    assert response.status_code == 201
+    discovery_id = response.json()["id"]
+
+    response = await http.get("/api/v1/timeline", headers=headers)
+    assert response.status_code == 200, response.text
+    items = response.json()["items"]
+    assert len(items) == 1
+    scene_item = items[0]
+    assert scene_item["type"] == "scene"
+    assert scene_item["input_text"] == "今天在公园里和女儿休息了一会儿"
+    assert scene_item["scene"]["natural_english"] == ("I rested in the park with my daughter.")
+    assert scene_item["audio"]["status"] == "ready"
+    assert scene_item["conversation_id"] is None
+
+    conversation = await http.post(
+        "/api/v1/conversations",
+        headers=headers,
+        json={"focus_type": "scene", "focus_id": discovery_id},
+    )
+    assert conversation.status_code == 201
+    conversation_id = conversation.json()["id"]
+
+    response = await http.get("/api/v1/timeline", headers=headers)
+    scene_item = response.json()["items"][0]
+    assert scene_item["conversation_id"] == conversation_id

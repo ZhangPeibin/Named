@@ -18,7 +18,7 @@ async def read_timeline(
     limit: Annotated[int, Query(ge=1, le=50)] = 30,
     before: str | None = None,
     item_type: Annotated[
-        Literal["all", "word", "talk"],
+        Literal["all", "word", "scene", "talk"],
         Query(alias="type"),
     ] = "all",
 ) -> TimelineResponse:

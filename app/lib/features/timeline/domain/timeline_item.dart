@@ -37,6 +37,37 @@ class TimelineWordItem extends TimelineItem {
   }
 }
 
+class TimelineSceneItem extends TimelineItem {
+  const TimelineSceneItem({
+    required this.id,
+    required super.createdAt,
+    required this.inputText,
+    required this.inputLanguage,
+    required this.scene,
+    required this.audio,
+    required this.conversationId,
+  });
+
+  final String id;
+  final String? inputText;
+  final String? inputLanguage;
+  final ScenePayload scene;
+  final SceneAudio? audio;
+  final String? conversationId;
+
+  TimelineSceneItem copyWith({String? conversationId}) {
+    return TimelineSceneItem(
+      id: id,
+      createdAt: createdAt,
+      inputText: inputText,
+      inputLanguage: inputLanguage,
+      scene: scene,
+      audio: audio,
+      conversationId: conversationId ?? this.conversationId,
+    );
+  }
+}
+
 class TimelineTalkItem extends TimelineItem {
   const TimelineTalkItem({
     required this.id,

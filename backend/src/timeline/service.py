@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from discovery.schemas import WordPayload
+from discovery.schemas import ScenePayload, WordPayload
 from errors import ApiError
 from models import (
     Conversation,
@@ -15,10 +15,12 @@ from models import (
 )
 from timeline.schemas import (
     TimelineResponse,
+    TimelineSceneItem,
     TimelineTalkItem,
     TimelineTalkMessage,
     TimelineWordItem,
 )
+from tts.schemas import SpeechAudioOut
 from tts.service import WordAudioService
 
 
@@ -123,6 +125,70 @@ async def _word_items(
                 word=word,
                 audio=audio,
                 conversation_id=conversation_by_word.get(row.word_id),
+            )
+        )
+    return items
+
+
+async def _scene_items(
+    session: AsyncSession,
+    account_id: str,
+    audio_service: WordAudioService,
+    *,
+    limit: int,
+    before: datetime | None,
+) -> list[TimelineSceneItem]:
+    query = select(Discovery).where(
+        Discovery.account_id == account_id,
+        Discovery.deleted_at.is_(None),
+        Discovery.status == "ready",
+        Discovery.focus_kind == "scene",
+        Discovery.scene_payload_json.is_not(None),
+    )
+    if before is not None:
+        query = query.where(Discovery.created_at < before)
+
+    rows = list(await session.scalars(query.order_by(Discovery.created_at.desc()).limit(limit)))
+    if not rows:
+        return []
+
+    scene_ids = [row.id for row in rows]
+    conversations = await session.scalars(
+        select(Conversation)
+        .where(
+            Conversation.account_id == account_id,
+            Conversation.focus_type == "scene",
+            Conversation.focus_id.in_(scene_ids),
+        )
+        .order_by(Conversation.started_at.desc())
+    )
+    conversation_by_scene: dict[str, str] = {}
+    for conversation in conversations:
+        conversation_by_scene.setdefault(conversation.focus_id, conversation.id)
+
+    media_prefix = audio_service.settings.media_url_prefix.rstrip("/")
+    items: list[TimelineSceneItem] = []
+    for row in rows:
+        if row.scene_payload_json is None:
+            continue
+        scene = ScenePayload.model_validate(row.scene_payload_json)
+        audio = (
+            SpeechAudioOut(
+                url=f"{media_prefix}/{row.scene_audio_key}",
+                status="ready",
+            )
+            if row.scene_audio_key
+            else None
+        )
+        items.append(
+            TimelineSceneItem(
+                id=row.id,
+                created_at=row.created_at,
+                input_text=row.input_text,
+                input_language=row.input_language,
+                scene=scene,
+                audio=audio,
+                conversation_id=conversation_by_scene.get(row.id),
             )
         )
     return items
@@ -235,10 +301,19 @@ async def get_timeline(
 ) -> TimelineResponse:
     before_at = _parse_before(before)
     word_items: list[TimelineWordItem] = []
+    scene_items: list[TimelineSceneItem] = []
     talk_items: list[TimelineTalkItem] = []
 
     if item_type in {"all", "word"}:
         word_items = await _word_items(
+            session,
+            account_id,
+            audio_service,
+            limit=limit,
+            before=before_at,
+        )
+    if item_type in {"all", "scene"}:
+        scene_items = await _scene_items(
             session,
             account_id,
             audio_service,
@@ -254,7 +329,7 @@ async def get_timeline(
         )
 
     items = sorted(
-        [*word_items, *talk_items],
+        [*word_items, *scene_items, *talk_items],
         key=lambda item: item.created_at,
         reverse=True,
     )[:limit]

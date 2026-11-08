@@ -14,7 +14,10 @@ from discovery.agent import AgentFailed, get_discovery_agent
 from discovery.schemas import (
     DiscoveryAgentOutput,
     DiscoveryFocus,
+    SceneChunk,
+    SceneCorrection,
     SceneExtension,
+    ScenePayload,
     VarietyNote,
     WordChunk,
     WordPayload,
@@ -109,11 +112,55 @@ def scene_output() -> DiscoveryAgentOutput:
         input_language="zh",
         focus=DiscoveryFocus(
             kind="scene",
-            label_en="a moment from my day",
-            label_zh="今天的一段生活",
-            confidence=0.8,
+            label_en="a moment in the park",
+            label_zh="公园里的一段时光",
+            confidence=0.86,
         ),
         word=None,
+        scene=ScenePayload(
+            natural_english="I rested in the park with my daughter.",
+            key_chunks=[
+                SceneChunk(
+                    phrase="in the park",
+                    meaning_native="在公园里",
+                    example_en="We sat in the park.",
+                ),
+                SceneChunk(
+                    phrase="spend time with",
+                    meaning_native="和……一起度过",
+                ),
+            ],
+            key_words=["park", "daughter"],
+        ),
+        warnings=[],
+    )
+
+
+def english_scene_output() -> DiscoveryAgentOutput:
+    return DiscoveryAgentOutput(
+        input_language="en",
+        focus=DiscoveryFocus(
+            kind="scene",
+            label_en="liking a tree",
+            label_zh="喜欢一棵树",
+            confidence=0.88,
+        ),
+        word=None,
+        scene=ScenePayload(
+            natural_english="I really like the tree.",
+            key_chunks=[
+                SceneChunk(
+                    phrase="really like",
+                    meaning_native="非常喜欢",
+                )
+            ],
+            key_words=["really", "tree"],
+            correction=SceneCorrection(
+                original="I very like the tree.",
+                suggestion="I really like the tree.",
+                note="very 不能直接修饰 like，这里用 really。",
+            ),
+        ),
         warnings=[],
     )
 
@@ -290,7 +337,31 @@ async def test_scene_discovery_is_ready(discovery_env) -> None:
     assert body["status"] == "ready"
     assert body["focus_kind"] == "scene"
     assert body["word"] is None
+    assert body["scene"]["natural_english"] == "I rested in the park with my daughter."
+    assert body["scene"]["key_chunks"][0]["phrase"] == "in the park"
+    assert body["scene"]["correction"] is None
+    assert body["scene_audio"]["status"] == "ready"
     assert body["candidates"] == []
+
+
+@pytest.mark.asyncio
+async def test_english_scene_correction(discovery_env) -> None:
+    http, sender, _, agent, _ = discovery_env
+    agent.output = english_scene_output()
+    verified = await request_and_verify(http, sender, "scene-en@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "I very like the tree."},
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body["focus_kind"] == "scene"
+    assert body["scene"]["natural_english"] == "I really like the tree."
+    assert body["scene"]["correction"]["original"] == "I very like the tree."
+    assert body["scene"]["correction"]["suggestion"] == "I really like the tree."
 
 
 @pytest.mark.asyncio

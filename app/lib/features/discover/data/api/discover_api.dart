@@ -108,6 +108,8 @@ class MockDiscoverApi implements DiscoverApi {
   }) async {
     final dto = needsConfirmation
         ? _needsConfirmation(text, context)
+        : _looksLikeScene(text)
+        ? _scene(text, context)
         : _ready(text, context);
     _store[dto.id] = dto;
     return dto;
@@ -132,6 +134,62 @@ class MockDiscoverApi implements DiscoverApi {
     );
     _store[discoveryId] = ready;
     return ready;
+  }
+
+  bool _looksLikeScene(String text) {
+    final normalized = text.trim();
+    final words = normalized.split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    return normalized.endsWith('.') ||
+        normalized.endsWith('。') ||
+        words.length > 4 ||
+        normalized.contains('我在公园');
+  }
+
+  DiscoverDto _scene(String text, String? context) {
+    final isChinese = RegExp(r'[\u4e00-\u9fff]').hasMatch(text);
+    final hasVeryLike = text.toLowerCase().contains('very like');
+    final natural = hasVeryLike
+        ? 'I really like the tree.'
+        : isChinese && text.contains('公园')
+        ? 'I saw a tree in the park.'
+        : 'I noticed something small today.';
+    return DiscoverDto(
+      id: 'mock-scene-discovery',
+      inputText: text,
+      context: context,
+      inputLanguage: isChinese ? 'zh' : 'en',
+      status: 'ready',
+      focusKind: 'scene',
+      wordId: null,
+      candidates: const [],
+      word: null,
+      scene: ScenePayloadDto(
+        naturalEnglish: natural,
+        keyChunks: const [
+          SceneChunkDto(
+            phrase: 'in the park',
+            meaningNative: '在公园里',
+            exampleEn: 'We sat in the park.',
+          ),
+          SceneChunkDto(
+            phrase: 'really like',
+            meaningNative: '非常喜欢',
+            exampleEn: 'I really like this song.',
+          ),
+        ],
+        keyWords: const ['park', 'tree'],
+        correction: hasVeryLike
+            ? const SceneCorrectionDto(
+                original: 'I very like the tree.',
+                suggestion: 'I really like the tree.',
+                note: 'very 不能直接修饰 like，这里用 really。',
+              )
+            : null,
+      ),
+      audio: null,
+      needsConfirmation: false,
+      warnings: const [],
+    );
   }
 
   DiscoverDto _needsConfirmation(String text, String? context) {

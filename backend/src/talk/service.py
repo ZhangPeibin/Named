@@ -221,8 +221,13 @@ async def _conversation_title(
             return word.label_en
     elif conversation.focus_type == "scene":
         discovery = await session.get(Discovery, conversation.focus_id)
-        if discovery is not None and discovery.input_text:
-            return discovery.input_text.strip() or "Conversation"
+        if discovery is not None:
+            if discovery.scene_payload_json:
+                natural_english = discovery.scene_payload_json.get("natural_english")
+                if isinstance(natural_english, str) and natural_english.strip():
+                    return natural_english.strip()
+            if discovery.input_text:
+                return discovery.input_text.strip() or "Conversation"
     return "Conversation"
 
 

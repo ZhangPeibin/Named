@@ -172,7 +172,7 @@ class MockTalkApi implements TalkApi {
   ConversationDto _conversation(String id, String focusType, String focusId) {
     return ConversationDto(
       id: id,
-      title: 'tree',
+      title: focusType == 'scene' ? 'A moment from my day' : 'tree',
       focusType: focusType,
       focusId: focusId,
       status: 'active',

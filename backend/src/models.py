@@ -154,6 +154,8 @@ class Discovery(Base):
     )
     status: Mapped[str] = mapped_column(String(32), default="needs_confirmation", nullable=False)
     warnings_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    scene_payload_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    scene_audio_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 

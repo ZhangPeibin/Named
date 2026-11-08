@@ -241,6 +241,33 @@ class Translations$settings$en {
 	/// en: 'Language'
 	String get language => 'Language';
 
+	/// en: 'Theme'
+	String get theme => 'Theme';
+
+	/// en: 'Theme'
+	String get themeTitle => 'Theme';
+
+	/// en: 'Ink & Cobalt'
+	String get themeCobalt => 'Ink & Cobalt';
+
+	/// en: 'Clean and modern'
+	String get themeCobaltDescription => 'Clean and modern';
+
+	/// en: 'Ink & Parchment'
+	String get themeParchment => 'Ink & Parchment';
+
+	/// en: 'Warm and editorial'
+	String get themeParchmentDescription => 'Warm and editorial';
+
+	/// en: 'Plum & Sand'
+	String get themePlum => 'Plum & Sand';
+
+	/// en: 'Distinctive and warm'
+	String get themePlumDescription => 'Distinctive and warm';
+
+	/// en: 'Default'
+	String get defaultLabel => 'Default';
+
 	/// en: 'Sign out'
 	String get signOut => 'Sign out';
 
@@ -607,6 +634,9 @@ class Translations$talk$en {
 	/// en: 'Talk'
 	String get title => 'Talk';
 
+	/// en: 'Start with a sentence about this moment.'
+	String get emptyScene => 'Start with a sentence about this moment.';
+
 	/// en: 'Start with a sentence about this word.'
 	String get empty => 'Start with a sentence about this word.';
 
@@ -688,9 +718,6 @@ class Translations$timeline$en {
 	/// en: 'Could not name that. Try again.'
 	String get nameFailed => 'Could not name that. Try again.';
 
-	/// en: 'Talk'
-	String get talk => 'Talk';
-
 	/// en: 'Common usage'
 	String get commonUsage => 'Common usage';
 
@@ -718,6 +745,9 @@ class Translations$timeline$en {
 	/// en: 'Natural chunks'
 	String get chunks => 'Natural chunks';
 
+	/// en: 'Talk about it'
+	String get talkAboutIt => 'Talk about it';
+
 	/// en: 'In this scene'
 	String get sceneExtensions => 'In this scene';
 
@@ -732,6 +762,12 @@ class Translations$timeline$en {
 
 	/// en: 'Word details'
 	String get wordDetails => 'Word details';
+
+	/// en: 'Play sentence'
+	String get playMoment => 'Play sentence';
+
+	/// en: 'Pause sentence'
+	String get pauseMoment => 'Pause sentence';
 
 	/// en: 'Play word'
 	String get play => 'Play word';
@@ -812,6 +848,15 @@ extension on Translations {
 			'todoDemo.emptyMessage' => 'This is the empty state for the API demo.',
 			'settings.title' => 'Settings',
 			'settings.language' => 'Language',
+			'settings.theme' => 'Theme',
+			'settings.themeTitle' => 'Theme',
+			'settings.themeCobalt' => 'Ink & Cobalt',
+			'settings.themeCobaltDescription' => 'Clean and modern',
+			'settings.themeParchment' => 'Ink & Parchment',
+			'settings.themeParchmentDescription' => 'Warm and editorial',
+			'settings.themePlum' => 'Plum & Sand',
+			'settings.themePlumDescription' => 'Distinctive and warm',
+			'settings.defaultLabel' => 'Default',
 			'settings.signOut' => 'Sign out',
 			'settings.languageTitle' => 'Language',
 			'settings.english' => 'English',
@@ -907,6 +952,7 @@ extension on Translations {
 			'understand.talkFailed' => 'Could not start the conversation. Try again.',
 			'understand.sceneTitle' => 'A small scene',
 			'talk.title' => 'Talk',
+			'talk.emptyScene' => 'Start with a sentence about this moment.',
 			'talk.empty' => 'Start with a sentence about this word.',
 			'talk.inputHint' => 'Say something...',
 			'talk.send' => 'Send',
@@ -931,7 +977,6 @@ extension on Translations {
 			'timeline.composerHint' => 'What did you see?',
 			'timeline.send' => 'Send',
 			'timeline.nameFailed' => 'Could not name that. Try again.',
-			'timeline.talk' => 'Talk',
 			'timeline.commonUsage' => 'Common usage',
 			'timeline.example' => 'Example',
 			'timeline.loadFailed' => 'Could not load your timeline.',
@@ -941,11 +986,14 @@ extension on Translations {
 			'timeline.menuMe' => 'Me',
 			'timeline.menuSettings' => 'Settings',
 			'timeline.chunks' => 'Natural chunks',
+			'timeline.talkAboutIt' => 'Talk about it',
 			'timeline.sceneExtensions' => 'In this scene',
 			'timeline.usUk' => 'US / UK',
 			'timeline.grammar' => 'Grammar',
 			'timeline.moreDetails' => 'More details',
 			'timeline.wordDetails' => 'Word details',
+			'timeline.playMoment' => 'Play sentence',
+			'timeline.pauseMoment' => 'Pause sentence',
 			'timeline.play' => 'Play word',
 			'timeline.pause' => 'Pause word',
 			'timeline.speed' => 'Playback speed',

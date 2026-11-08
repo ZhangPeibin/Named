@@ -98,6 +98,53 @@ class DiscoveredWord {
 
 enum WordAudioAccent { us, uk }
 
+class SceneChunk {
+  const SceneChunk({
+    required this.phrase,
+    required this.meaningNative,
+    required this.exampleEn,
+  });
+
+  final String phrase;
+  final String meaningNative;
+  final String? exampleEn;
+}
+
+class SceneCorrection {
+  const SceneCorrection({
+    required this.original,
+    required this.suggestion,
+    required this.note,
+  });
+
+  final String original;
+  final String suggestion;
+  final String note;
+}
+
+class ScenePayload {
+  const ScenePayload({
+    required this.naturalEnglish,
+    required this.keyChunks,
+    required this.keyWords,
+    required this.correction,
+  });
+
+  final String naturalEnglish;
+  final List<SceneChunk> keyChunks;
+  final List<String> keyWords;
+  final SceneCorrection? correction;
+}
+
+class SceneAudio {
+  const SceneAudio({required this.url, required this.status});
+
+  final String? url;
+  final String status;
+
+  bool get isReady => status == 'ready' && url != null && url!.isNotEmpty;
+}
+
 class WordAudio {
   const WordAudio({required this.usUrl, required this.ukUrl});
 
@@ -126,7 +173,9 @@ class Discovery {
     required this.wordId,
     required this.candidates,
     required this.word,
+    required this.scene,
     required this.audio,
+    required this.sceneAudio,
     required this.needsConfirmation,
     required this.warnings,
   });
@@ -140,7 +189,9 @@ class Discovery {
   final String? wordId;
   final List<DiscoveryCandidate> candidates;
   final DiscoveredWord? word;
+  final ScenePayload? scene;
   final WordAudio? audio;
+  final SceneAudio? sceneAudio;
   final bool needsConfirmation;
   final List<String> warnings;
 

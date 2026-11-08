@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from tts.schemas import AudioOut
+from tts.schemas import AudioOut, SpeechAudioOut
 
 
 class WordCandidate(BaseModel):
@@ -85,18 +85,46 @@ class WordPayload(BaseModel):
         return normalized
 
 
+class SceneChunk(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    phrase: str = Field(min_length=1, max_length=300)
+    meaning_native: str = Field(min_length=1, max_length=500)
+    example_en: str | None = Field(default=None, max_length=1000)
+
+
+class SceneCorrection(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    original: str = Field(min_length=1, max_length=2000)
+    suggestion: str = Field(min_length=1, max_length=2000)
+    note: str = Field(min_length=1, max_length=1000)
+
+
+class ScenePayload(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    natural_english: str = Field(min_length=1, max_length=2000)
+    key_chunks: list[SceneChunk] = Field(default_factory=list, max_length=3)
+    key_words: list[str] = Field(default_factory=list, max_length=5)
+    correction: SceneCorrection | None = None
+
+
 class DiscoveryAgentOutput(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     input_language: str = Field(min_length=2, max_length=16)
     focus: DiscoveryFocus
     word: WordPayload | None = None
+    scene: ScenePayload | None = None
     warnings: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def require_word_for_word_focus(self) -> "DiscoveryAgentOutput":
+    def require_focus_payload(self) -> "DiscoveryAgentOutput":
         if self.focus.kind == "word" and self.word is None:
             raise ValueError("word is required when focus.kind is 'word'")
+        if self.focus.kind == "scene" and self.scene is None:
+            raise ValueError("scene is required when focus.kind is 'scene'")
         return self
 
 
@@ -123,7 +151,9 @@ class DiscoveryOut(BaseModel):
     word_id: str | None
     candidates: list[CandidateOut]
     word: WordPayload | None
+    scene: ScenePayload | None = None
     audio: AudioOut | None = None
+    scene_audio: SpeechAudioOut | None = None
     needs_confirmation: bool
     warnings: list[str] = Field(default_factory=list)
 

@@ -10,12 +10,12 @@ The reference PDF supplies visual and interaction guidance only. Its “Everyday
 
 ## 1. Visual direction
 
-**Warm Editorial Minimalism.** A thoughtful lifestyle journal, personal memory and an efficient conversation companion.
+**Ink & Cobalt (default).** A thoughtful lifestyle journal, personal memory and an efficient conversation companion. Settings also offers **Ink & Parchment** and **Plum & Sand**.
 
 - Real-life photography supplies the visual content. Local sample images stand in for learners' actual discoveries.
-- Ivory is the light canvas; deep forest is the dark canvas. Green is reserved for primary actions, identity and interaction states.
+- Soft paper is the light canvas; cool charcoal is the dark canvas. Cobalt carries primary actions and selected states; terracotta is a small warm accent.
 - Editorial serif headlines and large English words sit alongside legible Chinese interface and native-language support.
-- Bounded white or dark surfaces, restrained borders and clear hierarchy replace repetitive green cards.
+- Bounded white or dark surfaces, restrained borders and clear hierarchy replace repetitive colored cards.
 - A quiet photographic reference portrait presents Milo as a virtual partner. It does not identify a real tutor.
 - Optional correction details and sentence/word help keep natural conversation in focus.
 - No decorative gradients, glass panels or AI glow. Reduced-motion settings disable waveform animation.
@@ -24,24 +24,26 @@ The reference PDF supplies visual and interaction guidance only. Its “Everyday
 
 | Role | Light | Dark |
 | --- | --- | --- |
-| Canvas | `#F5F2E9` | `#1C211D` |
-| Surface | `#FFFFFF` | `#252C26` |
-| Secondary surface | `#E5E9DF` | `#303930` |
-| Primary action / selected foreground | `#526B4B` | `#A7BC96` |
-| Main text | `#30372F` | `#E9E8DF` |
-| Supporting text | `#646A60` | `#B8BDB2` |
-| Accent / secondary brand | `#A7BC96` | `#718568` |
-| Warm surface | `#E8DDCC` | `#3A352D` |
-| Text on primary | `#FFFFFF` | `#1C211D` |
+| Canvas | `#F7F6F2` | `#171A1D` |
+| Surface | `#FFFFFF` | `#20252A` |
+| Secondary surface | `#E8EFF7` | `#2A3138` |
+| Primary action / selected foreground | `#2F4A6B` | `#A9C2DC` |
+| Main text | `#232A31` | `#E7EBEF` |
+| Supporting text | `#5F6B76` | `#AAB3BC` |
+| Accent / secondary brand | `#B05230` | `#E09A74` |
+| Warm surface | `#F0E5D8` | `#352B24` |
+| Text on primary | `#FFFFFF` | `#171A1D` |
+
+Alternate families use the same roles; see [Mobile UI Design System](ui-design-system.md#theme-families).
 
 Warning surfaces and borders have additional semantic tokens. Components consume tokens instead of fixed light-theme colors.
 
 ### Theme behavior
 
-- Default: follow `prefers-color-scheme`.
-- Overrides: System / Light / Dark in the review toolbar and Me → Preferences.
-- Theme follows system changes while System is selected.
-- The appearance choice is retained locally; changing theme preserves input and does not reset conversation state.
+- Default palette: Ink & Cobalt.
+- Palette overrides: Settings → Theme (Ink & Cobalt, Ink & Parchment, Plum & Sand).
+- Light/dark follows the system color scheme.
+- The palette choice is retained locally; changing it preserves input and does not reset conversation state.
 - Photos retain their real colors. Text over a photo uses an opaque readable surface.
 
 ### Readability
@@ -78,9 +80,9 @@ Key states include first use, empty timeline, processing, request failure, long 
 
 ### First naming
 
-Soul → Timeline → Name a thing → Word card → Talk → Talk event.
+Soul → Timeline → Name a thing or describe a moment → Word card or Moment card → Talk → Talk event.
 
-The composer is the product entry point: the learner sees something, names it, and gets one English result. There is no candidate picker. Challenge/task prompts are deferred; when added they must not turn the timeline into a course dashboard.
+The composer is the product entry point: the learner sees something, names it, or describes what happened, and gets one English result. A word or short noun phrase becomes a Word card; a complete sentence becomes a Moment card with natural English and key chunks. There is no candidate picker. Challenge/task prompts are deferred; when added they must not turn the timeline into a course dashboard.
 
 ### Return to a conversation
 

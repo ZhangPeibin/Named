@@ -1,7 +1,7 @@
 # Named · Mobile UI Design System
 
-**Status:** v1.0 implementation baseline
-**Visual direction:** Warm Editorial Minimalism
+**Status:** v2.0 implementation baseline
+**Visual direction:** Ink & Cobalt (default), with Ink & Parchment and Plum & Sand selectable
 **Product authority:** [PRD V1.0](prd-v1.0.md)
 **Experience direction:** [UI/UX design](ui-ux-design.md)
 **Reference build:** [HTML prototype](prototypes/named.html)
@@ -11,7 +11,7 @@ This document is the contract for the Flutter app. It defines the visual languag
 ## 1. Principles
 
 1. **Life first, interface second.** A real photo, a remembered scene, or one honest sentence is the visual focus. Chrome stays quiet.
-2. **Warm, not cute.** Ivory paper, forest green, serif headlines, and restrained borders. No gradients, glass, neon, AI glow, or decorative illustration.
+2. **Warm, not cute.** Soft paper, cobalt actions, terracotta accents, serif headlines, and restrained borders. Alternate palettes preserve the same hierarchy. No gradients, glass, neon, AI glow, or decorative illustration.
 3. **Editorial hierarchy.** Large Latin serif headlines create rhythm; Chinese and body copy stay highly legible in the system sans font.
 4. **One clear action.** Every screen has one primary action. Secondary actions are outlined or text-only.
 5. **Content is personal, never gamified.** No mastery scores, streak pressure, leaderboards, or fake progress.
@@ -26,44 +26,54 @@ Use semantic tokens, never raw hex values in feature code. Feature widgets read 
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `canvas` | `#F5F2E9` | App background, page canvas |
+| `canvas` | `#F7F6F2` | App background, page canvas |
 | `surface` | `#FFFFFF` | Cards, fields, sheets |
-| `surfaceMuted` | `#E5E9DF` | Chips, selected tiles, quiet blocks |
-| `primary` | `#526B4B` | Primary actions, active nav, identity |
-| `primaryPressed` | `#43583E` | Pressed / hover primary |
+| `surfaceMuted` | `#E8EFF7` | Chips, selected tiles, quiet blocks |
+| `primary` | `#2F4A6B` | Primary actions, active nav, identity |
+| `primaryPressed` | `#243950` | Pressed / hover primary |
 | `onPrimary` | `#FFFFFF` | Text and icons on primary |
-| `ink` | `#30372F` | Main text |
-| `muted` | `#646A60` | Supporting text, metadata |
-| `accent` | `#A7BC96` | Quiet accents, illustration fallback |
-| `warm` | `#E8DDCC` | Warm callouts, user-message surface |
-| `line` | `#D4D8CD` | Borders and dividers |
-| `warningSurface` | `#F1E6D7` | Retry / warning background |
-| `warningText` | `#77512D` | Retry / warning text |
+| `ink` | `#232A31` | Main text |
+| `muted` | `#5F6B76` | Supporting text, metadata |
+| `accent` | `#B05230` | Correction, tip, and quiet warm accents |
+| `warm` | `#F0E5D8` | Warm callouts, user-message surface |
+| `line` | `#D9E1E9` | Borders and dividers |
+| `warningSurface` | `#F4E5D2` | Retry / warning background |
+| `warningText` | `#7A4C2A` | Retry / warning text |
 | `error` | `#A13D32` | Destructive actions and errors |
 
 ### Dark
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `canvas` | `#1C211D` | App background, page canvas |
-| `surface` | `#252C26` | Cards, fields, sheets |
-| `surfaceMuted` | `#303930` | Chips, selected tiles, quiet blocks |
-| `primary` | `#A7BC96` | Primary actions, active nav, identity |
-| `primaryPressed` | `#8FA57F` | Pressed / hover primary |
-| `onPrimary` | `#1C211D` | Text and icons on primary |
-| `ink` | `#E9E8DF` | Main text |
-| `muted` | `#B8BDB2` | Supporting text, metadata |
-| `accent` | `#718568` | Quiet accents, illustration fallback |
-| `warm` | `#3A352D` | Warm callouts, user-message surface |
-| `line` | `#485246` | Borders and dividers |
-| `warningSurface` | `#3C342A` | Retry / warning background |
-| `warningText` | `#E8DDCC` | Retry / warning text |
+| `canvas` | `#171A1D` | App background, page canvas |
+| `surface` | `#20252A` | Cards, fields, sheets |
+| `surfaceMuted` | `#2A3138` | Chips, selected tiles, quiet blocks |
+| `primary` | `#A9C2DC` | Primary actions, active nav, identity |
+| `primaryPressed` | `#8FA9C4` | Pressed / hover primary |
+| `onPrimary` | `#171A1D` | Text and icons on primary |
+| `ink` | `#E7EBEF` | Main text |
+| `muted` | `#AAB3BC` | Supporting text, metadata |
+| `accent` | `#E09A74` | Correction, tip, and quiet warm accents |
+| `warm` | `#352B24` | Warm callouts, user-message surface |
+| `line` | `#343D45` | Borders and dividers |
+| `warningSurface` | `#3A2F25` | Retry / warning background |
+| `warningText` | `#F0DCC8` | Retry / warning text |
 | `error` | `#E6A09A` | Destructive actions and errors |
+
+### Theme families
+
+The app defaults to **Ink & Cobalt**. Settings → Theme also exposes **Ink & Parchment** and **Plum & Sand**. All families use the same semantic tokens and component rules; only the token values change.
+
+| Family | Light canvas | Light primary | Dark canvas | Dark primary |
+| --- | --- | --- | --- | --- |
+| Ink & Cobalt (default) | `#F7F6F2` | `#2F4A6B` | `#171A1D` | `#A9C2DC` |
+| Ink & Parchment | `#F8F4EC` | `#2B2924` | `#1A1917` | `#EADCC7` |
+| Plum & Sand | `#F6F1E9` | `#5B3A43` | `#1A1718` | `#E3C4C7` |
 
 ### Color rules
 
 - Photos keep their real color. Text is never placed directly over a busy photo; use an opaque `surface` or `canvas` block.
-- Green is reserved for action, identity, and active state. Do not use it as a decorative background across whole cards.
+- Cobalt is the default action and selected-state color. Terracotta is reserved for correction, tips, and small warm accents; do not use it as a large background.
 - Never use color alone to communicate state. Pair it with text, icon, or shape.
 - Validate every rendered foreground/background pair at 4.5:1 for normal text and 3:1 for large text in both themes.
 
@@ -220,7 +230,7 @@ Do not show a marketing carousel, social login wall, or fake testimonials.
 1. No app bar. Start directly with the day-grouped timeline.
 2. Day-grouped IM timeline, oldest at the top and newest at the bottom.
 3. The timeline opens at the newest entry.
-4. A Named entry is one complete word card: input → English word, IPA, POS, common usage, example, Talk.
+4. A Named entry becomes a compact Word card or a Moment card. Word: input → English word, IPA/POS, meaning, one chunk, Listen, Talk. Moment: original sentence (when different) → natural English, one chunk, Listen, Talk.
 5. A talk event appears only after the first message; it shows the last message snippet and Continue.
 6. `+` opens Words / Me / Settings.
 7. Empty state: “What did you see today?” plus the bottom composer.
@@ -243,8 +253,9 @@ Do not show a marketing carousel, social login wall, or fake testimonials.
 ### Named / Word card / Talk event / Talk
 
 - **Named entry:** one text input in the bottom composer. The agent returns a single top-1 result; there is no candidate or correction UI in MVP.
-- **Word card (summary):** input → English word, IPA, POS, primary definition, inline `0.5× / 1× / 2×` audio buttons with the word, first 2 chunks with phrase + meaning, and a split 44 px action pill: quiet `More details` on the left, primary `Talk` on the right. Tapping a speed button plays immediately at that speed.
-- **Word details sheet:** full word, all chunks with examples, grammar, US/UK, primary example, and scene extensions. Open from the summary card with `More details`. Audio defaults to US; a compact `US / UK` switch selects Cindy or Emily.
+- **Word card (summary):** source input → English word, compact play + speed menu, IPA/POS inline, primary definition, first chunk with phrase + meaning, and a quiet `Talk about it` text action. The whole card opens details; the top-right chevron signals it. No extra-chunk count is shown.
+- **Moment card:** original sentence (shown only when different) → natural English, one reusable chunk, sentence Listen on the right, and `Talk about it`. No correction label; the natural English itself carries the correction.
+- **Word details sheet:** full word, all chunks with examples, grammar, US/UK, primary example, and scene extensions. Open by tapping the summary card. Audio defaults to US; a compact `US / UK` switch selects Cindy or Emily.
 - **Talk event:** after at least one message, show the last message snippet, time, and Continue. Tapping opens the same conversation.
 - **Talk:** focused full-screen chat with fixed text composer above the keyboard. Return refreshes the timeline snippet.
 - **Words:** filtered list of named words, reached from the `+` menu.

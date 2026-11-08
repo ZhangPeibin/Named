@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/app_theme_controller.dart';
+import '../../../app/theme/app_theme_family.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
@@ -17,6 +19,8 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t.settings;
     final palette = context.appPalette;
+    final themeFamily =
+        ref.watch(appThemeControllerProvider).value ?? defaultAppThemeFamily;
 
     return AppScaffold(
       title: t.title,
@@ -24,6 +28,26 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(top: AppSpacing.s16),
         children: [
+          AppCard(
+            onTap: () => context.pushNamed(AppRouteNames.theme),
+            padding: const EdgeInsets.all(AppSpacing.s16),
+            child: Row(
+              children: [
+                Icon(Icons.palette_outlined, color: palette.primary),
+                const SizedBox(width: AppSpacing.s12),
+                Expanded(child: Text(t.theme)),
+                Text(
+                  _themeTitle(t, themeFamily),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+                const SizedBox(width: AppSpacing.s4),
+                Icon(Icons.chevron_right, color: palette.muted),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s12),
           AppCard(
             onTap: () => context.pushNamed(AppRouteNames.language),
             padding: const EdgeInsets.all(AppSpacing.s16),
@@ -52,4 +76,12 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+String _themeTitle(Translations$settings$en t, AppThemeFamily family) {
+  return switch (family) {
+    AppThemeFamily.cobalt => t.themeCobalt,
+    AppThemeFamily.parchment => t.themeParchment,
+    AppThemeFamily.plum => t.themePlum,
+  };
 }

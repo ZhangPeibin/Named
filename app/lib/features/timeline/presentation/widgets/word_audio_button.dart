@@ -17,10 +17,12 @@ class WordAudioButton extends ConsumerStatefulWidget {
     super.key,
     required this.audio,
     this.accent = WordAudioAccent.us,
+    this.compact = false,
   });
 
   final WordAudio? audio;
   final WordAudioAccent accent;
+  final bool compact;
 
   @override
   ConsumerState<WordAudioButton> createState() => _WordAudioButtonState();
@@ -108,6 +110,21 @@ class _WordAudioButtonState extends ConsumerState<WordAudioButton> {
     }
   }
 
+  Future<void> _setSpeed(double speed) async {
+    setState(() => _speed = speed);
+    if (_isPlaying) {
+      await _player.setPlaybackRate(speed);
+    }
+  }
+
+  Future<void> _togglePlay() async {
+    if (_isPlaying) {
+      await _player.pause();
+      return;
+    }
+    await _playAt(_speed);
+  }
+
   Future<Uint8List> _loadBytes(String url) async {
     if (_cachedUrl == url && _cachedBytes != null) {
       return _cachedBytes!;
@@ -126,8 +143,82 @@ class _WordAudioButtonState extends ConsumerState<WordAudioButton> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.timeline;
+
     if (widget.audio?.hasAudio != true) {
       return const SizedBox.shrink();
+    }
+
+    if (widget.compact) {
+      return Material(
+        color: palette.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Semantics(
+              button: true,
+              label: _isPlaying ? t.pause : t.play,
+              onTap: _togglePlay,
+              excludeSemantics: true,
+              child: InkWell(
+                key: const Key('word.audio.toggle'),
+                onTap: _togglePlay,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s8,
+                    vertical: AppSpacing.s6,
+                  ),
+                  child: Icon(
+                    _isPlaying ? Icons.pause : Icons.volume_up_outlined,
+                    size: 16,
+                    color: palette.primary,
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, height: 18, color: palette.line),
+            PopupMenuButton<double>(
+              tooltip: t.speed,
+              initialValue: _speed,
+              onSelected: (speed) => unawaited(_setSpeed(speed)),
+              itemBuilder: (context) => [
+                for (final speed in _speeds)
+                  CheckedPopupMenuItem<double>(
+                    value: speed,
+                    checked: speed == _speed,
+                    child: Text(_speedLabel(speed)),
+                  ),
+              ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s8,
+                  vertical: AppSpacing.s6,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _speedLabel(_speed),
+                      style: AppTextStyles.caption.copyWith(
+                        color: palette.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      size: 14,
+                      color: palette.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return Row(

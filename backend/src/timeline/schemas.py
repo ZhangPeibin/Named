@@ -3,8 +3,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from discovery.schemas import WordPayload
-from tts.schemas import AudioOut
+from discovery.schemas import ScenePayload, WordPayload
+from tts.schemas import AudioOut, SpeechAudioOut
 
 
 class TimelineWordItem(BaseModel):
@@ -17,6 +17,17 @@ class TimelineWordItem(BaseModel):
     word_id: str | None
     word: WordPayload | None
     audio: AudioOut | None = None
+    conversation_id: str | None = None
+
+
+class TimelineSceneItem(BaseModel):
+    type: Literal["scene"] = "scene"
+    id: str
+    created_at: datetime
+    input_text: str | None
+    input_language: str | None
+    scene: ScenePayload
+    audio: SpeechAudioOut | None = None
     conversation_id: str | None = None
 
 
@@ -39,7 +50,7 @@ class TimelineTalkItem(BaseModel):
 
 
 TimelineItem = Annotated[
-    TimelineWordItem | TimelineTalkItem,
+    TimelineWordItem | TimelineSceneItem | TimelineTalkItem,
     Field(discriminator="type"),
 ]
 

@@ -58,6 +58,61 @@ class TimelineWordItemDto extends TimelineItemDto {
   }
 }
 
+class TimelineSceneItemDto extends TimelineItemDto {
+  const TimelineSceneItemDto({
+    required this.id,
+    required this.createdAt,
+    required this.inputText,
+    required this.inputLanguage,
+    required this.scene,
+    required this.audio,
+    required this.conversationId,
+  });
+
+  factory TimelineSceneItemDto.fromJson(Map<String, dynamic> json) {
+    final rawScene = json['scene'];
+    final rawAudio = json['audio'] ?? json['scene_audio'];
+    return TimelineSceneItemDto(
+      id: json['id'] as String? ?? '',
+      createdAt: _parseDate(json['created_at']),
+      inputText: json['input_text'] as String?,
+      inputLanguage: json['input_language'] as String?,
+      scene: rawScene is Map<String, dynamic>
+          ? ScenePayloadDto.fromJson(rawScene)
+          : null,
+      audio: rawAudio is Map<String, dynamic>
+          ? SceneAudioDto.fromJson(rawAudio)
+          : null,
+      conversationId: json['conversation_id'] as String?,
+    );
+  }
+
+  final String id;
+  final DateTime createdAt;
+  final String? inputText;
+  final String? inputLanguage;
+  final ScenePayloadDto? scene;
+  final SceneAudioDto? audio;
+  final String? conversationId;
+
+  @override
+  TimelineItem toDomain() {
+    final scene = this.scene;
+    if (scene == null) {
+      throw StateError('Scene timeline item is missing scene content');
+    }
+    return TimelineSceneItem(
+      id: id,
+      createdAt: createdAt,
+      inputText: inputText,
+      inputLanguage: inputLanguage,
+      scene: scene.toDomain(),
+      audio: audio?.toDomain(),
+      conversationId: conversationId,
+    );
+  }
+}
+
 class TimelineTalkItemDto extends TimelineItemDto {
   const TimelineTalkItemDto({
     required this.id,
@@ -118,6 +173,8 @@ class TimelineResponseDto {
       final type = raw['type'];
       if (type == 'word') {
         items.add(TimelineWordItemDto.fromJson(raw));
+      } else if (type == 'scene') {
+        items.add(TimelineSceneItemDto.fromJson(raw));
       } else if (type == 'talk') {
         items.add(TimelineTalkItemDto.fromJson(raw));
       }

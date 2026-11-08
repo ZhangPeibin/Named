@@ -18,7 +18,7 @@ from errors import ApiError
 from images import ImageError, process_image
 from models import Discovery
 from ratelimit import DiscoverRateLimitDep
-from tts.deps import MediaStoreDep, WordAudioServiceDep
+from tts.deps import MediaStoreDep, SpeechAudioServiceDep, WordAudioServiceDep
 
 router = APIRouter(prefix="/discoveries", tags=["discoveries"])
 word_router = APIRouter(prefix="/words", tags=["words"])
@@ -34,6 +34,7 @@ async def create(
     agent: DiscoveryAgentDep,
     settings: SettingsDep,
     audio_service: WordAudioServiceDep,
+    speech_service: SpeechAudioServiceDep,
     store: MediaStoreDep,
     _: DiscoverRateLimitDep,
     text: Annotated[str | None, Form()] = None,
@@ -67,6 +68,7 @@ async def create(
             agent,
             settings,
             audio_service,
+            speech_service,
         )
     except Exception:
         if image_key is not None:

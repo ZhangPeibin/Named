@@ -9,6 +9,7 @@ import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
 import '../../features/settings/presentation/language_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
+import '../../features/settings/presentation/theme_page.dart';
 import '../../features/soul/presentation/soul_page.dart';
 import '../../features/talk/presentation/talk_page.dart';
 import '../../features/timeline/presentation/timeline_page.dart';
@@ -26,6 +27,7 @@ class AppRoutePaths {
   static const words = '/words';
   static const me = '/me';
   static const settings = '/settings';
+  static const theme = '/settings/theme';
   static const language = '/settings/language';
   static const talk = '/talk/:conversationId';
   static const todoDemo = '/todo-demo';
@@ -40,6 +42,7 @@ class AppRouteNames {
   static const words = 'words';
   static const me = 'me';
   static const settings = 'settings';
+  static const theme = 'theme';
   static const language = 'language';
   static const talk = 'talk';
   static const todoDemo = 'todoDemo';
@@ -112,6 +115,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutePaths.settings,
         name: AppRouteNames.settings,
         builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.theme,
+        name: AppRouteNames.theme,
+        builder: (context, state) => const ThemePage(),
       ),
       GoRoute(
         path: AppRoutePaths.language,

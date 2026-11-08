@@ -9,6 +9,8 @@ import '../core/providers/app_config_provider.dart';
 import '../i18n/strings.g.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import 'theme/app_theme_controller.dart';
+import 'theme/app_theme_family.dart';
 
 class TemplateApp extends ConsumerWidget {
   const TemplateApp({super.key});
@@ -17,14 +19,16 @@ class TemplateApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final config = ref.watch(appConfigProvider);
     ref.watch(appLocaleControllerProvider);
+    final themeFamily =
+        ref.watch(appThemeControllerProvider).value ?? defaultAppThemeFamily;
     final locale = TranslationProvider.of(context).flutterLocale;
 
     return ToastificationWrapper(
       child: MaterialApp.router(
         title: config.appName,
         debugShowCheckedModeBanner: config.environment != AppEnvironment.prod,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
+        theme: AppTheme.light(family: themeFamily),
+        darkTheme: AppTheme.dark(family: themeFamily),
         locale: locale,
         supportedLocales: AppLocaleUtils.supportedLocales,
         localizationsDelegates: GlobalMaterialLocalizations.delegates,

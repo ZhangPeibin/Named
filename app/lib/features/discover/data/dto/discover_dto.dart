@@ -257,6 +257,120 @@ List<SceneExtensionDto> _sceneExtensionsFromJson(List<dynamic> raw) {
   return result;
 }
 
+class SceneChunkDto {
+  const SceneChunkDto({
+    required this.phrase,
+    required this.meaningNative,
+    required this.exampleEn,
+  });
+
+  factory SceneChunkDto.fromJson(Map<String, dynamic> json) {
+    return SceneChunkDto(
+      phrase: json['phrase'] as String? ?? '',
+      meaningNative: json['meaning_native'] as String? ?? '',
+      exampleEn: json['example_en'] as String?,
+    );
+  }
+
+  final String phrase;
+  final String meaningNative;
+  final String? exampleEn;
+
+  SceneChunk toDomain() {
+    return SceneChunk(
+      phrase: phrase,
+      meaningNative: meaningNative,
+      exampleEn: exampleEn,
+    );
+  }
+}
+
+class SceneCorrectionDto {
+  const SceneCorrectionDto({
+    required this.original,
+    required this.suggestion,
+    required this.note,
+  });
+
+  factory SceneCorrectionDto.fromJson(Map<String, dynamic> json) {
+    return SceneCorrectionDto(
+      original: json['original'] as String? ?? '',
+      suggestion: json['suggestion'] as String? ?? '',
+      note: json['note'] as String? ?? '',
+    );
+  }
+
+  final String original;
+  final String suggestion;
+  final String note;
+
+  SceneCorrection toDomain() {
+    return SceneCorrection(
+      original: original,
+      suggestion: suggestion,
+      note: note,
+    );
+  }
+}
+
+class ScenePayloadDto {
+  const ScenePayloadDto({
+    required this.naturalEnglish,
+    required this.keyChunks,
+    required this.keyWords,
+    required this.correction,
+  });
+
+  factory ScenePayloadDto.fromJson(Map<String, dynamic> json) {
+    final rawCorrection = json['correction'];
+    return ScenePayloadDto(
+      naturalEnglish: json['natural_english'] as String? ?? '',
+      keyChunks: (json['key_chunks'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(SceneChunkDto.fromJson)
+          .toList(),
+      keyWords: (json['key_words'] as List<dynamic>? ?? const [])
+          .whereType<String>()
+          .toList(),
+      correction: rawCorrection is Map<String, dynamic>
+          ? SceneCorrectionDto.fromJson(rawCorrection)
+          : null,
+    );
+  }
+
+  final String naturalEnglish;
+  final List<SceneChunkDto> keyChunks;
+  final List<String> keyWords;
+  final SceneCorrectionDto? correction;
+
+  ScenePayload toDomain() {
+    return ScenePayload(
+      naturalEnglish: naturalEnglish,
+      keyChunks: keyChunks.map((chunk) => chunk.toDomain()).toList(),
+      keyWords: keyWords,
+      correction: correction?.toDomain(),
+    );
+  }
+}
+
+class SceneAudioDto {
+  const SceneAudioDto({required this.url, required this.status});
+
+  factory SceneAudioDto.fromJson(Map<String, dynamic> json) {
+    return SceneAudioDto(
+      url: json['url'] as String?,
+      status: json['status'] as String? ?? 'unavailable',
+    );
+  }
+
+  final String? url;
+  final String status;
+
+  SceneAudio toDomain() {
+    return SceneAudio(url: url, status: status);
+  }
+}
+
 class WordAudioDto {
   const WordAudioDto({required this.usUrl, required this.ukUrl});
 
@@ -288,14 +402,18 @@ class DiscoverDto {
     required this.wordId,
     required this.candidates,
     required this.word,
+    this.scene,
     required this.audio,
+    this.sceneAudio,
     required this.needsConfirmation,
     required this.warnings,
   });
 
   factory DiscoverDto.fromJson(Map<String, dynamic> json) {
     final rawWord = json['word'];
+    final rawScene = json['scene'];
     final rawAudio = json['audio'];
+    final rawSceneAudio = json['scene_audio'];
     return DiscoverDto(
       id: json['id'] as String? ?? '',
       inputText: json['input_text'] as String?,
@@ -311,8 +429,14 @@ class DiscoverDto {
       word: rawWord is Map<String, dynamic>
           ? DiscoveredWordDto.fromJson(rawWord)
           : null,
+      scene: rawScene is Map<String, dynamic>
+          ? ScenePayloadDto.fromJson(rawScene)
+          : null,
       audio: rawAudio is Map<String, dynamic>
           ? WordAudioDto.fromJson(rawAudio)
+          : null,
+      sceneAudio: rawSceneAudio is Map<String, dynamic>
+          ? SceneAudioDto.fromJson(rawSceneAudio)
           : null,
       needsConfirmation: json['needs_confirmation'] as bool? ?? false,
       warnings: (json['warnings'] as List<dynamic>? ?? const [])
@@ -330,7 +454,9 @@ class DiscoverDto {
   final String? wordId;
   final List<DiscoveryCandidateDto> candidates;
   final DiscoveredWordDto? word;
+  final ScenePayloadDto? scene;
   final WordAudioDto? audio;
+  final SceneAudioDto? sceneAudio;
   final bool needsConfirmation;
   final List<String> warnings;
 
@@ -345,7 +471,9 @@ class DiscoverDto {
       wordId: wordId,
       candidates: candidates.map((candidate) => candidate.toDomain()).toList(),
       word: word?.toDomain(),
+      scene: scene?.toDomain(),
       audio: audio?.toDomain(),
+      sceneAudio: sceneAudio?.toDomain(),
       needsConfirmation: needsConfirmation,
       warnings: warnings,
     );

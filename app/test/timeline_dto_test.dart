@@ -59,4 +59,43 @@ void main() {
     expect(word.word?.spelling, 'tree');
     expect(word.conversationId, 'conversation-1');
   });
+
+  test('parses scene timeline items with audio', () {
+    final page = TimelineResponseDto.fromJson({
+      'items': [
+        {
+          'type': 'scene',
+          'id': 'discovery-scene',
+          'created_at': '2026-11-05T11:00:00',
+          'input_text': 'I very like the tree.',
+          'input_language': 'en',
+          'audio': {'url': '/api/v1/audio/scene.mp3', 'status': 'ready'},
+          'scene': {
+            'natural_english': 'I really like the tree.',
+            'key_chunks': [
+              {
+                'phrase': 'really like',
+                'meaning_native': '非常喜欢',
+                'example_en': 'I really like this song.',
+              },
+            ],
+            'key_words': ['really', 'tree'],
+            'correction': {
+              'original': 'I very like the tree.',
+              'suggestion': 'I really like the tree.',
+              'note': 'Use really like.',
+            },
+          },
+        },
+      ],
+    }).toDomain();
+
+    expect(page.items, hasLength(1));
+    final scene = page.items.first as TimelineSceneItem;
+    expect(scene.scene.naturalEnglish, 'I really like the tree.');
+    expect(scene.scene.keyChunks.first.phrase, 'really like');
+    expect(scene.scene.correction?.suggestion, 'I really like the tree.');
+    expect(scene.audio?.url, '/api/v1/audio/scene.mp3');
+    expect(scene.audio?.isReady, isTrue);
+  });
 }

@@ -151,6 +151,15 @@ class _Translations$settings$zh implements Translations$settings$en {
 	// Translations
 	@override String get title => '设置';
 	@override String get language => '语言';
+	@override String get theme => '主题';
+	@override String get themeTitle => '主题';
+	@override String get themeCobalt => '墨蓝';
+	@override String get themeCobaltDescription => '干净、现代';
+	@override String get themeParchment => '墨色纸张';
+	@override String get themeParchmentDescription => '温暖、编辑感';
+	@override String get themePlum => '梅子与沙';
+	@override String get themePlumDescription => '有个性、温暖';
+	@override String get defaultLabel => '默认';
 	@override String get signOut => '退出登录';
 	@override String get languageTitle => '语言';
 	@override String get english => 'English';
@@ -327,6 +336,7 @@ class _Translations$talk$zh implements Translations$talk$en {
 
 	// Translations
 	@override String get title => '聊聊';
+	@override String get emptyScene => '围绕这个场景说一句吧。';
 	@override String get empty => '从这个词说一句话开始。';
 	@override String get inputHint => '说点什么...';
 	@override String get send => '发送';
@@ -360,7 +370,6 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get composerHint => '你看到了什么？';
 	@override String get send => '发送';
 	@override String get nameFailed => '命名失败，请重试。';
-	@override String get talk => '聊聊';
 	@override String get commonUsage => '常用用法';
 	@override String get example => '例句';
 	@override String get loadFailed => '时间线加载失败。';
@@ -370,11 +379,14 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get menuMe => '我';
 	@override String get menuSettings => '设置';
 	@override String get chunks => '自然搭配';
+	@override String get talkAboutIt => '聊聊它';
 	@override String get sceneExtensions => '同一场景';
 	@override String get usUk => '美式 / 英式';
 	@override String get grammar => '语法';
 	@override String get moreDetails => '更多内容';
 	@override String get wordDetails => '词语详情';
+	@override String get playMoment => '播放句子';
+	@override String get pauseMoment => '暂停句子';
 	@override String get play => '播放发音';
 	@override String get pause => '暂停播放';
 	@override String get speed => '播放速度';
@@ -443,6 +455,15 @@ extension on TranslationsZh {
 			'todoDemo.emptyMessage' => '这是 API 示例的空状态。',
 			'settings.title' => '设置',
 			'settings.language' => '语言',
+			'settings.theme' => '主题',
+			'settings.themeTitle' => '主题',
+			'settings.themeCobalt' => '墨蓝',
+			'settings.themeCobaltDescription' => '干净、现代',
+			'settings.themeParchment' => '墨色纸张',
+			'settings.themeParchmentDescription' => '温暖、编辑感',
+			'settings.themePlum' => '梅子与沙',
+			'settings.themePlumDescription' => '有个性、温暖',
+			'settings.defaultLabel' => '默认',
 			'settings.signOut' => '退出登录',
 			'settings.languageTitle' => '语言',
 			'settings.english' => 'English',
@@ -538,6 +559,7 @@ extension on TranslationsZh {
 			'understand.talkFailed' => '无法开始对话，请重试。',
 			'understand.sceneTitle' => '一个小场景',
 			'talk.title' => '聊聊',
+			'talk.emptyScene' => '围绕这个场景说一句吧。',
 			'talk.empty' => '从这个词说一句话开始。',
 			'talk.inputHint' => '说点什么...',
 			'talk.send' => '发送',
@@ -562,7 +584,6 @@ extension on TranslationsZh {
 			'timeline.composerHint' => '你看到了什么？',
 			'timeline.send' => '发送',
 			'timeline.nameFailed' => '命名失败，请重试。',
-			'timeline.talk' => '聊聊',
 			'timeline.commonUsage' => '常用用法',
 			'timeline.example' => '例句',
 			'timeline.loadFailed' => '时间线加载失败。',
@@ -572,11 +593,14 @@ extension on TranslationsZh {
 			'timeline.menuMe' => '我',
 			'timeline.menuSettings' => '设置',
 			'timeline.chunks' => '自然搭配',
+			'timeline.talkAboutIt' => '聊聊它',
 			'timeline.sceneExtensions' => '同一场景',
 			'timeline.usUk' => '美式 / 英式',
 			'timeline.grammar' => '语法',
 			'timeline.moreDetails' => '更多内容',
 			'timeline.wordDetails' => '词语详情',
+			'timeline.playMoment' => '播放句子',
+			'timeline.pauseMoment' => '暂停句子',
 			'timeline.play' => '播放发音',
 			'timeline.pause' => '暂停播放',
 			'timeline.speed' => '播放速度',

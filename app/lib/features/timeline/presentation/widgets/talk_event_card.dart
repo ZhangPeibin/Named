@@ -4,7 +4,6 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../i18n/strings.g.dart';
 import '../../domain/timeline_item.dart';
 
 class TalkEventCard extends StatelessWidget {
@@ -48,7 +47,7 @@ class TalkEventCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${context.t.timeline.talk} · ${item.title}',
+                  item.title,
                   style: textTheme.labelLarge?.copyWith(color: palette.primary),
                 ),
                 const SizedBox(height: AppSpacing.s2),

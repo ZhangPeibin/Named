@@ -17,7 +17,7 @@ class AppSkeleton extends StatefulWidget {
   /// Pill/circle shape; ignores [borderRadius] and uses a fully rounded shape.
   final bool circle;
 
-  static const _base = Color(0xFFECEEF1);
+  static const _base = Color(0xFFE9EEF4);
   static const _highlight = Color(0xBFFFFFFF);
 
   @override

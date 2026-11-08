@@ -10,6 +10,7 @@ from discovery.schemas import (
     DiscoveryAgentOutput,
     DiscoveryOut,
     FocusRequest,
+    ScenePayload,
     WordOut,
     WordPayload,
 )
@@ -22,7 +23,8 @@ from models import (
     Word,
     WordContent,
 )
-from tts.service import WordAudioService
+from tts.schemas import SpeechAudioOut
+from tts.service import SpeechAudioService, WordAudioService
 
 
 def normalize_label(label: str) -> str:
@@ -156,7 +158,9 @@ async def _discovery_out(
 ) -> DiscoveryOut:
     candidates = await _get_candidates(session, discovery.id)
     word: WordPayload | None = None
+    scene: ScenePayload | None = None
     audio = None
+    scene_audio = None
     if discovery.word_id is not None:
         native_language = await _native_language(session, discovery.account_id)
         content = await _latest_word_content(session, discovery.word_id, native_language, settings)
@@ -166,6 +170,14 @@ async def _discovery_out(
         word_row = await session.get(Word, discovery.word_id)
         if word_row is not None:
             audio = await audio_service.for_word(session, word_row)
+
+    if discovery.scene_payload_json is not None:
+        scene = ScenePayload.model_validate(discovery.scene_payload_json)
+    if discovery.scene_audio_key:
+        scene_audio = SpeechAudioOut(
+            url=f"{settings.media_url_prefix.rstrip('/')}/{discovery.scene_audio_key}",
+            status="ready",
+        )
 
     status = discovery.status
     if status not in {"needs_confirmation", "ready"}:
@@ -187,7 +199,9 @@ async def _discovery_out(
         word_id=discovery.word_id,
         candidates=[CandidateOut.model_validate(row) for row in candidates],
         word=word,
+        scene=scene,
         audio=audio,
+        scene_audio=scene_audio,
         needs_confirmation=status == "needs_confirmation",
         warnings=discovery.warnings_json or [],
     )
@@ -204,6 +218,7 @@ async def create_discovery(
     agent: DiscoveryAgent,
     settings: Settings,
     audio_service: WordAudioService,
+    speech_service: SpeechAudioService,
 ) -> DiscoveryOut:
     normalized_text = (text or "").strip()
     if not normalized_text and image is None:
@@ -232,6 +247,7 @@ async def create_discovery(
             code="agent_failed",
         ) from exc
 
+    scene_payload = output.scene if output.focus.kind == "scene" else None
     discovery = Discovery(
         account_id=account_id,
         input_type="image" if image is not None else "text",
@@ -242,6 +258,9 @@ async def create_discovery(
         focus_kind=output.focus.kind,
         status="ready",
         warnings_json=output.warnings,
+        scene_payload_json=(
+            scene_payload.model_dump(mode="json") if scene_payload is not None else None
+        ),
     )
     session.add(discovery)
     await session.flush()
@@ -258,6 +277,12 @@ async def create_discovery(
             confirmed_label=output.focus.label_en,
         )
         discovery.word_id = word.id
+    elif scene_payload is not None:
+        _, scene_audio_key = await speech_service.synthesize(
+            session,
+            scene_payload.natural_english,
+        )
+        discovery.scene_audio_key = scene_audio_key
 
     await session.commit()
     return await _discovery_out(session, discovery, settings, audio_service)

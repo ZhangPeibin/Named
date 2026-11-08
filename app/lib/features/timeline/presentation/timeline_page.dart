@@ -15,6 +15,7 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
+import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/word_naming_card.dart';
@@ -115,6 +116,47 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       await controller.afterTalk(
         conversationId: conversationId,
         title: item.word?.spelling ?? item.inputText ?? 'Talk',
+      );
+      _scheduleScrollToBottom(animate: true);
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _startingTalkId = null);
+      }
+    }
+  }
+
+  Future<void> _openSceneTalk(TimelineSceneItem item) async {
+    if (_startingTalkId != null) {
+      return;
+    }
+    setState(() {
+      _error = null;
+      _startingTalkId = item.id;
+    });
+    try {
+      final controller = ref.read(timelineControllerProvider.notifier);
+      final conversationId = await controller.ensureSceneConversation(item);
+      if (!mounted) {
+        return;
+      }
+      await context.pushNamed(
+        AppRouteNames.talk,
+        pathParameters: {'conversationId': conversationId},
+        queryParameters: {
+          if (item.scene.naturalEnglish.trim().isNotEmpty)
+            'title': item.scene.naturalEnglish,
+        },
+      );
+      if (!mounted) {
+        return;
+      }
+      await controller.afterTalk(
+        conversationId: conversationId,
+        title: item.scene.naturalEnglish,
       );
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
@@ -281,6 +323,14 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
               item: item,
               isStartingTalk: _startingTalkId == item.id,
               onTalk: () => _openWordTalk(item),
+            ),
+          );
+        case TimelineSceneItem():
+          widgets.add(
+            MomentCard(
+              item: item,
+              isStartingTalk: _startingTalkId == item.id,
+              onTalk: () => _openSceneTalk(item),
             ),
           );
         case TimelineTalkItem():

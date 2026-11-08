@@ -81,11 +81,11 @@ class TimelineController extends AsyncNotifier<TimelineState> {
     );
   }
 
-  Future<TimelineWordItem?> createNamed(String text) async {
+  Future<TimelineItem?> createNamed(String text) async {
     final discover = ref.read(discoverRepositoryProvider);
     var discovery = await discover.createText(text: text);
 
-    if (discovery.needsConfirmation || discovery.word == null) {
+    if (discovery.needsConfirmation) {
       if (discovery.candidates.isNotEmpty) {
         discovery = await discover.focus(
           discoveryId: discovery.id,
@@ -99,11 +99,27 @@ class TimelineController extends AsyncNotifier<TimelineState> {
       }
     }
 
+    final scene = discovery.scene;
+    if (discovery.isScene && scene != null) {
+      final item = TimelineSceneItem(
+        id: discovery.id,
+        createdAt: DateTime.now(),
+        inputText: discovery.inputText ?? text,
+        inputLanguage: discovery.inputLanguage,
+        scene: scene,
+        audio: discovery.sceneAudio,
+        conversationId: null,
+      );
+      _appendItem(item);
+      return item;
+    }
+
     final word = discovery.word;
     if (word == null) {
       throw const ApiException(
         type: ApiExceptionType.badResponse,
-        message: 'No word result. Try naming one thing.',
+        message:
+            'No discovery result. Try naming one thing or describing a moment.',
       );
     }
 
@@ -116,6 +132,11 @@ class TimelineController extends AsyncNotifier<TimelineState> {
       audio: discovery.audio,
       conversationId: null,
     );
+    _appendItem(item);
+    return item;
+  }
+
+  void _appendItem(TimelineItem item) {
     final currentState = state.value;
     state = AsyncData(
       TimelineState(
@@ -123,7 +144,6 @@ class TimelineController extends AsyncNotifier<TimelineState> {
         nextCursor: currentState?.nextCursor,
       ),
     );
-    return item;
   }
 
   Future<String> ensureConversation(TimelineWordItem item) async {
@@ -142,6 +162,18 @@ class TimelineController extends AsyncNotifier<TimelineState> {
         .read(talkRepositoryProvider)
         .createConversation(focusType: 'word', focusId: wordId);
     _updateWordItem(item.copyWith(conversationId: conversation.id));
+    return conversation.id;
+  }
+
+  Future<String> ensureSceneConversation(TimelineSceneItem item) async {
+    if (item.conversationId != null) {
+      return item.conversationId!;
+    }
+
+    final conversation = await ref
+        .read(talkRepositoryProvider)
+        .createConversation(focusType: 'scene', focusId: item.id);
+    _updateSceneItem(item.copyWith(conversationId: conversation.id));
     return conversation.id;
   }
 
@@ -209,9 +241,29 @@ class TimelineController extends AsyncNotifier<TimelineState> {
     );
   }
 
+  void _updateSceneItem(TimelineSceneItem updated) {
+    final current = state.value;
+    if (current == null) {
+      return;
+    }
+    state = AsyncData(
+      TimelineState(
+        items: current.items
+            .map(
+              (item) => item is TimelineSceneItem && item.id == updated.id
+                  ? updated
+                  : item,
+            )
+            .toList(),
+        nextCursor: current.nextCursor,
+      ),
+    );
+  }
+
   String _itemKey(TimelineItem item) {
     return switch (item) {
       TimelineWordItem() => 'word:${item.id}',
+      TimelineSceneItem() => 'scene:${item.id}',
       TimelineTalkItem() => 'talk:${item.id}',
     };
   }

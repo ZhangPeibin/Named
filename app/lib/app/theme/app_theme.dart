@@ -4,13 +4,32 @@ import 'package:flutter/services.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_text_styles.dart';
+import 'app_theme_family.dart';
 
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData light() => _build(AppPalette.light, Brightness.light);
+  static ThemeData light({AppThemeFamily family = defaultAppThemeFamily}) =>
+      _build(lightPaletteFor(family), Brightness.light);
 
-  static ThemeData dark() => _build(AppPalette.dark, Brightness.dark);
+  static ThemeData dark({AppThemeFamily family = defaultAppThemeFamily}) =>
+      _build(darkPaletteFor(family), Brightness.dark);
+
+  static AppPalette lightPaletteFor(AppThemeFamily family) {
+    return switch (family) {
+      AppThemeFamily.cobalt => AppPalette.cobaltLight,
+      AppThemeFamily.parchment => AppPalette.parchmentLight,
+      AppThemeFamily.plum => AppPalette.plumLight,
+    };
+  }
+
+  static AppPalette darkPaletteFor(AppThemeFamily family) {
+    return switch (family) {
+      AppThemeFamily.cobalt => AppPalette.cobaltDark,
+      AppThemeFamily.parchment => AppPalette.parchmentDark,
+      AppThemeFamily.plum => AppPalette.plumDark,
+    };
+  }
 
   static ThemeData _build(AppPalette palette, Brightness brightness) {
     final colorScheme = ColorScheme(
@@ -20,7 +39,7 @@ class AppTheme {
       primaryContainer: palette.surfaceMuted,
       onPrimaryContainer: palette.ink,
       secondary: palette.accent,
-      onSecondary: palette.ink,
+      onSecondary: brightness == Brightness.light ? Colors.white : palette.ink,
       secondaryContainer: palette.warm,
       onSecondaryContainer: palette.ink,
       tertiary: palette.warm,
