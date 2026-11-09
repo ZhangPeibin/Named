@@ -1,4 +1,4 @@
-.PHONY: bootstrap run-dev run-staging run-prod \
+.PHONY: bootstrap run-dev run-dev-ios run-staging run-prod \
         build-apk build-appbundle build-apk-local build-ios \
         preflight-prod preflight-android preflight-ios \
         check fix format-check generated-check architecture-check \
@@ -19,6 +19,10 @@ bootstrap:
 
 run-dev:
 	flutter run --flavor dev --dart-define-from-file=config/dev.json
+
+run-dev-ios:
+	flutter run --flavor dev $(if $(DEVICE),-d $(DEVICE),) \
+		--dart-define-from-file=config/dev-ios.json
 
 run-staging:
 	flutter run --flavor staging --dart-define-from-file=config/staging.json
