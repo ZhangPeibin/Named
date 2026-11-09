@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from datetime import timedelta
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 from test_discovery import (
@@ -15,14 +17,15 @@ from test_discovery import (
     scene_output,
 )
 
+from clock import utcnow
 from config import Settings, get_settings
 from database import get_session
 from discovery.agent import get_discovery_agent
 from mailer import get_email_sender
 from main import app
-from models import Base
+from models import Base, MemoryItem
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
-from talk.schemas import Annotation, Correction, HelpSuggestion, TalkResponse
+from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
 from tts.provider import get_tts_provider
 
 
@@ -56,6 +59,7 @@ class FakeTalkAgent:
         native_language: str,
         focus_context: str,
         soul_context: str,
+        memory_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -64,6 +68,7 @@ class FakeTalkAgent:
                 "native_language": native_language,
                 "focus_context": focus_context,
                 "soul_context": soul_context,
+                "memory_context": memory_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -75,6 +80,7 @@ class FakeTalkAgent:
 
 class FakeHelpAgent:
     def __init__(self) -> None:
+        self.calls: list[dict] = []
         self.response = HelpSuggestion(
             natural_english="I want to say this tree is beautiful.",
             note="更自然的口语表达。",
@@ -87,9 +93,20 @@ class FakeHelpAgent:
         native_language: str,
         focus_context: str,
         soul_context: str,
+        memory_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
+        self.calls.append(
+            {
+                "native_language": native_language,
+                "focus_context": focus_context,
+                "soul_context": soul_context,
+                "memory_context": memory_context,
+                "history": history,
+                "user_text": user_text,
+            }
+        )
         return self.response
 
 
@@ -576,3 +593,223 @@ async def test_help_me_say_it_does_not_create_message(talk_env) -> None:
     )
     assert detail.status_code == 200
     assert detail.json()["messages"] == []
+
+
+@pytest.mark.asyncio
+async def test_talk_persists_and_deduplicates_memories(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="experience",
+            text="The learner grows mint on their balcony.",
+            confidence=0.9,
+            importance=0.8,
+        )
+    ]
+
+    first = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "memory-1", "text": "I grow mint on my balcony."},
+    )
+    assert first.status_code == 200, first.text
+    second = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "memory-2", "text": "I water it every morning."},
+    )
+    assert second.status_code == 200, second.text
+
+    async with sessions() as session:
+        rows = list(
+            await session.scalars(select(MemoryItem).where(MemoryItem.account_id == account_id))
+        )
+
+    experience = [row for row in rows if row.kind == "experience"]
+    assert len(experience) == 1
+    assert experience[0].mention_count == 2
+    assert experience[0].source_id == second.json()["user_message"]["id"]
+    assert experience[0].source_type == "conversation_message"
+    assert experience[0].text == "The learner grows mint on their balcony."
+    assert any(row.kind == "learning_error" for row in rows)
+
+
+@pytest.mark.asyncio
+async def test_memory_context_crosses_conversations_and_accounts(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-recall@example.com")
+    headers = bearer(verified["session_token"])
+    _, _, word_id = await create_word(http, sender, "memory-recall@example.com")
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="experience",
+            text="The learner keeps a small herb garden.",
+            confidence=0.9,
+            importance=0.8,
+        )
+    ]
+
+    first_id = await create_conversation(http, headers, word_id)
+    first = await http.post(
+        f"/api/v1/conversations/{first_id}/messages",
+        headers=headers,
+        json={"client_message_id": "recall-1", "text": "I keep herbs."},
+    )
+    assert first.status_code == 200, first.text
+
+    second_id = await create_conversation(http, headers, word_id)
+    second = await http.post(
+        f"/api/v1/conversations/{second_id}/messages",
+        headers=headers,
+        json={"client_message_id": "recall-2", "text": "What should I notice about this tree?"},
+    )
+    assert second.status_code == 200, second.text
+    assert "herb garden" in agent.calls[-1]["memory_context"]
+
+    other = await request_and_verify(http, sender, "memory-other@example.com")
+    other_headers = bearer(other["session_token"])
+    _, _, other_word_id = await create_word(http, sender, "memory-other@example.com")
+    other_id = await create_conversation(http, other_headers, other_word_id)
+    response = await http.post(
+        f"/api/v1/conversations/{other_id}/messages",
+        headers=other_headers,
+        json={"client_message_id": "recall-other", "text": "I like this tree."},
+    )
+    assert response.status_code == 200, response.text
+    assert "herb garden" not in agent.calls[-1]["memory_context"]
+
+
+@pytest.mark.asyncio
+async def test_deleted_memory_is_excluded_from_context(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-delete@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory-delete@example.com")
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="experience",
+            text="The learner keeps a small herb garden.",
+            confidence=0.9,
+            importance=0.8,
+        )
+    ]
+
+    conversation_id = await create_conversation(http, headers, word_id)
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "deleted-memory-1", "text": "I keep herbs."},
+    )
+    assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        memory = await session.scalar(
+            select(MemoryItem).where(
+                MemoryItem.account_id == account_id,
+                MemoryItem.kind == "experience",
+            )
+        )
+        assert memory is not None
+        memory.deleted_at = utcnow()
+        await session.commit()
+
+    next_id = await create_conversation(http, headers, word_id)
+    response = await http.post(
+        f"/api/v1/conversations/{next_id}/messages",
+        headers=headers,
+        json={"client_message_id": "deleted-memory-2", "text": "What next?"},
+    )
+    assert response.status_code == 200, response.text
+    assert "herb garden" not in agent.calls[-1]["memory_context"]
+
+
+@pytest.mark.asyncio
+async def test_help_uses_memory_context(tmp_path) -> None:
+    discovery_agent = FakeDiscoveryAgent()
+    talk_agent = FakeTalkAgent()
+    help_agent = FakeHelpAgent()
+    tts = FakeTTSProvider()
+    async with talk_client(
+        discovery_agent,
+        talk_agent,
+        tts,
+        str(tmp_path),
+        help_agent=help_agent,
+    ) as (http, sender, _):
+        verified = await request_and_verify(http, sender, "help-memory@example.com")
+        headers = bearer(verified["session_token"])
+        _, _, word_id = await create_word(http, sender, "help-memory@example.com")
+        talk_agent.response.memories = [
+            MemoryCandidate(
+                kind="experience",
+                text="The learner grows mint on their balcony.",
+                confidence=0.9,
+                importance=0.8,
+            )
+        ]
+        conversation_id = await create_conversation(http, headers, word_id)
+        response = await http.post(
+            f"/api/v1/conversations/{conversation_id}/messages",
+            headers=headers,
+            json={"client_message_id": "help-memory-1", "text": "I grow mint."},
+        )
+        assert response.status_code == 200, response.text
+
+        response = await http.post(
+            f"/api/v1/conversations/{conversation_id}/help",
+            headers=headers,
+            json={"text": "我想说这棵树很漂亮。"},
+        )
+        assert response.status_code == 200, response.text
+        assert "mint" in help_agent.calls[-1]["memory_context"]
+
+
+@pytest.mark.asyncio
+async def test_expired_memory_is_excluded_from_context(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-expire@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory-expire@example.com")
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="experience",
+            text="The learner visits a lake every summer.",
+            confidence=0.9,
+            importance=0.8,
+        )
+    ]
+
+    conversation_id = await create_conversation(http, headers, word_id)
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "expired-memory-1", "text": "I visit a lake."},
+    )
+    assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        memory = await session.scalar(
+            select(MemoryItem).where(
+                MemoryItem.account_id == account_id,
+                MemoryItem.kind == "experience",
+            )
+        )
+        assert memory is not None
+        memory.expires_at = utcnow() - timedelta(days=1)
+        await session.commit()
+
+    next_id = await create_conversation(http, headers, word_id)
+    response = await http.post(
+        f"/api/v1/conversations/{next_id}/messages",
+        headers=headers,
+        json={"client_message_id": "expired-memory-2", "text": "What next?"},
+    )
+    assert response.status_code == 200, response.text
+    assert "lake every summer" not in agent.calls[-1]["memory_context"]

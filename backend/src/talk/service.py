@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +8,7 @@ from clock import utcnow
 from config import Settings
 from discovery.schemas import WordPayload
 from errors import ApiError
+from memory.service import correction_candidates, get_memory_context, record_memories
 from models import (
     Conversation,
     ConversationMessage,
@@ -32,6 +35,8 @@ from talk.schemas import (
 )
 from tts.schemas import SpeechAudioOut
 from tts.service import SpeechAudioService
+
+logger = logging.getLogger(__name__)
 
 
 async def _get_conversation(
@@ -349,6 +354,12 @@ async def send_message(
     native_language = await _native_language(session, account_id)
     focus_context = await _focus_context(session, conversation, native_language, settings)
     soul_context = await _soul_context(session, account_id)
+    memory_context = await get_memory_context(
+        session,
+        account_id,
+        focus_context=focus_context,
+        user_text=user_message.text,
+    )
     history = await _history(session, conversation_id, before_sequence=user_message.sequence)
 
     try:
@@ -356,6 +367,7 @@ async def send_message(
             native_language=native_language,
             focus_context=focus_context,
             soul_context=soul_context,
+            memory_context=memory_context,
             history=history,
             user_text=user_message.text,
         )
@@ -412,6 +424,18 @@ async def send_message(
     if audio_key is not None:
         assistant.audio_key = audio_key
 
+    try:
+        async with session.begin_nested():
+            await record_memories(
+                session,
+                account_id,
+                [*response.memories, *correction_candidates(response.corrections)],
+                source_type="conversation_message",
+                source_id=user_message.id,
+            )
+    except Exception:
+        logger.warning("Companion memory update failed")
+
     await session.commit()
     await session.refresh(assistant)
 
@@ -452,6 +476,12 @@ async def help_expression(
     native_language = await _native_language(session, account_id)
     focus_context = await _focus_context(session, conversation, native_language, settings)
     soul_context = await _soul_context(session, account_id)
+    memory_context = await get_memory_context(
+        session,
+        account_id,
+        focus_context=focus_context,
+        user_text=payload.text,
+    )
     history = await _history(session, conversation_id)
 
     try:
@@ -459,6 +489,7 @@ async def help_expression(
             native_language=native_language,
             focus_context=focus_context,
             soul_context=soul_context,
+            memory_context=memory_context,
             history=history,
             user_text=payload.text,
         )

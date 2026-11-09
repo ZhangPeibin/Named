@@ -18,11 +18,30 @@ class Annotation(BaseModel):
     meaning_zh: str = Field(min_length=1, max_length=500)
 
 
+MemoryKind = Literal[
+    "identity",
+    "learning_error",
+    "word",
+    "expression",
+    "experience",
+    "topic",
+    "preference",
+]
+
+
+class MemoryCandidate(BaseModel):
+    kind: MemoryKind
+    text: str = Field(min_length=1, max_length=500)
+    confidence: float = Field(default=0.8, ge=0, le=1)
+    importance: float = Field(default=0.5, ge=0, le=1)
+
+
 class TalkResponse(BaseModel):
     reply: str = Field(min_length=1, max_length=4000)
     native_reply: str | None = Field(default=None, max_length=4000)
     corrections: list[Correction] = Field(default_factory=list)
     annotations: list[Annotation] = Field(default_factory=list)
+    memories: list[MemoryCandidate] = Field(default_factory=list, max_length=5)
     suggested_expressions: list[str] = Field(default_factory=list)
     needs_confirmation: bool = False
 

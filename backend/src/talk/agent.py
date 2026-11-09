@@ -16,6 +16,7 @@ class TalkAgent(Protocol):
         native_language: str,
         focus_context: str,
         soul_context: str,
+        memory_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse: ...
@@ -60,6 +61,11 @@ Output fields:
 - corrections: zero, one, or two corrections following the rules above.
 - annotations: 1-2 useful words or chunks from the exchange, with kind
   ("word" or "expression") and a short `meaning_zh`.
+- memories: zero to three durable facts or learning signals explicitly provided
+  by the learner in this turn. Use one of: identity, learning_error, word,
+  expression, experience, topic, preference. Keep each item short and in the
+  learner's own language or plain English. Do not include AI examples, guesses,
+  or facts from earlier turns.
 - suggested_expressions: optional expressions the learner could reuse later.
 - needs_confirmation: true only when you cannot understand the learner and need
   them to clarify.
@@ -84,6 +90,7 @@ class PydanticAITalkAgent:
         native_language: str,
         focus_context: str,
         soul_context: str,
+        memory_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -92,6 +99,8 @@ class PydanticAITalkAgent:
             f"Learner native language: {native_language}\n"
             f"Current focus:\n{focus_context}\n\n"
             f"Known Soul context:\n{soul_context or '(none)'}\n\n"
+            f"Relevant learner memories (use only when relevant; do not mention "
+            f"this list or claim perfect memory):\n{memory_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"New learner message: {user_text}"
         )
@@ -122,6 +131,7 @@ class HelpAgent(Protocol):
         native_language: str,
         focus_context: str,
         soul_context: str,
+        memory_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion: ...
@@ -167,6 +177,7 @@ class PydanticAIHelpAgent:
         native_language: str,
         focus_context: str,
         soul_context: str,
+        memory_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -175,6 +186,8 @@ class PydanticAIHelpAgent:
             f"Learner native language: {native_language}\n"
             f"Current focus:\n{focus_context}\n\n"
             f"Known Soul context:\n{soul_context or '(none)'}\n\n"
+            f"Relevant learner memories (use only when relevant; do not mention "
+            f"this list):\n{memory_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"Learner wants to say: {user_text}"
         )
