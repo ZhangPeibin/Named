@@ -136,6 +136,28 @@ class WordAudio(Base):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class WordProgress(Base):
+    __tablename__ = "word_progress"
+    __table_args__ = (
+        UniqueConstraint("account_id", "word_id", name="uq_word_progress_account_word"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    word_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("words.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    self_known_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    review_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+
+
 class Discovery(Base):
     __tablename__ = "discoveries"
 

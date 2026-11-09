@@ -6,13 +6,23 @@ from sqlalchemy import select
 
 from auth.router import CurrentAuthDep, SessionDep, SettingsDep
 from discovery.agent import DiscoveryAgent, get_discovery_agent
-from discovery.schemas import DiscoveryOut, FocusRequest, WordOut
+from discovery.schemas import (
+    DiscoveryOut,
+    FocusRequest,
+    WordOut,
+    WordProgressOut,
+    WordProgressUpdate,
+    WordsResponse,
+)
 from discovery.service import (
     create_discovery,
     delete_discovery,
     focus_discovery,
     get_discovery,
     get_word,
+    get_words,
+    mark_word_reviewed,
+    set_word_known,
 )
 from errors import ApiError
 from images import ImageError, process_image
@@ -124,6 +134,40 @@ async def remove(
 ) -> Response:
     await delete_discovery(session, current.account.id, discovery_id, store)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@word_router.get("", response_model=WordsResponse)
+async def read_words(
+    current: CurrentAuthDep,
+    session: SessionDep,
+    settings: SettingsDep,
+    audio_service: WordAudioServiceDep,
+) -> WordsResponse:
+    return await get_words(session, current.account.id, settings, audio_service)
+
+
+@word_router.patch("/{word_id}/progress", response_model=WordProgressOut)
+async def update_word_progress(
+    word_id: str,
+    payload: WordProgressUpdate,
+    current: CurrentAuthDep,
+    session: SessionDep,
+) -> WordProgressOut:
+    return await set_word_known(
+        session,
+        current.account.id,
+        word_id,
+        payload.known,
+    )
+
+
+@word_router.post("/{word_id}/reviewed", response_model=WordProgressOut)
+async def review_word(
+    word_id: str,
+    current: CurrentAuthDep,
+    session: SessionDep,
+) -> WordProgressOut:
+    return await mark_word_reviewed(session, current.account.id, word_id)
 
 
 @word_router.get("/{word_id}", response_model=WordOut)

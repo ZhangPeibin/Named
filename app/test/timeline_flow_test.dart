@@ -74,6 +74,23 @@ void main() {
     expect(find.text(t.talk.empty), findsOneWidget);
     expect(find.text('tree'), findsOneWidget);
 
+    await tester.tap(find.byKey(const Key('talk.help')));
+    await tester.pumpAndSettle();
+    expect(find.text(t.talk.helpTitle), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('talk.helpInput')),
+      '我想说这棵树很漂亮',
+    );
+    await tester.tap(find.byKey(const Key('talk.helpAsk')));
+    await tester.pumpAndSettle();
+    expect(find.text('This tree is beautiful.'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('talk.helpUseThis')));
+    await tester.pumpAndSettle();
+    final helpInput = tester.widget<TextField>(
+      find.byKey(const Key('talk.input')),
+    );
+    expect(helpInput.controller?.text, 'This tree is beautiful.');
+
     await tester.enterText(
       find.byKey(const Key('talk.input')),
       'I saw a tree.',

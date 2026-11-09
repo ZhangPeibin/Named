@@ -6,7 +6,7 @@ from pydantic_ai import Agent
 from ai import AINotConfigured, build_model, build_model_settings
 from config import Settings, get_settings
 from errors import ApiError
-from talk.schemas import TalkResponse
+from talk.schemas import HelpSuggestion, TalkResponse
 
 
 class TalkAgent(Protocol):
@@ -107,6 +107,89 @@ def get_talk_agent() -> TalkAgent:
     settings = get_settings()
     try:
         return PydanticAITalkAgent(settings)
+    except AINotConfigured as exc:
+        raise ApiError(
+            "AI provider is not configured.",
+            status_code=503,
+            code="ai_not_configured",
+        ) from exc
+
+
+class HelpAgent(Protocol):
+    async def suggest(
+        self,
+        *,
+        native_language: str,
+        focus_context: str,
+        soul_context: str,
+        history: list[dict[str, str]],
+        user_text: str,
+    ) -> HelpSuggestion: ...
+
+
+HELP_PROMPT = """
+You are Named's expression helper for an English learning app.
+
+The learner wants to say one thing in English. They may write in Chinese, in
+another native language, or in imperfect English.
+
+Return one structured suggestion:
+- natural_english: one natural English sentence, preserving the learner's meaning.
+  Use simple A2-B1 English and do not add facts, places, people, or feelings.
+- note: optional short explanation in the learner's native language. Only include
+  it when it helps them understand a better word or structure.
+- alternatives: optional, at most one other natural phrasing. Do not return a
+  list of variants.
+
+Rules:
+- Do not answer the learner's thought or ask a follow-up question.
+- Do not create a conversational reply.
+- For non-English input, this is a natural English version, not a correction.
+- For English input, improve it only when there is a clear error or an obviously
+  unnatural phrase. If it is already natural, return it unchanged.
+- Use the current focus and recent conversation only to choose relevant wording.
+- Use plain text only. Never use Markdown.
+""".strip()
+
+
+class PydanticAIHelpAgent:
+    def __init__(self, settings: Settings) -> None:
+        self._agent = Agent(
+            build_model(settings),
+            output_type=HelpSuggestion,
+            system_prompt=HELP_PROMPT,
+            model_settings=build_model_settings(settings),
+        )
+
+    async def suggest(
+        self,
+        *,
+        native_language: str,
+        focus_context: str,
+        soul_context: str,
+        history: list[dict[str, str]],
+        user_text: str,
+    ) -> HelpSuggestion:
+        transcript = "\n".join(f"{message['role']}: {message['text']}" for message in history)
+        prompt = (
+            f"Learner native language: {native_language}\n"
+            f"Current focus:\n{focus_context}\n\n"
+            f"Known Soul context:\n{soul_context or '(none)'}\n\n"
+            f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
+            f"Learner wants to say: {user_text}"
+        )
+        try:
+            result = await self._agent.run(prompt)
+        except Exception as exc:
+            raise AgentFailed(str(exc)) from exc
+        return result.output
+
+
+@lru_cache
+def get_help_agent() -> HelpAgent:
+    settings = get_settings()
+    try:
+        return PydanticAIHelpAgent(settings)
     except AINotConfigured as exc:
         raise ApiError(
             "AI provider is not configured.",

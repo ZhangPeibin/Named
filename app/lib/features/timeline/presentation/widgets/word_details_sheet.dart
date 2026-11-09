@@ -10,9 +10,16 @@ import '../../domain/timeline_item.dart';
 import 'word_audio_button.dart';
 
 class WordDetailsSheet extends StatefulWidget {
-  const WordDetailsSheet({super.key, required this.item});
+  const WordDetailsSheet({
+    super.key,
+    required this.item,
+    this.known,
+    this.onToggleKnown,
+  });
 
   final TimelineWordItem item;
+  final bool? known;
+  final VoidCallback? onToggleKnown;
 
   @override
   State<WordDetailsSheet> createState() => _WordDetailsSheetState();
@@ -93,6 +100,25 @@ class _WordDetailsSheetState extends State<WordDetailsSheet> {
                   const SizedBox(width: AppSpacing.s8),
                   WordAudioButton(audio: item.audio, accent: _accent),
                 ],
+              ),
+            ],
+            if (widget.onToggleKnown != null) ...[
+              const SizedBox(height: AppSpacing.s4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const Key('wordDetails.known'),
+                  onPressed: widget.onToggleKnown,
+                  icon: Icon(
+                    widget.known == true ? Icons.refresh : Icons.check,
+                    size: 18,
+                  ),
+                  label: Text(
+                    widget.known == true
+                        ? context.t.words.stillLearning
+                        : context.t.words.knowThis,
+                  ),
+                ),
               ),
             ],
             if (word.pos.isNotEmpty) ...[

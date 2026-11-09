@@ -53,6 +53,20 @@ class TalkMessage {
   bool get isUser => role == 'user';
 }
 
+class HelpSuggestion {
+  const HelpSuggestion({
+    required this.naturalEnglish,
+    required this.note,
+    required this.alternatives,
+    required this.audio,
+  });
+
+  final String naturalEnglish;
+  final String? note;
+  final List<String> alternatives;
+  final TalkAudio? audio;
+}
+
 class Conversation {
   const Conversation({
     required this.id,

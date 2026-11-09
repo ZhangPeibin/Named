@@ -10,11 +10,13 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/talk.dart';
 import '../providers/talk_providers.dart';
+import 'widgets/help_sheet.dart';
 
 class TalkPage extends ConsumerStatefulWidget {
   const TalkPage({super.key, required this.conversationId, this.title});
@@ -208,6 +210,20 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     setState(() => _error = null);
   }
 
+  Future<void> _openHelp() async {
+    final suggestion = await showAppBottomSheet<HelpSuggestion>(
+      context: context,
+      builder: (context) => HelpSheet(
+        conversationId: widget.conversationId,
+        initialText: _controller.text.trim(),
+      ),
+    );
+    if (!mounted || suggestion == null) {
+      return;
+    }
+    _useSuggestion(suggestion.naturalEnglish);
+  }
+
   Future<Uint8List> _loadAudio(String url) async {
     final cached = _audioCache[url];
     if (cached != null) {
@@ -339,8 +355,10 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                   focusNode: _composerFocusNode,
                   hintText: t.inputHint,
                   sendTooltip: t.send,
+                  helpTooltip: t.helpMeSayIt,
                   isSending: _isSending,
                   onSend: _send,
+                  onOpenHelp: _openHelp,
                   onChanged: (_) => setState(() => _error = null),
                 ),
               ],
@@ -408,8 +426,10 @@ class _TalkComposer extends StatelessWidget {
     required this.focusNode,
     required this.hintText,
     required this.sendTooltip,
+    required this.helpTooltip,
     required this.isSending,
     required this.onSend,
+    required this.onOpenHelp,
     required this.onChanged,
   });
 
@@ -417,8 +437,10 @@ class _TalkComposer extends StatelessWidget {
   final FocusNode focusNode;
   final String hintText;
   final String sendTooltip;
+  final String helpTooltip;
   final bool isSending;
   final VoidCallback onSend;
+  final VoidCallback onOpenHelp;
   final ValueChanged<String> onChanged;
 
   @override
@@ -448,6 +470,23 @@ class _TalkComposer extends StatelessWidget {
         child: Row(
           children: [
             const SizedBox(width: AppSpacing.s6),
+            SizedBox.square(
+              dimension: 34,
+              child: IconButton.filledTonal(
+                key: const Key('talk.help'),
+                onPressed: onOpenHelp,
+                tooltip: helpTooltip,
+                style: IconButton.styleFrom(
+                  backgroundColor: palette.surfaceMuted,
+                  foregroundColor: palette.primary,
+                  minimumSize: const Size.square(34),
+                  maximumSize: const Size.square(34),
+                  padding: EdgeInsets.zero,
+                ),
+                icon: const Icon(Icons.translate, size: 18),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s4),
             Expanded(
               child: TextField(
                 key: const Key('talk.input'),

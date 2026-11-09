@@ -17,13 +17,15 @@ from models import (
     Word,
     WordContent,
 )
-from talk.agent import AgentFailed, TalkAgent
+from talk.agent import AgentFailed, HelpAgent, TalkAgent
 from talk.schemas import (
     AnnotationOut,
     ConversationCreate,
     ConversationOut,
     CorrectionOut,
     EndConversationOut,
+    HelpRequest,
+    HelpResponse,
     MessageCreate,
     MessageOut,
     TurnOut,
@@ -434,4 +436,51 @@ async def end_conversation(
         id=conversation.id,
         status=conversation.status,
         ended_at=conversation.ended_at,
+    )
+
+
+async def help_expression(
+    session: AsyncSession,
+    account_id: str,
+    conversation_id: str,
+    payload: HelpRequest,
+    agent: HelpAgent,
+    speech_service: SpeechAudioService,
+    settings: Settings,
+) -> HelpResponse:
+    conversation = await _get_conversation(session, account_id, conversation_id)
+    native_language = await _native_language(session, account_id)
+    focus_context = await _focus_context(session, conversation, native_language, settings)
+    soul_context = await _soul_context(session, account_id)
+    history = await _history(session, conversation_id)
+
+    try:
+        suggestion = await agent.suggest(
+            native_language=native_language,
+            focus_context=focus_context,
+            soul_context=soul_context,
+            history=history,
+            user_text=payload.text,
+        )
+    except AINotConfigured as exc:
+        raise ApiError(
+            "AI provider is not configured.",
+            status_code=503,
+            code="ai_not_configured",
+        ) from exc
+    except AgentFailed as exc:
+        raise ApiError(
+            "The expression helper failed.",
+            status_code=502,
+            code="help_agent_failed",
+        ) from exc
+
+    audio, _ = await speech_service.synthesize(session, suggestion.natural_english)
+    await session.commit()
+
+    return HelpResponse(
+        natural_english=suggestion.natural_english,
+        note=suggestion.note,
+        alternatives=suggestion.alternatives,
+        audio=audio,
     )

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -180,3 +181,42 @@ class WordOut(BaseModel):
     label_en: str
     content: WordPayload | None
     audio: AudioOut | None = None
+
+
+WordStatus = Literal["needs_review", "growing", "known"]
+
+
+class WordListItem(BaseModel):
+    id: str
+    label_en: str
+    content: WordPayload | None = None
+    audio: AudioOut | None = None
+    discovery_count: int = 1
+    first_seen_at: datetime
+    last_seen_at: datetime
+    status: WordStatus = "needs_review"
+    review_count: int = 0
+    last_reviewed_at: datetime | None = None
+
+
+class WordsStats(BaseModel):
+    total: int
+    new_this_week: int
+    reviewed_this_week: int
+    used_in_talk_this_week: int
+
+
+class WordsResponse(BaseModel):
+    stats: WordsStats
+    words: list[WordListItem]
+
+
+class WordProgressUpdate(BaseModel):
+    known: bool
+
+
+class WordProgressOut(BaseModel):
+    word_id: str
+    status: WordStatus
+    review_count: int
+    last_reviewed_at: datetime | None = None

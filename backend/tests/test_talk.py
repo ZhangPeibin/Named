@@ -21,8 +21,8 @@ from discovery.agent import get_discovery_agent
 from mailer import get_email_sender
 from main import app
 from models import Base
-from talk.agent import AgentFailed, get_talk_agent
-from talk.schemas import Annotation, Correction, TalkResponse
+from talk.agent import AgentFailed, get_help_agent, get_talk_agent
+from talk.schemas import Annotation, Correction, HelpSuggestion, TalkResponse
 from tts.provider import get_tts_provider
 
 
@@ -73,6 +73,26 @@ class FakeTalkAgent:
         return self.response
 
 
+class FakeHelpAgent:
+    def __init__(self) -> None:
+        self.response = HelpSuggestion(
+            natural_english="I want to say this tree is beautiful.",
+            note="更自然的口语表达。",
+            alternatives=["This tree is beautiful."],
+        )
+
+    async def suggest(
+        self,
+        *,
+        native_language: str,
+        focus_context: str,
+        soul_context: str,
+        history: list[dict[str, str]],
+        user_text: str,
+    ) -> HelpSuggestion:
+        return self.response
+
+
 @asynccontextmanager
 async def talk_client(
     discovery_agent: FakeDiscoveryAgent,
@@ -81,6 +101,7 @@ async def talk_client(
     media_root: str,
     talk_limit: int = 1000,
     discover_limit: int = 1000,
+    help_agent: FakeHelpAgent | None = None,
 ):
     settings = Settings(
         auth_secret="test-secret",
@@ -120,6 +141,7 @@ async def talk_client(
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_discovery_agent] = lambda: discovery_agent
     app.dependency_overrides[get_talk_agent] = lambda: talk_agent
+    app.dependency_overrides[get_help_agent] = lambda: help_agent or FakeHelpAgent()
     app.dependency_overrides[get_tts_provider] = lambda: tts
 
     try:
@@ -528,3 +550,29 @@ async def test_p0_end_to_end_journey(talk_env) -> None:
     assert response.status_code == 401
     assert response.headers["content-type"].startswith("application/problem+json")
     assert response.json()["code"] == "unauthorized"
+
+
+@pytest.mark.asyncio
+async def test_help_me_say_it_does_not_create_message(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "help@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/help",
+        headers=headers,
+        json={"text": "我想说这棵树很漂亮。"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["natural_english"].startswith("I want to say")
+    assert body["note"]
+    assert body["alternatives"]
+    assert body["audio"]["status"] == "ready"
+
+    detail = await http.get(
+        f"/api/v1/conversations/{conversation_id}",
+        headers=headers,
+    )
+    assert detail.status_code == 200
+    assert detail.json()["messages"] == []

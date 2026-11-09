@@ -21,6 +21,16 @@ class TalkRepository {
     return (await _api.fetch(conversationId)).toDomain();
   }
 
+  Future<HelpSuggestion> helpExpression({
+    required String conversationId,
+    required String text,
+  }) async {
+    return (await _api.helpExpression(
+      conversationId: conversationId,
+      text: text,
+    )).toDomain();
+  }
+
   Future<Turn> sendMessage({
     required String conversationId,
     required String text,

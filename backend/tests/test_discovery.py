@@ -608,3 +608,48 @@ async def test_discover_rate_limit(tmp_path) -> None:
         assert second.status_code == 429
         assert second.headers["Retry-After"]
         assert second.json()["code"] == "rate_limited"
+
+
+@pytest.mark.asyncio
+async def test_words_are_deduplicated_and_progress_is_tracked(discovery_env) -> None:
+    http, sender, _, agent, _ = discovery_env
+    verified = await request_and_verify(http, sender, "words@example.com")
+    headers = bearer(verified["session_token"])
+
+    agent.output = word_output("tree")
+    first = await http.post("/api/v1/discoveries", headers=headers, data={"text": "树"})
+    assert first.status_code == 201
+    second = await http.post("/api/v1/discoveries", headers=headers, data={"text": "tree"})
+    assert second.status_code == 201
+
+    response = await http.get("/api/v1/words", headers=headers)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["stats"]["total"] == 1
+    assert len(body["words"]) == 1
+    word = body["words"][0]
+    assert word["label_en"] == "tree"
+    assert word["discovery_count"] == 2
+    assert word["status"] == "needs_review"
+
+    word_id = word["id"]
+    known = await http.patch(
+        f"/api/v1/words/{word_id}/progress",
+        headers=headers,
+        json={"known": True},
+    )
+    assert known.status_code == 200
+    assert known.json()["status"] == "known"
+
+    reviewed = await http.post(
+        f"/api/v1/words/{word_id}/reviewed",
+        headers=headers,
+    )
+    assert reviewed.status_code == 200
+    assert reviewed.json()["review_count"] == 1
+
+    response = await http.get("/api/v1/words", headers=headers)
+    word = response.json()["words"][0]
+    assert word["status"] == "known"
+    assert word["review_count"] == 1
+    assert response.json()["stats"]["reviewed_this_week"] == 1

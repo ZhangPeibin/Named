@@ -70,6 +70,43 @@ class TalkAudioDto {
   }
 }
 
+class HelpSuggestionDto {
+  const HelpSuggestionDto({
+    required this.naturalEnglish,
+    required this.note,
+    required this.alternatives,
+    required this.audio,
+  });
+
+  factory HelpSuggestionDto.fromJson(Map<String, dynamic> json) {
+    final rawAudio = json['audio'];
+    return HelpSuggestionDto(
+      naturalEnglish: json['natural_english'] as String? ?? '',
+      note: json['note'] as String?,
+      alternatives: (json['alternatives'] as List<dynamic>? ?? const [])
+          .whereType<String>()
+          .toList(),
+      audio: rawAudio is Map<String, dynamic>
+          ? TalkAudioDto.fromJson(rawAudio)
+          : null,
+    );
+  }
+
+  final String naturalEnglish;
+  final String? note;
+  final List<String> alternatives;
+  final TalkAudioDto? audio;
+
+  HelpSuggestion toDomain() {
+    return HelpSuggestion(
+      naturalEnglish: naturalEnglish,
+      note: note,
+      alternatives: alternatives,
+      audio: audio?.toDomain(),
+    );
+  }
+}
+
 class TalkMessageDto {
   const TalkMessageDto({
     required this.id,

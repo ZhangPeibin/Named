@@ -27,6 +27,23 @@ class TalkResponse(BaseModel):
     needs_confirmation: bool = False
 
 
+class HelpRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=1000)
+
+
+class HelpSuggestion(BaseModel):
+    natural_english: str = Field(min_length=1, max_length=1000)
+    note: str | None = Field(default=None, max_length=500)
+    alternatives: list[str] = Field(default_factory=list, max_length=2)
+
+
+class HelpResponse(BaseModel):
+    natural_english: str
+    note: str | None = None
+    alternatives: list[str] = Field(default_factory=list)
+    audio: SpeechAudioOut | None = None
+
+
 class ConversationCreate(BaseModel):
     focus_type: Literal["word", "scene"]
     focus_id: str = Field(min_length=1, max_length=36)

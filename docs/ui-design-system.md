@@ -250,6 +250,15 @@ Do not show a marketing carousel, social login wall, or fake testimonials.
 9. Recent experience card.
 10. Reached from the composer’s `+` menu; no bottom tab.
 
+### Review 3
+
+- Entry from the composer `+` menu; no tab and no dashboard.
+- Select up to 3 words from the learner's own recent Words.
+- One card at a time: word, IPA/POS, compact play + speed; meaning and one chunk stay hidden.
+- `Show meaning` reveals the definition and one chunk; then `Next` or `Finish`.
+- No score, mastery claim, streak, or ranking.
+- Empty state explains that words must be named first.
+
 ### Named / Word card / Talk event / Talk
 
 - **Named entry:** one text input in the bottom composer. The agent returns a single top-1 result; there is no candidate or correction UI in MVP.
@@ -257,7 +266,7 @@ Do not show a marketing carousel, social login wall, or fake testimonials.
 - **Moment card:** original sentence (shown only when different) → natural English, one reusable chunk, sentence Listen on the right, and `Talk about it`. No correction label; the natural English itself carries the correction.
 - **Word details sheet:** full word, all chunks with examples, grammar, US/UK, primary example, and scene extensions. Open by tapping the summary card. Audio defaults to US; a compact `US / UK` switch selects Cindy or Emily.
 - **Talk event:** after at least one message, show the last message snippet, time, and Continue. Tapping opens the same conversation.
-- **Talk:** focused full-screen chat with fixed text composer above the keyboard. Return refreshes the timeline snippet.
+- **Talk:** focused full-screen chat with fixed text composer above the keyboard. The composer also provides `Help me say it`: a modal expression helper that returns one natural English sentence, audio, and `Use this` without creating a message. Return refreshes the timeline snippet.
 - **Words:** filtered list of named words, reached from the `+` menu.
 
 ## 7. Motion

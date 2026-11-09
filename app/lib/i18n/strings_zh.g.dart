@@ -54,6 +54,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$talk$zh talk = _Translations$talk$zh._(_root);
 	@override late final _Translations$timeline$zh timeline = _Translations$timeline$zh._(_root);
 	@override late final _Translations$words$zh words = _Translations$words$zh._(_root);
+	@override late final _Translations$review$zh review = _Translations$review$zh._(_root);
 }
 
 // Path: app
@@ -343,6 +344,18 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get failed => '发送失败，请重试。';
 	@override String get playReply => '听语音';
 	@override String get pauseReply => '暂停';
+	@override String get helpMeSayIt => '帮我表达';
+	@override String get helpTitle => '帮我表达';
+	@override String get helpSubtitle => '用中文或还不完整的英文说出来，我帮你整理成自然的英文。';
+	@override String get helpInputLabel => '你想说什么？';
+	@override String get helpInputHint => '例如：我想说这棵树很漂亮';
+	@override String get helpAsk => '帮我找词';
+	@override String get helpThinking => '正在组织表达...';
+	@override String get helpResultTitle => '可以这样说';
+	@override String get helpUseThis => '用这句';
+	@override String get helpAnotherWay => '换一种说法';
+	@override String get helpFailed => '暂时没能帮你组织这句话，请重试。';
+	@override String get helpEmptyInput => '先写一句想说的话。';
 	@override String get audioUnavailable => '音频暂时不可用。';
 	@override String get titleFallback => '对话';
 	@override String get nativeShort => '中';
@@ -374,6 +387,7 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get example => '例句';
 	@override String get loadFailed => '时间线加载失败。';
 	@override String get talkFailed => '无法开始对话，请重试。';
+	@override String get menuReview => '复习 3 个';
 	@override String get menuTitle => '前往';
 	@override String get menuWords => '词语';
 	@override String get menuMe => '我';
@@ -401,7 +415,42 @@ class _Translations$words$zh implements Translations$words$en {
 
 	// Translations
 	@override String get title => '词语';
+	@override String get yourWords => '你的词汇';
+	@override String totalWords({required Object count}) => '${count} 个词';
+	@override String newThisWeek({required Object count}) => '本周 +${count}';
+	@override String reviewedThisWeek({required Object count}) => '已复习 ${count} 个';
+	@override String usedInTalkThisWeek({required Object count}) => '在 Talk 用过 ${count} 个';
+	@override String get needsReview => '需要回看';
+	@override String get growing => '正在积累';
+	@override String get known => '已经会了';
+	@override String get showKnown => '展开会的词';
+	@override String get hideKnown => '收起会的词';
+	@override String get review3 => '复习 3 个';
+	@override String get knowThis => '这个我会';
+	@override String get stillLearning => '还要再学';
+	@override String seenTimes({required Object count}) => '出现 ${count} 次';
+	@override String get loadFailed => '词汇加载失败。';
 	@override String get empty => '命名过的词会出现在这里。';
+}
+
+// Path: review
+class _Translations$review$zh implements Translations$review$en {
+	_Translations$review$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '复习 3 个';
+	@override String get prompt => '还记得吗？';
+	@override String get showMeaning => '看释义';
+	@override String get next => '下一个';
+	@override String get finish => '完成';
+	@override String get completeTitle => '复习完成';
+	@override String get completeCopy => '今天做一点复习就够了。';
+	@override String get backToTimeline => '回到时间线';
+	@override String get emptyTitle => '还没有可复习的词';
+	@override String get emptyCopy => '先命名一个东西，之后它会出现在这里。';
+	@override String get loadFailed => '复习内容加载失败。';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -566,6 +615,18 @@ extension on TranslationsZh {
 			'talk.failed' => '发送失败，请重试。',
 			'talk.playReply' => '听语音',
 			'talk.pauseReply' => '暂停',
+			'talk.helpMeSayIt' => '帮我表达',
+			'talk.helpTitle' => '帮我表达',
+			'talk.helpSubtitle' => '用中文或还不完整的英文说出来，我帮你整理成自然的英文。',
+			'talk.helpInputLabel' => '你想说什么？',
+			'talk.helpInputHint' => '例如：我想说这棵树很漂亮',
+			'talk.helpAsk' => '帮我找词',
+			'talk.helpThinking' => '正在组织表达...',
+			'talk.helpResultTitle' => '可以这样说',
+			'talk.helpUseThis' => '用这句',
+			'talk.helpAnotherWay' => '换一种说法',
+			'talk.helpFailed' => '暂时没能帮你组织这句话，请重试。',
+			'talk.helpEmptyInput' => '先写一句想说的话。',
 			'talk.audioUnavailable' => '音频暂时不可用。',
 			'talk.titleFallback' => '对话',
 			'talk.nativeShort' => '中',
@@ -588,6 +649,7 @@ extension on TranslationsZh {
 			'timeline.example' => '例句',
 			'timeline.loadFailed' => '时间线加载失败。',
 			'timeline.talkFailed' => '无法开始对话，请重试。',
+			'timeline.menuReview' => '复习 3 个',
 			'timeline.menuTitle' => '前往',
 			'timeline.menuWords' => '词语',
 			'timeline.menuMe' => '我',
@@ -606,7 +668,33 @@ extension on TranslationsZh {
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
 			'words.title' => '词语',
+			'words.yourWords' => '你的词汇',
+			'words.totalWords' => ({required Object count}) => '${count} 个词',
+			'words.newThisWeek' => ({required Object count}) => '本周 +${count}',
+			'words.reviewedThisWeek' => ({required Object count}) => '已复习 ${count} 个',
+			'words.usedInTalkThisWeek' => ({required Object count}) => '在 Talk 用过 ${count} 个',
+			'words.needsReview' => '需要回看',
+			'words.growing' => '正在积累',
+			'words.known' => '已经会了',
+			'words.showKnown' => '展开会的词',
+			'words.hideKnown' => '收起会的词',
+			'words.review3' => '复习 3 个',
+			'words.knowThis' => '这个我会',
+			'words.stillLearning' => '还要再学',
+			'words.seenTimes' => ({required Object count}) => '出现 ${count} 次',
+			'words.loadFailed' => '词汇加载失败。',
 			'words.empty' => '命名过的词会出现在这里。',
+			'review.title' => '复习 3 个',
+			'review.prompt' => '还记得吗？',
+			'review.showMeaning' => '看释义',
+			'review.next' => '下一个',
+			'review.finish' => '完成',
+			'review.completeTitle' => '复习完成',
+			'review.completeCopy' => '今天做一点复习就够了。',
+			'review.backToTimeline' => '回到时间线',
+			'review.emptyTitle' => '还没有可复习的词',
+			'review.emptyCopy' => '先命名一个东西，之后它会出现在这里。',
+			'review.loadFailed' => '复习内容加载失败。',
 			_ => null,
 		};
 	}

@@ -57,6 +57,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$talk$en talk = Translations$talk$en._(_root);
 	late final Translations$timeline$en timeline = Translations$timeline$en._(_root);
 	late final Translations$words$en words = Translations$words$en._(_root);
+	late final Translations$review$en review = Translations$review$en._(_root);
 }
 
 // Path: app
@@ -655,6 +656,42 @@ class Translations$talk$en {
 	/// en: 'Pause'
 	String get pauseReply => 'Pause';
 
+	/// en: 'Help me say it'
+	String get helpMeSayIt => 'Help me say it';
+
+	/// en: 'Help me say it'
+	String get helpTitle => 'Help me say it';
+
+	/// en: 'Say it in Chinese or rough English. I’ll help you put it into natural English.'
+	String get helpSubtitle => 'Say it in Chinese or rough English. I’ll help you put it into natural English.';
+
+	/// en: 'What do you want to say?'
+	String get helpInputLabel => 'What do you want to say?';
+
+	/// en: 'e.g. 我想说这棵树很漂亮'
+	String get helpInputHint => 'e.g. 我想说这棵树很漂亮';
+
+	/// en: 'Find the words'
+	String get helpAsk => 'Find the words';
+
+	/// en: 'Finding the words...'
+	String get helpThinking => 'Finding the words...';
+
+	/// en: 'You can say'
+	String get helpResultTitle => 'You can say';
+
+	/// en: 'Use this'
+	String get helpUseThis => 'Use this';
+
+	/// en: 'Another way'
+	String get helpAnotherWay => 'Another way';
+
+	/// en: 'Could not help with that. Try again.'
+	String get helpFailed => 'Could not help with that. Try again.';
+
+	/// en: 'Write something first.'
+	String get helpEmptyInput => 'Write something first.';
+
 	/// en: 'Audio is unavailable.'
 	String get audioUnavailable => 'Audio is unavailable.';
 
@@ -730,6 +767,9 @@ class Translations$timeline$en {
 	/// en: 'Could not start the conversation. Try again.'
 	String get talkFailed => 'Could not start the conversation. Try again.';
 
+	/// en: 'Review 3'
+	String get menuReview => 'Review 3';
+
 	/// en: 'Go to'
 	String get menuTitle => 'Go to';
 
@@ -793,8 +833,95 @@ class Translations$words$en {
 	/// en: 'Words'
 	String get title => 'Words';
 
+	/// en: 'Your words'
+	String get yourWords => 'Your words';
+
+	/// en: '${count} words'
+	String totalWords({required Object count}) => '${count} words';
+
+	/// en: '+${count} this week'
+	String newThisWeek({required Object count}) => '+${count} this week';
+
+	/// en: '${count} reviewed'
+	String reviewedThisWeek({required Object count}) => '${count} reviewed';
+
+	/// en: '${count} used in Talk'
+	String usedInTalkThisWeek({required Object count}) => '${count} used in Talk';
+
+	/// en: 'Needs a revisit'
+	String get needsReview => 'Needs a revisit';
+
+	/// en: 'Growing'
+	String get growing => 'Growing';
+
+	/// en: 'Known'
+	String get known => 'Known';
+
+	/// en: 'Show known'
+	String get showKnown => 'Show known';
+
+	/// en: 'Hide known'
+	String get hideKnown => 'Hide known';
+
+	/// en: 'Review 3'
+	String get review3 => 'Review 3';
+
+	/// en: 'I know this'
+	String get knowThis => 'I know this';
+
+	/// en: 'Still learning'
+	String get stillLearning => 'Still learning';
+
+	/// en: 'seen ${count}×'
+	String seenTimes({required Object count}) => 'seen ${count}×';
+
+	/// en: 'Could not load your words.'
+	String get loadFailed => 'Could not load your words.';
+
 	/// en: 'Named words will appear here.'
 	String get empty => 'Named words will appear here.';
+}
+
+// Path: review
+class Translations$review$en {
+	Translations$review$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Review 3'
+	String get title => 'Review 3';
+
+	/// en: 'Do you remember?'
+	String get prompt => 'Do you remember?';
+
+	/// en: 'Show meaning'
+	String get showMeaning => 'Show meaning';
+
+	/// en: 'Next'
+	String get next => 'Next';
+
+	/// en: 'Finish'
+	String get finish => 'Finish';
+
+	/// en: 'Review complete'
+	String get completeTitle => 'Review complete';
+
+	/// en: 'A small review is enough for today.'
+	String get completeCopy => 'A small review is enough for today.';
+
+	/// en: 'Back to timeline'
+	String get backToTimeline => 'Back to timeline';
+
+	/// en: 'Nothing to review yet'
+	String get emptyTitle => 'Nothing to review yet';
+
+	/// en: 'Name something first. Your words will appear here for review.'
+	String get emptyCopy => 'Name something first. Your words will appear here for review.';
+
+	/// en: 'Could not load your review.'
+	String get loadFailed => 'Could not load your review.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -959,6 +1086,18 @@ extension on Translations {
 			'talk.failed' => 'Could not send. Try again.',
 			'talk.playReply' => 'Listen',
 			'talk.pauseReply' => 'Pause',
+			'talk.helpMeSayIt' => 'Help me say it',
+			'talk.helpTitle' => 'Help me say it',
+			'talk.helpSubtitle' => 'Say it in Chinese or rough English. I’ll help you put it into natural English.',
+			'talk.helpInputLabel' => 'What do you want to say?',
+			'talk.helpInputHint' => 'e.g. 我想说这棵树很漂亮',
+			'talk.helpAsk' => 'Find the words',
+			'talk.helpThinking' => 'Finding the words...',
+			'talk.helpResultTitle' => 'You can say',
+			'talk.helpUseThis' => 'Use this',
+			'talk.helpAnotherWay' => 'Another way',
+			'talk.helpFailed' => 'Could not help with that. Try again.',
+			'talk.helpEmptyInput' => 'Write something first.',
 			'talk.audioUnavailable' => 'Audio is unavailable.',
 			'talk.titleFallback' => 'Conversation',
 			'talk.nativeShort' => '中',
@@ -981,6 +1120,7 @@ extension on Translations {
 			'timeline.example' => 'Example',
 			'timeline.loadFailed' => 'Could not load your timeline.',
 			'timeline.talkFailed' => 'Could not start the conversation. Try again.',
+			'timeline.menuReview' => 'Review 3',
 			'timeline.menuTitle' => 'Go to',
 			'timeline.menuWords' => 'Words',
 			'timeline.menuMe' => 'Me',
@@ -999,7 +1139,33 @@ extension on Translations {
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
 			'words.title' => 'Words',
+			'words.yourWords' => 'Your words',
+			'words.totalWords' => ({required Object count}) => '${count} words',
+			'words.newThisWeek' => ({required Object count}) => '+${count} this week',
+			'words.reviewedThisWeek' => ({required Object count}) => '${count} reviewed',
+			'words.usedInTalkThisWeek' => ({required Object count}) => '${count} used in Talk',
+			'words.needsReview' => 'Needs a revisit',
+			'words.growing' => 'Growing',
+			'words.known' => 'Known',
+			'words.showKnown' => 'Show known',
+			'words.hideKnown' => 'Hide known',
+			'words.review3' => 'Review 3',
+			'words.knowThis' => 'I know this',
+			'words.stillLearning' => 'Still learning',
+			'words.seenTimes' => ({required Object count}) => 'seen ${count}×',
+			'words.loadFailed' => 'Could not load your words.',
 			'words.empty' => 'Named words will appear here.',
+			'review.title' => 'Review 3',
+			'review.prompt' => 'Do you remember?',
+			'review.showMeaning' => 'Show meaning',
+			'review.next' => 'Next',
+			'review.finish' => 'Finish',
+			'review.completeTitle' => 'Review complete',
+			'review.completeCopy' => 'A small review is enough for today.',
+			'review.backToTimeline' => 'Back to timeline',
+			'review.emptyTitle' => 'Nothing to review yet',
+			'review.emptyCopy' => 'Name something first. Your words will appear here for review.',
+			'review.loadFailed' => 'Could not load your review.',
 			_ => null,
 		};
 	}

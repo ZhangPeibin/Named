@@ -463,6 +463,11 @@ class _TimelineMenu extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.s8),
         _MenuRow(
+          icon: Icons.refresh,
+          label: t.menuReview,
+          routeName: AppRouteNames.review,
+        ),
+        _MenuRow(
           icon: Icons.menu_book_outlined,
           label: t.menuWords,
           routeName: AppRouteNames.words,

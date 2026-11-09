@@ -84,6 +84,12 @@ Soul → Timeline → Name a thing or describe a moment → Word card or Moment 
 
 The composer is the product entry point: the learner sees something, names it, or describes what happened, and gets one English result. A word or short noun phrase becomes a Word card; a complete sentence becomes a Moment card with natural English and key chunks. There is no candidate picker. Challenge/task prompts are deferred; when added they must not turn the timeline into a course dashboard.
 
+### Revisit words
+
+`+` → Review 3 → word prompt → Show meaning → Next / Finish → Back to timeline.
+
+Review is a short active-recall loop over the learner's own words. It is not a scored quiz, does not claim mastery, and does not add a dashboard or tab.
+
 ### Return to a conversation
 
 Timeline → Talk event → Continue → Additional messages → Return.
@@ -106,6 +112,7 @@ Duration is a plan; reaching a date does not delete content or imply mastery. Vi
 
 - The upper region contains a restrained virtual-person reference, topic and status.
 - The lower region contains synchronized-text presentation and fixed text/voice controls.
+- The composer's `Aa` action opens `Help me say it`; the helper returns one natural English expression, optional note, audio, and `Use this`, and never creates a conversation message.
 - Users can pause, retry unclear speech, replay, choose slower playback and continue an old exchange.
 - Useful words are quietly underlined. Sentence help includes the original sentence, native explanation, relevant IPA/keywords and listening controls.
 - Expression suggestions are separate, expandable and preserve the user's original wording.

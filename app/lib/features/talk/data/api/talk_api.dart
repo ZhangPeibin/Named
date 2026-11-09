@@ -16,6 +16,11 @@ abstract class TalkApi {
     required String text,
     required String clientMessageId,
   });
+
+  Future<HelpSuggestionDto> helpExpression({
+    required String conversationId,
+    required String text,
+  });
 }
 
 class RemoteTalkApi implements TalkApi {
@@ -43,6 +48,38 @@ class RemoteTalkApi implements TalkApi {
         '/api/v1/conversations/$conversationId',
       ),
     );
+  }
+
+  @override
+  Future<HelpSuggestionDto> helpExpression({
+    required String conversationId,
+    required String text,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/v1/conversations/$conversationId/help',
+        data: {'text': text},
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const ApiException(
+          type: ApiExceptionType.badResponse,
+          message: 'Help response was empty',
+        );
+      }
+      return HelpSuggestionDto.fromJson(data);
+    } on DioException catch (error) {
+      final apiException = error.error;
+      if (apiException is ApiException) {
+        throw apiException;
+      }
+      throw ApiException.fromDioException(error);
+    } on FormatException catch (error) {
+      throw ApiException(
+        type: ApiExceptionType.badResponse,
+        message: error.message,
+      );
+    }
   }
 
   @override
@@ -167,6 +204,19 @@ class MockTalkApi implements TalkApi {
     );
     _messages.putIfAbsent(conversationId, () => []).addAll([user, assistant]);
     return TurnDto(userMessage: user, assistantMessage: assistant);
+  }
+
+  @override
+  Future<HelpSuggestionDto> helpExpression({
+    required String conversationId,
+    required String text,
+  }) async {
+    return const HelpSuggestionDto(
+      naturalEnglish: 'This tree is beautiful.',
+      note: '可以这样说。',
+      alternatives: ['The tree is beautiful.'],
+      audio: null,
+    );
   }
 
   ConversationDto _conversation(String id, String focusType, String focusId) {

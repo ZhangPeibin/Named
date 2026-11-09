@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import timedelta
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai import AINotConfigured
@@ -11,17 +13,23 @@ from discovery.schemas import (
     DiscoveryOut,
     FocusRequest,
     ScenePayload,
+    WordListItem,
     WordOut,
     WordPayload,
+    WordProgressOut,
+    WordsResponse,
+    WordsStats,
 )
 from errors import ApiError
 from media import MediaStore
 from models import (
+    Conversation,
     Discovery,
     DiscoveryCandidate,
     SoulProfile,
     Word,
     WordContent,
+    WordProgress,
 )
 from tts.schemas import SpeechAudioOut
 from tts.service import SpeechAudioService, WordAudioService
@@ -408,3 +416,193 @@ async def delete_discovery(
         await store.delete(discovery.image_key)
     discovery.deleted_at = utcnow()
     await session.commit()
+
+
+def _week_start(now):
+    return (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def _word_status(progress: WordProgress | None, now) -> str:
+    if progress is not None and progress.self_known_at is not None:
+        return "known"
+    if (
+        progress is not None
+        and progress.last_reviewed_at is not None
+        and progress.last_reviewed_at >= now - timedelta(days=7)
+    ):
+        return "growing"
+    return "needs_review"
+
+
+async def _owned_word(session: AsyncSession, account_id: str, word_id: str) -> Word:
+    word = await session.get(Word, word_id)
+    linked = await session.scalar(
+        select(Discovery.id)
+        .where(
+            Discovery.account_id == account_id,
+            Discovery.word_id == word_id,
+            Discovery.deleted_at.is_(None),
+        )
+        .limit(1)
+    )
+    if word is None or linked is None:
+        raise ApiError("Word not found.", status_code=404, code="word_not_found")
+    return word
+
+
+async def _get_or_create_progress(
+    session: AsyncSession, account_id: str, word_id: str
+) -> WordProgress:
+    progress = await session.scalar(
+        select(WordProgress).where(
+            WordProgress.account_id == account_id,
+            WordProgress.word_id == word_id,
+        )
+    )
+    if progress is None:
+        progress = WordProgress(account_id=account_id, word_id=word_id)
+        session.add(progress)
+        await session.flush()
+    return progress
+
+
+async def get_words(
+    session: AsyncSession,
+    account_id: str,
+    settings: Settings,
+    audio_service: WordAudioService,
+) -> WordsResponse:
+    native_language = await _native_language(session, account_id)
+    now = utcnow()
+    week_start = _week_start(now)
+
+    rows = (
+        await session.execute(
+            select(
+                Word,
+                func.count(Discovery.id),
+                func.min(Discovery.created_at),
+                func.max(Discovery.created_at),
+            )
+            .join(Discovery, Discovery.word_id == Word.id)
+            .where(
+                Discovery.account_id == account_id,
+                Discovery.deleted_at.is_(None),
+                Discovery.status == "ready",
+                Discovery.focus_kind == "word",
+            )
+            .group_by(Word.id)
+            .order_by(func.max(Discovery.created_at).desc())
+        )
+    ).all()
+
+    word_ids = [row[0].id for row in rows]
+    content_by_word: dict[str, WordContent] = {}
+    progress_by_word: dict[str, WordProgress] = {}
+    if word_ids:
+        contents = await session.scalars(
+            select(WordContent)
+            .where(
+                WordContent.word_id.in_(word_ids),
+                WordContent.native_language == native_language,
+            )
+            .order_by(WordContent.created_at.desc())
+        )
+        for content in contents:
+            content_by_word.setdefault(content.word_id, content)
+
+        progress_rows = await session.scalars(
+            select(WordProgress).where(
+                WordProgress.account_id == account_id,
+                WordProgress.word_id.in_(word_ids),
+            )
+        )
+        progress_by_word = {progress.word_id: progress for progress in progress_rows}
+
+    used_in_talk = await session.scalar(
+        select(func.count(func.distinct(Conversation.focus_id))).where(
+            Conversation.account_id == account_id,
+            Conversation.focus_type == "word",
+            Conversation.started_at >= week_start,
+        )
+    )
+
+    items: list[WordListItem] = []
+    for word, discovery_count, first_seen_at, last_seen_at in rows:
+        content = content_by_word.get(word.id)
+        progress = progress_by_word.get(word.id)
+        items.append(
+            WordListItem(
+                id=word.id,
+                label_en=word.label_en,
+                content=(
+                    WordPayload.model_validate(content.payload_json)
+                    if content is not None
+                    else None
+                ),
+                audio=await audio_service.for_word(session, word),
+                discovery_count=discovery_count,
+                first_seen_at=first_seen_at,
+                last_seen_at=last_seen_at,
+                status=_word_status(progress, now),
+                review_count=progress.review_count if progress is not None else 0,
+                last_reviewed_at=(progress.last_reviewed_at if progress is not None else None),
+            )
+        )
+
+    status_rank = {"needs_review": 0, "growing": 1, "known": 2}
+    items.sort(key=lambda item: (status_rank[item.status], -item.last_seen_at.timestamp()))
+    new_this_week = sum(1 for item in items if item.first_seen_at >= week_start)
+    reviewed_this_week = sum(
+        1
+        for progress in progress_by_word.values()
+        if progress.last_reviewed_at is not None and progress.last_reviewed_at >= week_start
+    )
+
+    return WordsResponse(
+        stats=WordsStats(
+            total=len(items),
+            new_this_week=new_this_week,
+            reviewed_this_week=reviewed_this_week,
+            used_in_talk_this_week=used_in_talk or 0,
+        ),
+        words=items,
+    )
+
+
+async def set_word_known(
+    session: AsyncSession,
+    account_id: str,
+    word_id: str,
+    known: bool,
+) -> WordProgressOut:
+    await _owned_word(session, account_id, word_id)
+    progress = await _get_or_create_progress(session, account_id, word_id)
+    progress.self_known_at = utcnow() if known else None
+    await session.commit()
+    now = utcnow()
+    return WordProgressOut(
+        word_id=word_id,
+        status=_word_status(progress, now),
+        review_count=progress.review_count,
+        last_reviewed_at=progress.last_reviewed_at,
+    )
+
+
+async def mark_word_reviewed(
+    session: AsyncSession,
+    account_id: str,
+    word_id: str,
+) -> WordProgressOut:
+    await _owned_word(session, account_id, word_id)
+    progress = await _get_or_create_progress(session, account_id, word_id)
+    progress.review_count += 1
+    progress.last_reviewed_at = utcnow()
+    await session.commit()
+    now = utcnow()
+    return WordProgressOut(
+        word_id=word_id,
+        status=_word_status(progress, now),
+        review_count=progress.review_count,
+        last_reviewed_at=progress.last_reviewed_at,
+    )
