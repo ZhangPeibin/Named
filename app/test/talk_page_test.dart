@@ -8,6 +8,9 @@ import 'package:named/features/talk/data/dto/talk_dto.dart';
 import 'package:named/features/talk/data/repositories/talk_repository.dart';
 import 'package:named/features/talk/presentation/talk_page.dart';
 import 'package:named/features/talk/providers/talk_providers.dart';
+import 'package:named/features/words/data/api/words_api.dart';
+import 'package:named/features/words/data/repositories/words_repository.dart';
+import 'package:named/features/words/providers/words_providers.dart';
 import 'package:named/i18n/strings.g.dart';
 
 import 'support/i18n_test_helpers.dart';
@@ -87,6 +90,21 @@ void main() {
   grammarTest();
 }
 
+class _RecordingWordsApi extends MockWordsApi {
+  String? savedLabel;
+
+  @override
+  Future<void> saveFromTalk({
+    required String label,
+    required String meaningZh,
+    String? partOfSpeech,
+    String? grammar,
+    String? exampleEn,
+  }) async {
+    savedLabel = label;
+  }
+}
+
 class _GrammarTalkApi extends MockTalkApi {
   @override
   Future<ConversationDto> fetch(String conversationId) async {
@@ -107,12 +125,14 @@ class _GrammarTalkApi extends MockTalkApi {
             MessageAnnotationDto(
               text: 'plain',
               kind: 'word',
-              meaningZh: 'adv. 不加其他东西地；直接地',
+              meaningZh: '不加其他东西地；直接地',
+              partOfSpeech: 'adv.',
             ),
             MessageAnnotationDto(
               text: 'pour',
               kind: 'grammar',
-              meaningZh: 'pour + 液体 + from + 容器：从容器里倒出液体',
+              meaningZh: '从容器里倒出液体',
+              grammar: 'pour + 液体 + from + 容器',
             ),
           ],
         ),
@@ -131,11 +151,13 @@ void grammarTest() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final api = _GrammarTalkApi();
+    final wordsApi = _RecordingWordsApi();
     await pumpWithTranslations(
       tester,
       child: ProviderScope(
         overrides: [
           talkRepositoryProvider.overrideWithValue(TalkRepository(api)),
+          wordsRepositoryProvider.overrideWithValue(WordsRepository(wordsApi)),
         ],
         child: const TalkPage(conversationId: 'grammar', title: 'tree'),
       ),
@@ -150,15 +172,21 @@ void grammarTest() {
     await tester.tap(find.byKey(const Key('talk.annotation.plain')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
-    expect(find.text('adv. 不加其他东西地；直接地'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('talk.annotationClose')));
+    expect(find.text('Part of speech: adv.'), findsOneWidget);
+    expect(find.text('不加其他东西地；直接地'), findsOneWidget);
+    expect(find.byKey(const Key('talk.annotationAdd')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk.annotationAdd')));
     await tester.pumpAndSettle();
+    expect(wordsApi.savedLabel, 'plain');
+    expect(find.byKey(const Key('talk.annotationSheet')), findsNothing);
 
     await tester.tap(find.byKey(const Key('talk.annotation.pour')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
-    expect(find.text('pour + 液体 + from + 容器：从容器里倒出液体'), findsOneWidget);
+    expect(find.text('pour + 液体 + from + 容器'), findsOneWidget);
+    expect(find.text('从容器里倒出液体'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('talk.annotationClose')));
     await tester.pumpAndSettle();

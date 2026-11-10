@@ -13,10 +13,13 @@ from discovery.schemas import (
     DiscoveryOut,
     FocusRequest,
     ScenePayload,
+    TalkWordSave,
     WordListItem,
     WordOut,
     WordPayload,
     WordProgressOut,
+    WordSaveOut,
+    WordSense,
     WordsResponse,
     WordsStats,
 )
@@ -85,6 +88,22 @@ async def _latest_word_content(
             WordContent.native_language == native_language,
             WordContent.model == settings.ai_model,
             WordContent.prompt_version == settings.ai_prompt_version,
+        )
+        .order_by(WordContent.created_at.desc())
+        .limit(1)
+    )
+
+
+async def _latest_word_content_any(
+    session: AsyncSession,
+    word_id: str,
+    native_language: str,
+) -> WordContent | None:
+    return await session.scalar(
+        select(WordContent)
+        .where(
+            WordContent.word_id == word_id,
+            WordContent.native_language == native_language,
         )
         .order_by(WordContent.created_at.desc())
         .limit(1)
@@ -396,6 +415,8 @@ async def get_word(
 
     native_language = await _native_language(session, account_id)
     content = await _latest_word_content(session, word.id, native_language, settings)
+    if content is None:
+        content = await _latest_word_content_any(session, word.id, native_language)
     audio = await audio_service.for_word(session, word)
     return WordOut(
         id=word.id,
@@ -606,3 +627,83 @@ async def mark_word_reviewed(
         review_count=progress.review_count,
         last_reviewed_at=progress.last_reviewed_at,
     )
+
+
+async def save_talk_word(
+    session: AsyncSession,
+    account_id: str,
+    payload: TalkWordSave,
+) -> WordSaveOut:
+    label = normalize_label(payload.label)
+    if not label:
+        raise ApiError("Word label is required.", status_code=400, code="word_label_required")
+    key = canonical_key(label)
+    word = await session.scalar(select(Word).where(Word.canonical_key == key))
+    if word is None:
+        word = Word(canonical_key=key, label_en=label)
+        session.add(word)
+        await session.flush()
+
+    existing_discovery = await session.scalar(
+        select(Discovery)
+        .where(
+            Discovery.account_id == account_id,
+            Discovery.word_id == word.id,
+            Discovery.focus_kind == "word",
+            Discovery.deleted_at.is_(None),
+        )
+        .limit(1)
+    )
+    created = existing_discovery is None
+    if created:
+        native_language = await _native_language(session, account_id)
+        session.add(
+            Discovery(
+                account_id=account_id,
+                input_type="talk",
+                input_text=label,
+                input_language=native_language,
+                focus_kind="word",
+                word_id=word.id,
+                status="ready",
+            )
+        )
+    else:
+        native_language = await _native_language(session, account_id)
+
+    content = await session.scalar(
+        select(WordContent)
+        .where(
+            WordContent.word_id == word.id,
+            WordContent.native_language == native_language,
+        )
+        .order_by(WordContent.created_at.desc())
+        .limit(1)
+    )
+    if content is None:
+        word_payload = WordPayload(
+            spelling=label,
+            pos=[payload.part_of_speech] if payload.part_of_speech else [],
+            senses=[
+                WordSense(
+                    definition_en=payload.meaning_zh,
+                    definition_zh=payload.meaning_zh,
+                    example_en=payload.example_en or label,
+                    example_zh=payload.meaning_zh,
+                )
+            ],
+            grammar=payload.grammar or "",
+        )
+        session.add(
+            WordContent(
+                word_id=word.id,
+                native_language=native_language,
+                payload_json=word_payload.model_dump(mode="json"),
+                source="talk",
+                model="talk-annotation",
+                prompt_version="v1",
+            )
+        )
+
+    await session.commit()
+    return WordSaveOut(word_id=word.id, label=word.label_en, created=created)

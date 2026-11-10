@@ -33,6 +33,8 @@ class MessageAnnotationDto {
     required this.text,
     required this.kind,
     required this.meaningZh,
+    this.partOfSpeech,
+    this.grammar,
   });
 
   factory MessageAnnotationDto.fromJson(Map<String, dynamic> json) {
@@ -40,15 +42,25 @@ class MessageAnnotationDto {
       text: json['text'] as String? ?? '',
       kind: json['kind'] as String? ?? 'word',
       meaningZh: json['meaning_zh'] as String? ?? '',
+      partOfSpeech: json['part_of_speech'] as String?,
+      grammar: json['grammar'] as String?,
     );
   }
 
   final String text;
   final String kind;
   final String meaningZh;
+  final String? partOfSpeech;
+  final String? grammar;
 
   MessageAnnotation toDomain() {
-    return MessageAnnotation(text: text, kind: kind, meaningZh: meaningZh);
+    return MessageAnnotation(
+      text: text,
+      kind: kind,
+      meaningZh: meaningZh,
+      partOfSpeech: partOfSpeech,
+      grammar: grammar,
+    );
   }
 }
 

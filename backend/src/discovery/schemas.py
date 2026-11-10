@@ -220,3 +220,17 @@ class WordProgressOut(BaseModel):
     status: WordStatus
     review_count: int
     last_reviewed_at: datetime | None = None
+
+
+class TalkWordSave(BaseModel):
+    label: str = Field(min_length=1, max_length=200)
+    meaning_zh: str = Field(min_length=1, max_length=1000)
+    part_of_speech: str | None = Field(default=None, max_length=32)
+    grammar: str | None = Field(default=None, max_length=500)
+    example_en: str | None = Field(default=None, max_length=1000)
+
+
+class WordSaveOut(BaseModel):
+    word_id: str
+    label: str
+    created: bool

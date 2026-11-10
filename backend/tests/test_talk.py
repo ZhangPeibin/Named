@@ -842,3 +842,34 @@ async def test_grammar_annotation_is_persisted(talk_env) -> None:
     annotations = detail.json()["messages"][1]["annotations"]
     assert annotations[0]["kind"] == "grammar"
     assert annotations[0]["text"] == "pour"
+
+
+@pytest.mark.asyncio
+async def test_save_talk_annotation_to_words(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "saved-word@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/words/from-talk",
+        headers=headers,
+        json={
+            "label": "plain",
+            "meaning_zh": "不加其他东西地；直接地",
+            "part_of_speech": "adv.",
+            "example_en": "Drink it plain.",
+        },
+    )
+    assert response.status_code == 201, response.text
+    word_id = response.json()["word_id"]
+
+    response = await http.get("/api/v1/words", headers=headers)
+    assert response.status_code == 200, response.text
+    words = response.json()["words"]
+    assert any(word["id"] == word_id and word["label_en"] == "plain" for word in words)
+
+    response = await http.get(f"/api/v1/words/{word_id}", headers=headers)
+    assert response.status_code == 200, response.text
+    content = response.json()["content"]
+    assert content["pos"] == ["adv."]
+    assert content["senses"][0]["example_en"] == "Drink it plain."

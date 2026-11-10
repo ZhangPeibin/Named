@@ -9,9 +9,11 @@ from discovery.agent import DiscoveryAgent, get_discovery_agent
 from discovery.schemas import (
     DiscoveryOut,
     FocusRequest,
+    TalkWordSave,
     WordOut,
     WordProgressOut,
     WordProgressUpdate,
+    WordSaveOut,
     WordsResponse,
 )
 from discovery.service import (
@@ -22,6 +24,7 @@ from discovery.service import (
     get_word,
     get_words,
     mark_word_reviewed,
+    save_talk_word,
     set_word_known,
 )
 from errors import ApiError
@@ -144,6 +147,15 @@ async def read_words(
     audio_service: WordAudioServiceDep,
 ) -> WordsResponse:
     return await get_words(session, current.account.id, settings, audio_service)
+
+
+@word_router.post("/from-talk", response_model=WordSaveOut, status_code=status.HTTP_201_CREATED)
+async def save_from_talk(
+    payload: TalkWordSave,
+    current: CurrentAuthDep,
+    session: SessionDep,
+) -> WordSaveOut:
+    return await save_talk_word(session, current.account.id, payload)
 
 
 @word_router.patch("/{word_id}/progress", response_model=WordProgressOut)

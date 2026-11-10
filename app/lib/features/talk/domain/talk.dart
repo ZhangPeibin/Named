@@ -15,11 +15,15 @@ class MessageAnnotation {
     required this.text,
     required this.kind,
     required this.meaningZh,
+    this.partOfSpeech,
+    this.grammar,
   });
 
   final String text;
   final String kind;
   final String meaningZh;
+  final String? partOfSpeech;
+  final String? grammar;
 
   bool get isWord => kind == 'word';
   bool get isExpression => kind == 'expression';

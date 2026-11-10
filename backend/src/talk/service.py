@@ -417,6 +417,8 @@ async def send_message(
                 text=annotation.text,
                 kind=annotation.kind,
                 meaning_zh=annotation.meaning_zh,
+                part_of_speech=annotation.part_of_speech,
+                grammar=annotation.grammar,
             )
         )
 

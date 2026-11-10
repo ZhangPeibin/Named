@@ -716,6 +716,21 @@ class Translations$talk$en {
 	/// en: 'Grammar note'
 	String get grammarSheetTitle => 'Grammar note';
 
+	/// en: 'Part of speech'
+	String get partOfSpeech => 'Part of speech';
+
+	/// en: 'Pattern'
+	String get grammarPattern => 'Pattern';
+
+	/// en: 'Add to Words'
+	String get addToWords => 'Add to Words';
+
+	/// en: 'Added to Words'
+	String get addedToWords => 'Added to Words';
+
+	/// en: 'Could not add. Try again.'
+	String get addFailed => 'Could not add. Try again.';
+
 	/// en: 'Got it'
 	String get gotIt => 'Got it';
 
@@ -1127,6 +1142,11 @@ extension on Translations {
 			'talk.wordSheetTitle' => 'Word',
 			'talk.expressionSheetTitle' => 'Expression',
 			'talk.grammarSheetTitle' => 'Grammar note',
+			'talk.partOfSpeech' => 'Part of speech',
+			'talk.grammarPattern' => 'Pattern',
+			'talk.addToWords' => 'Add to Words',
+			'talk.addedToWords' => 'Added to Words',
+			'talk.addFailed' => 'Could not add. Try again.',
 			'talk.gotIt' => 'Got it',
 			'talk.nativeShort' => '中',
 			'talk.showNative' => 'Show Chinese',

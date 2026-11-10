@@ -12,9 +12,11 @@ import '../../../app/theme/app_text_styles.dart';
 import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../words/providers/words_providers.dart';
 import '../domain/talk.dart';
 import '../providers/talk_providers.dart';
 import 'widgets/help_sheet.dart';
@@ -245,11 +247,40 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     _useSuggestion(suggestion.naturalEnglish);
   }
 
-  Future<void> _showAnnotation(MessageAnnotation annotation) async {
+  Future<void> _showAnnotation(
+    MessageAnnotation annotation,
+    String sentence,
+  ) async {
     await showAppBottomSheet<void>(
       context: context,
-      builder: (context) => _AnnotationSheet(annotation: annotation),
+      builder: (context) => _AnnotationSheet(
+        annotation: annotation,
+        onAddToWords: annotation.isWord || annotation.isGrammar
+            ? () => _addToWords(annotation, sentence)
+            : null,
+      ),
     );
+  }
+
+  Future<void> _addToWords(
+    MessageAnnotation annotation,
+    String sentence,
+  ) async {
+    await ref
+        .read(wordsRepositoryProvider)
+        .saveFromTalk(
+          label: annotation.text,
+          meaningZh: annotation.meaningZh,
+          partOfSpeech: annotation.partOfSpeech,
+          grammar: annotation.grammar,
+          exampleEn: sentence,
+        );
+    ref.invalidate(wordShelfProvider);
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.talk.addedToWords)));
+    }
   }
 
   Future<Uint8List> _loadAudio(String url) async {
@@ -414,7 +445,7 @@ class _InlineMessageText extends StatelessWidget {
 
   final TalkMessage message;
   final TextStyle? style;
-  final ValueChanged<MessageAnnotation> onAnnotationTap;
+  final void Function(MessageAnnotation, String) onAnnotationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +474,7 @@ class _InlineMessageText extends StatelessWidget {
           child: _AnnotationWord(
             annotation: annotation,
             style: style,
-            onTap: () => onAnnotationTap(annotation),
+            onTap: () => onAnnotationTap(annotation, message.text),
           ),
         ),
       );
@@ -494,19 +525,57 @@ class _AnnotationWord extends StatelessWidget {
   }
 }
 
-class _AnnotationSheet extends StatelessWidget {
-  const _AnnotationSheet({required this.annotation});
+class _AnnotationSheet extends StatefulWidget {
+  const _AnnotationSheet({required this.annotation, this.onAddToWords});
 
   final MessageAnnotation annotation;
+  final Future<void> Function()? onAddToWords;
+
+  @override
+  State<_AnnotationSheet> createState() => _AnnotationSheetState();
+}
+
+class _AnnotationSheetState extends State<_AnnotationSheet> {
+  var _saving = false;
+  String? _error;
 
   String _title(Translations$talk$en t) {
-    if (annotation.isGrammar) {
+    if (widget.annotation.isGrammar) {
       return t.grammarSheetTitle;
     }
-    if (annotation.isWord) {
+    if (widget.annotation.isWord) {
       return t.wordSheetTitle;
     }
     return t.expressionSheetTitle;
+  }
+
+  Future<void> _save() async {
+    final onAddToWords = widget.onAddToWords;
+    if (onAddToWords == null || _saving) {
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await onAddToWords();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.t.talk.addFailed);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
+    }
   }
 
   @override
@@ -514,6 +583,9 @@ class _AnnotationSheet extends StatelessWidget {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
     final t = context.t.talk;
+    final annotation = widget.annotation;
+    final partOfSpeech = annotation.partOfSpeech?.trim();
+    final grammar = annotation.grammar?.trim();
 
     return Column(
       key: const Key('talk.annotationSheet'),
@@ -526,9 +598,57 @@ class _AnnotationSheet extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.s8),
         Text(annotation.text, style: textTheme.displayMedium),
-        const SizedBox(height: AppSpacing.s8),
+        if (partOfSpeech != null && partOfSpeech.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s6),
+          Text(
+            '${t.partOfSpeech}: $partOfSpeech',
+            style: textTheme.bodySmall?.copyWith(color: palette.muted),
+          ),
+        ],
+        if (grammar != null && grammar.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s12),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.s12),
+            decoration: BoxDecoration(
+              color: palette.warm,
+              borderRadius: BorderRadius.circular(AppRadius.r12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.grammarPattern.toUpperCase(),
+                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+                ),
+                const SizedBox(height: AppSpacing.s4),
+                Text(grammar, style: textTheme.bodyLarge),
+              ],
+            ),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.s12),
         Text(annotation.meaningZh, style: textTheme.bodyLarge),
-        const SizedBox(height: AppSpacing.s16),
+        if (widget.onAddToWords != null) ...[
+          const SizedBox(height: AppSpacing.s16),
+          SizedBox(
+            width: double.infinity,
+            child: AppButton(
+              key: const Key('talk.annotationAdd'),
+              label: t.addToWords,
+              icon: const Icon(Icons.add, size: 18),
+              isLoading: _saving,
+              onPressed: _save,
+            ),
+          ),
+        ],
+        if (_error != null) ...[
+          const SizedBox(height: AppSpacing.s8),
+          Text(
+            _error!,
+            style: textTheme.bodySmall?.copyWith(color: palette.error),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.s8),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
@@ -776,7 +896,7 @@ class _MessageBubble extends StatelessWidget {
   final ValueChanged<double> onPlaybackRateChanged;
   final VoidCallback onToggleNative;
   final ValueChanged<String> onUseSuggestion;
-  final ValueChanged<MessageAnnotation> onAnnotationTap;
+  final void Function(MessageAnnotation, String) onAnnotationTap;
 
   @override
   Widget build(BuildContext context) {

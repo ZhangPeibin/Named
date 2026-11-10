@@ -16,6 +16,8 @@ class Annotation(BaseModel):
     text: str = Field(min_length=1, max_length=200)
     kind: Literal["word", "expression", "grammar"]
     meaning_zh: str = Field(min_length=1, max_length=500)
+    part_of_speech: str | None = Field(default=None, max_length=32)
+    grammar: str | None = Field(default=None, max_length=500)
 
 
 MemoryKind = Literal[
@@ -92,6 +94,8 @@ class AnnotationOut(BaseModel):
     text: str
     kind: str
     meaning_zh: str
+    part_of_speech: str | None = None
+    grammar: str | None = None
 
 
 class MessageOut(BaseModel):

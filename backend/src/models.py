@@ -320,6 +320,8 @@ class MessageAnnotation(Base):
     text: Mapped[str] = mapped_column(String(200), nullable=False)
     kind: Mapped[str] = mapped_column(String(16), nullable=False)
     meaning_zh: Mapped[str] = mapped_column(String(500), nullable=False)
+    part_of_speech: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    grammar: Mapped[str | None] = mapped_column(String(500), nullable=True)
     word_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("words.id", ondelete="SET NULL"), nullable=True
     )

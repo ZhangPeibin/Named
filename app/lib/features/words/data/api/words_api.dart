@@ -9,6 +9,14 @@ abstract class WordsApi {
   Future<void> setKnown({required String wordId, required bool known});
 
   Future<void> markReviewed(String wordId);
+
+  Future<void> saveFromTalk({
+    required String label,
+    required String meaningZh,
+    String? partOfSpeech,
+    String? grammar,
+    String? exampleEn,
+  });
 }
 
 class RemoteWordsApi implements WordsApi {
@@ -59,6 +67,28 @@ class RemoteWordsApi implements WordsApi {
     );
   }
 
+  @override
+  Future<void> saveFromTalk({
+    required String label,
+    required String meaningZh,
+    String? partOfSpeech,
+    String? grammar,
+    String? exampleEn,
+  }) async {
+    await _request(
+      () => _dio.post<Map<String, dynamic>>(
+        '/api/v1/words/from-talk',
+        data: {
+          'label': label,
+          'meaning_zh': meaningZh,
+          'part_of_speech': partOfSpeech,
+          'grammar': grammar,
+          'example_en': exampleEn,
+        },
+      ),
+    );
+  }
+
   Future<void> _request(
     Future<Response<Map<String, dynamic>>> Function() request,
   ) async {
@@ -93,4 +123,13 @@ class MockWordsApi implements WordsApi {
 
   @override
   Future<void> markReviewed(String wordId) async {}
+
+  @override
+  Future<void> saveFromTalk({
+    required String label,
+    required String meaningZh,
+    String? partOfSpeech,
+    String? grammar,
+    String? exampleEn,
+  }) async {}
 }

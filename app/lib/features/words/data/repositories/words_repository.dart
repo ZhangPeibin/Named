@@ -17,4 +17,20 @@ class WordsRepository {
   Future<void> markReviewed(String wordId) {
     return _api.markReviewed(wordId);
   }
+
+  Future<void> saveFromTalk({
+    required String label,
+    required String meaningZh,
+    String? partOfSpeech,
+    String? grammar,
+    String? exampleEn,
+  }) {
+    return _api.saveFromTalk(
+      label: label,
+      meaningZh: meaningZh,
+      partOfSpeech: partOfSpeech,
+      grammar: grammar,
+      exampleEn: exampleEn,
+    );
+  }
 }
