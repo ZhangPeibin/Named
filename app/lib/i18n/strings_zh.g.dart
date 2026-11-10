@@ -365,6 +365,12 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get expressionSheetTitle => '表达';
 	@override String get grammarSheetTitle => '语法提示';
 	@override String get partOfSpeech => '词性';
+	@override String get pronunciation => '发音';
+	@override String get ipa => '音标';
+	@override String get syllables => '音节';
+	@override String get vowels => '元音';
+	@override String get consonants => '辅音';
+	@override String get phonics => '自然拼读';
 	@override String get grammarPattern => '结构';
 	@override String get addToWords => '加入词语';
 	@override String get addedToWords => '已加入词语';
@@ -648,6 +654,12 @@ extension on TranslationsZh {
 			'talk.expressionSheetTitle' => '表达',
 			'talk.grammarSheetTitle' => '语法提示',
 			'talk.partOfSpeech' => '词性',
+			'talk.pronunciation' => '发音',
+			'talk.ipa' => '音标',
+			'talk.syllables' => '音节',
+			'talk.vowels' => '元音',
+			'talk.consonants' => '辅音',
+			'talk.phonics' => '自然拼读',
 			'talk.grammarPattern' => '结构',
 			'talk.addToWords' => '加入词语',
 			'talk.addedToWords' => '已加入词语',

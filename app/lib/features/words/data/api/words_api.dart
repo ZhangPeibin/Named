@@ -16,6 +16,11 @@ abstract class WordsApi {
     String? partOfSpeech,
     String? grammar,
     String? exampleEn,
+    String? ipa,
+    String? syllables,
+    List<String> vowels,
+    List<String> consonants,
+    String? phonics,
   });
 }
 
@@ -74,6 +79,11 @@ class RemoteWordsApi implements WordsApi {
     String? partOfSpeech,
     String? grammar,
     String? exampleEn,
+    String? ipa,
+    String? syllables,
+    List<String> vowels = const [],
+    List<String> consonants = const [],
+    String? phonics,
   }) async {
     await _request(
       () => _dio.post<Map<String, dynamic>>(
@@ -84,6 +94,11 @@ class RemoteWordsApi implements WordsApi {
           'part_of_speech': partOfSpeech,
           'grammar': grammar,
           'example_en': exampleEn,
+          'ipa': ipa,
+          'syllables': syllables,
+          'vowels': vowels,
+          'consonants': consonants,
+          'phonics': phonics,
         },
       ),
     );
@@ -131,5 +146,10 @@ class MockWordsApi implements WordsApi {
     String? partOfSpeech,
     String? grammar,
     String? exampleEn,
+    String? ipa,
+    String? syllables,
+    List<String> vowels = const [],
+    List<String> consonants = const [],
+    String? phonics,
   }) async {}
 }

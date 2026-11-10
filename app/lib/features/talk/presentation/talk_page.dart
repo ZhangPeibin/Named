@@ -274,6 +274,11 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           partOfSpeech: annotation.partOfSpeech,
           grammar: annotation.grammar,
           exampleEn: sentence,
+          ipa: annotation.ipa,
+          syllables: annotation.syllables,
+          vowels: annotation.vowels,
+          consonants: annotation.consonants,
+          phonics: annotation.phonics,
         );
     ref.invalidate(wordShelfProvider);
     if (mounted) {
@@ -578,6 +583,80 @@ class _AnnotationSheetState extends State<_AnnotationSheet> {
     }
   }
 
+  bool _hasPronunciation(MessageAnnotation annotation) {
+    return annotation.ipa?.trim().isNotEmpty == true ||
+        annotation.syllables?.trim().isNotEmpty == true ||
+        annotation.vowels.isNotEmpty ||
+        annotation.consonants.isNotEmpty ||
+        annotation.phonics?.trim().isNotEmpty == true;
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.s4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 72,
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: context.appPalette.muted),
+            ),
+          ),
+          Expanded(
+            child: Text(value, style: Theme.of(context).textTheme.bodyLarge),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _soundRow(String label, List<String> values) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.s6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 72,
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: context.appPalette.muted),
+            ),
+          ),
+          Expanded(
+            child: Wrap(
+              spacing: AppSpacing.s4,
+              runSpacing: AppSpacing.s4,
+              children: [
+                for (final value in values)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: context.appPalette.warm,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Text(
+                      value,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
@@ -598,6 +677,24 @@ class _AnnotationSheetState extends State<_AnnotationSheet> {
         ),
         const SizedBox(height: AppSpacing.s8),
         Text(annotation.text, style: textTheme.displayMedium),
+        if (_hasPronunciation(annotation)) ...[
+          const SizedBox(height: AppSpacing.s12),
+          Text(
+            t.pronunciation.toUpperCase(),
+            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s6),
+          if (annotation.ipa?.trim().isNotEmpty == true)
+            _detailRow(t.ipa, annotation.ipa!.trim()),
+          if (annotation.syllables?.trim().isNotEmpty == true)
+            _detailRow(t.syllables, annotation.syllables!.trim()),
+          if (annotation.vowels.isNotEmpty)
+            _soundRow(t.vowels, annotation.vowels),
+          if (annotation.consonants.isNotEmpty)
+            _soundRow(t.consonants, annotation.consonants),
+          if (annotation.phonics?.trim().isNotEmpty == true)
+            _detailRow(t.phonics, annotation.phonics!.trim()),
+        ],
         if (partOfSpeech != null && partOfSpeech.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.s6),
           Text(

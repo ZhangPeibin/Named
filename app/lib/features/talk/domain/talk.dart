@@ -17,6 +17,11 @@ class MessageAnnotation {
     required this.meaningZh,
     this.partOfSpeech,
     this.grammar,
+    this.ipa,
+    this.syllables,
+    this.vowels = const [],
+    this.consonants = const [],
+    this.phonics,
   });
 
   final String text;
@@ -24,6 +29,11 @@ class MessageAnnotation {
   final String meaningZh;
   final String? partOfSpeech;
   final String? grammar;
+  final String? ipa;
+  final String? syllables;
+  final List<String> vowels;
+  final List<String> consonants;
+  final String? phonics;
 
   bool get isWord => kind == 'word';
   bool get isExpression => kind == 'expression';

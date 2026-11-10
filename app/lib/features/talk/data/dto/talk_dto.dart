@@ -35,6 +35,11 @@ class MessageAnnotationDto {
     required this.meaningZh,
     this.partOfSpeech,
     this.grammar,
+    this.ipa,
+    this.syllables,
+    this.vowels = const [],
+    this.consonants = const [],
+    this.phonics,
   });
 
   factory MessageAnnotationDto.fromJson(Map<String, dynamic> json) {
@@ -44,6 +49,15 @@ class MessageAnnotationDto {
       meaningZh: json['meaning_zh'] as String? ?? '',
       partOfSpeech: json['part_of_speech'] as String?,
       grammar: json['grammar'] as String?,
+      ipa: json['ipa'] as String?,
+      syllables: json['syllables'] as String?,
+      vowels: (json['vowels'] as List<dynamic>? ?? const [])
+          .whereType<String>()
+          .toList(),
+      consonants: (json['consonants'] as List<dynamic>? ?? const [])
+          .whereType<String>()
+          .toList(),
+      phonics: json['phonics'] as String?,
     );
   }
 
@@ -52,6 +66,11 @@ class MessageAnnotationDto {
   final String meaningZh;
   final String? partOfSpeech;
   final String? grammar;
+  final String? ipa;
+  final String? syllables;
+  final List<String> vowels;
+  final List<String> consonants;
+  final String? phonics;
 
   MessageAnnotation toDomain() {
     return MessageAnnotation(
@@ -60,6 +79,11 @@ class MessageAnnotationDto {
       meaningZh: meaningZh,
       partOfSpeech: partOfSpeech,
       grammar: grammar,
+      ipa: ipa,
+      syllables: syllables,
+      vowels: vowels,
+      consonants: consonants,
+      phonics: phonics,
     );
   }
 }

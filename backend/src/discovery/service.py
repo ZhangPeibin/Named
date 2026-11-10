@@ -683,6 +683,12 @@ async def save_talk_word(
     if content is None:
         word_payload = WordPayload(
             spelling=label,
+            ipa={
+                "us": payload.ipa,
+                "uk": payload.ipa,
+            }
+            if payload.ipa
+            else {},
             pos=[payload.part_of_speech] if payload.part_of_speech else [],
             senses=[
                 WordSense(

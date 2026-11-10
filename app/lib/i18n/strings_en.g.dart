@@ -719,6 +719,24 @@ class Translations$talk$en {
 	/// en: 'Part of speech'
 	String get partOfSpeech => 'Part of speech';
 
+	/// en: 'Pronunciation'
+	String get pronunciation => 'Pronunciation';
+
+	/// en: 'IPA'
+	String get ipa => 'IPA';
+
+	/// en: 'Syllables'
+	String get syllables => 'Syllables';
+
+	/// en: 'Vowels'
+	String get vowels => 'Vowels';
+
+	/// en: 'Consonants'
+	String get consonants => 'Consonants';
+
+	/// en: 'Phonics'
+	String get phonics => 'Phonics';
+
 	/// en: 'Pattern'
 	String get grammarPattern => 'Pattern';
 
@@ -1143,6 +1161,12 @@ extension on Translations {
 			'talk.expressionSheetTitle' => 'Expression',
 			'talk.grammarSheetTitle' => 'Grammar note',
 			'talk.partOfSpeech' => 'Part of speech',
+			'talk.pronunciation' => 'Pronunciation',
+			'talk.ipa' => 'IPA',
+			'talk.syllables' => 'Syllables',
+			'talk.vowels' => 'Vowels',
+			'talk.consonants' => 'Consonants',
+			'talk.phonics' => 'Phonics',
 			'talk.grammarPattern' => 'Pattern',
 			'talk.addToWords' => 'Add to Words',
 			'talk.addedToWords' => 'Added to Words',

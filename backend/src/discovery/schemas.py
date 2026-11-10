@@ -228,6 +228,11 @@ class TalkWordSave(BaseModel):
     part_of_speech: str | None = Field(default=None, max_length=32)
     grammar: str | None = Field(default=None, max_length=500)
     example_en: str | None = Field(default=None, max_length=1000)
+    ipa: str | None = Field(default=None, max_length=64)
+    syllables: str | None = Field(default=None, max_length=200)
+    vowels: list[str] = Field(default_factory=list, max_length=8)
+    consonants: list[str] = Field(default_factory=list, max_length=16)
+    phonics: str | None = Field(default=None, max_length=500)
 
 
 class WordSaveOut(BaseModel):

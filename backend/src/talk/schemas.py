@@ -18,6 +18,11 @@ class Annotation(BaseModel):
     meaning_zh: str = Field(min_length=1, max_length=500)
     part_of_speech: str | None = Field(default=None, max_length=32)
     grammar: str | None = Field(default=None, max_length=500)
+    ipa: str | None = Field(default=None, max_length=64)
+    syllables: str | None = Field(default=None, max_length=200)
+    vowels: list[str] = Field(default_factory=list, max_length=8)
+    consonants: list[str] = Field(default_factory=list, max_length=16)
+    phonics: str | None = Field(default=None, max_length=500)
 
 
 MemoryKind = Literal[
@@ -96,6 +101,11 @@ class AnnotationOut(BaseModel):
     meaning_zh: str
     part_of_speech: str | None = None
     grammar: str | None = None
+    ipa: str | None = None
+    syllables: str | None = None
+    vowels: list[str] = Field(default_factory=list)
+    consonants: list[str] = Field(default_factory=list)
+    phonics: str | None = None
 
 
 class MessageOut(BaseModel):

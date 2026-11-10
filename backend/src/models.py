@@ -322,6 +322,11 @@ class MessageAnnotation(Base):
     meaning_zh: Mapped[str] = mapped_column(String(500), nullable=False)
     part_of_speech: Mapped[str | None] = mapped_column(String(32), nullable=True)
     grammar: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    ipa: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    syllables: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    vowels: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    consonants: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    phonics: Mapped[str | None] = mapped_column(String(500), nullable=True)
     word_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("words.id", ondelete="SET NULL"), nullable=True
     )

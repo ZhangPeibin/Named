@@ -24,6 +24,11 @@ class WordsRepository {
     String? partOfSpeech,
     String? grammar,
     String? exampleEn,
+    String? ipa,
+    String? syllables,
+    List<String> vowels = const [],
+    List<String> consonants = const [],
+    String? phonics,
   }) {
     return _api.saveFromTalk(
       label: label,
@@ -31,6 +36,11 @@ class WordsRepository {
       partOfSpeech: partOfSpeech,
       grammar: grammar,
       exampleEn: exampleEn,
+      ipa: ipa,
+      syllables: syllables,
+      vowels: vowels,
+      consonants: consonants,
+      phonics: phonics,
     );
   }
 }

@@ -100,6 +100,11 @@ class _RecordingWordsApi extends MockWordsApi {
     String? partOfSpeech,
     String? grammar,
     String? exampleEn,
+    String? ipa,
+    String? syllables,
+    List<String> vowels = const [],
+    List<String> consonants = const [],
+    String? phonics,
   }) async {
     savedLabel = label;
   }
@@ -127,6 +132,11 @@ class _GrammarTalkApi extends MockTalkApi {
               kind: 'word',
               meaningZh: '不加其他东西地；直接地',
               partOfSpeech: 'adv.',
+              ipa: '/pleɪn/',
+              syllables: 'plain',
+              vowels: ['/eɪ/'],
+              consonants: ['/p/', '/l/', '/n/'],
+              phonics: 'ai 发 /eɪ/',
             ),
             MessageAnnotationDto(
               text: 'pour',
@@ -173,6 +183,10 @@ void grammarTest() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
     expect(find.text('Part of speech: adv.'), findsOneWidget);
+    expect(find.text('/pleɪn/'), findsOneWidget);
+    expect(find.text(t.talk.vowels), findsOneWidget);
+    expect(find.text('/eɪ/'), findsOneWidget);
+    expect(find.text('ai 发 /eɪ/'), findsOneWidget);
     expect(find.text('不加其他东西地；直接地'), findsOneWidget);
     expect(find.byKey(const Key('talk.annotationAdd')), findsOneWidget);
 
