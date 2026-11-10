@@ -255,7 +255,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       context: context,
       builder: (context) => _AnnotationSheet(
         annotation: annotation,
-        onAddToWords: annotation.isWord || annotation.isGrammar
+        onAddToWords: annotation.isWord
             ? () => _addToWords(annotation, sentence)
             : null,
       ),
@@ -788,121 +788,130 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
     final partOfSpeech = annotation.partOfSpeech?.trim();
     final grammar = annotation.grammar?.trim();
 
-    return Column(
+    return ConstrainedBox(
       key: const Key('talk.annotationSheet'),
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          _title(t).toUpperCase(),
-          style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        Row(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.72,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Text(annotation.text, style: textTheme.displayMedium),
+            Text(
+              _title(t).toUpperCase(),
+              style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
             ),
-            IconButton(
-              key: const Key('talk.annotationAudio'),
-              onPressed: _loadingAudio ? null : _toggleAudio,
-              tooltip: _playingAudio
-                  ? t.pausePronunciation
-                  : t.playPronunciation,
-              icon: _loadingAudio
-                  ? SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: palette.primary,
-                      ),
-                    )
-                  : Icon(
-                      _playingAudio
-                          ? Icons.pause_circle_outline
-                          : Icons.volume_up_outlined,
-                      color: palette.primary,
-                    ),
-            ),
-          ],
-        ),
-        if (_hasPronunciation(annotation)) ...[
-          const SizedBox(height: AppSpacing.s12),
-          Text(
-            t.pronunciation.toUpperCase(),
-            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          if (annotation.ipa?.trim().isNotEmpty == true)
-            _detailRow(t.ipa, annotation.ipa!.trim()),
-          if (annotation.syllables?.trim().isNotEmpty == true)
-            _detailRow(t.syllables, annotation.syllables!.trim()),
-          if (annotation.vowels.isNotEmpty)
-            _soundRow(t.vowels, annotation.vowels),
-          if (annotation.consonants.isNotEmpty)
-            _soundRow(t.consonants, annotation.consonants),
-          if (annotation.phonics?.trim().isNotEmpty == true)
-            _detailRow(t.phonics, annotation.phonics!.trim()),
-        ],
-        const SizedBox(height: AppSpacing.s8),
-        Row(
-          children: [
-            _accentButton(t, PronunciationAccent.us, 'US'),
-            const SizedBox(width: AppSpacing.s4),
-            _accentButton(t, PronunciationAccent.uk, 'UK'),
-          ],
-        ),
-        if (partOfSpeech != null && partOfSpeech.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.s6),
-          Text(
-            '${t.partOfSpeech}: $partOfSpeech',
-            style: textTheme.bodySmall?.copyWith(color: palette.muted),
-          ),
-        ],
-        if (grammar != null && grammar.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.s12),
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.s12),
-            decoration: BoxDecoration(
-              color: palette.warm,
-              borderRadius: BorderRadius.circular(AppRadius.r12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: AppSpacing.s8),
+            Row(
               children: [
-                Text(
-                  t.grammarPattern.toUpperCase(),
-                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+                Expanded(
+                  child: Text(annotation.text, style: textTheme.displayMedium),
                 ),
-                const SizedBox(height: AppSpacing.s4),
-                Text(grammar, style: textTheme.bodyLarge),
+                IconButton(
+                  key: const Key('talk.annotationAudio'),
+                  onPressed: _loadingAudio ? null : _toggleAudio,
+                  tooltip: _playingAudio
+                      ? t.pausePronunciation
+                      : t.playPronunciation,
+                  icon: _loadingAudio
+                      ? SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: palette.primary,
+                          ),
+                        )
+                      : Icon(
+                          _playingAudio
+                              ? Icons.pause_circle_outline
+                              : Icons.volume_up_outlined,
+                          color: palette.primary,
+                        ),
+                ),
               ],
             ),
-          ),
-        ],
-        const SizedBox(height: AppSpacing.s12),
-        Text(annotation.meaningZh, style: textTheme.bodyLarge),
-        if (widget.onAddToWords != null) ...[
-          const SizedBox(height: AppSpacing.s16),
-          SizedBox(
-            width: double.infinity,
-            child: AppButton(
-              key: const Key('talk.annotationAdd'),
-              label: t.addToWords,
-              icon: const Icon(Icons.add, size: 18),
-              isLoading: _saving,
-              onPressed: _save,
+            if (_hasPronunciation(annotation)) ...[
+              const SizedBox(height: AppSpacing.s12),
+              Text(
+                t.pronunciation.toUpperCase(),
+                style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+              ),
+              const SizedBox(height: AppSpacing.s6),
+              if (annotation.ipa?.trim().isNotEmpty == true)
+                _detailRow(t.ipa, annotation.ipa!.trim()),
+              if (annotation.syllables?.trim().isNotEmpty == true)
+                _detailRow(t.syllables, annotation.syllables!.trim()),
+              if (annotation.vowels.isNotEmpty)
+                _soundRow(t.vowels, annotation.vowels),
+              if (annotation.consonants.isNotEmpty)
+                _soundRow(t.consonants, annotation.consonants),
+              if (annotation.phonics?.trim().isNotEmpty == true)
+                _detailRow(t.phonics, annotation.phonics!.trim()),
+            ],
+            const SizedBox(height: AppSpacing.s8),
+            Row(
+              children: [
+                _accentButton(t, PronunciationAccent.us, 'US'),
+                const SizedBox(width: AppSpacing.s4),
+                _accentButton(t, PronunciationAccent.uk, 'UK'),
+              ],
             ),
-          ),
-        ],
-        if (_error != null) ...[
-          const SizedBox(height: AppSpacing.s8),
-          Text(
-            _error!,
-            style: textTheme.bodySmall?.copyWith(color: palette.error),
-          ),
-        ],
-      ],
+            if (partOfSpeech != null && partOfSpeech.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.s6),
+              Text(
+                '${t.partOfSpeech}: $partOfSpeech',
+                style: textTheme.bodySmall?.copyWith(color: palette.muted),
+              ),
+            ],
+            if (grammar != null && grammar.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.s12),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.s12),
+                decoration: BoxDecoration(
+                  color: palette.warm,
+                  borderRadius: BorderRadius.circular(AppRadius.r12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.grammarPattern.toUpperCase(),
+                      style: AppTextStyles.eyebrow.copyWith(
+                        color: palette.muted,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s4),
+                    Text(grammar, style: textTheme.bodyLarge),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.s12),
+            Text(annotation.meaningZh, style: textTheme.bodyLarge),
+            if (widget.onAddToWords != null) ...[
+              const SizedBox(height: AppSpacing.s16),
+              SizedBox(
+                width: double.infinity,
+                child: AppButton(
+                  key: const Key('talk.annotationAdd'),
+                  label: t.addToWords,
+                  icon: const Icon(Icons.add, size: 18),
+                  isLoading: _saving,
+                  onPressed: _save,
+                ),
+              ),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: AppSpacing.s8),
+              Text(
+                _error!,
+                style: textTheme.bodySmall?.copyWith(color: palette.error),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

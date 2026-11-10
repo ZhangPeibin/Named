@@ -267,6 +267,7 @@ Do not show a marketing carousel, social login wall, or fake testimonials.
 - **Word details sheet:** full word, all chunks with examples, grammar, US/UK, primary example, and scene extensions. Open by tapping the summary card. Audio defaults to US; a compact `US / UK` switch selects Cindy or Emily.
 - **Talk event:** after at least one message, show the last message snippet, time, and Continue. Tapping opens the same conversation.
 - **Talk:** focused full-screen chat with fixed text composer above the keyboard. The composer also provides `Help me say it`: a modal expression helper that returns one natural English sentence, audio, and `Use this` without creating a message. Return refreshes the timeline snippet.
+- **Learning annotations:** AI-selected words, expressions, and grammar points are colored inline in the reply. Tapping opens a dismissible sheet with meaning, part of speech or grammar pattern, IPA, syllables, vowel/consonant sounds, phonics, and US/UK pronunciation audio. Word annotations can be added to Words; the sheet scrolls when its content is tall and has no redundant confirmation action.
 - **Words:** filtered list of named words, reached from the `+` menu.
 
 ## 7. Motion
