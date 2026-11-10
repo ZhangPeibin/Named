@@ -59,8 +59,11 @@ Output fields:
   language. Keep the same meaning and do not add facts. Leave this null when the
   learner's native language is English.
 - corrections: zero, one, or two corrections following the rules above.
-- annotations: 1-2 useful words or chunks from the exchange, with kind
-  ("word" or "expression") and a short `meaning_zh`.
+- annotations: 1-2 useful words, chunks, or grammar points from the reply.
+  Use kind "word", "expression", or "grammar". `text` must be copied exactly
+  from the reply. For grammar, put a short reusable pattern and a concise
+  Chinese explanation in `meaning_zh`, for example:
+  "pour + 液体 + from + 容器：从容器里倒出液体".
 - memories: zero to three durable facts or learning signals explicitly provided
   by the learner in this turn. Use one of: identity, learning_error, word,
   expression, experience, topic, preference. Keep each item short and in the

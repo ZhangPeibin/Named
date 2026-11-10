@@ -14,7 +14,7 @@ class Correction(BaseModel):
 
 class Annotation(BaseModel):
     text: str = Field(min_length=1, max_length=200)
-    kind: Literal["word", "expression"]
+    kind: Literal["word", "expression", "grammar"]
     meaning_zh: str = Field(min_length=1, max_length=500)
 
 

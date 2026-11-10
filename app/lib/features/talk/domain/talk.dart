@@ -20,6 +20,8 @@ class MessageAnnotation {
   final String text;
   final String kind;
   final String meaningZh;
+
+  bool get isGrammar => kind == 'grammar';
 }
 
 class TalkAudio {

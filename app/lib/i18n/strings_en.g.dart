@@ -710,6 +710,15 @@ class Translations$talk$en {
 	/// en: 'Milo is typing...'
 	String get typing => 'Milo is typing...';
 
+	/// en: 'Grammar'
+	String get grammar => 'Grammar';
+
+	/// en: 'Grammar note'
+	String get grammarSheetTitle => 'Grammar note';
+
+	/// en: 'Got it'
+	String get gotIt => 'Got it';
+
 	/// en: '中'
 	String get nativeShort => '中';
 
@@ -1116,6 +1125,9 @@ extension on Translations {
 			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => 'You',
 			'talk.typing' => 'Milo is typing...',
+			'talk.grammar' => 'Grammar',
+			'talk.grammarSheetTitle' => 'Grammar note',
+			'talk.gotIt' => 'Got it',
 			'talk.nativeShort' => '中',
 			'talk.showNative' => 'Show Chinese',
 			'talk.hideNative' => 'Hide Chinese',

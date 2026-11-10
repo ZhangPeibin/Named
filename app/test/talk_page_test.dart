@@ -85,4 +85,69 @@ void main() {
     expect(find.byKey(const Key('talk.avatar.mock-message-1')), findsOneWidget);
     expect(find.byKey(const Key('talk.avatar.mock-message-2')), findsOneWidget);
   });
+
+  grammarTest();
+}
+
+class _GrammarTalkApi extends MockTalkApi {
+  @override
+  Future<ConversationDto> fetch(String conversationId) async {
+    return ConversationDto(
+      id: conversationId,
+      title: 'tree',
+      focusType: 'word',
+      focusId: 'mock-word',
+      status: 'active',
+      messages: const [
+        TalkMessageDto(
+          id: 'grammar-message',
+          role: 'assistant',
+          text: "So you'll pour some water from the kettle for me.",
+          corrections: [],
+          annotations: [
+            MessageAnnotationDto(
+              text: 'pour',
+              kind: 'grammar',
+              meaningZh: 'pour + 液体 + from + 容器：从容器里倒出液体',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+void grammarTest() {
+  testWidgets('shows an inline grammar marker and opens its note', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _GrammarTalkApi();
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          talkRepositoryProvider.overrideWithValue(TalkRepository(api)),
+        ],
+        child: const TalkPage(conversationId: 'grammar', title: 'tree'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('talk.grammar.pour')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk.grammar.pour')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('talk.grammarSheet')), findsOneWidget);
+    expect(find.text('pour + 液体 + from + 容器：从容器里倒出液体'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk.grammarClose')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('talk.grammarSheet')), findsNothing);
+  });
 }

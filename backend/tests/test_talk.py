@@ -813,3 +813,32 @@ async def test_expired_memory_is_excluded_from_context(talk_env) -> None:
     )
     assert response.status_code == 200, response.text
     assert "lake every summer" not in agent.calls[-1]["memory_context"]
+
+
+@pytest.mark.asyncio
+async def test_grammar_annotation_is_persisted(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "grammar@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.annotations = [
+        Annotation(
+            text="pour",
+            kind="grammar",
+            meaning_zh="pour + 液体 + from + 容器：从容器里倒出液体",
+        )
+    ]
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "grammar-1", "text": "I pour water."},
+    )
+    assert response.status_code == 200, response.text
+
+    detail = await http.get(
+        f"/api/v1/conversations/{conversation_id}",
+        headers=headers,
+    )
+    annotations = detail.json()["messages"][1]["annotations"]
+    assert annotations[0]["kind"] == "grammar"
+    assert annotations[0]["text"] == "pour"
