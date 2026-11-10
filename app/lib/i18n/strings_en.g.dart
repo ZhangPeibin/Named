@@ -698,6 +698,18 @@ class Translations$talk$en {
 	/// en: 'Conversation'
 	String get titleFallback => 'Conversation';
 
+	/// en: 'Milo'
+	String get miloName => 'Milo';
+
+	/// en: 'Milo'
+	String get miloAvatar => 'Milo';
+
+	/// en: 'You'
+	String get youAvatar => 'You';
+
+	/// en: 'Milo is typing...'
+	String get typing => 'Milo is typing...';
+
 	/// en: '中'
 	String get nativeShort => '中';
 
@@ -1100,6 +1112,10 @@ extension on Translations {
 			'talk.helpEmptyInput' => 'Write something first.',
 			'talk.audioUnavailable' => 'Audio is unavailable.',
 			'talk.titleFallback' => 'Conversation',
+			'talk.miloName' => 'Milo',
+			'talk.miloAvatar' => 'Milo',
+			'talk.youAvatar' => 'You',
+			'talk.typing' => 'Milo is typing...',
 			'talk.nativeShort' => '中',
 			'talk.showNative' => 'Show Chinese',
 			'talk.hideNative' => 'Hide Chinese',

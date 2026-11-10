@@ -358,6 +358,10 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get helpEmptyInput => '先写一句想说的话。';
 	@override String get audioUnavailable => '音频暂时不可用。';
 	@override String get titleFallback => '对话';
+	@override String get miloName => 'Milo';
+	@override String get miloAvatar => 'Milo';
+	@override String get youAvatar => '你';
+	@override String get typing => 'Milo 正在输入...';
 	@override String get nativeShort => '中';
 	@override String get showNative => '显示中文';
 	@override String get hideNative => '隐藏中文';
@@ -629,6 +633,10 @@ extension on TranslationsZh {
 			'talk.helpEmptyInput' => '先写一句想说的话。',
 			'talk.audioUnavailable' => '音频暂时不可用。',
 			'talk.titleFallback' => '对话',
+			'talk.miloName' => 'Milo',
+			'talk.miloAvatar' => 'Milo',
+			'talk.youAvatar' => '你',
+			'talk.typing' => 'Milo 正在输入...',
 			'talk.nativeShort' => '中',
 			'talk.showNative' => '显示中文',
 			'talk.hideNative' => '隐藏中文',

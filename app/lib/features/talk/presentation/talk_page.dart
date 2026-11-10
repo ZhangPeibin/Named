@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -17,6 +18,7 @@ import '../../../i18n/strings.g.dart';
 import '../domain/talk.dart';
 import '../providers/talk_providers.dart';
 import 'widgets/help_sheet.dart';
+import 'widgets/talk_avatar.dart';
 
 class TalkPage extends ConsumerStatefulWidget {
   const TalkPage({super.key, required this.conversationId, this.title});
@@ -38,6 +40,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   String? _error;
   bool _isLoading = true;
   bool _isSending = false;
+  TalkMessage? _pendingMessage;
   final _hiddenNativeMessageIds = <String>{};
   double _playbackRate = 1.0;
   late final AudioPlayer _player;
@@ -114,23 +117,36 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     if (text.isEmpty || _isSending) {
       return;
     }
+
+    final clientMessageId = DateTime.now().microsecondsSinceEpoch.toString();
+    final pending = TalkMessage(
+      id: 'pending-$clientMessageId',
+      role: 'user',
+      text: text,
+      corrections: const [],
+      annotations: const [],
+    );
     setState(() {
       _error = null;
       _isSending = true;
+      _pendingMessage = pending;
+      _controller.clear();
     });
+    _scrollToBottom();
+
     try {
       final turn = await ref
           .read(talkRepositoryProvider)
           .sendMessage(
             conversationId: widget.conversationId,
             text: text,
-            clientMessageId: DateTime.now().microsecondsSinceEpoch.toString(),
+            clientMessageId: clientMessageId,
           );
       if (mounted) {
         final assistant = turn.assistantMessage;
         setState(() {
           _messages = [..._messages, turn.userMessage, assistant];
-          _controller.clear();
+          _pendingMessage = null;
         });
         _scrollToBottom();
         if (assistant.audio?.isReady == true) {
@@ -139,7 +155,12 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       }
     } on ApiException catch (error) {
       if (mounted) {
-        setState(() => _error = error.message);
+        setState(() {
+          _pendingMessage = null;
+          _controller.text = text;
+          _controller.selection = TextSelection.collapsed(offset: text.length);
+          _error = error.message;
+        });
       }
     } finally {
       if (mounted) {
@@ -256,6 +277,8 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
     final title = _title ?? widget.title ?? t.titleFallback;
+    final visibleMessages = <TalkMessage>[..._messages, ?_pendingMessage];
+    final showTyping = _isSending && _pendingMessage != null;
 
     return AppScaffold(
       title: '',
@@ -266,6 +289,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
         children: [
           _TalkHeader(
             title: title,
+            isTyping: showTyping,
             onBack: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
@@ -279,7 +303,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                       onRetry: _load,
                     ),
                   )
-                : _messages.isEmpty
+                : visibleMessages.isEmpty
                 ? Center(
                     child: Text(
                       _focusType == 'scene' ? t.emptyScene : t.empty,
@@ -298,11 +322,14 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                       AppSpacing.pageHorizontalPadding,
                       AppSpacing.s16,
                     ),
-                    itemCount: _messages.length,
+                    itemCount: visibleMessages.length + (showTyping ? 1 : 0),
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: AppSpacing.s12),
                     itemBuilder: (context, index) {
-                      final message = _messages[index];
+                      if (index == visibleMessages.length) {
+                        return const _TypingMessage();
+                      }
+                      final message = visibleMessages[index];
                       return _MessageBubble(
                         message: message,
                         showNative: !_hiddenNativeMessageIds.contains(
@@ -371,15 +398,21 @@ class _TalkPageState extends ConsumerState<TalkPage> {
 }
 
 class _TalkHeader extends StatelessWidget {
-  const _TalkHeader({required this.title, required this.onBack});
+  const _TalkHeader({
+    required this.title,
+    required this.isTyping,
+    required this.onBack,
+  });
 
   final String title;
+  final bool isTyping;
   final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
+    final t = context.t.talk;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
@@ -406,12 +439,32 @@ class _TalkHeader extends StatelessWidget {
             icon: const Icon(Icons.arrow_back, size: 20),
           ),
           const SizedBox(width: AppSpacing.s4),
+          const TalkAvatar(
+            key: Key('talk.header.avatar'),
+            isUser: false,
+            size: 40,
+          ),
+          const SizedBox(width: AppSpacing.s10),
           Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.displayMedium,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.miloName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.s2),
+                Text(
+                  isTyping ? t.typing : title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ],
             ),
           ),
         ],
@@ -592,90 +645,122 @@ class _MessageBubble extends StatelessWidget {
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
       children: [
-        Align(
-          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 320),
-            padding: const EdgeInsets.all(AppSpacing.s14),
-            decoration: BoxDecoration(
-              color: isUser ? palette.warm : palette.surface,
-              borderRadius: BorderRadius.circular(AppRadius.r16),
-              border: isUser ? null : Border.all(color: palette.line),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(message.text, style: textTheme.bodyLarge),
-                if (hasNative)
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 180),
-                    curve: Curves.easeOutCubic,
-                    alignment: Alignment.topLeft,
-                    child: showNative
-                        ? Padding(
-                            key: Key('talk.native.${message.id}'),
-                            padding: const EdgeInsets.only(top: AppSpacing.s8),
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.only(
-                                left: AppSpacing.s10,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(
-                                    color: palette.accent,
-                                    width: 2,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: isUser
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
+          children: [
+            if (!isUser) ...[
+              TalkAvatar(
+                key: Key('talk.avatar.${message.id}'),
+                isUser: false,
+                size: 32,
+              ),
+              const SizedBox(width: AppSpacing.s8),
+            ],
+            Flexible(
+              child: Align(
+                alignment: isUser
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  padding: const EdgeInsets.all(AppSpacing.s14),
+                  decoration: BoxDecoration(
+                    color: isUser ? palette.warm : palette.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.r16),
+                    border: isUser ? null : Border.all(color: palette.line),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(message.text, style: textTheme.bodyLarge),
+                      if (hasNative)
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOutCubic,
+                          alignment: Alignment.topLeft,
+                          child: showNative
+                              ? Padding(
+                                  key: Key('talk.native.${message.id}'),
+                                  padding: const EdgeInsets.only(
+                                    top: AppSpacing.s8,
                                   ),
-                                ),
-                              ),
-                              child: Text(
-                                message.nativeText!,
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: palette.muted,
-                                ),
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                for (final annotation in message.annotations) ...[
-                  const SizedBox(height: AppSpacing.s8),
-                  Text(
-                    '${annotation.text} · ${annotation.meaningZh}',
-                    style: textTheme.bodySmall?.copyWith(color: palette.muted),
-                  ),
-                ],
-                if (onPlay != null || hasNative) ...[
-                  const SizedBox(height: AppSpacing.s8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Wrap(
-                      spacing: AppSpacing.s6,
-                      runSpacing: AppSpacing.s6,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        if (hasNative)
-                          _NativeToggle(
-                            messageId: message.id,
-                            selected: showNative,
-                            onTap: onToggleNative,
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.only(
+                                      left: AppSpacing.s10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        left: BorderSide(
+                                          color: palette.accent,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      message.nativeText!,
+                                      style: textTheme.bodySmall?.copyWith(
+                                        color: palette.muted,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      for (final annotation in message.annotations) ...[
+                        const SizedBox(height: AppSpacing.s8),
+                        Text(
+                          '${annotation.text} · ${annotation.meaningZh}',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: palette.muted,
                           ),
-                        if (onPlay != null)
-                          _MessageAudioButton(
-                            messageId: message.id,
-                            playbackRate: playbackRate,
-                            isPlaying: isPlaying,
-                            isLoading: isLoading,
-                            onTap: onPlay,
-                            onPlaybackRateChanged: onPlaybackRateChanged,
-                          ),
+                        ),
                       ],
-                    ),
+                      if (onPlay != null || hasNative) ...[
+                        const SizedBox(height: AppSpacing.s8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Wrap(
+                            spacing: AppSpacing.s6,
+                            runSpacing: AppSpacing.s6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              if (hasNative)
+                                _NativeToggle(
+                                  messageId: message.id,
+                                  selected: showNative,
+                                  onTap: onToggleNative,
+                                ),
+                              if (onPlay != null)
+                                _MessageAudioButton(
+                                  messageId: message.id,
+                                  playbackRate: playbackRate,
+                                  isPlaying: isPlaying,
+                                  isLoading: isLoading,
+                                  onTap: onPlay,
+                                  onPlaybackRateChanged: onPlaybackRateChanged,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ],
+                ),
+              ),
             ),
-          ),
+            if (isUser) ...[
+              const SizedBox(width: AppSpacing.s8),
+              TalkAvatar(
+                key: Key('talk.avatar.${message.id}'),
+                isUser: true,
+                size: 32,
+              ),
+            ],
+          ],
         ),
         if (message.corrections.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.s8),
@@ -683,7 +768,7 @@ class _MessageBubble extends StatelessWidget {
             Align(
               alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
+                constraints: const BoxConstraints(maxWidth: 300),
                 child: Padding(
                   padding: EdgeInsets.only(
                     bottom: index == message.corrections.length - 1
@@ -702,6 +787,110 @@ class _MessageBubble extends StatelessWidget {
             ),
         ],
       ],
+    );
+  }
+}
+
+class _TypingMessage extends StatelessWidget {
+  const _TypingMessage();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.talk;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const TalkAvatar(
+          key: Key('talk.typing.avatar'),
+          isUser: false,
+          size: 32,
+        ),
+        const SizedBox(width: AppSpacing.s8),
+        Container(
+          key: const Key('talk.typing'),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s16,
+            vertical: AppSpacing.s14,
+          ),
+          decoration: BoxDecoration(
+            color: palette.surface,
+            borderRadius: BorderRadius.circular(AppRadius.r16),
+            border: Border.all(color: palette.line),
+          ),
+          child: Semantics(
+            liveRegion: true,
+            label: t.typing,
+            child: const _TypingDots(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TypingDots extends StatefulWidget {
+  const _TypingDots();
+
+  @override
+  State<_TypingDots> createState() => _TypingDotsState();
+}
+
+class _TypingDotsState extends State<_TypingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    unawaited(_controller.repeat());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var index = 0; index < 3; index++) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.s4),
+              _dot(palette.primary, reduceMotion ? 0.5 : _phase(index)),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  double _phase(int index) {
+    final phase = (_controller.value - index * 0.18) % 1.0;
+    return 0.25 + 0.75 * (0.5 + 0.5 * math.sin(2 * math.pi * phase));
+  }
+
+  Widget _dot(Color color, double opacity) {
+    return Opacity(
+      opacity: opacity,
+      child: Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
     );
   }
 }
