@@ -945,3 +945,38 @@ async def test_recurring_errors_are_profiled_and_injected(talk_env) -> None:
         )
         assert pattern is not None
         assert pattern.occurrence_count == 2
+
+
+@pytest.mark.asyncio
+async def test_expression_annotation_can_include_ipa(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "expression-ipa@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.annotations = [
+        Annotation(
+            text="help it dry",
+            kind="expression",
+            meaning_zh="帮助它变干；让它快点干",
+            ipa="/help ɪt draɪ/",
+            syllables="help it dry",
+            vowels=["/e/", "/ɪ/", "/aɪ/"],
+            consonants=["/h/", "/l/", "/p/", "/t/", "/d/", "/r/"],
+            phonics="help 的 h 要送气；it 和 dry 连读",
+        )
+    ]
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "expression-ipa-1", "text": "Open the window."},
+    )
+    assert response.status_code == 200, response.text
+
+    detail = await http.get(
+        f"/api/v1/conversations/{conversation_id}",
+        headers=headers,
+    )
+    annotation = detail.json()["messages"][1]["annotations"][0]
+    assert annotation["kind"] == "expression"
+    assert annotation["ipa"] == "/help ɪt draɪ/"
+    assert annotation["vowels"] == ["/e/", "/ɪ/", "/aɪ/"]

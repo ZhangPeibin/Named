@@ -128,6 +128,12 @@ class _GrammarTalkApi extends MockTalkApi {
           corrections: [],
           annotations: [
             MessageAnnotationDto(
+              text: 'pour',
+              kind: 'grammar',
+              meaningZh: '从容器里倒出液体',
+              grammar: 'pour + 液体 + from + 容器',
+            ),
+            MessageAnnotationDto(
               text: 'plain',
               kind: 'word',
               meaningZh: '不加其他东西地；直接地',
@@ -137,12 +143,6 @@ class _GrammarTalkApi extends MockTalkApi {
               vowels: ['/eɪ/'],
               consonants: ['/p/', '/l/', '/n/'],
               phonics: 'ai 发 /eɪ/',
-            ),
-            MessageAnnotationDto(
-              text: 'pour',
-              kind: 'grammar',
-              meaningZh: '从容器里倒出液体',
-              grammar: 'pour + 液体 + from + 容器',
             ),
           ],
         ),

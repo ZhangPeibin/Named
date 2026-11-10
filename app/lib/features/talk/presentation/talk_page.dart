@@ -454,40 +454,42 @@ class _InlineMessageText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final annotations = message.annotations.where(
-      (annotation) => annotation.text.trim().isNotEmpty,
-    );
-    if (annotations.isEmpty) {
+    final matches = <_AnnotationMatch>[];
+    for (final annotation in message.annotations) {
+      if (annotation.text.trim().isEmpty) {
+        continue;
+      }
+      final index = message.text.indexOf(annotation.text);
+      if (index >= 0) {
+        matches.add(_AnnotationMatch(index: index, annotation: annotation));
+      }
+    }
+    if (matches.isEmpty) {
       return Text(message.text, style: style);
     }
+    matches.sort((a, b) => a.index.compareTo(b.index));
 
     final spans = <InlineSpan>[];
     var cursor = 0;
-    var inserted = false;
-    for (final annotation in annotations) {
-      final index = message.text.indexOf(annotation.text, cursor);
-      if (index < 0) {
+    for (final match in matches) {
+      if (match.index < cursor) {
         continue;
       }
-      if (index > cursor) {
-        spans.add(TextSpan(text: message.text.substring(cursor, index)));
+      if (match.index > cursor) {
+        spans.add(TextSpan(text: message.text.substring(cursor, match.index)));
       }
       spans.add(
         WidgetSpan(
           alignment: PlaceholderAlignment.baseline,
           baseline: TextBaseline.alphabetic,
           child: _AnnotationWord(
-            annotation: annotation,
+            annotation: match.annotation,
             style: style,
-            onTap: () => onAnnotationTap(annotation, message.text),
+            onTap: () => onAnnotationTap(match.annotation, message.text),
           ),
         ),
       );
-      cursor = index + annotation.text.length;
-      inserted = true;
-    }
-    if (!inserted) {
-      return Text(message.text, style: style);
+      cursor = match.index + match.annotation.text.length;
     }
     if (cursor < message.text.length) {
       spans.add(TextSpan(text: message.text.substring(cursor)));
@@ -495,6 +497,13 @@ class _InlineMessageText extends StatelessWidget {
 
     return Text.rich(TextSpan(style: style, children: spans));
   }
+}
+
+class _AnnotationMatch {
+  const _AnnotationMatch({required this.index, required this.annotation});
+
+  final int index;
+  final MessageAnnotation annotation;
 }
 
 class _AnnotationWord extends StatelessWidget {

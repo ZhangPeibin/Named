@@ -73,14 +73,15 @@ Output fields:
   from the reply. Prefer language the learner may not know, or an opaque use
   that is easy to miss; do not annotate obvious words.
   For a word, set `part_of_speech` (for example "adv.") and put the short
-  Chinese meaning in `meaning_zh`. Also include pronunciation for a word:
-  `ipa` in slashes, `syllables`, `vowels` (vowel sounds), `consonants`
-  (consonant sounds), and `phonics` (a short letter-sound or spelling hint in
-  Chinese). Example: "Drink it plain" -> text "plain", part_of_speech "adv.",
-  meaning_zh "不加其他东西地；直接地", ipa "/pleɪn/", syllables "plain",
-  vowels ["/eɪ/"], consonants ["/p/", "/l/", "/n/"],
+  Chinese meaning in `meaning_zh`. For a word or expression, also include
+  pronunciation: `ipa` in slashes, `syllables`, `vowels` (vowel sounds),
+  `consonants` (consonant sounds), and `phonics` (a short letter-sound or
+  spelling hint in Chinese). Example: "Drink it plain" -> text "plain",
+  part_of_speech "adv.", meaning_zh "不加其他东西地；直接地", ipa "/pleɪn/",
+  syllables "plain", vowels ["/eɪ/"], consonants ["/p/", "/l/", "/n/"],
   phonics "ai 发 /eɪ/；结尾的 n 要轻轻收住".
-  Leave pronunciation fields empty for grammar and expression annotations.
+  For an expression, use the IPA of the full phrase and include the same
+  pronunciation fields. Leave pronunciation fields empty only for grammar.
   For grammar, put the reusable pattern in `grammar`, for example
   "pour + 液体 + from + 容器", and the concise Chinese explanation in
   `meaning_zh`, for example "从容器里倒出液体".
