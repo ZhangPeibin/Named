@@ -21,6 +21,8 @@ class MessageAnnotation {
   final String kind;
   final String meaningZh;
 
+  bool get isWord => kind == 'word';
+  bool get isExpression => kind == 'expression';
   bool get isGrammar => kind == 'grammar';
 }
 

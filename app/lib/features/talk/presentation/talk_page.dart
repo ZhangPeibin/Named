@@ -245,10 +245,10 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     _useSuggestion(suggestion.naturalEnglish);
   }
 
-  Future<void> _showGrammar(MessageAnnotation annotation) async {
+  Future<void> _showAnnotation(MessageAnnotation annotation) async {
     await showAppBottomSheet<void>(
       context: context,
-      builder: (context) => _GrammarSheet(annotation: annotation),
+      builder: (context) => _AnnotationSheet(annotation: annotation),
     );
   }
 
@@ -360,7 +360,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                           });
                         },
                         onUseSuggestion: _useSuggestion,
-                        onGrammarTap: _showGrammar,
+                        onAnnotationTap: _showAnnotation,
                       );
                     },
                   ),
@@ -409,26 +409,26 @@ class _InlineMessageText extends StatelessWidget {
   const _InlineMessageText({
     required this.message,
     required this.style,
-    required this.onGrammarTap,
+    required this.onAnnotationTap,
   });
 
   final TalkMessage message;
   final TextStyle? style;
-  final ValueChanged<MessageAnnotation> onGrammarTap;
+  final ValueChanged<MessageAnnotation> onAnnotationTap;
 
   @override
   Widget build(BuildContext context) {
-    final grammarAnnotations = message.annotations.where(
-      (annotation) => annotation.isGrammar && annotation.text.trim().isNotEmpty,
+    final annotations = message.annotations.where(
+      (annotation) => annotation.text.trim().isNotEmpty,
     );
-    if (grammarAnnotations.isEmpty) {
+    if (annotations.isEmpty) {
       return Text(message.text, style: style);
     }
 
     final spans = <InlineSpan>[];
     var cursor = 0;
     var inserted = false;
-    for (final annotation in grammarAnnotations) {
+    for (final annotation in annotations) {
       final index = message.text.indexOf(annotation.text, cursor);
       if (index < 0) {
         continue;
@@ -440,9 +440,9 @@ class _InlineMessageText extends StatelessWidget {
       spans.add(
         WidgetSpan(
           alignment: PlaceholderAlignment.middle,
-          child: _GrammarChip(
+          child: _AnnotationChip(
             annotation: annotation,
-            onTap: () => onGrammarTap(annotation),
+            onTap: () => onAnnotationTap(annotation),
           ),
         ),
       );
@@ -460,24 +460,35 @@ class _InlineMessageText extends StatelessWidget {
   }
 }
 
-class _GrammarChip extends StatelessWidget {
-  const _GrammarChip({required this.annotation, required this.onTap});
+class _AnnotationChip extends StatelessWidget {
+  const _AnnotationChip({required this.annotation, required this.onTap});
 
   final MessageAnnotation annotation;
   final VoidCallback onTap;
+
+  String _label(Translations$talk$en t) {
+    if (annotation.isGrammar) {
+      return t.grammar;
+    }
+    if (annotation.isWord) {
+      return t.word;
+    }
+    return t.expression;
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     final t = context.t.talk;
+    final label = _label(t);
 
     return Semantics(
       button: true,
-      label: '${t.grammar}: ${annotation.meaningZh}',
+      label: '$label: ${annotation.meaningZh}',
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          key: Key('talk.grammar.${annotation.text}'),
+          key: Key('talk.annotation.${annotation.text}'),
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppRadius.pill),
           child: Padding(
@@ -495,7 +506,7 @@ class _GrammarChip extends StatelessWidget {
                 ),
               ),
               child: Text(
-                t.grammar,
+                label,
                 style: AppTextStyles.caption.copyWith(
                   color: palette.accent,
                   fontWeight: FontWeight.w600,
@@ -510,10 +521,20 @@ class _GrammarChip extends StatelessWidget {
   }
 }
 
-class _GrammarSheet extends StatelessWidget {
-  const _GrammarSheet({required this.annotation});
+class _AnnotationSheet extends StatelessWidget {
+  const _AnnotationSheet({required this.annotation});
 
   final MessageAnnotation annotation;
+
+  String _title(Translations$talk$en t) {
+    if (annotation.isGrammar) {
+      return t.grammarSheetTitle;
+    }
+    if (annotation.isWord) {
+      return t.wordSheetTitle;
+    }
+    return t.expressionSheetTitle;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -522,12 +543,12 @@ class _GrammarSheet extends StatelessWidget {
     final t = context.t.talk;
 
     return Column(
-      key: const Key('talk.grammarSheet'),
+      key: const Key('talk.annotationSheet'),
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          t.grammarSheetTitle.toUpperCase(),
+          _title(t).toUpperCase(),
           style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
         ),
         const SizedBox(height: AppSpacing.s8),
@@ -538,7 +559,7 @@ class _GrammarSheet extends StatelessWidget {
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            key: const Key('talk.grammarClose'),
+            key: const Key('talk.annotationClose'),
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.gotIt),
           ),
@@ -770,7 +791,7 @@ class _MessageBubble extends StatelessWidget {
     required this.onPlaybackRateChanged,
     required this.onToggleNative,
     required this.onUseSuggestion,
-    required this.onGrammarTap,
+    required this.onAnnotationTap,
   });
 
   final TalkMessage message;
@@ -782,7 +803,7 @@ class _MessageBubble extends StatelessWidget {
   final ValueChanged<double> onPlaybackRateChanged;
   final VoidCallback onToggleNative;
   final ValueChanged<String> onUseSuggestion;
-  final ValueChanged<MessageAnnotation> onGrammarTap;
+  final ValueChanged<MessageAnnotation> onAnnotationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -831,7 +852,7 @@ class _MessageBubble extends StatelessWidget {
                       _InlineMessageText(
                         message: message,
                         style: textTheme.bodyLarge,
-                        onGrammarTap: onGrammarTap,
+                        onAnnotationTap: onAnnotationTap,
                       ),
                       if (hasNative)
                         AnimatedSize(
@@ -867,17 +888,6 @@ class _MessageBubble extends StatelessWidget {
                                 )
                               : const SizedBox.shrink(),
                         ),
-                      for (final annotation in message.annotations.where(
-                        (annotation) => !annotation.isGrammar,
-                      )) ...[
-                        const SizedBox(height: AppSpacing.s8),
-                        Text(
-                          '${annotation.text} · ${annotation.meaningZh}',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: palette.muted,
-                          ),
-                        ),
-                      ],
                       if (onPlay != null || hasNative) ...[
                         const SizedBox(height: AppSpacing.s8),
                         Align(

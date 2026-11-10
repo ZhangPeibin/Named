@@ -710,6 +710,18 @@ class Translations$talk$en {
 	/// en: 'Milo is typing...'
 	String get typing => 'Milo is typing...';
 
+	/// en: 'Word'
+	String get word => 'Word';
+
+	/// en: 'Word'
+	String get wordSheetTitle => 'Word';
+
+	/// en: 'Expression'
+	String get expression => 'Expression';
+
+	/// en: 'Expression'
+	String get expressionSheetTitle => 'Expression';
+
 	/// en: 'Grammar'
 	String get grammar => 'Grammar';
 
@@ -1125,6 +1137,10 @@ extension on Translations {
 			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => 'You',
 			'talk.typing' => 'Milo is typing...',
+			'talk.word' => 'Word',
+			'talk.wordSheetTitle' => 'Word',
+			'talk.expression' => 'Expression',
+			'talk.expressionSheetTitle' => 'Expression',
 			'talk.grammar' => 'Grammar',
 			'talk.grammarSheetTitle' => 'Grammar note',
 			'talk.gotIt' => 'Got it',

@@ -77,9 +77,7 @@ void main() {
     expect(find.byKey(const Key('talk.typing')), findsNothing);
     expect(find.byKey(const Key('talk.typing.avatar')), findsNothing);
     expect(
-      find.text(
-        'That sounds like a small, real moment. What did you notice first?',
-      ),
+      find.textContaining('That sounds like a small, real moment.'),
       findsOneWidget,
     );
     expect(find.byKey(const Key('talk.avatar.mock-message-1')), findsOneWidget);
@@ -102,9 +100,15 @@ class _GrammarTalkApi extends MockTalkApi {
         TalkMessageDto(
           id: 'grammar-message',
           role: 'assistant',
-          text: "So you'll pour some water from the kettle for me.",
+          text:
+              "Drink it plain. So you'll pour some water from the kettle for me.",
           corrections: [],
           annotations: [
+            MessageAnnotationDto(
+              text: 'plain',
+              kind: 'word',
+              meaningZh: 'adv. 不加其他东西地；直接地',
+            ),
             MessageAnnotationDto(
               text: 'pour',
               kind: 'grammar',
@@ -118,7 +122,7 @@ class _GrammarTalkApi extends MockTalkApi {
 }
 
 void grammarTest() {
-  testWidgets('shows an inline grammar marker and opens its note', (
+  testWidgets('shows inline annotation markers and opens their notes', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -138,16 +142,24 @@ void grammarTest() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('talk.grammar.pour')), findsOneWidget);
+    expect(find.byKey(const Key('talk.annotation.plain')), findsOneWidget);
+    expect(find.byKey(const Key('talk.annotation.pour')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('talk.grammar.pour')));
+    await tester.tap(find.byKey(const Key('talk.annotation.plain')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
+    expect(find.text('adv. 不加其他东西地；直接地'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('talk.annotationClose')));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('talk.grammarSheet')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('talk.annotation.pour')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
     expect(find.text('pour + 液体 + from + 容器：从容器里倒出液体'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('talk.grammarClose')));
+    await tester.tap(find.byKey(const Key('talk.annotationClose')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('talk.grammarSheet')), findsNothing);
+    expect(find.byKey(const Key('talk.annotationSheet')), findsNothing);
   });
 }

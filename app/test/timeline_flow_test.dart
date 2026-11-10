@@ -101,9 +101,7 @@ void main() {
 
     expect(find.text('I saw a tree.'), findsOneWidget);
     expect(
-      find.text(
-        'That sounds like a small, real moment. What did you notice first?',
-      ),
+      find.textContaining('That sounds like a small, real moment.'),
       findsOneWidget,
     );
     expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);

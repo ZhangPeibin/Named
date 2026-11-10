@@ -362,6 +362,10 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get miloAvatar => 'Milo';
 	@override String get youAvatar => '你';
 	@override String get typing => 'Milo 正在输入...';
+	@override String get word => '词';
+	@override String get wordSheetTitle => '词义';
+	@override String get expression => '表达';
+	@override String get expressionSheetTitle => '表达';
 	@override String get grammar => '语法';
 	@override String get grammarSheetTitle => '语法提示';
 	@override String get gotIt => '知道了';
@@ -640,6 +644,10 @@ extension on TranslationsZh {
 			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => '你',
 			'talk.typing' => 'Milo 正在输入...',
+			'talk.word' => '词',
+			'talk.wordSheetTitle' => '词义',
+			'talk.expression' => '表达',
+			'talk.expressionSheetTitle' => '表达',
 			'talk.grammar' => '语法',
 			'talk.grammarSheetTitle' => '语法提示',
 			'talk.gotIt' => '知道了',

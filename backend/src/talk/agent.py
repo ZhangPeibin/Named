@@ -61,9 +61,12 @@ Output fields:
 - corrections: zero, one, or two corrections following the rules above.
 - annotations: 1-2 useful words, chunks, or grammar points from the reply.
   Use kind "word", "expression", or "grammar". `text` must be copied exactly
-  from the reply. For grammar, put a short reusable pattern and a concise
-  Chinese explanation in `meaning_zh`, for example:
-  "pour + 液体 + from + 容器：从容器里倒出液体".
+  from the reply. Prefer language the learner may not know, or an opaque use
+  that is easy to miss; do not annotate obvious words. For a word, include its
+  part of speech and a short Chinese meaning. For example, in "Drink it plain",
+  annotate "plain" as "adv. 不加其他东西地；直接地". For grammar, put a short
+  reusable pattern and a concise Chinese explanation in `meaning_zh`, for
+  example: "pour + 液体 + from + 容器：从容器里倒出液体".
 - memories: zero to three durable facts or learning signals explicitly provided
   by the learner in this turn. Use one of: identity, learning_error, word,
   expression, experience, topic, preference. Keep each item short and in the
