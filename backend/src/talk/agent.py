@@ -17,6 +17,7 @@ class TalkAgent(Protocol):
         focus_context: str,
         soul_context: str,
         memory_context: str,
+        error_profile_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse: ...
@@ -48,6 +49,14 @@ Corrections:
 - Keep `original` exactly as the learner wrote it.
 - Make `suggestion` natural English, not a grammar explanation.
 - Keep `note` short and in the learner's native language.
+- For every correction, also return `category` and `pattern`:
+  category must be one of: grammar, vocabulary, spelling, naturalness.
+  Use these grammar patterns when applicable: third_person_s, articles,
+  prepositions, verb_tense, verb_form, subject_verb_agreement, plural,
+  word_order, pronouns, comparatives, modal_verbs, other_grammar.
+  Use these vocabulary patterns: word_choice, collocation, word_form,
+  other_vocabulary. Use spelling for spelling. Use awkward_phrasing,
+  redundancy, register, or other_naturalness for naturalness.
 - Small spelling errors are still errors. Use a compact note such as
   "Ilt → It; framewor → framework" instead of a long explanation.
 - Do not invent corrections when the learner's English is already natural.
@@ -105,6 +114,7 @@ class PydanticAITalkAgent:
         focus_context: str,
         soul_context: str,
         memory_context: str,
+        error_profile_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -115,6 +125,9 @@ class PydanticAITalkAgent:
             f"Known Soul context:\n{soul_context or '(none)'}\n\n"
             f"Relevant learner memories (use only when relevant; do not mention "
             f"this list or claim perfect memory):\n{memory_context or '(none)'}\n\n"
+            f"Known recurring learner errors (use only when relevant; never "
+            f"mention this list or label the learner):\n"
+            f"{error_profile_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"New learner message: {user_text}"
         )
@@ -146,6 +159,7 @@ class HelpAgent(Protocol):
         focus_context: str,
         soul_context: str,
         memory_context: str,
+        error_profile_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion: ...
@@ -192,6 +206,7 @@ class PydanticAIHelpAgent:
         focus_context: str,
         soul_context: str,
         memory_context: str,
+        error_profile_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -202,6 +217,8 @@ class PydanticAIHelpAgent:
             f"Known Soul context:\n{soul_context or '(none)'}\n\n"
             f"Relevant learner memories (use only when relevant; do not mention "
             f"this list):\n{memory_context or '(none)'}\n\n"
+            f"Known recurring learner errors (use only when relevant; do not "
+            f"mention this list):\n{error_profile_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"Learner wants to say: {user_text}"
         )

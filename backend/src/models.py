@@ -304,6 +304,8 @@ class MessageCorrection(Base):
     original: Mapped[str] = mapped_column(Text, nullable=False)
     suggestion: Mapped[str] = mapped_column(Text, nullable=False)
     note: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    pattern: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
 
@@ -331,3 +333,32 @@ class MessageAnnotation(Base):
         String(36), ForeignKey("words.id", ondelete="SET NULL"), nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class ErrorPattern(Base):
+    __tablename__ = "error_patterns"
+    __table_args__ = (
+        UniqueConstraint(
+            "account_id",
+            "category",
+            "pattern_key",
+            name="uq_error_patterns_account_category_key",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    category: Mapped[str] = mapped_column(String(32), nullable=False)
+    pattern_key: Mapped[str] = mapped_column(String(64), nullable=False)
+    label: Mapped[str] = mapped_column(String(200), nullable=False)
+    occurrence_count: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    example_original: Mapped[str | None] = mapped_column(Text, nullable=True)
+    example_suggestion: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )

@@ -21,6 +21,7 @@ from models import (
     WordContent,
 )
 from talk.agent import AgentFailed, HelpAgent, TalkAgent
+from talk.errors import get_error_profile_context, record_error_profile
 from talk.schemas import (
     AnnotationOut,
     ConversationCreate,
@@ -360,6 +361,7 @@ async def send_message(
         focus_context=focus_context,
         user_text=user_message.text,
     )
+    error_profile_context = await get_error_profile_context(session, account_id)
     history = await _history(session, conversation_id, before_sequence=user_message.sequence)
 
     try:
@@ -368,6 +370,7 @@ async def send_message(
             focus_context=focus_context,
             soul_context=soul_context,
             memory_context=memory_context,
+            error_profile_context=error_profile_context,
             history=history,
             user_text=user_message.text,
         )
@@ -408,6 +411,8 @@ async def send_message(
                 original=correction.original,
                 suggestion=correction.suggestion,
                 note=correction.note,
+                category=correction.category,
+                pattern=correction.pattern,
             )
         )
     for annotation in response.annotations:
@@ -426,6 +431,12 @@ async def send_message(
                 phonics=annotation.phonics,
             )
         )
+
+    try:
+        async with session.begin_nested():
+            await record_error_profile(session, account_id, response.corrections)
+    except Exception:
+        logger.warning("Learner error profile update failed")
 
     _, audio_key = await speech_service.synthesize(session, response.reply)
     if audio_key is not None:
@@ -489,6 +500,7 @@ async def help_expression(
         focus_context=focus_context,
         user_text=payload.text,
     )
+    error_profile_context = await get_error_profile_context(session, account_id)
     history = await _history(session, conversation_id)
 
     try:
@@ -497,6 +509,7 @@ async def help_expression(
             focus_context=focus_context,
             soul_context=soul_context,
             memory_context=memory_context,
+            error_profile_context=error_profile_context,
             history=history,
             user_text=payload.text,
         )

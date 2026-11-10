@@ -23,7 +23,7 @@ from database import get_session
 from discovery.agent import get_discovery_agent
 from mailer import get_email_sender
 from main import app
-from models import Base, MemoryItem
+from models import Base, ErrorPattern, MemoryItem
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
 from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
 from tts.provider import get_tts_provider
@@ -41,6 +41,8 @@ class FakeTalkAgent:
                     original="I am grow mint on my balcony.",
                     suggestion="I am growing mint on my balcony.",
                     note="用现在进行时描述正在进行的动作。",
+                    category="grammar",
+                    pattern="verb_form",
                 )
             ],
             annotations=[
@@ -60,6 +62,7 @@ class FakeTalkAgent:
         focus_context: str,
         soul_context: str,
         memory_context: str,
+        error_profile_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -69,6 +72,7 @@ class FakeTalkAgent:
                 "focus_context": focus_context,
                 "soul_context": soul_context,
                 "memory_context": memory_context,
+                "error_profile_context": error_profile_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -94,6 +98,7 @@ class FakeHelpAgent:
         focus_context: str,
         soul_context: str,
         memory_context: str,
+        error_profile_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -103,6 +108,7 @@ class FakeHelpAgent:
                 "focus_context": focus_context,
                 "soul_context": soul_context,
                 "memory_context": memory_context,
+                "error_profile_context": error_profile_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -895,3 +901,47 @@ async def test_pronunciation_audio_returns_us_and_uk(talk_env) -> None:
     audio = await http.get(body["us"]["url"], headers=headers)
     assert audio.status_code == 200
     assert audio.content
+
+
+@pytest.mark.asyncio
+async def test_recurring_errors_are_profiled_and_injected(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "error-profile@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "error-profile@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.corrections = [
+        Correction(
+            original="She go to school.",
+            suggestion="She goes to school.",
+            note="第三人称单数要加 -s。",
+            category="grammar",
+            pattern="third_person_s",
+        )
+    ]
+
+    first = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "error-profile-1", "text": "She go to school."},
+    )
+    assert first.status_code == 200, first.text
+
+    second = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "error-profile-2", "text": "She go home."},
+    )
+    assert second.status_code == 200, second.text
+    assert "third-person singular -s" in agent.calls[-1]["error_profile_context"]
+
+    async with sessions() as session:
+        pattern = await session.scalar(
+            select(ErrorPattern).where(
+                ErrorPattern.account_id == account_id,
+                ErrorPattern.pattern_key == "third_person_s",
+            )
+        )
+        assert pattern is not None
+        assert pattern.occurrence_count == 2

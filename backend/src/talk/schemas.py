@@ -10,6 +10,8 @@ class Correction(BaseModel):
     original: str = Field(min_length=1, max_length=2000)
     suggestion: str = Field(min_length=1, max_length=2000)
     note: str = Field(min_length=1, max_length=1000)
+    category: str | None = Field(default=None, max_length=32)
+    pattern: str | None = Field(default=None, max_length=64)
 
 
 class Annotation(BaseModel):
