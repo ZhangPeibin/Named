@@ -605,9 +605,6 @@ class Translations$understand$en {
 	/// en: 'Example'
 	String get example => 'Example';
 
-	/// en: 'Grammar'
-	String get grammar => 'Grammar';
-
 	/// en: 'Related'
 	String get related => 'Related';
 
@@ -711,19 +708,10 @@ class Translations$talk$en {
 	String get typing => 'Milo is typing...';
 
 	/// en: 'Word'
-	String get word => 'Word';
-
-	/// en: 'Word'
 	String get wordSheetTitle => 'Word';
 
 	/// en: 'Expression'
-	String get expression => 'Expression';
-
-	/// en: 'Expression'
 	String get expressionSheetTitle => 'Expression';
-
-	/// en: 'Grammar'
-	String get grammar => 'Grammar';
 
 	/// en: 'Grammar note'
 	String get grammarSheetTitle => 'Grammar note';
@@ -1105,7 +1093,6 @@ extension on Translations {
 			'understand.chooseTitle' => 'Which one did you mean?',
 			'understand.translation' => 'Meaning',
 			'understand.example' => 'Example',
-			'understand.grammar' => 'Grammar',
 			'understand.related' => 'Related',
 			'understand.talk' => 'Talk about it',
 			'understand.talkScene' => 'Talk about this scene',
@@ -1137,11 +1124,8 @@ extension on Translations {
 			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => 'You',
 			'talk.typing' => 'Milo is typing...',
-			'talk.word' => 'Word',
 			'talk.wordSheetTitle' => 'Word',
-			'talk.expression' => 'Expression',
 			'talk.expressionSheetTitle' => 'Expression',
-			'talk.grammar' => 'Grammar',
 			'talk.grammarSheetTitle' => 'Grammar note',
 			'talk.gotIt' => 'Got it',
 			'talk.nativeShort' => '中',

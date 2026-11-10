@@ -439,9 +439,11 @@ class _InlineMessageText extends StatelessWidget {
       spans.add(TextSpan(text: annotation.text));
       spans.add(
         WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _AnnotationChip(
+          alignment: PlaceholderAlignment.baseline,
+          baseline: TextBaseline.alphabetic,
+          child: _AnnotationWord(
             annotation: annotation,
+            style: style,
             onTap: () => onAnnotationTap(annotation),
           ),
         ),
@@ -460,61 +462,33 @@ class _InlineMessageText extends StatelessWidget {
   }
 }
 
-class _AnnotationChip extends StatelessWidget {
-  const _AnnotationChip({required this.annotation, required this.onTap});
+class _AnnotationWord extends StatelessWidget {
+  const _AnnotationWord({
+    required this.annotation,
+    required this.style,
+    required this.onTap,
+  });
 
   final MessageAnnotation annotation;
+  final TextStyle? style;
   final VoidCallback onTap;
-
-  String _label(Translations$talk$en t) {
-    if (annotation.isGrammar) {
-      return t.grammar;
-    }
-    if (annotation.isWord) {
-      return t.word;
-    }
-    return t.expression;
-  }
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
-    final t = context.t.talk;
-    final label = _label(t);
+    final textStyle = (style ?? Theme.of(context).textTheme.bodyLarge)
+        ?.copyWith(color: palette.accent, fontWeight: FontWeight.w600);
 
     return Semantics(
       button: true,
-      label: '$label: ${annotation.meaningZh}',
+      label: '${annotation.text}: ${annotation.meaningZh}',
+      excludeSemantics: true,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           key: Key('talk.annotation.${annotation.text}'),
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: Padding(
-            padding: const EdgeInsets.only(left: AppSpacing.s4),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s6,
-                vertical: 1,
-              ),
-              decoration: BoxDecoration(
-                color: palette.warm,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(
-                  color: palette.accent.withValues(alpha: 0.35),
-                ),
-              ),
-              child: Text(
-                label,
-                style: AppTextStyles.caption.copyWith(
-                  color: palette.accent,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 10,
-                ),
-              ),
-            ),
-          ),
+          child: Text(annotation.text, style: textStyle),
         ),
       ),
     );

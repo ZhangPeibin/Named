@@ -321,7 +321,6 @@ class _Translations$understand$zh implements Translations$understand$en {
 	@override String get chooseTitle => '你指的是哪一个？';
 	@override String get translation => '意思';
 	@override String get example => '例句';
-	@override String get grammar => '语法';
 	@override String get related => '相关';
 	@override String get talk => '聊聊它';
 	@override String get talkScene => '聊聊这个场景';
@@ -362,11 +361,8 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get miloAvatar => 'Milo';
 	@override String get youAvatar => '你';
 	@override String get typing => 'Milo 正在输入...';
-	@override String get word => '词';
 	@override String get wordSheetTitle => '词义';
-	@override String get expression => '表达';
 	@override String get expressionSheetTitle => '表达';
-	@override String get grammar => '语法';
 	@override String get grammarSheetTitle => '语法提示';
 	@override String get gotIt => '知道了';
 	@override String get nativeShort => '中';
@@ -612,7 +608,6 @@ extension on TranslationsZh {
 			'understand.chooseTitle' => '你指的是哪一个？',
 			'understand.translation' => '意思',
 			'understand.example' => '例句',
-			'understand.grammar' => '语法',
 			'understand.related' => '相关',
 			'understand.talk' => '聊聊它',
 			'understand.talkScene' => '聊聊这个场景',
@@ -644,11 +639,8 @@ extension on TranslationsZh {
 			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => '你',
 			'talk.typing' => 'Milo 正在输入...',
-			'talk.word' => '词',
 			'talk.wordSheetTitle' => '词义',
-			'talk.expression' => '表达',
 			'talk.expressionSheetTitle' => '表达',
-			'talk.grammar' => '语法',
 			'talk.grammarSheetTitle' => '语法提示',
 			'talk.gotIt' => '知道了',
 			'talk.nativeShort' => '中',
