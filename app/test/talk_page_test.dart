@@ -202,7 +202,7 @@ void grammarTest() {
     expect(find.text('pour + 液体 + from + 容器'), findsOneWidget);
     expect(find.text('从容器里倒出液体'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('talk.annotationClose')));
+    await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('talk.annotationSheet')), findsNothing);
   });

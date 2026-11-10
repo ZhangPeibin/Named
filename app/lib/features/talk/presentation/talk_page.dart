@@ -902,15 +902,6 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
             style: textTheme.bodySmall?.copyWith(color: palette.error),
           ),
         ],
-        const SizedBox(height: AppSpacing.s8),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            key: const Key('talk.annotationClose'),
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.gotIt),
-          ),
-        ),
       ],
     );
   }

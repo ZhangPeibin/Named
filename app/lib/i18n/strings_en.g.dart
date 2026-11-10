@@ -755,9 +755,6 @@ class Translations$talk$en {
 	/// en: 'Could not add. Try again.'
 	String get addFailed => 'Could not add. Try again.';
 
-	/// en: 'Got it'
-	String get gotIt => 'Got it';
-
 	/// en: '中'
 	String get nativeShort => '中';
 
@@ -1179,7 +1176,6 @@ extension on Translations {
 			'talk.addToWords' => 'Add to Words',
 			'talk.addedToWords' => 'Added to Words',
 			'talk.addFailed' => 'Could not add. Try again.',
-			'talk.gotIt' => 'Got it',
 			'talk.nativeShort' => '中',
 			'talk.showNative' => 'Show Chinese',
 			'talk.hideNative' => 'Hide Chinese',

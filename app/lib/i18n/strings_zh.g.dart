@@ -377,7 +377,6 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get addToWords => '加入词语';
 	@override String get addedToWords => '已加入词语';
 	@override String get addFailed => '加入失败，请重试。';
-	@override String get gotIt => '知道了';
 	@override String get nativeShort => '中';
 	@override String get showNative => '显示中文';
 	@override String get hideNative => '隐藏中文';
@@ -668,7 +667,6 @@ extension on TranslationsZh {
 			'talk.addToWords' => '加入词语',
 			'talk.addedToWords' => '已加入词语',
 			'talk.addFailed' => '加入失败，请重试。',
-			'talk.gotIt' => '知道了',
 			'talk.nativeShort' => '中',
 			'talk.showNative' => '显示中文',
 			'talk.hideNative' => '隐藏中文',
