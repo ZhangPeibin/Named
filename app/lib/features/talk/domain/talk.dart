@@ -102,3 +102,21 @@ class Conversation {
   final String status;
   final List<TalkMessage> messages;
 }
+
+enum PronunciationAccent { us, uk }
+
+class PronunciationAudio {
+  const PronunciationAudio({required this.usUrl, required this.ukUrl});
+
+  final String? usUrl;
+  final String? ukUrl;
+
+  String? urlFor(PronunciationAccent accent) {
+    return switch (accent) {
+      PronunciationAccent.us => usUrl ?? ukUrl,
+      PronunciationAccent.uk => ukUrl ?? usUrl,
+    };
+  }
+
+  bool get hasAudio => urlFor(PronunciationAccent.us) != null;
+}

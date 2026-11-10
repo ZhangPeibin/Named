@@ -530,19 +530,101 @@ class _AnnotationWord extends StatelessWidget {
   }
 }
 
-class _AnnotationSheet extends StatefulWidget {
+class _AnnotationSheet extends ConsumerStatefulWidget {
   const _AnnotationSheet({required this.annotation, this.onAddToWords});
 
   final MessageAnnotation annotation;
   final Future<void> Function()? onAddToWords;
 
   @override
-  State<_AnnotationSheet> createState() => _AnnotationSheetState();
+  ConsumerState<_AnnotationSheet> createState() => _AnnotationSheetState();
 }
 
-class _AnnotationSheetState extends State<_AnnotationSheet> {
+class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
   var _saving = false;
   String? _error;
+  late final AudioPlayer _audioPlayer;
+  StreamSubscription<PlayerState>? _audioStateSub;
+  StreamSubscription<void>? _audioCompleteSub;
+  PronunciationAudio? _pronunciation;
+  PronunciationAccent _accent = PronunciationAccent.us;
+  Uint8List? _cachedBytes;
+  String? _cachedUrl;
+  var _loadingAudio = false;
+  var _playingAudio = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer();
+    unawaited(_audioPlayer.setReleaseMode(ReleaseMode.stop));
+    _audioStateSub = _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() => _playingAudio = state == PlayerState.playing);
+      }
+    });
+    _audioCompleteSub = _audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() => _playingAudio = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    unawaited(_audioStateSub?.cancel());
+    unawaited(_audioCompleteSub?.cancel());
+    unawaited(_audioPlayer.stop());
+    unawaited(_audioPlayer.dispose());
+    super.dispose();
+  }
+
+  Future<void> _toggleAudio() async {
+    if (_playingAudio) {
+      await _audioPlayer.pause();
+      if (mounted) {
+        setState(() => _playingAudio = false);
+      }
+      return;
+    }
+    if (_loadingAudio) {
+      return;
+    }
+
+    setState(() {
+      _loadingAudio = true;
+      _error = null;
+    });
+    try {
+      final pronunciation =
+          _pronunciation ??
+          await ref
+              .read(talkRepositoryProvider)
+              .synthesizePronunciation(widget.annotation.text);
+      _pronunciation = pronunciation;
+      final url = pronunciation.urlFor(_accent);
+      if (url == null || url.isEmpty) {
+        throw StateError('Pronunciation audio unavailable');
+      }
+      final bytes = _cachedUrl == url && _cachedBytes != null
+          ? _cachedBytes!
+          : Uint8List.fromList(
+              await ref.read(audioBytesApiProvider).fetch(url),
+            );
+      _cachedUrl = url;
+      _cachedBytes = bytes;
+      await _audioPlayer.stop();
+      await _audioPlayer.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.t.talk.audioUnavailable);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loadingAudio = false);
+      }
+    }
+  }
 
   String _title(Translations$talk$en t) {
     if (widget.annotation.isGrammar) {
@@ -589,6 +671,46 @@ class _AnnotationSheetState extends State<_AnnotationSheet> {
         annotation.vowels.isNotEmpty ||
         annotation.consonants.isNotEmpty ||
         annotation.phonics?.trim().isNotEmpty == true;
+  }
+
+  Widget _accentButton(
+    Translations$talk$en t,
+    PronunciationAccent accent,
+    String label,
+  ) {
+    final selected = _accent == accent;
+    return TextButton(
+      key: Key('talk.annotationAccent.${accent.name}'),
+      onPressed: () {
+        if (_accent == accent) {
+          return;
+        }
+        unawaited(_audioPlayer.stop());
+        setState(() {
+          _accent = accent;
+          _playingAudio = false;
+        });
+      },
+      style: TextButton.styleFrom(
+        minimumSize: const Size(0, 32),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
+        foregroundColor: selected
+            ? context.appPalette.onPrimary
+            : context.appPalette.primary,
+        backgroundColor: selected
+            ? context.appPalette.primary
+            : context.appPalette.surfaceMuted,
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.caption.copyWith(
+          fontWeight: FontWeight.w600,
+          color: selected
+              ? context.appPalette.onPrimary
+              : context.appPalette.primary,
+        ),
+      ),
+    );
   }
 
   Widget _detailRow(String label, String value) {
@@ -676,7 +798,34 @@ class _AnnotationSheetState extends State<_AnnotationSheet> {
           style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
         ),
         const SizedBox(height: AppSpacing.s8),
-        Text(annotation.text, style: textTheme.displayMedium),
+        Row(
+          children: [
+            Expanded(
+              child: Text(annotation.text, style: textTheme.displayMedium),
+            ),
+            IconButton(
+              key: const Key('talk.annotationAudio'),
+              onPressed: _loadingAudio ? null : _toggleAudio,
+              tooltip: _playingAudio
+                  ? t.pausePronunciation
+                  : t.playPronunciation,
+              icon: _loadingAudio
+                  ? SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: palette.primary,
+                      ),
+                    )
+                  : Icon(
+                      _playingAudio
+                          ? Icons.pause_circle_outline
+                          : Icons.volume_up_outlined,
+                      color: palette.primary,
+                    ),
+            ),
+          ],
+        ),
         if (_hasPronunciation(annotation)) ...[
           const SizedBox(height: AppSpacing.s12),
           Text(
@@ -695,6 +844,14 @@ class _AnnotationSheetState extends State<_AnnotationSheet> {
           if (annotation.phonics?.trim().isNotEmpty == true)
             _detailRow(t.phonics, annotation.phonics!.trim()),
         ],
+        const SizedBox(height: AppSpacing.s8),
+        Row(
+          children: [
+            _accentButton(t, PronunciationAccent.us, 'US'),
+            const SizedBox(width: AppSpacing.s4),
+            _accentButton(t, PronunciationAccent.uk, 'UK'),
+          ],
+        ),
         if (partOfSpeech != null && partOfSpeech.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.s6),
           Text(

@@ -873,3 +873,25 @@ async def test_save_talk_annotation_to_words(talk_env) -> None:
     content = response.json()["content"]
     assert content["pos"] == ["adv."]
     assert content["senses"][0]["example_en"] == "Drink it plain."
+
+
+@pytest.mark.asyncio
+async def test_pronunciation_audio_returns_us_and_uk(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "pronunciation@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/audio/pronunciation",
+        headers=headers,
+        json={"text": "plain"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["us"]["status"] == "ready"
+    assert body["uk"]["status"] == "ready"
+    assert body["us"]["url"]
+
+    audio = await http.get(body["us"]["url"], headers=headers)
+    assert audio.status_code == 200
+    assert audio.content

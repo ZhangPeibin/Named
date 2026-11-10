@@ -737,6 +737,12 @@ class Translations$talk$en {
 	/// en: 'Phonics'
 	String get phonics => 'Phonics';
 
+	/// en: 'Listen'
+	String get playPronunciation => 'Listen';
+
+	/// en: 'Pause'
+	String get pausePronunciation => 'Pause';
+
 	/// en: 'Pattern'
 	String get grammarPattern => 'Pattern';
 
@@ -1167,6 +1173,8 @@ extension on Translations {
 			'talk.vowels' => 'Vowels',
 			'talk.consonants' => 'Consonants',
 			'talk.phonics' => 'Phonics',
+			'talk.playPronunciation' => 'Listen',
+			'talk.pausePronunciation' => 'Pause',
 			'talk.grammarPattern' => 'Pattern',
 			'talk.addToWords' => 'Add to Words',
 			'talk.addedToWords' => 'Added to Words',

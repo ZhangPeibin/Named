@@ -371,6 +371,8 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get vowels => '元音';
 	@override String get consonants => '辅音';
 	@override String get phonics => '自然拼读';
+	@override String get playPronunciation => '听发音';
+	@override String get pausePronunciation => '暂停';
 	@override String get grammarPattern => '结构';
 	@override String get addToWords => '加入词语';
 	@override String get addedToWords => '已加入词语';
@@ -660,6 +662,8 @@ extension on TranslationsZh {
 			'talk.vowels' => '元音',
 			'talk.consonants' => '辅音',
 			'talk.phonics' => '自然拼读',
+			'talk.playPronunciation' => '听发音',
+			'talk.pausePronunciation' => '暂停',
 			'talk.grammarPattern' => '结构',
 			'talk.addToWords' => '加入词语',
 			'talk.addedToWords' => '已加入词语',

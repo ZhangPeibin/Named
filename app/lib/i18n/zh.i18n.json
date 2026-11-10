@@ -210,6 +210,8 @@
     "vowels": "元音",
     "consonants": "辅音",
     "phonics": "自然拼读",
+    "playPronunciation": "听发音",
+    "pausePronunciation": "暂停",
     "grammarPattern": "结构",
     "addToWords": "加入词语",
     "addedToWords": "已加入词语",

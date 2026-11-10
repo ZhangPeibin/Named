@@ -210,6 +210,8 @@
     "vowels": "Vowels",
     "consonants": "Consonants",
     "phonics": "Phonics",
+    "playPronunciation": "Listen",
+    "pausePronunciation": "Pause",
     "grammarPattern": "Pattern",
     "addToWords": "Add to Words",
     "addedToWords": "Added to Words",

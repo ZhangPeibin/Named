@@ -16,3 +16,7 @@ class AudioOut(BaseModel):
 class SpeechAudioOut(BaseModel):
     url: str | None = None
     status: Literal["ready", "unavailable"] = "unavailable"
+
+
+class PronunciationRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=200)

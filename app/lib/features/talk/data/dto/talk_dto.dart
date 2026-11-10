@@ -274,3 +274,23 @@ class Turn {
   final TalkMessage userMessage;
   final TalkMessage assistantMessage;
 }
+
+class PronunciationAudioDto {
+  const PronunciationAudioDto({required this.usUrl, required this.ukUrl});
+
+  factory PronunciationAudioDto.fromJson(Map<String, dynamic> json) {
+    final us = json['us'];
+    final uk = json['uk'];
+    return PronunciationAudioDto(
+      usUrl: us is Map<String, dynamic> ? us['url'] as String? : null,
+      ukUrl: uk is Map<String, dynamic> ? uk['url'] as String? : null,
+    );
+  }
+
+  final String? usUrl;
+  final String? ukUrl;
+
+  PronunciationAudio toDomain() {
+    return PronunciationAudio(usUrl: usUrl, ukUrl: ukUrl);
+  }
+}
