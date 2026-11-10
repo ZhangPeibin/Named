@@ -436,7 +436,6 @@ class _InlineMessageText extends StatelessWidget {
       if (index > cursor) {
         spans.add(TextSpan(text: message.text.substring(cursor, index)));
       }
-      spans.add(TextSpan(text: annotation.text));
       spans.add(
         WidgetSpan(
           alignment: PlaceholderAlignment.baseline,

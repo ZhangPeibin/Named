@@ -144,6 +144,8 @@ void grammarTest() {
 
     expect(find.byKey(const Key('talk.annotation.plain')), findsOneWidget);
     expect(find.byKey(const Key('talk.annotation.pour')), findsOneWidget);
+    expect(find.text('plain'), findsOneWidget);
+    expect(find.textContaining('plain plain'), findsNothing);
 
     await tester.tap(find.byKey(const Key('talk.annotation.plain')));
     await tester.pumpAndSettle();
