@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     stt_model: str = "qwen-audio-3.1-asr-flash"
     stt_timeout_seconds: float = 60.0
     talk_audio_ttl_seconds: int = 604800
+    experience_debounce_seconds: float = 3.0
+    experience_max_attempts: int = 3
+    experience_confidence_threshold: float = 0.6
+    experience_worker_interval_seconds: float = 1.0
+    experience_worker_enabled: bool = True
     media_root: str = "media"
     media_url_prefix: str = "/api/v1/audio"
     image_url_prefix: str = "/api/v1/images"

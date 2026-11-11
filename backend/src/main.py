@@ -1,6 +1,7 @@
+import asyncio
 import logging
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Request, status
@@ -17,6 +18,8 @@ from database import engine
 from discovery.router import image_router, word_router
 from discovery.router import router as discovery_router
 from errors import ApiError
+from experience.router import experience_router, history_router
+from experience.worker import experience_worker_loop
 from soul.router import router as soul_router
 from stt.router import router as stt_router
 from talk.router import router as talk_router
@@ -31,7 +34,21 @@ logger = logging.getLogger("named.request")
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    stop_worker = asyncio.Event()
+    worker = None
+    if settings.experience_worker_enabled:
+        worker = asyncio.create_task(
+            experience_worker_loop(
+                stop_worker,
+                interval_seconds=settings.experience_worker_interval_seconds,
+            )
+        )
     yield
+    if worker is not None:
+        stop_worker.set()
+        worker.cancel()
+        with suppress(asyncio.CancelledError):
+            await worker
     await engine.dispose()
 
 
@@ -96,6 +113,8 @@ app.include_router(word_router, prefix=settings.api_v1_prefix)
 app.include_router(image_router, prefix=settings.api_v1_prefix)
 app.include_router(audio_router, prefix=settings.api_v1_prefix)
 app.include_router(stt_router, prefix=settings.api_v1_prefix)
+app.include_router(history_router, prefix=settings.api_v1_prefix)
+app.include_router(experience_router, prefix=settings.api_v1_prefix)
 app.include_router(talk_router, prefix=settings.api_v1_prefix)
 app.include_router(timeline_router, prefix=settings.api_v1_prefix)
 

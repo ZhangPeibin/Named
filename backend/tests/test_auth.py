@@ -24,6 +24,9 @@ from models import (
     ConversationMessage,
     Discovery,
     ErrorPattern,
+    Experience,
+    ExperienceJob,
+    ExperienceSource,
     MemoryItem,
     SoulItem,
     Word,
@@ -514,6 +517,7 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
             status="active",
         )
         session.add(conversation)
+        await session.flush()
         session.add(
             MemoryItem(
                 account_id=account_id,
@@ -532,10 +536,36 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
                 label="Third person -s",
             )
         )
+        experience = Experience(
+            account_id=account_id,
+            conversation_id=conversation.id,
+            kind="life",
+            summary="A personal experience.",
+            confidence=0.9,
+        )
+        session.add(experience)
+        await session.flush()
+        session.add(
+            ExperienceSource(
+                experience_id=experience.id,
+                source_type="conversation",
+                source_id=conversation.id,
+            )
+        )
+        session.add(
+            ExperienceJob(
+                account_id=account_id,
+                conversation_id=conversation.id,
+                status="pending",
+                attempts=0,
+                available_at=utcnow(),
+            )
+        )
         await session.flush()
         discovery_id = discovery.id
         progress_id = progress.id
         word_id = word.id
+        experience_id = experience.id
         conversation_id = conversation.id
         message = ConversationMessage(
             conversation_id=conversation_id,
@@ -592,6 +622,19 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
         assert await session.get(Discovery, discovery_id) is None
         assert await session.get(Conversation, conversation_id) is None
         assert await session.get(ConversationMessage, message_id) is None
+        assert await session.get(Experience, experience_id) is None
+        assert (
+            await session.scalar(
+                select(ExperienceSource).where(ExperienceSource.experience_id == experience_id)
+            )
+            is None
+        )
+        assert (
+            await session.scalar(
+                select(ExperienceJob).where(ExperienceJob.conversation_id == conversation_id)
+            )
+            is None
+        )
         assert await session.get(WordProgress, progress_id) is None
         assert await session.get(Word, word_id) is not None
         assert await session.get(Account, other_account_id) is not None

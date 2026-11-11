@@ -14,6 +14,9 @@ from models import (
     Discovery,
     DiscoveryCandidate,
     ErrorPattern,
+    Experience,
+    ExperienceJob,
+    ExperienceSource,
     MemoryItem,
     MessageAnnotation,
     MessageCorrection,
@@ -95,6 +98,15 @@ async def purge_expired_deletions(session: AsyncSession, store: MediaStore) -> i
             )
             await session.execute(delete(Discovery).where(Discovery.id.in_(discovery_ids)))
 
+        experience_ids = list(
+            await session.scalars(select(Experience.id).where(Experience.account_id == account.id))
+        )
+        if experience_ids:
+            await session.execute(
+                delete(ExperienceSource).where(ExperienceSource.experience_id.in_(experience_ids))
+            )
+        await session.execute(delete(Experience).where(Experience.account_id == account.id))
+        await session.execute(delete(ExperienceJob).where(ExperienceJob.account_id == account.id))
         await session.execute(delete(WordProgress).where(WordProgress.account_id == account.id))
         await session.execute(delete(MemoryItem).where(MemoryItem.account_id == account.id))
         await session.execute(delete(ErrorPattern).where(ErrorPattern.account_id == account.id))

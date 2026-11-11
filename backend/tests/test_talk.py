@@ -24,11 +24,13 @@ from clock import utcnow
 from config import Settings, get_settings
 from database import get_session
 from discovery.agent import get_discovery_agent
+from experience.schemas import ExperienceCandidate, ExperienceExtraction
+from experience.service import process_due_experience_jobs
 from mailer import get_email_sender
 from main import app
-from models import Base, ErrorPattern, MemoryItem
+from models import Base, ErrorPattern, ExperienceJob, MemoryItem
 from stt.deps import get_transcription_provider
-from stt.provider import STTNoSpeech
+from stt.provider import STTNoSpeech, STTNotConfigured
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
 from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
 from tts.provider import get_tts_provider
@@ -55,6 +57,37 @@ class FakeTranscriptionProvider:
 class NoSpeechTranscriptionProvider:
     async def transcribe_wav(self, audio: bytes) -> str:
         raise STTNoSpeech("No speech was recognized.")
+
+
+class NotConfiguredTranscriptionProvider:
+    async def transcribe_wav(self, audio: bytes) -> str:
+        raise STTNotConfigured
+
+
+class FakeExperienceAgent:
+    def __init__(self) -> None:
+        self.calls: list[dict] = []
+        self.fail = False
+        self.extraction = ExperienceExtraction(
+            life=ExperienceCandidate(
+                summary="和女儿在公园的树荫下休息。",
+                evidence_sequences=[1],
+                related_terms=["tree"],
+                confidence=0.9,
+            ),
+            learning=ExperienceCandidate(
+                summary="练习了 tree 和 under the tree。",
+                evidence_sequences=[1],
+                related_terms=["under the tree"],
+                confidence=0.8,
+            ),
+        )
+
+    async def extract(self, **kwargs) -> ExperienceExtraction:
+        self.calls.append(kwargs)
+        if self.fail:
+            raise RuntimeError("extraction failed")
+        return self.extraction
 
 
 class FakeTalkAgent:
@@ -167,6 +200,8 @@ async def talk_client(
         tts_format="mp3",
         tts_rate=1.0,
         talk_audio_ttl_seconds=604800,
+        experience_debounce_seconds=0,
+        dashscope_api_key=None,
         media_root=media_root,
         media_url_prefix="/api/v1/audio",
         rate_limit_talk_per_minute=talk_limit,
@@ -655,7 +690,9 @@ async def test_stt_not_configured_returns_problem_json(talk_env) -> None:
     http, sender, _, _, _, _ = talk_env
     verified = await request_and_verify(http, sender, "stt-contract@example.com")
     headers = bearer(verified["session_token"])
-    app.dependency_overrides.pop(get_transcription_provider, None)
+    app.dependency_overrides[get_transcription_provider] = lambda: (
+        NotConfiguredTranscriptionProvider()
+    )
 
     response = await http.post(
         "/api/v1/audio/transcribe",
@@ -1131,3 +1168,139 @@ async def test_audio_transcription_without_speech(talk_env) -> None:
     )
     assert response.status_code == 422
     assert response.json()["code"] == "no_speech"
+
+
+@pytest.mark.asyncio
+async def test_experience_extraction_and_history(talk_env) -> None:
+    http, sender, sessions, _, _, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "experience@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "experience-1", "text": "I saw a tree today."},
+    )
+    assert response.status_code == 200
+
+    async with sessions() as session:
+        job = await session.scalar(
+            select(ExperienceJob).where(ExperienceJob.conversation_id == conversation_id)
+        )
+        assert job is not None
+        assert job.status == "pending"
+        settings = app.dependency_overrides[get_settings]()
+        agent = FakeExperienceAgent()
+        assert await process_due_experience_jobs(session, agent, settings) == 1
+
+    response = await http.get("/api/v1/history", headers=headers)
+    assert response.status_code == 200, response.text
+    items = response.json()["items"]
+    assert len(items) == 2
+    assert {item["kind"] for item in items} == {"life", "learning"}
+    assert all(item["conversation_id"] == conversation_id for item in items)
+    assert all(item["focus_title"] == "tree" for item in items)
+    assert all(item["summary"] for item in items)
+
+    life_id = next(item["id"] for item in items if item["kind"] == "life")
+    response = await http.get(f"/api/v1/experiences/{life_id}", headers=headers)
+    assert response.status_code == 200
+    detail = response.json()
+    assert detail["kind"] == "life"
+    assert any(source["source_type"] == "message" for source in detail["sources"])
+    assert any(source["source_type"] == "word" for source in detail["sources"])
+    assert any(source["source_type"] == "expression" for source in detail["sources"])
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={
+            "client_message_id": "experience-2",
+            "text": "We stayed under the tree for an hour.",
+        },
+    )
+    assert response.status_code == 200
+    async with sessions() as session:
+        settings = app.dependency_overrides[get_settings]()
+        agent = FakeExperienceAgent()
+        agent.extraction.life.summary = "和女儿在公园的树荫下休息了一个小时。"
+        assert await process_due_experience_jobs(session, agent, settings) == 1
+
+    response = await http.get("/api/v1/history", headers=headers)
+    assert response.status_code == 200
+    updated_items = response.json()["items"]
+    assert len(updated_items) == 2
+    updated_life = next(item for item in updated_items if item["kind"] == "life")
+    assert updated_life["id"] == life_id
+    assert updated_life["summary"] == "和女儿在公园的树荫下休息了一个小时。"
+
+    other = await request_and_verify(http, sender, "experience-other@example.com")
+    other_headers = bearer(other["session_token"])
+    other_history = await http.get("/api/v1/history", headers=other_headers)
+    assert other_history.status_code == 200
+    assert other_history.json()["items"] == []
+    other_detail = await http.get(
+        f"/api/v1/experiences/{life_id}",
+        headers=other_headers,
+    )
+    assert_problem(other_detail, 404, "experience_not_found")
+
+
+@pytest.mark.asyncio
+async def test_experience_rejects_invalid_evidence(talk_env) -> None:
+    http, sender, sessions, _, _, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "experience-invalid@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "invalid-1", "text": "I saw a tree today."},
+    )
+
+    async with sessions() as session:
+        settings = app.dependency_overrides[get_settings]()
+        agent = FakeExperienceAgent()
+        agent.extraction.life.evidence_sequences = [999]
+        agent.extraction.learning = None
+        await process_due_experience_jobs(session, agent, settings)
+
+    response = await http.get("/api/v1/history", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["items"] == []
+
+
+@pytest.mark.asyncio
+async def test_experience_job_retries_then_fails(talk_env) -> None:
+    http, sender, sessions, _, _, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "experience-retry@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "retry-1", "text": "I saw a tree today."},
+    )
+
+    settings = app.dependency_overrides[get_settings]()
+    agent = FakeExperienceAgent()
+    agent.fail = True
+    async with sessions() as session:
+        base = utcnow()
+        assert await process_due_experience_jobs(session, agent, settings, now=base) == 0
+        assert (
+            await process_due_experience_jobs(
+                session, agent, settings, now=base + timedelta(hours=1)
+            )
+            == 0
+        )
+        assert (
+            await process_due_experience_jobs(
+                session, agent, settings, now=base + timedelta(hours=2)
+            )
+            == 0
+        )
+        job = await session.scalar(
+            select(ExperienceJob).where(ExperienceJob.conversation_id == conversation_id)
+        )
+        assert job is not None
+        assert job.status == "failed"
+        assert job.attempts == 3

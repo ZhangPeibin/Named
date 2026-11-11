@@ -8,6 +8,7 @@ from clock import utcnow
 from config import Settings
 from discovery.schemas import WordPayload
 from errors import ApiError
+from experience.service import enqueue_experience_job
 from memory.service import correction_candidates, get_memory_context, record_memories
 from models import (
     Conversation,
@@ -461,6 +462,13 @@ async def send_message(
 
     await session.commit()
     await session.refresh(assistant)
+
+    try:
+        await enqueue_experience_job(session, account_id, conversation_id, settings)
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        logger.warning("Experience job enqueue failed")
 
     return TurnOut(
         user_message=await _message_out(session, user_message, settings),
