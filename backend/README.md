@@ -1,7 +1,7 @@
 # Named Backend
 
 FastAPI backend for Named. It uses FastAPI, SQLAlchemy async, MySQL, Alembic,
-Pydantic AI, and Qwen TTS.
+Pydantic AI, Qwen TTS, and DashScope speech recognition.
 
 ## Quick start (local)
 
@@ -24,9 +24,9 @@ make dev
 Fill in `.env` before starting:
 
 - `DEEPSEEK_API_KEY` for Discover and Talk.
-- `DASHSCOPE_API_KEY` for Qwen TTS.
+- `DASHSCOPE_API_KEY` for Qwen TTS and speech recognition.
 - `DASHSCOPE_WORKSPACE` and `DASHSCOPE_WEBSOCKET_URL` for the workspace where
-  the TTS model is enabled.
+  the TTS models are enabled.
 
 ## Run everything with Docker
 
@@ -73,6 +73,11 @@ Copy `.env.example` to `.env`. The most important settings:
 | `DASHSCOPE_WEBSOCKET_URL` | TTS WebSocket endpoint for that workspace. |
 | `TTS_MODEL` | Default `qwen-audio-3.1-tts-plus`. |
 | `TTS_VOICE_US` / `TTS_VOICE_UK` / `TTS_VOICE_TALK` | Voice IDs; they must match `TTS_MODEL`. |
+| `STT_MODEL` | DashScope speech-recognition model. |
+| `STT_TIMEOUT_SECONDS` | Speech-recognition timeout. |
+| `EXPERIENCE_DEBOUNCE_SECONDS` | Quiet period before asynchronous Experience extraction. |
+| `EXPERIENCE_MAX_ATTEMPTS` | Experience job retry limit. |
+| `EXPERIENCE_WORKER_ENABLED` | Run the in-process Experience worker. |
 | `MEDIA_ROOT` | Local media directory. Compose uses `/app/media`. |
 | `AUTH_DEV_LOG_CODES` | Development only: log verification codes. Keep `false` in production. |
 
@@ -106,7 +111,9 @@ All business routes are under `/api/v1`.
 | Discover | `POST /discoveries` (multipart text/image), `POST /discoveries/{id}/focus`, `GET /discoveries/{id}`, `DELETE /discoveries/{id}` |
 | Word | `GET /words/{id}` |
 | Media | `GET /images/{key}`, `GET /audio/{key}` |
-| Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end` |
+| Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end`, `POST /conversations/{id}/help` |
+| History | `GET /history`, `GET /experiences/{id}` |
+| Audio | `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
 `request_id`. Every response includes an `X-Request-ID` header.
@@ -135,20 +142,21 @@ Implemented P0 foundation:
 - Text and image Discover with AI-generated Word content
 - Qwen TTS word audio with caching
 - Non-streaming Talk with corrections, annotations, auto-save, idempotency,
-  and assistant audio
+  assistant audio, Chinese-to-English hints, and voice transcription
+- Asynchronous Experience extraction with durable jobs, source evidence,
+  life/learning separation, and History list/detail
+- Companion memory and recurring error profile
 - Account deletion with a 30-day hard-delete purge command
 - Problem+json errors, request IDs, rate limits, OpenAPI, end-to-end tests
 
 Not implemented yet:
 
-- Experience extraction and continuous Soul updates / `soul.md`
-- Global History, Review, and resume-from-history
-- Challenge
-- Knowledge Graph / Personal English World pages
-- Streaming Talk (SSE) and real-time voice
+- Automatic Soul updates / `soul.md`
+- Experience context injection into Talk/Help
+- Challenge and Knowledge Graph / Personal English World pages
+- Streaming Talk (SSE) and real-time full-duplex voice
 - Production email delivery, S3/MinIO media storage, and deployment automation
 - Age gate / parental consent
-- Flutter client
 
 ## Security notes
 
