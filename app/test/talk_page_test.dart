@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:named/features/talk/data/api/talk_api.dart';
@@ -8,6 +10,9 @@ import 'package:named/features/talk/data/dto/talk_dto.dart';
 import 'package:named/features/talk/data/repositories/talk_repository.dart';
 import 'package:named/features/talk/presentation/talk_page.dart';
 import 'package:named/features/talk/providers/talk_providers.dart';
+import 'package:named/features/translation/data/api/translation_api.dart';
+import 'package:named/features/translation/data/repositories/translation_repository.dart';
+import 'package:named/features/translation/providers/translation_providers.dart';
 import 'package:named/features/words/data/api/words_api.dart';
 import 'package:named/features/words/data/repositories/words_repository.dart';
 import 'package:named/features/words/providers/words_providers.dart';
@@ -116,6 +121,102 @@ void main() {
     );
   });
 
+  testWidgets(
+    'shows accurate English for an English message only when needed',
+    (tester) async {
+      await pumpWithTranslations(
+        tester,
+        child: ProviderScope(
+          overrides: [
+            talkRepositoryProvider.overrideWithValue(
+              TalkRepository(_EnglishHintTalkApi()),
+            ),
+          ],
+          child: const TalkPage(conversationId: 'english-hint', title: 'tree'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('She go to school.'), findsOneWidget);
+      expect(find.text('She goes to school.'), findsOneWidget);
+      expect(find.text('I saw a tree.'), findsOneWidget);
+      expect(find.text('I saw a tree.\nI saw a tree.'), findsNothing);
+    },
+  );
+
+  testWidgets('long press opens copy and translate actions', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          talkRepositoryProvider.overrideWithValue(
+            TalkRepository(_GrammarTalkApi()),
+          ),
+          translationRepositoryProvider.overrideWithValue(
+            TranslationRepository(MockTranslationApi()),
+          ),
+        ],
+        child: const TalkPage(conversationId: 'translation', title: 'tree'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.textContaining('Drink it plain'));
+    await tester.pumpAndSettle();
+    expect(find.text(t.talk.translate), findsOneWidget);
+    expect(find.text(t.talk.copy), findsOneWidget);
+
+    await tester.tap(find.text(t.talk.translate));
+    await tester.pumpAndSettle();
+    expect(find.text(t.talk.translationTitle), findsOneWidget);
+    expect(find.text('树'), findsOneWidget);
+  });
+
+  testWidgets('tapping an annotation word opens its notes', (tester) async {
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          talkRepositoryProvider.overrideWithValue(
+            TalkRepository(_GrammarTalkApi()),
+          ),
+          wordsRepositoryProvider.overrideWithValue(
+            WordsRepository(_RecordingWordsApi()),
+          ),
+        ],
+        child: const TalkPage(conversationId: 'grammar-tap', title: 'tree'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final richText = find.byWidgetPredicate(
+      (widget) =>
+          widget is RichText &&
+          widget.text.toPlainText().contains('Drink it plain'),
+    );
+    final render = tester.renderObject<RenderParagraph>(richText);
+    final plain = (tester.widget<RichText>(richText).text as TextSpan)
+        .toPlainText();
+    final start = plain.indexOf('plain');
+    final boxes = render.getBoxesForSelection(
+      TextSelection(baseOffset: start, extentOffset: start + 'plain'.length),
+    );
+    expect(boxes, isNotEmpty);
+    final box = boxes.first;
+    final topLeft = tester.getTopLeft(richText);
+    await tester.tapAt(
+      topLeft + Offset((box.left + box.right) / 2, (box.top + box.bottom) / 2),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
+  });
+
   grammarTest();
 }
 
@@ -154,6 +255,36 @@ class _ChineseTalkApi extends MockTalkApi {
           role: 'user',
           text: '我看到一棵树。',
           englishText: 'I saw a tree.',
+          corrections: [],
+          annotations: [],
+        ),
+      ],
+    );
+  }
+}
+
+class _EnglishHintTalkApi extends MockTalkApi {
+  @override
+  Future<ConversationDto> fetch(String conversationId) async {
+    return ConversationDto(
+      id: conversationId,
+      title: 'tree',
+      focusType: 'word',
+      focusId: 'mock-word',
+      status: 'active',
+      messages: const [
+        TalkMessageDto(
+          id: 'english-hint-message',
+          role: 'user',
+          text: 'She go to school.',
+          englishText: 'She goes to school.',
+          corrections: [],
+          annotations: [],
+        ),
+        TalkMessageDto(
+          id: 'natural-english-message',
+          role: 'user',
+          text: 'I saw a tree.',
           corrections: [],
           annotations: [],
         ),
@@ -203,6 +334,33 @@ class _GrammarTalkApi extends MockTalkApi {
   }
 }
 
+TextSpan? _findSpan(TextSpan span, String text) {
+  if (span.text == text) {
+    return span;
+  }
+  for (final child in span.children ?? const <InlineSpan>[]) {
+    if (child is TextSpan) {
+      final found = _findSpan(child, text);
+      if (found != null) {
+        return found;
+      }
+    }
+  }
+  return null;
+}
+
+Future<void> _tapAnnotation(WidgetTester tester, String text) async {
+  final richText = tester
+      .widgetList<RichText>(find.byType(RichText))
+      .firstWhere((widget) => widget.text.toPlainText().contains(text));
+  final span = _findSpan(richText.text as TextSpan, text);
+  expect(span, isNotNull);
+  final recognizer = span!.recognizer;
+  expect(recognizer, isA<TapGestureRecognizer>());
+  (recognizer! as TapGestureRecognizer).onTap!();
+  await tester.pumpAndSettle();
+}
+
 void grammarTest() {
   testWidgets('shows inline annotation markers and opens their notes', (
     tester,
@@ -226,13 +384,10 @@ void grammarTest() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('talk.annotation.plain')), findsOneWidget);
-    expect(find.byKey(const Key('talk.annotation.pour')), findsOneWidget);
-    expect(find.text('plain'), findsOneWidget);
+    expect(find.textContaining('Drink it plain'), findsOneWidget);
     expect(find.textContaining('plain plain'), findsNothing);
 
-    await tester.tap(find.byKey(const Key('talk.annotation.plain')));
-    await tester.pumpAndSettle();
+    await _tapAnnotation(tester, 'plain');
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
     expect(find.byKey(const Key('talk.annotationAudio.speed')), findsOneWidget);
     expect(find.text('Part of speech: adv.'), findsOneWidget);
@@ -248,8 +403,7 @@ void grammarTest() {
     expect(wordsApi.savedLabel, 'plain');
     expect(find.byKey(const Key('talk.annotationSheet')), findsNothing);
 
-    await tester.tap(find.byKey(const Key('talk.annotation.pour')));
-    await tester.pumpAndSettle();
+    await _tapAnnotation(tester, 'pour');
 
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
     expect(find.text('pour + 液体 + from + 容器'), findsOneWidget);

@@ -780,8 +780,8 @@ class Translations$talk$en {
 	/// en: 'Hide Chinese'
 	String get hideNative => 'Hide Chinese';
 
-	/// en: 'English'
-	String get englishHint => 'English';
+	/// en: 'More accurate English'
+	String get englishHint => 'More accurate English';
 
 	/// en: 'Playback speed'
 	String get speed => 'Playback speed';
@@ -794,6 +794,24 @@ class Translations$talk$en {
 
 	/// en: 'Use this'
 	String get useThis => 'Use this';
+
+	/// en: 'Translate'
+	String get translate => 'Translate';
+
+	/// en: 'Copy'
+	String get copy => 'Copy';
+
+	/// en: 'Translation'
+	String get translationTitle => 'Translation';
+
+	/// en: 'Could not translate. Try again.'
+	String get translationFailed => 'Could not translate. Try again.';
+
+	/// en: 'Copy translation'
+	String get copyTranslation => 'Copy translation';
+
+	/// en: 'Copied'
+	String get copied => 'Copied';
 }
 
 // Path: timeline
@@ -1257,11 +1275,17 @@ extension on Translations {
 			'talk.nativeShort' => '中',
 			'talk.showNative' => 'Show Chinese',
 			'talk.hideNative' => 'Hide Chinese',
-			'talk.englishHint' => 'English',
+			'talk.englishHint' => 'More accurate English',
 			'talk.speed' => 'Playback speed',
 			'talk.naturalWay' => 'A more natural way',
 			'talk.youWrote' => 'You wrote',
 			'talk.useThis' => 'Use this',
+			'talk.translate' => 'Translate',
+			'talk.copy' => 'Copy',
+			'talk.translationTitle' => 'Translation',
+			'talk.translationFailed' => 'Could not translate. Try again.',
+			'talk.copyTranslation' => 'Copy translation',
+			'talk.copied' => 'Copied',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
 			'timeline.loadEarlier' => 'Load earlier',

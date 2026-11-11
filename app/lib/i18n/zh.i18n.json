@@ -224,11 +224,17 @@
     "nativeShort": "中",
     "showNative": "显示中文",
     "hideNative": "隐藏中文",
-    "englishHint": "英文",
+    "englishHint": "更准确的英文",
     "speed": "播放速度",
     "naturalWay": "更自然的说法",
     "youWrote": "你写的是",
-    "useThis": "用这句"
+    "useThis": "用这句",
+    "translate": "翻译",
+    "copy": "复制",
+    "translationTitle": "翻译",
+    "translationFailed": "暂时无法翻译，请重试。",
+    "copyTranslation": "复制翻译",
+    "copied": "已复制"
   },
   "timeline": {
     "today": "今天",

@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:record/record.dart';
 
@@ -19,6 +20,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
+import '../../translation/presentation/translation_sheet.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/talk.dart';
 import '../providers/talk_providers.dart';
@@ -573,7 +575,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   }
 }
 
-class _InlineMessageText extends StatelessWidget {
+class _InlineMessageText extends StatefulWidget {
   const _InlineMessageText({
     required this.message,
     required this.style,
@@ -585,7 +587,39 @@ class _InlineMessageText extends StatelessWidget {
   final void Function(MessageAnnotation, String) onAnnotationTap;
 
   @override
-  Widget build(BuildContext context) {
+  State<_InlineMessageText> createState() => _InlineMessageTextState();
+}
+
+class _InlineMessageTextState extends State<_InlineMessageText> {
+  final _recognizers = <TapGestureRecognizer>[];
+  var _selectedText = '';
+
+  @override
+  void didUpdateWidget(covariant _InlineMessageText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.message.id != widget.message.id ||
+        oldWidget.message.text != widget.message.text ||
+        oldWidget.message.annotations != widget.message.annotations) {
+      _disposeRecognizers();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposeRecognizers();
+    super.dispose();
+  }
+
+  void _disposeRecognizers() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    _recognizers.clear();
+  }
+
+  List<InlineSpan> _spans(BuildContext context) {
+    _disposeRecognizers();
+    final message = widget.message;
     final matches = <_AnnotationMatch>[];
     for (final annotation in message.annotations) {
       if (annotation.text.trim().isEmpty) {
@@ -597,10 +631,14 @@ class _InlineMessageText extends StatelessWidget {
       }
     }
     if (matches.isEmpty) {
-      return Text(message.text, style: style);
+      return [TextSpan(text: message.text)];
     }
     matches.sort((a, b) => a.index.compareTo(b.index));
-
+    final annotationStyle =
+        (widget.style ?? Theme.of(context).textTheme.bodyLarge)?.copyWith(
+          color: context.appPalette.accent,
+          fontWeight: FontWeight.w600,
+        );
     final spans = <InlineSpan>[];
     var cursor = 0;
     for (final match in matches) {
@@ -610,15 +648,14 @@ class _InlineMessageText extends StatelessWidget {
       if (match.index > cursor) {
         spans.add(TextSpan(text: message.text.substring(cursor, match.index)));
       }
+      final recognizer = TapGestureRecognizer()
+        ..onTap = () => widget.onAnnotationTap(match.annotation, message.text);
+      _recognizers.add(recognizer);
       spans.add(
-        WidgetSpan(
-          alignment: PlaceholderAlignment.baseline,
-          baseline: TextBaseline.alphabetic,
-          child: _AnnotationWord(
-            annotation: match.annotation,
-            style: style,
-            onTap: () => onAnnotationTap(match.annotation, message.text),
-          ),
+        TextSpan(
+          text: match.annotation.text,
+          style: annotationStyle,
+          recognizer: recognizer,
         ),
       );
       cursor = match.index + match.annotation.text.length;
@@ -626,8 +663,46 @@ class _InlineMessageText extends StatelessWidget {
     if (cursor < message.text.length) {
       spans.add(TextSpan(text: message.text.substring(cursor)));
     }
+    return spans;
+  }
 
-    return Text.rich(TextSpan(style: style, children: spans));
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.talk;
+    return SelectionArea(
+      onSelectionChanged: (content) {
+        _selectedText = content?.plainText.trim() ?? '';
+      },
+      contextMenuBuilder: (context, selectableRegionState) {
+        final selected = _selectedText;
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          anchors: selectableRegionState.contextMenuAnchors,
+          buttonItems: [
+            ContextMenuButtonItem(
+              type: ContextMenuButtonType.copy,
+              onPressed: () {
+                if (selected.isNotEmpty) {
+                  unawaited(Clipboard.setData(ClipboardData(text: selected)));
+                }
+                selectableRegionState.hideToolbar();
+              },
+            ),
+            if (selected.isNotEmpty)
+              ContextMenuButtonItem(
+                type: ContextMenuButtonType.custom,
+                label: t.translate,
+                onPressed: () {
+                  selectableRegionState.hideToolbar();
+                  unawaited(showTranslationSheet(this.context, selected));
+                },
+              ),
+          ],
+        );
+      },
+      child: Text.rich(
+        TextSpan(style: widget.style, children: _spans(context)),
+      ),
+    );
   }
 }
 
@@ -636,39 +711,6 @@ class _AnnotationMatch {
 
   final int index;
   final MessageAnnotation annotation;
-}
-
-class _AnnotationWord extends StatelessWidget {
-  const _AnnotationWord({
-    required this.annotation,
-    required this.style,
-    required this.onTap,
-  });
-
-  final MessageAnnotation annotation;
-  final TextStyle? style;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-    final textStyle = (style ?? Theme.of(context).textTheme.bodyLarge)
-        ?.copyWith(color: palette.accent, fontWeight: FontWeight.w600);
-
-    return Semantics(
-      button: true,
-      label: '${annotation.text}: ${annotation.meaningZh}',
-      excludeSemantics: true,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          key: Key('talk.annotation.${annotation.text}'),
-          onTap: onTap,
-          child: Text(annotation.text, style: textStyle),
-        ),
-      ),
-    );
-  }
 }
 
 class _AnnotationSheet extends ConsumerStatefulWidget {

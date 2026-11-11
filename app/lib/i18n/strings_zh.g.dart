@@ -386,11 +386,17 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get nativeShort => '中';
 	@override String get showNative => '显示中文';
 	@override String get hideNative => '隐藏中文';
-	@override String get englishHint => '英文';
+	@override String get englishHint => '更准确的英文';
 	@override String get speed => '播放速度';
 	@override String get naturalWay => '更自然的说法';
 	@override String get youWrote => '你写的是';
 	@override String get useThis => '用这句';
+	@override String get translate => '翻译';
+	@override String get copy => '复制';
+	@override String get translationTitle => '翻译';
+	@override String get translationFailed => '暂时无法翻译，请重试。';
+	@override String get copyTranslation => '复制翻译';
+	@override String get copied => '已复制';
 }
 
 // Path: timeline
@@ -706,11 +712,17 @@ extension on TranslationsZh {
 			'talk.nativeShort' => '中',
 			'talk.showNative' => '显示中文',
 			'talk.hideNative' => '隐藏中文',
-			'talk.englishHint' => '英文',
+			'talk.englishHint' => '更准确的英文',
 			'talk.speed' => '播放速度',
 			'talk.naturalWay' => '更自然的说法',
 			'talk.youWrote' => '你写的是',
 			'talk.useThis' => '用这句',
+			'talk.translate' => '翻译',
+			'talk.copy' => '复制',
+			'talk.translationTitle' => '翻译',
+			'talk.translationFailed' => '暂时无法翻译，请重试。',
+			'talk.copyTranslation' => '复制翻译',
+			'talk.copied' => '已复制',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
 			'timeline.loadEarlier' => '加载更早',
