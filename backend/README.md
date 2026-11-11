@@ -113,6 +113,7 @@ All business routes are under `/api/v1`.
 | Media | `GET /images/{key}`, `GET /audio/{key}` |
 | Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end`, `POST /conversations/{id}/help` |
 | History | `GET /history`, `GET /experiences/{id}` |
+| Translation | `POST /translate` |
 | Audio | `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
@@ -142,7 +143,8 @@ Implemented P0 foundation:
 - Text and image Discover with AI-generated Word content
 - Qwen TTS word audio with caching
 - Non-streaming Talk with corrections, annotations, auto-save, idempotency,
-  assistant audio, Chinese-to-English hints, and voice transcription
+  assistant audio, accurate English hints, voice transcription, and
+  bidirectional translation
 - Asynchronous Experience extraction with durable jobs, source evidence,
   life/learning separation, History list/detail, and relevant context injection
 - Companion memory and recurring error profile

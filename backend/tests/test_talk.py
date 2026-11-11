@@ -41,6 +41,7 @@ from stt.deps import get_transcription_provider
 from stt.provider import STTNoSpeech, STTNotConfigured
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
 from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
+from translation.agent import get_translation_agent
 from tts.provider import get_tts_provider
 
 
@@ -54,6 +55,18 @@ def assert_problem(response, status_code: int, code: str, *, retry_after: bool =
     assert response.headers["X-Request-ID"] == body["request_id"]
     if retry_after:
         assert int(response.headers["Retry-After"]) > 0
+
+
+class FakeTranslationAgent:
+    def __init__(self) -> None:
+        self.calls: list[dict] = []
+        self.fail = False
+
+    async def translate(self, *, text: str, target_language: str) -> str:
+        self.calls.append({"text": text, "target_language": target_language})
+        if self.fail:
+            raise RuntimeError("translation failed")
+        return {"en": "tree", "zh": "树"}[target_language]
 
 
 class FakeTranscriptionProvider:
@@ -240,6 +253,7 @@ async def talk_client(
     app.dependency_overrides[get_discovery_agent] = lambda: discovery_agent
     app.dependency_overrides[get_talk_agent] = lambda: talk_agent
     app.dependency_overrides[get_help_agent] = lambda: help_agent or FakeHelpAgent()
+    app.dependency_overrides[get_translation_agent] = lambda: FakeTranslationAgent()
     app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider()
     app.dependency_overrides[get_tts_provider] = lambda: tts
 
@@ -436,6 +450,76 @@ async def test_chinese_user_message_gets_english_hint(talk_env) -> None:
     )
     assert detail.status_code == 200
     assert detail.json()["messages"][0]["english_text"] == "I saw a tree."
+
+
+@pytest.mark.asyncio
+async def test_english_message_gets_complete_accurate_english(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "accurate-english@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.user_english = "She goes to school."
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "accurate-english-1", "text": "She go to school."},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["user_message"]["english_text"] == "She goes to school."
+
+
+@pytest.mark.asyncio
+async def test_natural_english_does_not_get_duplicate_hint(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "natural-english@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.user_english = "I saw a tree."
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "natural-english-1", "text": "I saw a tree."},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["user_message"]["english_text"] is None
+
+
+@pytest.mark.asyncio
+async def test_translation_endpoint_auto_detects_direction(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "translate@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/translate",
+        headers=headers,
+        json={"text": "树"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json() == {
+        "source_language": "zh",
+        "target_language": "en",
+        "translated_text": "tree",
+    }
+
+    response = await http.post(
+        "/api/v1/translate",
+        headers=headers,
+        json={"text": "tree"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json() == {
+        "source_language": "en",
+        "target_language": "zh",
+        "translated_text": "树",
+    }
+
+
+@pytest.mark.asyncio
+async def test_translation_requires_auth(talk_env) -> None:
+    http, _, _, _, _, _ = talk_env
+    response = await http.post("/api/v1/translate", json={"text": "tree"})
+    assert_problem(response, 401, "unauthorized")
 
 
 @pytest.mark.asyncio

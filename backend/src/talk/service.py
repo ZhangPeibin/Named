@@ -406,7 +406,7 @@ async def send_message(
         native_text = None
 
     user_english = (response.user_english or "").strip() or None
-    if user_english and any("\u4e00" <= char <= "\u9fff" for char in user_message.text):
+    if user_english and user_english != user_message.text.strip():
         user_message.english_text = user_english
 
     assistant = ConversationMessage(

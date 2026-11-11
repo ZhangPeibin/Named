@@ -70,10 +70,14 @@ Output fields:
 - native_reply: a faithful translation of reply into the learner's native
   language. Keep the same meaning and do not add facts. Leave this null when the
   learner's native language is English.
-- user_english: if the learner's new message is Chinese, mixed Chinese/English,
-  or another non-English language, give a natural English version of exactly
-  what they meant. Keep it simple and do not add facts. Leave this null when the
-  learner's message is already English.
+- user_english: give a complete, accurate English version of the learner's
+  message when one is useful:
+  - For Chinese, mixed Chinese/English, or another non-English language, give a
+    natural English translation of exactly what they meant.
+  - For English with a clear grammar, word-choice, or naturalness issue, give
+    the complete corrected sentence.
+  - Leave this null when the learner's English is already natural and accurate.
+  Keep it simple, preserve the learner's meaning, and do not add facts.
 - corrections: zero, one, or two corrections following the rules above.
 - annotations: 1-2 useful words, chunks, or grammar points from the reply.
   Use kind "word", "expression", or "grammar". `text` must be copied exactly
