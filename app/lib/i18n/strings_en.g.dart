@@ -58,6 +58,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$timeline$en timeline = Translations$timeline$en._(_root);
 	late final Translations$words$en words = Translations$words$en._(_root);
 	late final Translations$review$en review = Translations$review$en._(_root);
+	late final Translations$history$en history = Translations$history$en._(_root);
 }
 
 // Path: app
@@ -895,6 +896,9 @@ class Translations$timeline$en {
 
 	/// en: 'Audio is unavailable.'
 	String get audioUnavailable => 'Audio is unavailable.';
+
+	/// en: 'History'
+	String get menuHistory => 'History';
 }
 
 // Path: words
@@ -997,6 +1001,57 @@ class Translations$review$en {
 
 	/// en: 'Could not load your review.'
 	String get loadFailed => 'Could not load your review.';
+}
+
+// Path: history
+class Translations$history$en {
+	Translations$history$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'History'
+	String get title => 'History';
+
+	/// en: 'No experiences yet.'
+	String get empty => 'No experiences yet.';
+
+	/// en: 'A meaningful Talk will appear here after Milo has time to reflect.'
+	String get emptyHint => 'A meaningful Talk will appear here after Milo has time to reflect.';
+
+	/// en: 'Could not load your history.'
+	String get loadFailed => 'Could not load your history.';
+
+	/// en: 'Could not load this experience.'
+	String get detailFailed => 'Could not load this experience.';
+
+	/// en: 'Life experience'
+	String get life => 'Life experience';
+
+	/// en: 'Learning experience'
+	String get learning => 'Learning experience';
+
+	/// en: 'From conversation'
+	String get fromConversation => 'From conversation';
+
+	/// en: 'Open conversation'
+	String get openConversation => 'Open conversation';
+
+	/// en: 'Evidence'
+	String get evidence => 'Evidence';
+
+	/// en: 'Expressions'
+	String get expressions => 'Expressions';
+
+	/// en: 'Experience'
+	String get detailTitle => 'Experience';
+
+	/// en: 'Load earlier'
+	String get loadEarlier => 'Load earlier';
+
+	/// en: 'Open source'
+	String get openFocus => 'Open source';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1238,6 +1293,7 @@ extension on Translations {
 			'timeline.pause' => 'Pause word',
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
+			'timeline.menuHistory' => 'History',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',
@@ -1266,6 +1322,20 @@ extension on Translations {
 			'review.emptyTitle' => 'Nothing to review yet',
 			'review.emptyCopy' => 'Name something first. Your words will appear here for review.',
 			'review.loadFailed' => 'Could not load your review.',
+			'history.title' => 'History',
+			'history.empty' => 'No experiences yet.',
+			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',
+			'history.loadFailed' => 'Could not load your history.',
+			'history.detailFailed' => 'Could not load this experience.',
+			'history.life' => 'Life experience',
+			'history.learning' => 'Learning experience',
+			'history.fromConversation' => 'From conversation',
+			'history.openConversation' => 'Open conversation',
+			'history.evidence' => 'Evidence',
+			'history.expressions' => 'Expressions',
+			'history.detailTitle' => 'Experience',
+			'history.loadEarlier' => 'Load earlier',
+			'history.openFocus' => 'Open source',
 			_ => null,
 		};
 	}

@@ -468,6 +468,11 @@ class _TimelineMenu extends StatelessWidget {
           routeName: AppRouteNames.review,
         ),
         _MenuRow(
+          icon: Icons.auto_stories_outlined,
+          label: t.menuHistory,
+          routeName: AppRouteNames.history,
+        ),
+        _MenuRow(
           icon: Icons.menu_book_outlined,
           label: t.menuWords,
           routeName: AppRouteNames.words,

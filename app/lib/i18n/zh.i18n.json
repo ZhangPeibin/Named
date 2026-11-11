@@ -261,7 +261,8 @@
     "play": "播放发音",
     "pause": "暂停播放",
     "speed": "播放速度",
-    "audioUnavailable": "音频暂时不可用。"
+    "audioUnavailable": "音频暂时不可用。",
+    "menuHistory": "回忆"
   },
   "words": {
     "title": "词语",
@@ -294,5 +295,21 @@
     "emptyTitle": "还没有可复习的词",
     "emptyCopy": "先命名一个东西，之后它会出现在这里。",
     "loadFailed": "复习内容加载失败。"
+  },
+  "history": {
+    "title": "回忆",
+    "empty": "还没有可回看的经历。",
+    "emptyHint": "一段有意义的对话会在 Milo 整理后出现在这里。",
+    "loadFailed": "暂时无法加载回忆。",
+    "detailFailed": "暂时无法加载这段经历。",
+    "life": "生活经历",
+    "learning": "学习经历",
+    "fromConversation": "来自对话",
+    "openConversation": "打开对话",
+    "evidence": "来源",
+    "expressions": "表达",
+    "detailTitle": "经历",
+    "loadEarlier": "加载更早",
+    "openFocus": "打开来源"
   }
 }

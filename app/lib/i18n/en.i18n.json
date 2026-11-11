@@ -261,7 +261,8 @@
     "play": "Play word",
     "pause": "Pause word",
     "speed": "Playback speed",
-    "audioUnavailable": "Audio is unavailable."
+    "audioUnavailable": "Audio is unavailable.",
+    "menuHistory": "History"
   },
   "words": {
     "title": "Words",
@@ -294,5 +295,21 @@
     "emptyTitle": "Nothing to review yet",
     "emptyCopy": "Name something first. Your words will appear here for review.",
     "loadFailed": "Could not load your review."
+  },
+  "history": {
+    "title": "History",
+    "empty": "No experiences yet.",
+    "emptyHint": "A meaningful Talk will appear here after Milo has time to reflect.",
+    "loadFailed": "Could not load your history.",
+    "detailFailed": "Could not load this experience.",
+    "life": "Life experience",
+    "learning": "Learning experience",
+    "fromConversation": "From conversation",
+    "openConversation": "Open conversation",
+    "evidence": "Evidence",
+    "expressions": "Expressions",
+    "detailTitle": "Experience",
+    "loadEarlier": "Load earlier",
+    "openFocus": "Open source"
   }
 }

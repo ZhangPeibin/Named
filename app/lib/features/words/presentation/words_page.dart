@@ -22,7 +22,9 @@ import '../domain/word_shelf.dart';
 import '../providers/words_providers.dart';
 
 class WordsPage extends ConsumerStatefulWidget {
-  const WordsPage({super.key});
+  const WordsPage({super.key, this.initialWordId});
+
+  final String? initialWordId;
 
   @override
   ConsumerState<WordsPage> createState() => _WordsPageState();
@@ -30,6 +32,7 @@ class WordsPage extends ConsumerStatefulWidget {
 
 class _WordsPageState extends ConsumerState<WordsPage> {
   var _showKnown = false;
+  var _didOpenInitialWord = false;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +56,21 @@ class _WordsPageState extends ConsumerState<WordsPage> {
         data: (shelf) {
           if (shelf.words.isEmpty) {
             return Center(child: AppEmptyView(title: t.empty));
+          }
+          final initialWordId = widget.initialWordId;
+          if (!_didOpenInitialWord && initialWordId != null) {
+            _didOpenInitialWord = true;
+            final matches = shelf.words.where(
+              (item) => item.id == initialWordId,
+            );
+            if (matches.isNotEmpty) {
+              final target = matches.first;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  unawaited(_openDetails(target));
+                }
+              });
+            }
           }
 
           final needsReview = shelf.words

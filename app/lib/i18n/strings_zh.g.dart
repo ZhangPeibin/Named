@@ -55,6 +55,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$timeline$zh timeline = _Translations$timeline$zh._(_root);
 	@override late final _Translations$words$zh words = _Translations$words$zh._(_root);
 	@override late final _Translations$review$zh review = _Translations$review$zh._(_root);
+	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
 }
 
 // Path: app
@@ -430,6 +431,7 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get pause => '暂停播放';
 	@override String get speed => '播放速度';
 	@override String get audioUnavailable => '音频暂时不可用。';
+	@override String get menuHistory => '回忆';
 }
 
 // Path: words
@@ -476,6 +478,29 @@ class _Translations$review$zh implements Translations$review$en {
 	@override String get emptyTitle => '还没有可复习的词';
 	@override String get emptyCopy => '先命名一个东西，之后它会出现在这里。';
 	@override String get loadFailed => '复习内容加载失败。';
+}
+
+// Path: history
+class _Translations$history$zh implements Translations$history$en {
+	_Translations$history$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '回忆';
+	@override String get empty => '还没有可回看的经历。';
+	@override String get emptyHint => '一段有意义的对话会在 Milo 整理后出现在这里。';
+	@override String get loadFailed => '暂时无法加载回忆。';
+	@override String get detailFailed => '暂时无法加载这段经历。';
+	@override String get life => '生活经历';
+	@override String get learning => '学习经历';
+	@override String get fromConversation => '来自对话';
+	@override String get openConversation => '打开对话';
+	@override String get evidence => '来源';
+	@override String get expressions => '表达';
+	@override String get detailTitle => '经历';
+	@override String get loadEarlier => '加载更早';
+	@override String get openFocus => '打开来源';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -717,6 +742,7 @@ extension on TranslationsZh {
 			'timeline.pause' => '暂停播放',
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
+			'timeline.menuHistory' => '回忆',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',
@@ -745,6 +771,20 @@ extension on TranslationsZh {
 			'review.emptyTitle' => '还没有可复习的词',
 			'review.emptyCopy' => '先命名一个东西，之后它会出现在这里。',
 			'review.loadFailed' => '复习内容加载失败。',
+			'history.title' => '回忆',
+			'history.empty' => '还没有可回看的经历。',
+			'history.emptyHint' => '一段有意义的对话会在 Milo 整理后出现在这里。',
+			'history.loadFailed' => '暂时无法加载回忆。',
+			'history.detailFailed' => '暂时无法加载这段经历。',
+			'history.life' => '生活经历',
+			'history.learning' => '学习经历',
+			'history.fromConversation' => '来自对话',
+			'history.openConversation' => '打开对话',
+			'history.evidence' => '来源',
+			'history.expressions' => '表达',
+			'history.detailTitle' => '经历',
+			'history.loadEarlier' => '加载更早',
+			'history.openFocus' => '打开来源',
 			_ => null,
 		};
 	}

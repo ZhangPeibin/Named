@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers/app_config_provider.dart';
 import '../../features/auth/presentation/sign_in_page.dart';
 import '../../features/auth/providers/auth_notifier.dart';
+import '../../features/history/presentation/experience_detail_page.dart';
+import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
 import '../../features/review/presentation/review_page.dart';
@@ -26,6 +28,8 @@ class AppRoutePaths {
   static const loading = '/loading';
   static const signIn = '/sign-in';
   static const review = '/review';
+  static const history = '/history';
+  static const experience = '/history/:experienceId';
   static const words = '/words';
   static const me = '/me';
   static const settings = '/settings';
@@ -42,6 +46,8 @@ class AppRouteNames {
   static const loading = 'loading';
   static const signIn = 'signIn';
   static const review = 'review';
+  static const history = 'history';
+  static const experience = 'experience';
   static const words = 'words';
   static const me = 'me';
   static const settings = 'settings';
@@ -110,9 +116,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ReviewPage(),
       ),
       GoRoute(
+        path: AppRoutePaths.history,
+        name: AppRouteNames.history,
+        builder: (context, state) => const HistoryPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.experience,
+        name: AppRouteNames.experience,
+        builder: (context, state) => ExperienceDetailPage(
+          experienceId: state.pathParameters['experienceId']!,
+        ),
+      ),
+      GoRoute(
         path: AppRoutePaths.words,
         name: AppRouteNames.words,
-        builder: (context, state) => const WordsPage(),
+        builder: (context, state) =>
+            WordsPage(initialWordId: state.uri.queryParameters['wordId']),
       ),
       GoRoute(
         path: AppRoutePaths.me,
