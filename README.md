@@ -459,7 +459,7 @@ Not implemented yet:
 Current local gates:
 
 - Backend: **83** tests, Ruff lint/format
-- Flutter app: **92** tests, `make check`
+- Flutter app: **93** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

@@ -213,6 +213,28 @@ void main() {
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
   });
 
+  testWidgets('opens Talk at the latest message', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          talkRepositoryProvider.overrideWithValue(
+            TalkRepository(_LongTalkApi()),
+          ),
+        ],
+        child: const TalkPage(conversationId: 'long', title: 'tree'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Message 29'), findsOneWidget);
+  });
+
   grammarTest();
 }
 
@@ -284,6 +306,29 @@ class _EnglishHintTalkApi extends MockTalkApi {
           corrections: [],
           annotations: [],
         ),
+      ],
+    );
+  }
+}
+
+class _LongTalkApi extends MockTalkApi {
+  @override
+  Future<ConversationDto> fetch(String conversationId) async {
+    return ConversationDto(
+      id: conversationId,
+      title: 'tree',
+      focusType: 'word',
+      focusId: 'mock-word',
+      status: 'active',
+      messages: [
+        for (var index = 0; index < 30; index++)
+          TalkMessageDto(
+            id: 'long-message-$index',
+            role: index.isEven ? 'user' : 'assistant',
+            text: 'Message $index',
+            corrections: const [],
+            annotations: const [],
+          ),
       ],
     );
   }

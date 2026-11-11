@@ -117,7 +117,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           _messages = conversation.messages;
           _isLoading = false;
         });
-        _scrollToBottom();
+        _scrollToBottom(animate: false);
       }
     } on ApiException catch (error) {
       if (mounted) {
@@ -427,14 +427,24 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     return bytes;
   }
 
-  void _scrollToBottom() {
+  void _scrollToBottom({bool animate = true, int attempt = 0}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) {
+      if (!mounted || !_scrollController.hasClients) {
+        return;
+      }
+      final position = _scrollController.position;
+      if (position.maxScrollExtent <= 0 && attempt < 6) {
+        _scrollToBottom(animate: animate, attempt: attempt + 1);
+        return;
+      }
+      final target = position.maxScrollExtent;
+      if (!animate) {
+        position.jumpTo(target);
         return;
       }
       unawaited(
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
+          target,
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
         ),
