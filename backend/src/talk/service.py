@@ -209,6 +209,7 @@ async def _message_out(
         role=message.role,
         text=message.text,
         native_text=message.native_text,
+        english_text=message.english_text,
         source=message.source,
         transcript_state=message.transcript_state,
         status=message.status,
@@ -390,6 +391,10 @@ async def send_message(
     native_text = (response.native_reply or "").strip() or None
     if native_language.lower().startswith("en"):
         native_text = None
+
+    user_english = (response.user_english or "").strip() or None
+    if user_english and any("\u4e00" <= char <= "\u9fff" for char in user_message.text):
+        user_message.english_text = user_english
 
     assistant = ConversationMessage(
         conversation_id=conversation_id,

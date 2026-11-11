@@ -48,6 +48,7 @@ class MemoryCandidate(BaseModel):
 class TalkResponse(BaseModel):
     reply: str = Field(min_length=1, max_length=4000)
     native_reply: str | None = Field(default=None, max_length=4000)
+    user_english: str | None = Field(default=None, max_length=2000)
     corrections: list[Correction] = Field(default_factory=list)
     annotations: list[Annotation] = Field(default_factory=list)
     memories: list[MemoryCandidate] = Field(default_factory=list, max_length=5)
@@ -115,6 +116,7 @@ class MessageOut(BaseModel):
     role: str
     text: str
     native_text: str | None = None
+    english_text: str | None = None
     source: str
     transcript_state: str
     status: str

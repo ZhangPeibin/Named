@@ -18,6 +18,7 @@ from discovery.router import image_router, word_router
 from discovery.router import router as discovery_router
 from errors import ApiError
 from soul.router import router as soul_router
+from stt.router import router as stt_router
 from talk.router import router as talk_router
 from timeline.router import router as timeline_router
 from tts.router import audio_router
@@ -94,6 +95,7 @@ app.include_router(discovery_router, prefix=settings.api_v1_prefix)
 app.include_router(word_router, prefix=settings.api_v1_prefix)
 app.include_router(image_router, prefix=settings.api_v1_prefix)
 app.include_router(audio_router, prefix=settings.api_v1_prefix)
+app.include_router(stt_router, prefix=settings.api_v1_prefix)
 app.include_router(talk_router, prefix=settings.api_v1_prefix)
 app.include_router(timeline_router, prefix=settings.api_v1_prefix)
 

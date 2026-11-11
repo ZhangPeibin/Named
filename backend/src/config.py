@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     tts_voice_talk: str = "Cindy_v3.1"
     tts_format: str = "mp3"
     tts_rate: float = 1.0
+    stt_model: str = "qwen-audio-3.1-asr-flash"
+    stt_timeout_seconds: float = 60.0
     talk_audio_ttl_seconds: int = 604800
     media_root: str = "media"
     media_url_prefix: str = "/api/v1/audio"

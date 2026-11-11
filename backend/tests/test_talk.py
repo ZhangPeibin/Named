@@ -1,3 +1,5 @@
+import io
+import wave
 from contextlib import asynccontextmanager
 from datetime import timedelta
 
@@ -24,9 +26,22 @@ from discovery.agent import get_discovery_agent
 from mailer import get_email_sender
 from main import app
 from models import Base, ErrorPattern, MemoryItem
+from stt.deps import get_transcription_provider
+from stt.provider import STTNoSpeech
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
 from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
 from tts.provider import get_tts_provider
+
+
+class FakeTranscriptionProvider:
+    async def transcribe_wav(self, audio: bytes) -> str:
+        assert audio
+        return "I saw a tree."
+
+
+class NoSpeechTranscriptionProvider:
+    async def transcribe_wav(self, audio: bytes) -> str:
+        raise STTNoSpeech("No speech was recognized.")
 
 
 class FakeTalkAgent:
@@ -165,6 +180,7 @@ async def talk_client(
     app.dependency_overrides[get_discovery_agent] = lambda: discovery_agent
     app.dependency_overrides[get_talk_agent] = lambda: talk_agent
     app.dependency_overrides[get_help_agent] = lambda: help_agent or FakeHelpAgent()
+    app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider()
     app.dependency_overrides[get_tts_provider] = lambda: tts
 
     try:
@@ -335,6 +351,31 @@ async def test_tts_failure_does_not_block_reply(talk_env) -> None:
     body = response.json()
     assert body["assistant_message"]["text"]
     assert body["assistant_message"]["audio"] is None
+
+
+@pytest.mark.asyncio
+async def test_chinese_user_message_gets_english_hint(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "chinese-hint@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.user_english = "I saw a tree."
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "zh-1", "text": "我看到一棵树。"},
+    )
+    assert response.status_code == 200, response.text
+    user_message = response.json()["user_message"]
+    assert user_message["text"] == "我看到一棵树。"
+    assert user_message["english_text"] == "I saw a tree."
+
+    detail = await http.get(
+        f"/api/v1/conversations/{conversation_id}",
+        headers=headers,
+    )
+    assert detail.status_code == 200
+    assert detail.json()["messages"][0]["english_text"] == "I saw a tree."
 
 
 @pytest.mark.asyncio
@@ -980,3 +1021,44 @@ async def test_expression_annotation_can_include_ipa(talk_env) -> None:
     assert annotation["kind"] == "expression"
     assert annotation["ipa"] == "/help ɪt draɪ/"
     assert annotation["vowels"] == ["/e/", "/ɪ/", "/aɪ/"]
+
+
+def _wav_bytes() -> bytes:
+    output = io.BytesIO()
+    with wave.open(output, "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(16000)
+        wav.writeframes(b"\x00\x00" * 1600)
+    return output.getvalue()
+
+
+@pytest.mark.asyncio
+async def test_audio_transcription(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "stt@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/audio/transcribe",
+        headers=headers,
+        files={"file": ("voice.wav", _wav_bytes(), "audio/wav")},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["text"] == "I saw a tree."
+
+
+@pytest.mark.asyncio
+async def test_audio_transcription_without_speech(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "stt-empty@example.com")
+    headers = bearer(verified["session_token"])
+    app.dependency_overrides[get_transcription_provider] = lambda: NoSpeechTranscriptionProvider()
+
+    response = await http.post(
+        "/api/v1/audio/transcribe",
+        headers=headers,
+        files={"file": ("voice.wav", _wav_bytes(), "audio/wav")},
+    )
+    assert response.status_code == 422
+    assert response.json()["code"] == "no_speech"
