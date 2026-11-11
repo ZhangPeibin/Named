@@ -743,6 +743,21 @@ class Translations$talk$en {
 	/// en: 'Pause'
 	String get pausePronunciation => 'Pause';
 
+	/// en: 'Speak'
+	String get speak => 'Speak';
+
+	/// en: 'Listening...'
+	String get listening => 'Listening...';
+
+	/// en: 'Transcribing...'
+	String get transcribing => 'Transcribing...';
+
+	/// en: 'Stop recording'
+	String get stopRecording => 'Stop recording';
+
+	/// en: 'Microphone access is needed.'
+	String get microphoneDenied => 'Microphone access is needed.';
+
 	/// en: 'Pattern'
 	String get grammarPattern => 'Pattern';
 
@@ -763,6 +778,9 @@ class Translations$talk$en {
 
 	/// en: 'Hide Chinese'
 	String get hideNative => 'Hide Chinese';
+
+	/// en: 'English'
+	String get englishHint => 'English';
 
 	/// en: 'Playback speed'
 	String get speed => 'Playback speed';
@@ -1172,6 +1190,11 @@ extension on Translations {
 			'talk.phonics' => 'Phonics',
 			'talk.playPronunciation' => 'Listen',
 			'talk.pausePronunciation' => 'Pause',
+			'talk.speak' => 'Speak',
+			'talk.listening' => 'Listening...',
+			'talk.transcribing' => 'Transcribing...',
+			'talk.stopRecording' => 'Stop recording',
+			'talk.microphoneDenied' => 'Microphone access is needed.',
 			'talk.grammarPattern' => 'Pattern',
 			'talk.addToWords' => 'Add to Words',
 			'talk.addedToWords' => 'Added to Words',
@@ -1179,6 +1202,7 @@ extension on Translations {
 			'talk.nativeShort' => '中',
 			'talk.showNative' => 'Show Chinese',
 			'talk.hideNative' => 'Hide Chinese',
+			'talk.englishHint' => 'English',
 			'talk.speed' => 'Playback speed',
 			'talk.naturalWay' => 'A more natural way',
 			'talk.youWrote' => 'You wrote',

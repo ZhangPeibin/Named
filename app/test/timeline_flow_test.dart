@@ -104,7 +104,7 @@ void main() {
       find.textContaining('That sounds like a small, real moment.'),
       findsOneWidget,
     );
-    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsNothing);
 
     final nativeToggle = find.byKey(
       const Key('talk.native.toggle.mock-message-2'),
@@ -112,11 +112,11 @@ void main() {
     await tester.ensureVisible(nativeToggle);
     await tester.tap(nativeToggle);
     await tester.pumpAndSettle();
-    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsNothing);
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);
 
     await tester.tap(nativeToggle);
     await tester.pumpAndSettle();
-    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsNothing);
 
     final correctionCard = find.byKey(
       const Key('talk.correction.mock-message-1.0'),

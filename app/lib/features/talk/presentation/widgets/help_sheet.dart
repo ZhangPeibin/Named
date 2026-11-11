@@ -12,6 +12,7 @@ import '../../../../core/audio/audio_providers.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/audio_speed_control.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/talk.dart';
 import '../../providers/talk_providers.dart';
@@ -211,6 +212,7 @@ class _HelpAudioButtonState extends ConsumerState<_HelpAudioButton> {
   late final StreamSubscription<PlayerState> _stateSub;
   late final StreamSubscription<void> _completeSub;
   var _isPlaying = false;
+  var _speed = 1.0;
   String? _cachedUrl;
   Uint8List? _cachedBytes;
 
@@ -255,13 +257,25 @@ class _HelpAudioButtonState extends ConsumerState<_HelpAudioButton> {
       if (!mounted) {
         return;
       }
-      await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+      await _player.setPlaybackRate(_speed);
+      if (_player.state == PlayerState.paused) {
+        await _player.resume();
+      } else {
+        await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+      }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.t.talk.audioUnavailable)),
         );
       }
+    }
+  }
+
+  Future<void> _setSpeed(double speed) async {
+    setState(() => _speed = speed);
+    if (_isPlaying || _player.state == PlayerState.paused) {
+      await _player.setPlaybackRate(speed);
     }
   }
 
@@ -277,29 +291,23 @@ class _HelpAudioButtonState extends ConsumerState<_HelpAudioButton> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appPalette;
     final t = context.t.talk;
 
     return Semantics(
-      button: true,
+      container: true,
       label: _isPlaying ? t.pauseReply : t.playReply,
-      onTap: _toggle,
       excludeSemantics: true,
-      child: Material(
-        color: palette.surfaceMuted,
-        shape: const CircleBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: _toggle,
-          child: SizedBox.square(
-            dimension: 34,
-            child: Icon(
-              _isPlaying ? Icons.pause : Icons.volume_up_outlined,
-              size: 16,
-              color: palette.primary,
-            ),
-          ),
-        ),
+      child: AudioSpeedControl(
+        playKey: const Key('talk.helpAudio'),
+        speedKey: const Key('talk.helpAudio.speed'),
+        isPlaying: _isPlaying,
+        isLoading: false,
+        speed: _speed,
+        onToggle: _toggle,
+        onSpeedChanged: (speed) => unawaited(_setSpeed(speed)),
+        speedTooltip: t.speed,
+        playTooltip: t.playReply,
+        pauseTooltip: t.pauseReply,
       ),
     );
   }

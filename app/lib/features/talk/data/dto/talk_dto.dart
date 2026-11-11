@@ -151,6 +151,7 @@ class TalkMessageDto {
     required this.corrections,
     required this.annotations,
     this.nativeText,
+    this.englishText,
     this.audio,
   });
 
@@ -161,6 +162,7 @@ class TalkMessageDto {
       role: json['role'] as String? ?? 'assistant',
       text: json['text'] as String? ?? '',
       nativeText: json['native_text'] as String?,
+      englishText: json['english_text'] as String?,
       corrections: (json['corrections'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(MessageCorrectionDto.fromJson)
@@ -179,6 +181,7 @@ class TalkMessageDto {
   final String role;
   final String text;
   final String? nativeText;
+  final String? englishText;
   final List<MessageCorrectionDto> corrections;
   final List<MessageAnnotationDto> annotations;
   final TalkAudioDto? audio;
@@ -189,6 +192,7 @@ class TalkMessageDto {
       role: role,
       text: text,
       nativeText: nativeText,
+      englishText: englishText,
       corrections: corrections
           .map((correction) => correction.toDomain())
           .toList(),

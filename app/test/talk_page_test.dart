@@ -87,6 +87,35 @@ void main() {
     expect(find.byKey(const Key('talk.avatar.mock-message-2')), findsOneWidget);
   });
 
+  testWidgets('shows an English hint under a Chinese user message', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          talkRepositoryProvider.overrideWithValue(
+            TalkRepository(_ChineseTalkApi()),
+          ),
+        ],
+        child: const TalkPage(conversationId: 'chinese', title: 'tree'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('我看到一棵树。'), findsOneWidget);
+    expect(find.text('I saw a tree.'), findsOneWidget);
+    expect(
+      find.byKey(const Key('talk.english.chinese-message')),
+      findsOneWidget,
+    );
+  });
+
   grammarTest();
 }
 
@@ -107,6 +136,29 @@ class _RecordingWordsApi extends MockWordsApi {
     String? phonics,
   }) async {
     savedLabel = label;
+  }
+}
+
+class _ChineseTalkApi extends MockTalkApi {
+  @override
+  Future<ConversationDto> fetch(String conversationId) async {
+    return ConversationDto(
+      id: conversationId,
+      title: 'tree',
+      focusType: 'word',
+      focusId: 'mock-word',
+      status: 'active',
+      messages: const [
+        TalkMessageDto(
+          id: 'chinese-message',
+          role: 'user',
+          text: '我看到一棵树。',
+          englishText: 'I saw a tree.',
+          corrections: [],
+          annotations: [],
+        ),
+      ],
+    );
   }
 }
 
@@ -182,6 +234,7 @@ void grammarTest() {
     await tester.tap(find.byKey(const Key('talk.annotation.plain')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('talk.annotationSheet')), findsOneWidget);
+    expect(find.byKey(const Key('talk.annotationAudio.speed')), findsOneWidget);
     expect(find.text('Part of speech: adv.'), findsOneWidget);
     expect(find.text('/pleɪn/'), findsOneWidget);
     expect(find.text(t.talk.vowels), findsOneWidget);

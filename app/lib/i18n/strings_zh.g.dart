@@ -373,6 +373,11 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get phonics => '自然拼读';
 	@override String get playPronunciation => '听发音';
 	@override String get pausePronunciation => '暂停';
+	@override String get speak => '说话';
+	@override String get listening => '正在听你说...';
+	@override String get transcribing => '正在转写...';
+	@override String get stopRecording => '停止录音';
+	@override String get microphoneDenied => '需要麦克风权限。';
 	@override String get grammarPattern => '结构';
 	@override String get addToWords => '加入词语';
 	@override String get addedToWords => '已加入词语';
@@ -380,6 +385,7 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get nativeShort => '中';
 	@override String get showNative => '显示中文';
 	@override String get hideNative => '隐藏中文';
+	@override String get englishHint => '英文';
 	@override String get speed => '播放速度';
 	@override String get naturalWay => '更自然的说法';
 	@override String get youWrote => '你写的是';
@@ -663,6 +669,11 @@ extension on TranslationsZh {
 			'talk.phonics' => '自然拼读',
 			'talk.playPronunciation' => '听发音',
 			'talk.pausePronunciation' => '暂停',
+			'talk.speak' => '说话',
+			'talk.listening' => '正在听你说...',
+			'talk.transcribing' => '正在转写...',
+			'talk.stopRecording' => '停止录音',
+			'talk.microphoneDenied' => '需要麦克风权限。',
 			'talk.grammarPattern' => '结构',
 			'talk.addToWords' => '加入词语',
 			'talk.addedToWords' => '已加入词语',
@@ -670,6 +681,7 @@ extension on TranslationsZh {
 			'talk.nativeShort' => '中',
 			'talk.showNative' => '显示中文',
 			'talk.hideNative' => '隐藏中文',
+			'talk.englishHint' => '英文',
 			'talk.speed' => '播放速度',
 			'talk.naturalWay' => '更自然的说法',
 			'talk.youWrote' => '你写的是',

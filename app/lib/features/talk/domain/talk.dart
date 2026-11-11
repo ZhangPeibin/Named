@@ -57,6 +57,7 @@ class TalkMessage {
     required this.corrections,
     required this.annotations,
     this.nativeText,
+    this.englishText,
     this.audio,
   });
 
@@ -64,6 +65,7 @@ class TalkMessage {
   final String role;
   final String text;
   final String? nativeText;
+  final String? englishText;
   final List<MessageCorrection> corrections;
   final List<MessageAnnotation> annotations;
   final TalkAudio? audio;

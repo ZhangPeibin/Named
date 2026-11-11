@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:record/record.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -15,6 +17,7 @@ import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/talk.dart';
@@ -43,7 +46,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   bool _isLoading = true;
   bool _isSending = false;
   TalkMessage? _pendingMessage;
-  final _hiddenNativeMessageIds = <String>{};
+  final _visibleNativeMessageIds = <String>{};
   double _playbackRate = 1.0;
   late final AudioPlayer _player;
   late final StreamSubscription<PlayerState> _playerStateSub;
@@ -52,6 +55,10 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   String? _playingMessageId;
   String? _loadingMessageId;
   bool _isPlaying = false;
+  AudioRecorder? _recorder;
+  String? _recordingPath;
+  var _isRecording = false;
+  var _isTranscribing = false;
 
   @override
   void initState() {
@@ -83,6 +90,11 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     _controller.dispose();
     _composerFocusNode.dispose();
     _scrollController.dispose();
+    final recordingPath = _recordingPath;
+    if (recordingPath != null) {
+      unawaited(_deleteFileQuietly(recordingPath));
+    }
+    unawaited(_recorder?.dispose());
     super.dispose();
   }
 
@@ -178,13 +190,20 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       return;
     }
 
-    if (_playingMessageId == message.id && _isPlaying) {
-      await _player.pause();
-      if (mounted) {
-        setState(() {
-          _isPlaying = false;
-          _playingMessageId = null;
-        });
+    if (_playingMessageId == message.id) {
+      if (_isPlaying) {
+        await _player.pause();
+        return;
+      }
+      try {
+        await _player.setPlaybackRate(_playbackRate);
+        await _player.resume();
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.t.talk.audioUnavailable)),
+          );
+        }
       }
       return;
     }
@@ -221,7 +240,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
 
   Future<void> _setPlaybackRate(double rate) async {
     setState(() => _playbackRate = rate);
-    if (_isPlaying) {
+    if (_playingMessageId != null) {
       await _player.setPlaybackRate(rate);
     }
   }
@@ -285,6 +304,112 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(context.t.talk.addedToWords)));
+    }
+  }
+
+  Future<void> _toggleRecording() async {
+    if (_isSending || _isTranscribing) {
+      return;
+    }
+    final recorder = _recorder ??= AudioRecorder();
+    if (_isRecording) {
+      await _stopRecording(recorder);
+      return;
+    }
+    if (!await recorder.hasPermission()) {
+      if (mounted) {
+        setState(() => _error = context.t.talk.microphoneDenied);
+      }
+      return;
+    }
+    final path =
+        '${Directory.systemTemp.path}/named-voice-${DateTime.now().microsecondsSinceEpoch}.wav';
+    try {
+      await recorder.start(
+        const RecordConfig(
+          encoder: AudioEncoder.wav,
+          sampleRate: 16000,
+          numChannels: 1,
+          bitRate: 256000,
+        ),
+        path: path,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isRecording = true;
+        _recordingPath = path;
+        _error = null;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.t.talk.audioUnavailable);
+      }
+    }
+  }
+
+  Future<void> _stopRecording(AudioRecorder recorder) async {
+    if (!_isRecording) {
+      return;
+    }
+    setState(() {
+      _isRecording = false;
+      _isTranscribing = true;
+    });
+
+    final expectedPath = _recordingPath;
+    _recordingPath = null;
+    try {
+      final path = await recorder.stop();
+      if (path == null) {
+        throw StateError('Recording path missing');
+      }
+      final bytes = await File(path).readAsBytes();
+      await File(path).delete();
+      final text = await ref
+          .read(talkRepositoryProvider)
+          .transcribeAudio(bytes);
+      if (!mounted) {
+        return;
+      }
+      if (text.trim().isEmpty) {
+        setState(() => _isTranscribing = false);
+        return;
+      }
+      _controller.text = text;
+      _controller.selection = TextSelection.collapsed(offset: text.length);
+      setState(() {
+        _isTranscribing = false;
+        _error = null;
+      });
+      await _send();
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() {
+          _isTranscribing = false;
+          _error = error.code == 'no_speech' ? null : error.message;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isTranscribing = false;
+          _error = context.t.talk.audioUnavailable;
+        });
+      }
+    } finally {
+      if (expectedPath != null) {
+        await _deleteFileQuietly(expectedPath);
+      }
+    }
+  }
+
+  Future<void> _deleteFileQuietly(String path) async {
+    try {
+      await File(path).delete();
+    } catch (_) {
+      // Best-effort cleanup of the temporary recording.
     }
   }
 
@@ -375,7 +500,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                       final message = visibleMessages[index];
                       return _MessageBubble(
                         message: message,
-                        showNative: !_hiddenNativeMessageIds.contains(
+                        showNative: _visibleNativeMessageIds.contains(
                           message.id,
                         ),
                         playbackRate: _playbackRate,
@@ -390,8 +515,8 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                         },
                         onToggleNative: () {
                           setState(() {
-                            if (!_hiddenNativeMessageIds.add(message.id)) {
-                              _hiddenNativeMessageIds.remove(message.id);
+                            if (!_visibleNativeMessageIds.add(message.id)) {
+                              _visibleNativeMessageIds.remove(message.id);
                             }
                           });
                         },
@@ -424,10 +549,17 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                 _TalkComposer(
                   controller: _controller,
                   focusNode: _composerFocusNode,
-                  hintText: t.inputHint,
+                  hintText: _isRecording
+                      ? t.listening
+                      : _isTranscribing
+                      ? t.transcribing
+                      : t.inputHint,
                   sendTooltip: t.send,
                   helpTooltip: t.helpMeSayIt,
-                  isSending: _isSending,
+                  isSending: _isSending || _isTranscribing,
+                  isRecording: _isRecording,
+                  isTranscribing: _isTranscribing,
+                  onToggleRecording: _toggleRecording,
                   onSend: _send,
                   onOpenHelp: _openHelp,
                   onChanged: (_) => setState(() => _error = null),
@@ -561,6 +693,7 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
   String? _cachedUrl;
   var _loadingAudio = false;
   var _playingAudio = false;
+  var _audioSpeed = 1.0;
 
   @override
   void initState() {
@@ -622,8 +755,12 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
             );
       _cachedUrl = url;
       _cachedBytes = bytes;
-      await _audioPlayer.stop();
-      await _audioPlayer.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+      await _audioPlayer.setPlaybackRate(_audioSpeed);
+      if (_audioPlayer.state == PlayerState.paused) {
+        await _audioPlayer.resume();
+      } else {
+        await _audioPlayer.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+      }
     } catch (_) {
       if (mounted) {
         setState(() => _error = context.t.talk.audioUnavailable);
@@ -632,6 +769,13 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
       if (mounted) {
         setState(() => _loadingAudio = false);
       }
+    }
+  }
+
+  Future<void> _setAudioSpeed(double speed) async {
+    setState(() => _audioSpeed = speed);
+    if (_playingAudio || _audioPlayer.state == PlayerState.paused) {
+      await _audioPlayer.setPlaybackRate(speed);
     }
   }
 
@@ -817,26 +961,17 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
                 Expanded(
                   child: Text(annotation.text, style: textTheme.displayMedium),
                 ),
-                IconButton(
-                  key: const Key('talk.annotationAudio'),
-                  onPressed: _loadingAudio ? null : _toggleAudio,
-                  tooltip: _playingAudio
-                      ? t.pausePronunciation
-                      : t.playPronunciation,
-                  icon: _loadingAudio
-                      ? SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: palette.primary,
-                          ),
-                        )
-                      : Icon(
-                          _playingAudio
-                              ? Icons.pause_circle_outline
-                              : Icons.volume_up_outlined,
-                          color: palette.primary,
-                        ),
+                AudioSpeedControl(
+                  playKey: const Key('talk.annotationAudio'),
+                  speedKey: const Key('talk.annotationAudio.speed'),
+                  isPlaying: _playingAudio,
+                  isLoading: _loadingAudio,
+                  speed: _audioSpeed,
+                  onToggle: _toggleAudio,
+                  onSpeedChanged: (speed) => unawaited(_setAudioSpeed(speed)),
+                  speedTooltip: t.speed,
+                  playTooltip: t.playPronunciation,
+                  pauseTooltip: t.pausePronunciation,
                 ),
               ],
             ),
@@ -1009,6 +1144,9 @@ class _TalkComposer extends StatelessWidget {
     required this.sendTooltip,
     required this.helpTooltip,
     required this.isSending,
+    required this.isRecording,
+    required this.isTranscribing,
+    required this.onToggleRecording,
     required this.onSend,
     required this.onOpenHelp,
     required this.onChanged,
@@ -1020,6 +1158,9 @@ class _TalkComposer extends StatelessWidget {
   final String sendTooltip;
   final String helpTooltip;
   final bool isSending;
+  final bool isRecording;
+  final bool isTranscribing;
+  final VoidCallback onToggleRecording;
   final VoidCallback onSend;
   final VoidCallback onOpenHelp;
   final ValueChanged<String> onChanged;
@@ -1028,6 +1169,7 @@ class _TalkComposer extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
+    final t = context.t.talk;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
@@ -1094,6 +1236,35 @@ class _TalkComposer extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                   isCollapsed: true,
                 ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s4),
+            SizedBox.square(
+              dimension: 38,
+              child: IconButton.filledTonal(
+                key: const Key('talk.voice'),
+                onPressed: isSending ? null : onToggleRecording,
+                tooltip: isRecording ? t.stopRecording : t.speak,
+                style: IconButton.styleFrom(
+                  backgroundColor: isRecording
+                      ? palette.accent
+                      : palette.surfaceMuted,
+                  foregroundColor: isRecording
+                      ? palette.onPrimary
+                      : palette.primary,
+                  minimumSize: const Size.square(38),
+                  maximumSize: const Size.square(38),
+                  padding: EdgeInsets.zero,
+                ),
+                icon: isTranscribing
+                    ? SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: palette.primary,
+                        ),
+                      )
+                    : Icon(isRecording ? Icons.stop : Icons.mic_none, size: 20),
               ),
             ),
             const SizedBox(width: AppSpacing.s4),
@@ -1165,10 +1336,15 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
+    final t = context.t.talk;
     final isUser = message.isUser;
     final onPlay = this.onPlay;
     final hasNative =
         message.nativeText != null && message.nativeText!.trim().isNotEmpty;
+    final hasEnglish =
+        isUser &&
+        message.englishText != null &&
+        message.englishText!.trim().isNotEmpty;
 
     return Column(
       crossAxisAlignment: isUser
@@ -1210,6 +1386,43 @@ class _MessageBubble extends StatelessWidget {
                         style: textTheme.bodyLarge,
                         onAnnotationTap: onAnnotationTap,
                       ),
+                      if (hasEnglish)
+                        Padding(
+                          key: Key('talk.english.${message.id}'),
+                          padding: const EdgeInsets.only(top: AppSpacing.s8),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.only(
+                              left: AppSpacing.s10,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                  color: palette.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  t.englishHint.toUpperCase(),
+                                  style: AppTextStyles.eyebrow.copyWith(
+                                    color: palette.muted,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  message.englishText!,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: palette.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       if (hasNative)
                         AnimatedSize(
                           duration: const Duration(milliseconds: 180),
