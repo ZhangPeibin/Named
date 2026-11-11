@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from datetime import timedelta
 
@@ -22,7 +23,11 @@ from models import (
     Conversation,
     ConversationMessage,
     Discovery,
+    ErrorPattern,
+    MemoryItem,
     SoulItem,
+    Word,
+    WordProgress,
 )
 
 
@@ -119,6 +124,18 @@ async def request_and_verify(
 
 def bearer(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
+
+
+def assert_problem(response, status_code: int, code: str, *, retry_after: bool = False) -> None:
+    assert response.status_code == status_code, response.text
+    assert response.headers["content-type"].startswith("application/problem+json")
+    body = response.json()
+    assert body["status"] == status_code
+    assert body["code"] == code
+    assert body["request_id"]
+    assert response.headers["X-Request-ID"] == body["request_id"]
+    if retry_after:
+        assert int(response.headers["Retry-After"]) > 0
 
 
 @pytest.mark.asyncio
@@ -257,7 +274,7 @@ async def test_invalid_email_is_rejected(client) -> None:
     http, _, _ = client
 
     response = await http.post("/api/v1/auth/code", json={"email": "not-an-email"})
-    assert response.status_code == 422
+    assert_problem(response, 422, "validation_error")
 
 
 @pytest.mark.asyncio
@@ -272,8 +289,7 @@ async def test_resend_cooldown_returns_429() -> None:
         assert first.status_code == 202
 
         second = await http.post("/api/v1/auth/code", json={"email": "cooldown@example.com"})
-        assert second.status_code == 429
-        assert "Retry-After" in second.headers
+        assert_problem(second, 429, "rate_limited", retry_after=True)
 
 
 @pytest.mark.asyncio
@@ -427,7 +443,7 @@ async def test_soul_requires_auth(client) -> None:
     http, _, _ = client
 
     response = await http.get("/api/v1/soul")
-    assert response.status_code == 401
+    assert_problem(response, 401, "unauthorized")
 
 
 @pytest.mark.asyncio
@@ -444,14 +460,13 @@ async def test_delete_account_schedules_and_blocks_login(client) -> None:
     assert body["deletion_scheduled_at"]
 
     me = await http.get("/api/v1/me", headers=bearer(token))
-    assert me.status_code == 401
+    assert_problem(me, 401, "unauthorized")
 
     response = await http.post(
         "/api/v1/auth/code",
         json={"email": "delete@example.com"},
     )
-    assert response.status_code == 403
-    assert response.json()["code"] == "account_deleted"
+    assert_problem(response, 403, "account_deleted")
 
     async with sessions() as session:
         account = await session.get(Account, account_id)
@@ -479,10 +494,16 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
                 source="user_edit",
             )
         )
+        word = Word(canonical_key="purge-tree", label_en="tree")
+        session.add(word)
+        await session.flush()
+        progress = WordProgress(account_id=account_id, word_id=word.id)
+        session.add(progress)
         discovery = Discovery(
             account_id=account_id,
             input_type="image",
             image_key="discovery-images/test.jpg",
+            scene_audio_key="talk-audio/scene.mp3",
             status="ready",
         )
         session.add(discovery)
@@ -493,8 +514,28 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
             status="active",
         )
         session.add(conversation)
+        session.add(
+            MemoryItem(
+                account_id=account_id,
+                kind="experience",
+                text="The learner grows mint.",
+                canonical_key="purge-mint",
+                source_type="conversation_message",
+                source_id="purge-source",
+            )
+        )
+        session.add(
+            ErrorPattern(
+                account_id=account_id,
+                category="grammar",
+                pattern_key="third_person_s",
+                label="Third person -s",
+            )
+        )
         await session.flush()
         discovery_id = discovery.id
+        progress_id = progress.id
+        word_id = word.id
         conversation_id = conversation.id
         message = ConversationMessage(
             conversation_id=conversation_id,
@@ -509,6 +550,22 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
         session.add(message)
         await session.flush()
         message_id = message.id
+        await session.commit()
+
+    other = await request_and_verify(http, sender, "purge-other@example.com")
+    other_account_id = other["account"]["id"]
+    async with sessions() as session:
+        session.add(WordProgress(account_id=other_account_id, word_id=word_id))
+        session.add(
+            MemoryItem(
+                account_id=other_account_id,
+                kind="experience",
+                text="The other learner grows basil.",
+                canonical_key="purge-other-basil",
+                source_type="conversation_message",
+                source_id="purge-other-source",
+            )
+        )
         await session.commit()
 
     response = await http.delete("/api/v1/me", headers=bearer(token))
@@ -526,6 +583,7 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
 
     assert purged == 1
     assert "discovery-images/test.jpg" in store.deleted
+    assert "talk-audio/scene.mp3" in store.deleted
     assert "talk-audio/test.mp3" in store.deleted
 
     async with sessions() as session:
@@ -533,6 +591,29 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
         assert await session.get(Discovery, discovery_id) is None
         assert await session.get(Conversation, conversation_id) is None
         assert await session.get(ConversationMessage, message_id) is None
+        assert await session.get(WordProgress, progress_id) is None
+        assert await session.get(Word, word_id) is not None
+        assert await session.get(Account, other_account_id) is not None
+        assert (
+            await session.scalar(
+                select(WordProgress).where(WordProgress.account_id == other_account_id)
+            )
+            is not None
+        )
+        assert (
+            await session.scalar(
+                select(MemoryItem).where(MemoryItem.account_id == other_account_id)
+            )
+            is not None
+        )
+        assert (
+            await session.scalar(select(MemoryItem).where(MemoryItem.account_id == account_id))
+            is None
+        )
+        assert (
+            await session.scalar(select(ErrorPattern).where(ErrorPattern.account_id == account_id))
+            is None
+        )
         soul_items = await session.scalars(
             select(SoulItem).where(SoulItem.account_id == account_id)
         )
@@ -545,6 +626,35 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
     assert response.status_code == 202
     reverified = await request_and_verify(http, sender, "purge@example.com")
     assert reverified["is_new"] is True
+
+
+@pytest.mark.asyncio
+async def test_missing_soul_item_returns_problem_json(client) -> None:
+    http, sender, _ = client
+    verified = await request_and_verify(http, sender, "contract@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.patch(
+        "/api/v1/soul/items/does-not-exist",
+        headers=headers,
+        json={"text": "updated"},
+    )
+    assert_problem(response, 404, "soul_item_not_found")
+
+
+@pytest.mark.asyncio
+async def test_logs_do_not_contain_tokens_or_codes(client, caplog) -> None:
+    http, sender, _ = client
+    caplog.set_level(logging.INFO)
+
+    response = await http.post("/api/v1/auth/code", json={"email": "logs@example.com"})
+    assert response.status_code == 202
+    code = sender.latest_code
+    verified = await request_and_verify(http, sender, "logs@example.com")
+    token = verified["session_token"]
+
+    assert code not in caplog.text
+    assert token not in caplog.text
 
 
 @pytest.mark.asyncio

@@ -13,10 +13,13 @@ from models import (
     ConversationMessage,
     Discovery,
     DiscoveryCandidate,
+    ErrorPattern,
+    MemoryItem,
     MessageAnnotation,
     MessageCorrection,
     SoulItem,
     SoulProfile,
+    WordProgress,
 )
 
 logger = logging.getLogger(__name__)
@@ -53,11 +56,16 @@ async def purge_expired_deletions(session: AsyncSession, store: MediaStore) -> i
         message_ids = [message.id for message in messages]
 
         for discovery in discoveries:
-            if discovery.image_key:
+            for key, label in (
+                (discovery.image_key, "discovery image"),
+                (discovery.scene_audio_key, "discovery scene audio"),
+            ):
+                if not key:
+                    continue
                 try:
-                    await store.delete(discovery.image_key)
+                    await store.delete(key)
                 except Exception:
-                    logger.warning("Could not delete discovery image during purge.")
+                    logger.warning("Could not delete %s during purge.", label)
         for message in messages:
             if message.audio_key:
                 try:
@@ -87,6 +95,9 @@ async def purge_expired_deletions(session: AsyncSession, store: MediaStore) -> i
             )
             await session.execute(delete(Discovery).where(Discovery.id.in_(discovery_ids)))
 
+        await session.execute(delete(WordProgress).where(WordProgress.account_id == account.id))
+        await session.execute(delete(MemoryItem).where(MemoryItem.account_id == account.id))
+        await session.execute(delete(ErrorPattern).where(ErrorPattern.account_id == account.id))
         await session.execute(delete(SoulItem).where(SoulItem.account_id == account.id))
         await session.execute(delete(SoulProfile).where(SoulProfile.account_id == account.id))
         await session.execute(delete(AuthSession).where(AuthSession.account_id == account.id))

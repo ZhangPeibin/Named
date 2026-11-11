@@ -1,4 +1,5 @@
 import io
+import logging
 import wave
 from contextlib import asynccontextmanager
 from datetime import timedelta
@@ -31,6 +32,18 @@ from stt.provider import STTNoSpeech
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
 from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
 from tts.provider import get_tts_provider
+
+
+def assert_problem(response, status_code: int, code: str, *, retry_after: bool = False) -> None:
+    assert response.status_code == status_code, response.text
+    assert response.headers["content-type"].startswith("application/problem+json")
+    body = response.json()
+    assert body["status"] == status_code
+    assert body["code"] == code
+    assert body["request_id"]
+    assert response.headers["X-Request-ID"] == body["request_id"]
+    if retry_after:
+        assert int(response.headers["Retry-After"]) > 0
 
 
 class FakeTranscriptionProvider:
@@ -308,7 +321,7 @@ async def test_agent_failure_then_retry(talk_env) -> None:
         headers=headers,
         json=payload,
     )
-    assert response.status_code == 502
+    assert_problem(response, 502, "talk_agent_failed")
 
     detail = await http.get(
         f"/api/v1/conversations/{conversation_id}",
@@ -422,14 +435,14 @@ async def test_conversation_is_isolated(talk_env) -> None:
         f"/api/v1/conversations/{conversation_id}",
         headers=second_headers,
     )
-    assert response.status_code == 404
+    assert_problem(response, 404, "conversation_not_found")
 
     response = await http.post(
         f"/api/v1/conversations/{conversation_id}/messages",
         headers=second_headers,
         json={"client_message_id": "intruder", "text": "Hello."},
     )
-    assert response.status_code == 404
+    assert_problem(response, 404, "conversation_not_found")
 
 
 @pytest.mark.asyncio
@@ -450,8 +463,7 @@ async def test_ended_conversation_rejects_messages(talk_env) -> None:
         headers=headers,
         json={"client_message_id": "after-end", "text": "Still there?"},
     )
-    assert response.status_code == 409
-    assert response.json()["code"] == "conversation_ended"
+    assert_problem(response, 409, "conversation_ended")
 
 
 @pytest.mark.asyncio
@@ -536,9 +548,7 @@ async def test_talk_rate_limit(tmp_path) -> None:
             headers=headers,
             json={"client_message_id": "rate-2", "text": "Hello again."},
         )
-        assert second.status_code == 429
-        assert second.headers["Retry-After"]
-        assert second.json()["code"] == "rate_limited"
+        assert_problem(second, 429, "rate_limited", retry_after=True)
 
 
 @pytest.mark.asyncio
@@ -561,6 +571,15 @@ async def test_p0_end_to_end_journey(talk_env) -> None:
         json={"kind": "interest", "text": "gardening"},
     )
     assert response.status_code == 201
+    soul_item_id = response.json()["id"]
+
+    response = await http.patch(
+        f"/api/v1/soul/items/{soul_item_id}",
+        headers=headers,
+        json={"text": "growing herbs"},
+    )
+    assert response.status_code == 200
+    assert response.json()["text"] == "growing herbs"
 
     response = await http.post(
         "/api/v1/discoveries",
@@ -592,13 +611,28 @@ async def test_p0_end_to_end_journey(talk_env) -> None:
     assert response.status_code == 201
     conversation_id = response.json()["id"]
 
+    message_payload = {
+        "client_message_id": "journey-1",
+        "text": "I like this tree.",
+    }
     response = await http.post(
         f"/api/v1/conversations/{conversation_id}/messages",
         headers=headers,
-        json={"client_message_id": "journey-1", "text": "I like this tree."},
+        json=message_payload,
     )
     assert response.status_code == 200
-    assert response.json()["assistant_message"]["audio"]["status"] == "ready"
+    first_turn = response.json()
+    assert first_turn["assistant_message"]["audio"]["status"] == "ready"
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json=message_payload,
+    )
+    assert response.status_code == 200
+    retried_turn = response.json()
+    assert retried_turn["user_message"]["id"] == first_turn["user_message"]["id"]
+    assert retried_turn["assistant_message"]["id"] == first_turn["assistant_message"]["id"]
 
     response = await http.get(
         f"/api/v1/conversations/{conversation_id}",
@@ -614,6 +648,41 @@ async def test_p0_end_to_end_journey(talk_env) -> None:
     assert response.status_code == 401
     assert response.headers["content-type"].startswith("application/problem+json")
     assert response.json()["code"] == "unauthorized"
+
+
+@pytest.mark.asyncio
+async def test_stt_not_configured_returns_problem_json(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "stt-contract@example.com")
+    headers = bearer(verified["session_token"])
+    app.dependency_overrides.pop(get_transcription_provider, None)
+
+    response = await http.post(
+        "/api/v1/audio/transcribe",
+        headers=headers,
+        files={"file": ("voice.wav", _wav_bytes(), "audio/wav")},
+    )
+    assert_problem(response, 503, "stt_not_configured")
+
+
+@pytest.mark.asyncio
+async def test_talk_logs_do_not_contain_message_text(talk_env, caplog) -> None:
+    http, sender, _, _, _, _ = talk_env
+    caplog.set_level(logging.INFO)
+    _, headers, word_id = await create_word(http, sender, "logs-talk@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    text = "A very private sentence about a tree."
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "logs-1", "text": text},
+    )
+    assert response.status_code == 200
+
+    token = headers["Authorization"].removeprefix("Bearer ")
+    assert text not in caplog.text
+    assert token not in caplog.text
 
 
 @pytest.mark.asyncio
