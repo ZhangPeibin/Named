@@ -8,6 +8,7 @@ from clock import utcnow
 from config import Settings
 from discovery.schemas import WordPayload
 from errors import ApiError
+from experience.context import get_experience_context
 from experience.service import enqueue_experience_job
 from memory.service import correction_candidates, get_memory_context, record_memories
 from models import (
@@ -365,6 +366,16 @@ async def send_message(
     )
     error_profile_context = await get_error_profile_context(session, account_id)
     history = await _history(session, conversation_id, before_sequence=user_message.sequence)
+    try:
+        experience_context = await get_experience_context(
+            session,
+            account_id,
+            focus_context=focus_context,
+            user_text=user_message.text,
+            settings=settings,
+        )
+    except Exception:
+        experience_context = ""
 
     try:
         response = await agent.respond(
@@ -373,6 +384,7 @@ async def send_message(
             soul_context=soul_context,
             memory_context=memory_context,
             error_profile_context=error_profile_context,
+            experience_context=experience_context,
             history=history,
             user_text=user_message.text,
         )
@@ -515,6 +527,16 @@ async def help_expression(
     )
     error_profile_context = await get_error_profile_context(session, account_id)
     history = await _history(session, conversation_id)
+    try:
+        experience_context = await get_experience_context(
+            session,
+            account_id,
+            focus_context=focus_context,
+            user_text=payload.text,
+            settings=settings,
+        )
+    except Exception:
+        experience_context = ""
 
     try:
         suggestion = await agent.suggest(
@@ -523,6 +545,7 @@ async def help_expression(
             soul_context=soul_context,
             memory_context=memory_context,
             error_profile_context=error_profile_context,
+            experience_context=experience_context,
             history=history,
             user_text=payload.text,
         )

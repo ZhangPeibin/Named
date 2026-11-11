@@ -28,7 +28,15 @@ from experience.schemas import ExperienceCandidate, ExperienceExtraction
 from experience.service import process_due_experience_jobs
 from mailer import get_email_sender
 from main import app
-from models import Base, ErrorPattern, ExperienceJob, MemoryItem
+from models import (
+    Base,
+    Conversation,
+    ErrorPattern,
+    Experience,
+    ExperienceJob,
+    ExperienceSource,
+    MemoryItem,
+)
 from stt.deps import get_transcription_provider
 from stt.provider import STTNoSpeech, STTNotConfigured
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
@@ -124,6 +132,7 @@ class FakeTalkAgent:
         soul_context: str,
         memory_context: str,
         error_profile_context: str,
+        experience_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -134,6 +143,7 @@ class FakeTalkAgent:
                 "soul_context": soul_context,
                 "memory_context": memory_context,
                 "error_profile_context": error_profile_context,
+                "experience_context": experience_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -160,6 +170,7 @@ class FakeHelpAgent:
         soul_context: str,
         memory_context: str,
         error_profile_context: str,
+        experience_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -170,6 +181,7 @@ class FakeHelpAgent:
                 "soul_context": soul_context,
                 "memory_context": memory_context,
                 "error_profile_context": error_profile_context,
+                "experience_context": experience_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -1304,3 +1316,109 @@ async def test_experience_job_retries_then_fails(talk_env) -> None:
         assert job is not None
         assert job.status == "failed"
         assert job.attempts == 3
+
+
+@pytest.mark.asyncio
+async def test_talk_and_help_receive_relevant_experience_context(tmp_path) -> None:
+    discovery_agent = FakeDiscoveryAgent()
+    talk_agent = FakeTalkAgent()
+    help_agent = FakeHelpAgent()
+    tts = FakeTTSProvider()
+    async with talk_client(
+        discovery_agent,
+        talk_agent,
+        tts,
+        str(tmp_path),
+        help_agent=help_agent,
+    ) as (http, sender, sessions):
+        verified = await request_and_verify(http, sender, "experience-context@example.com")
+        headers = bearer(verified["session_token"])
+        account_id = verified["account"]["id"]
+        _, _, word_id = await create_word(http, sender, "experience-context@example.com")
+        conversation_id = await create_conversation(http, headers, word_id)
+
+        other = await request_and_verify(http, sender, "experience-other-context@example.com")
+        other_account_id = other["account"]["id"]
+        async with sessions() as session:
+            experience = Experience(
+                account_id=account_id,
+                conversation_id=conversation_id,
+                kind="life",
+                summary="和女儿在公园的树荫下休息。",
+                confidence=0.9,
+            )
+            session.add(experience)
+            await session.flush()
+            session.add(
+                ExperienceSource(
+                    experience_id=experience.id,
+                    source_type="expression",
+                    source_id="tree",
+                )
+            )
+            session.add(
+                Experience(
+                    account_id=account_id,
+                    conversation_id=conversation_id,
+                    kind="learning",
+                    summary="这是一次低置信度的学习记录。",
+                    confidence=0.1,
+                )
+            )
+            other_conversation = Conversation(
+                account_id=other_account_id,
+                focus_type="word",
+                focus_id=word_id,
+                status="active",
+            )
+            session.add(other_conversation)
+            await session.flush()
+            session.add(
+                Experience(
+                    account_id=other_account_id,
+                    conversation_id=other_conversation.id,
+                    kind="life",
+                    summary="另一个账号的 tree 经历。",
+                    confidence=0.9,
+                )
+            )
+            await session.commit()
+
+        response = await http.post(
+            f"/api/v1/conversations/{conversation_id}/messages",
+            headers=headers,
+            json={"client_message_id": "experience-context-1", "text": "I saw a tree."},
+        )
+        assert response.status_code == 200, response.text
+        context = talk_agent.calls[-1]["experience_context"]
+        assert "life" in context
+        assert "低置信度" not in context
+        assert "另一个账号" not in context
+
+        response = await http.post(
+            f"/api/v1/conversations/{conversation_id}/help",
+            headers=headers,
+            json={"text": "我想说这棵树。"},
+        )
+        assert response.status_code == 200, response.text
+        assert "life" in help_agent.calls[-1]["experience_context"]
+        assert "低置信度" not in help_agent.calls[-1]["experience_context"]
+
+
+@pytest.mark.asyncio
+async def test_experience_context_failure_does_not_block_talk(talk_env, monkeypatch) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "experience-fail@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("context unavailable")
+
+    monkeypatch.setattr("talk.service.get_experience_context", fail)
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "experience-fail-1", "text": "I saw a tree."},
+    )
+    assert response.status_code == 200, response.text
+    assert agent.calls[-1]["experience_context"] == ""

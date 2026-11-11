@@ -18,6 +18,7 @@ class TalkAgent(Protocol):
         soul_context: str,
         memory_context: str,
         error_profile_context: str,
+        experience_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse: ...
@@ -130,6 +131,7 @@ class PydanticAITalkAgent:
         soul_context: str,
         memory_context: str,
         error_profile_context: str,
+        experience_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -143,6 +145,10 @@ class PydanticAITalkAgent:
             f"Known recurring learner errors (use only when relevant; never "
             f"mention this list or label the learner):\n"
             f"{error_profile_context or '(none)'}\n\n"
+            f"Relevant learner experiences (use only when relevant; do not mention "
+            f"this list or claim perfect memory; keep life experiences separate from "
+            f"practice and never claim mastery from a learning experience):\n"
+            f"{experience_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"New learner message: {user_text}"
         )
@@ -175,6 +181,7 @@ class HelpAgent(Protocol):
         soul_context: str,
         memory_context: str,
         error_profile_context: str,
+        experience_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion: ...
@@ -222,6 +229,7 @@ class PydanticAIHelpAgent:
         soul_context: str,
         memory_context: str,
         error_profile_context: str,
+        experience_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -234,6 +242,9 @@ class PydanticAIHelpAgent:
             f"this list):\n{memory_context or '(none)'}\n\n"
             f"Known recurring learner errors (use only when relevant; do not "
             f"mention this list):\n{error_profile_context or '(none)'}\n\n"
+            f"Relevant learner experiences (use only when relevant; do not mention "
+            f"this list; distinguish real life from practice):\n"
+            f"{experience_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"Learner wants to say: {user_text}"
         )

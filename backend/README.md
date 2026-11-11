@@ -144,7 +144,7 @@ Implemented P0 foundation:
 - Non-streaming Talk with corrections, annotations, auto-save, idempotency,
   assistant audio, Chinese-to-English hints, and voice transcription
 - Asynchronous Experience extraction with durable jobs, source evidence,
-  life/learning separation, and History list/detail
+  life/learning separation, History list/detail, and relevant context injection
 - Companion memory and recurring error profile
 - Account deletion with a 30-day hard-delete purge command
 - Problem+json errors, request IDs, rate limits, OpenAPI, end-to-end tests
@@ -152,7 +152,6 @@ Implemented P0 foundation:
 Not implemented yet:
 
 - Automatic Soul updates / `soul.md`
-- Experience context injection into Talk/Help
 - Challenge and Knowledge Graph / Personal English World pages
 - Streaming Talk (SSE) and real-time full-duplex voice
 - Production email delivery, S3/MinIO media storage, and deployment automation

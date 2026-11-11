@@ -63,7 +63,7 @@ The goal is not to complete a fixed curriculum. It is to build **your own world 
 | **Voice Talk** | Record a turn, transcribe it, and send automatically after stopping. Empty recordings return quietly without an error. |
 | **Chinese support** | When the learner writes in Chinese, the user message can show a natural English version underneath. |
 | **Help me say it** | Ask for a natural English expression, hear it, and insert it into Talk without turning the exchange into a grammar lecture. |
-| **Experience + History** | After Talk, an asynchronous agent extracts meaningful life and learning experiences. History lets the learner revisit them and return to the source conversation or word. |
+| **Experience + History** | After Talk, an asynchronous agent extracts meaningful life and learning experiences. History lets the learner revisit them, and Talk/Help can use relevant experiences as context. |
 | **Companion memory** | Milo can use relevant prior context, recurring learning errors, and explicit memories without exposing an internal memory-management screen. |
 | **Soul** | Keep a lightweight, user-owned profile that guides personalization. Soul is not inferred from private content or silently rewritten from practice. |
 | **Account lifecycle** | Email-code authentication, opaque sessions, account deletion, and a 30-day hard-delete purge. |
@@ -129,12 +129,14 @@ flowchart TB
         Soul["Soul"]
         Memory["MemoryItem"]
         Errors["Recurring error profile"]
+        Experiences["Experience<br/>life + learning context"]
     end
 
     TalkAgent --> Context
     Context --> Soul
     Context --> Memory
     Context --> Errors
+    Context --> Experiences
 
     Talk --> Queue["experience_jobs<br/>durable debounced outbox"]
     Queue --> Worker["Experience worker"]
@@ -156,7 +158,7 @@ flowchart TB
     classDef lavender fill:#EDE9F7,stroke:#7A6AA6,stroke-width:1.7px,color:#30294A
     classDef peach fill:#F8E8DF,stroke:#B86B45,stroke-width:1.7px,color:#3A2820
     class App,API warm
-    class Soul,Memory,Errors sage
+    class Soul,Memory,Errors,Experiences sage
     class DiscoveryAgent,TalkAgent,HelpAgent,ExperienceAgent lavender
     class Model,Speech peach
     class DB,Media,Queue,ExperienceStore blue
@@ -429,12 +431,12 @@ Implemented:
 - Companion memory and recurring error profile
 - Account deletion with 30-day hard-delete purge
 - Asynchronous Experience extraction, History list/detail, source navigation
+- Relevant Experience context injection into Talk and Help
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
 
 - Real-time full-duplex Live Talk / barge-in
-- Experience context injection into Talk/Help (stored and displayed first)
 - Automatic Soul updates from Experience
 - Challenge
 - Full Knowledge Graph / Personal English World
@@ -446,7 +448,7 @@ Not implemented yet:
 
 Current local gates:
 
-- Backend: **77** tests, Ruff lint/format
+- Backend: **79** tests, Ruff lint/format
 - Flutter app: **88** tests, `make check`
 - iOS simulator build
 - Android debug APK build
