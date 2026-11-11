@@ -580,6 +580,7 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
     store = FakeMediaStore()
     async with sessions() as session:
         purged = await purge_expired_deletions(session, store)
+        assert await purge_expired_deletions(session, store) == 0
 
     assert purged == 1
     assert "discovery-images/test.jpg" in store.deleted
