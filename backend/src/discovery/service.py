@@ -23,6 +23,8 @@ from discovery.schemas import (
     WordsResponse,
     WordsStats,
 )
+from discovery.word_lookup_agent import AgentFailed as WordLookupFailed
+from discovery.word_lookup_agent import WordLookupAgent
 from errors import ApiError
 from media import MediaStore
 from models import (
@@ -424,6 +426,55 @@ async def get_word(
         content=WordPayload.model_validate(content.payload_json) if content else None,
         audio=audio,
     )
+
+
+async def lookup_word(
+    session: AsyncSession,
+    account_id: str,
+    text: str,
+    settings: Settings,
+    audio_service: WordAudioService,
+    lookup_agent: WordLookupAgent,
+    content_agent: DiscoveryAgent,
+) -> WordOut:
+    native_language = await _native_language(session, account_id)
+    selected = normalize_label(text)
+    if not selected:
+        raise ApiError("Word is empty.", code="word_empty")
+    label = selected
+    if any("\u4e00" <= char <= "\u9fff" for char in selected):
+        try:
+            label = await lookup_agent.resolve(
+                text=selected,
+                native_language=native_language,
+            )
+        except WordLookupFailed as exc:
+            raise ApiError(
+                "The word lookup agent failed.",
+                status_code=502,
+                code="word_lookup_failed",
+            ) from exc
+        label = normalize_label(label)
+    if not label:
+        raise ApiError(
+            "No English word was found.",
+            status_code=422,
+            code="word_not_resolved",
+        )
+
+    word, payload = await _get_or_create_word_content(
+        session,
+        label,
+        None,
+        native_language,
+        settings,
+        content_agent,
+        context=None,
+        confirmed_label=label,
+    )
+    audio = await audio_service.for_word(session, word)
+    await session.commit()
+    return WordOut(id=word.id, label_en=word.label_en, content=payload, audio=audio)
 
 
 async def delete_discovery(

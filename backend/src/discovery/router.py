@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
 from sqlalchemy import select
 
 from auth.router import CurrentAuthDep, SessionDep, SettingsDep
@@ -23,10 +23,12 @@ from discovery.service import (
     get_discovery,
     get_word,
     get_words,
+    lookup_word,
     mark_word_reviewed,
     save_talk_word,
     set_word_known,
 )
+from discovery.word_lookup_agent import WordLookupAgent, get_word_lookup_agent
 from errors import ApiError
 from images import ImageError, process_image
 from models import Discovery
@@ -38,6 +40,7 @@ word_router = APIRouter(prefix="/words", tags=["words"])
 image_router = APIRouter(prefix="/images", tags=["images"])
 
 DiscoveryAgentDep = Annotated[DiscoveryAgent, Depends(get_discovery_agent)]
+WordLookupAgentDep = Annotated[WordLookupAgent, Depends(get_word_lookup_agent)]
 
 
 @router.post("", response_model=DiscoveryOut, status_code=status.HTTP_201_CREATED)
@@ -180,6 +183,28 @@ async def review_word(
     session: SessionDep,
 ) -> WordProgressOut:
     return await mark_word_reviewed(session, current.account.id, word_id)
+
+
+@word_router.get("/lookup", response_model=WordOut)
+async def read_word_lookup(
+    current: CurrentAuthDep,
+    session: SessionDep,
+    settings: SettingsDep,
+    audio_service: WordAudioServiceDep,
+    lookup_agent: WordLookupAgentDep,
+    content_agent: DiscoveryAgentDep,
+    _: DiscoverRateLimitDep,
+    text: Annotated[str, Query(min_length=1, max_length=100)],
+) -> WordOut:
+    return await lookup_word(
+        session,
+        current.account.id,
+        text,
+        settings,
+        audio_service,
+        lookup_agent,
+        content_agent,
+    )
 
 
 @word_router.get("/{word_id}", response_model=WordOut)

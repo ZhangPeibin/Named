@@ -4,7 +4,7 @@ from auth.router import CurrentAuthDep, SessionDep
 from errors import ApiError
 from ratelimit import TalkRateLimitDep
 from tts.deps import MediaStoreDep, SpeechAudioServiceDep
-from tts.schemas import AudioOut, AudioTrackOut, PronunciationRequest
+from tts.schemas import AudioOut, AudioTrackOut, PronunciationRequest, SpeechAudioOut, SpeechRequest
 
 audio_router = APIRouter(prefix="/audio", tags=["audio"])
 
@@ -33,6 +33,19 @@ async def read_audio(
         media_type=_media_type(key),
         headers={"Cache-Control": "private, max-age=86400"},
     )
+
+
+@audio_router.post("/speech", response_model=SpeechAudioOut)
+async def speak(
+    payload: SpeechRequest,
+    current: CurrentAuthDep,
+    session: SessionDep,
+    speech_service: SpeechAudioServiceDep,
+    _: TalkRateLimitDep,
+) -> SpeechAudioOut:
+    audio, _ = await speech_service.synthesize(session, payload.text)
+    await session.commit()
+    return audio
 
 
 @audio_router.post("/pronunciation", response_model=AudioOut)

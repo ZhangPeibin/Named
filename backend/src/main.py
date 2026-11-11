@@ -20,11 +20,11 @@ from discovery.router import router as discovery_router
 from errors import ApiError
 from experience.router import experience_router, history_router
 from experience.worker import experience_worker_loop
+from sentence.router import router as sentence_router
 from soul.router import router as soul_router
 from stt.router import router as stt_router
 from talk.router import router as talk_router
 from timeline.router import router as timeline_router
-from translation.router import router as translation_router
 from tts.router import audio_router
 
 settings = get_settings()
@@ -116,7 +116,7 @@ app.include_router(audio_router, prefix=settings.api_v1_prefix)
 app.include_router(stt_router, prefix=settings.api_v1_prefix)
 app.include_router(history_router, prefix=settings.api_v1_prefix)
 app.include_router(experience_router, prefix=settings.api_v1_prefix)
-app.include_router(translation_router, prefix=settings.api_v1_prefix)
+app.include_router(sentence_router, prefix=settings.api_v1_prefix)
 app.include_router(talk_router, prefix=settings.api_v1_prefix)
 app.include_router(timeline_router, prefix=settings.api_v1_prefix)
 

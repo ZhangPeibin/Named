@@ -24,6 +24,7 @@ from clock import utcnow
 from config import Settings, get_settings
 from database import get_session
 from discovery.agent import get_discovery_agent
+from discovery.word_lookup_agent import get_word_lookup_agent
 from experience.schemas import ExperienceCandidate, ExperienceExtraction
 from experience.service import process_due_experience_jobs
 from mailer import get_email_sender
@@ -37,11 +38,12 @@ from models import (
     ExperienceSource,
     MemoryItem,
 )
+from sentence.agent import get_sentence_agent
+from sentence.schemas import SentenceAgentOutput, SentenceChunk, SentenceKeyWord
 from stt.deps import get_transcription_provider
 from stt.provider import STTNoSpeech, STTNotConfigured
 from talk.agent import AgentFailed, get_help_agent, get_talk_agent
 from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
-from translation.agent import get_translation_agent
 from tts.provider import get_tts_provider
 
 
@@ -57,16 +59,33 @@ def assert_problem(response, status_code: int, code: str, *, retry_after: bool =
         assert int(response.headers["Retry-After"]) > 0
 
 
-class FakeTranslationAgent:
-    def __init__(self) -> None:
-        self.calls: list[dict] = []
-        self.fail = False
+class FakeWordLookupAgent:
+    async def resolve(self, *, text: str, native_language: str) -> str:
+        assert native_language
+        return "tree" if any("\u4e00" <= char <= "\u9fff" for char in text) else text
 
-    async def translate(self, *, text: str, target_language: str) -> str:
-        self.calls.append({"text": text, "target_language": target_language})
-        if self.fail:
-            raise RuntimeError("translation failed")
-        return {"en": "tree", "zh": "树"}[target_language]
+
+class FakeSentenceAgent:
+    async def explain(self, *, text: str, native_language: str) -> SentenceAgentOutput:
+        return SentenceAgentOutput(
+            natural_english="I am happy today.",
+            explanation_native="这是一句表达今天心情的话。",
+            grammar_notes="主语 + be 动词 + 形容词。",
+            chunks=[
+                SentenceChunk(
+                    phrase="be happy",
+                    meaning_native="开心",
+                    example_en="I am happy.",
+                )
+            ],
+            key_words=[
+                SentenceKeyWord(
+                    word="happy",
+                    part_of_speech="adj.",
+                    meaning_native="开心的",
+                )
+            ],
+        )
 
 
 class FakeTranscriptionProvider:
@@ -253,7 +272,8 @@ async def talk_client(
     app.dependency_overrides[get_discovery_agent] = lambda: discovery_agent
     app.dependency_overrides[get_talk_agent] = lambda: talk_agent
     app.dependency_overrides[get_help_agent] = lambda: help_agent or FakeHelpAgent()
-    app.dependency_overrides[get_translation_agent] = lambda: FakeTranslationAgent()
+    app.dependency_overrides[get_word_lookup_agent] = lambda: FakeWordLookupAgent()
+    app.dependency_overrides[get_sentence_agent] = lambda: FakeSentenceAgent()
     app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider()
     app.dependency_overrides[get_tts_provider] = lambda: tts
 
@@ -485,41 +505,50 @@ async def test_natural_english_does_not_get_duplicate_hint(talk_env) -> None:
 
 
 @pytest.mark.asyncio
-async def test_translation_endpoint_auto_detects_direction(talk_env) -> None:
+async def test_word_lookup_resolves_chinese_and_returns_word_details(talk_env) -> None:
     http, sender, _, _, _, _ = talk_env
-    verified = await request_and_verify(http, sender, "translate@example.com")
+    verified = await request_and_verify(http, sender, "lookup@example.com")
     headers = bearer(verified["session_token"])
 
-    response = await http.post(
-        "/api/v1/translate",
-        headers=headers,
-        json={"text": "树"},
-    )
+    response = await http.get("/api/v1/words/lookup?text=树", headers=headers)
     assert response.status_code == 200, response.text
-    assert response.json() == {
-        "source_language": "zh",
-        "target_language": "en",
-        "translated_text": "tree",
-    }
+    body = response.json()
+    assert body["label_en"] == "tree"
+    assert body["content"]["spelling"] == "tree"
+    assert body["audio"]["us"]["status"] == "ready"
 
-    response = await http.post(
-        "/api/v1/translate",
-        headers=headers,
-        json={"text": "tree"},
-    )
+    response = await http.get("/api/v1/words/lookup?text=tree", headers=headers)
     assert response.status_code == 200, response.text
-    assert response.json() == {
-        "source_language": "en",
-        "target_language": "zh",
-        "translated_text": "树",
-    }
+    assert response.json()["label_en"] == "tree"
 
 
 @pytest.mark.asyncio
-async def test_translation_requires_auth(talk_env) -> None:
-    http, _, _, _, _, _ = talk_env
-    response = await http.post("/api/v1/translate", json={"text": "tree"})
-    assert_problem(response, 401, "unauthorized")
+async def test_sentence_lookup_and_speech(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "sentence@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/sentences/lookup",
+        headers=headers,
+        json={"text": "我今天很开心"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["original"] == "我今天很开心"
+    assert body["natural_english"] == "I am happy today."
+    assert body["explanation_native"]
+    assert body["chunks"][0]["phrase"] == "be happy"
+    assert body["key_words"][0]["word"] == "happy"
+
+    response = await http.post(
+        "/api/v1/audio/speech",
+        headers=headers,
+        json={"text": "I am happy today."},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "ready"
+    assert response.json()["url"]
 
 
 @pytest.mark.asyncio

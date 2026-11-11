@@ -109,12 +109,12 @@ All business routes are under `/api/v1`.
 | Auth | `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `DELETE /me` |
 | Soul | `GET /soul`, `PATCH /soul`, `POST /soul/items`, `PATCH /soul/items/{id}`, `DELETE /soul/items/{id}` |
 | Discover | `POST /discoveries` (multipart text/image), `POST /discoveries/{id}/focus`, `GET /discoveries/{id}`, `DELETE /discoveries/{id}` |
-| Word | `GET /words/{id}` |
+| Word | `GET /words`, `GET /words/lookup`, `GET /words/{id}` |
 | Media | `GET /images/{key}`, `GET /audio/{key}` |
 | Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end`, `POST /conversations/{id}/help` |
 | History | `GET /history`, `GET /experiences/{id}` |
-| Translation | `POST /translate` |
-| Audio | `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
+| Sentence | `POST /sentences/lookup` |
+| Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
 `request_id`. Every response includes an `X-Request-ID` header.
@@ -143,10 +143,10 @@ Implemented P0 foundation:
 - Text and image Discover with AI-generated Word content
 - Qwen TTS word audio with caching
 - Non-streaming Talk with corrections, annotations, auto-save, idempotency,
-  assistant audio, accurate English hints, voice transcription, and
-  bidirectional translation
+  assistant audio, accurate English hints, and voice transcription
 - Asynchronous Experience extraction with durable jobs, source evidence,
   life/learning separation, History list/detail, and relevant context injection
+- Word lookup and Sentence details, including sentence TTS
 - Companion memory and recurring error profile
 - Account deletion with a 30-day hard-delete purge command
 - Problem+json errors, request IDs, rate limits, OpenAPI, end-to-end tests
