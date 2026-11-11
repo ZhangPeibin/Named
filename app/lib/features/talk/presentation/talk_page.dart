@@ -427,29 +427,66 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     return bytes;
   }
 
-  void _scrollToBottom({bool animate = true, int attempt = 0}) {
+  void _scrollToBottom({
+    bool animate = true,
+    int attempt = 0,
+    double? previousMax,
+  }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scrollController.hasClients) {
+      if (!mounted) {
         return;
       }
+      if (!_scrollController.hasClients) {
+        if (attempt < 12) {
+          _scheduleScrollToBottom(
+            animate: animate,
+            attempt: attempt + 1,
+            previousMax: previousMax,
+          );
+        }
+        return;
+      }
+
       final position = _scrollController.position;
-      if (position.maxScrollExtent <= 0 && attempt < 6) {
-        _scrollToBottom(animate: animate, attempt: attempt + 1);
-        return;
-      }
       final target = position.maxScrollExtent;
-      if (!animate) {
+      if (animate && attempt == 0) {
+        unawaited(
+          _scrollController.animateTo(
+            target,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+          ),
+        );
+      } else {
         position.jumpTo(target);
+      }
+
+      if (attempt < 10 && (previousMax == null || target != previousMax)) {
+        _scheduleScrollToBottom(
+          animate: animate,
+          attempt: attempt + 1,
+          previousMax: target,
+        );
+      }
+    });
+  }
+
+  void _scheduleScrollToBottom({
+    required bool animate,
+    required int attempt,
+    double? previousMax,
+  }) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
         return;
       }
-      unawaited(
-        _scrollController.animateTo(
-          target,
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-        ),
+      _scrollToBottom(
+        animate: animate,
+        attempt: attempt,
+        previousMax: previousMax,
       );
     });
+    WidgetsBinding.instance.scheduleFrame();
   }
 
   @override
