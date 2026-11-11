@@ -795,23 +795,32 @@ class Translations$talk$en {
 	/// en: 'Use this'
 	String get useThis => 'Use this';
 
-	/// en: 'Translate'
-	String get translate => 'Translate';
-
 	/// en: 'Copy'
 	String get copy => 'Copy';
 
-	/// en: 'Translation'
-	String get translationTitle => 'Translation';
-
-	/// en: 'Could not translate. Try again.'
-	String get translationFailed => 'Could not translate. Try again.';
-
-	/// en: 'Copy translation'
-	String get copyTranslation => 'Copy translation';
-
 	/// en: 'Copied'
 	String get copied => 'Copied';
+
+	/// en: 'Sentence details'
+	String get sentenceDetails => 'Sentence details';
+
+	/// en: 'Could not load this sentence.'
+	String get sentenceLoadFailed => 'Could not load this sentence.';
+
+	/// en: 'Explanation'
+	String get explanation => 'Explanation';
+
+	/// en: 'Structure'
+	String get grammarNotes => 'Structure';
+
+	/// en: 'Chunks'
+	String get chunks => 'Chunks';
+
+	/// en: 'Key words'
+	String get keyWords => 'Key words';
+
+	/// en: 'Copy English'
+	String get copyEnglish => 'Copy English';
 }
 
 // Path: timeline
@@ -1280,12 +1289,15 @@ extension on Translations {
 			'talk.naturalWay' => 'A more natural way',
 			'talk.youWrote' => 'You wrote',
 			'talk.useThis' => 'Use this',
-			'talk.translate' => 'Translate',
 			'talk.copy' => 'Copy',
-			'talk.translationTitle' => 'Translation',
-			'talk.translationFailed' => 'Could not translate. Try again.',
-			'talk.copyTranslation' => 'Copy translation',
 			'talk.copied' => 'Copied',
+			'talk.sentenceDetails' => 'Sentence details',
+			'talk.sentenceLoadFailed' => 'Could not load this sentence.',
+			'talk.explanation' => 'Explanation',
+			'talk.grammarNotes' => 'Structure',
+			'talk.chunks' => 'Chunks',
+			'talk.keyWords' => 'Key words',
+			'talk.copyEnglish' => 'Copy English',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
 			'timeline.loadEarlier' => 'Load earlier',

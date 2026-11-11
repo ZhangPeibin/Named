@@ -229,12 +229,15 @@
     "naturalWay": "更自然的说法",
     "youWrote": "你写的是",
     "useThis": "用这句",
-    "translate": "翻译",
     "copy": "复制",
-    "translationTitle": "翻译",
-    "translationFailed": "暂时无法翻译，请重试。",
-    "copyTranslation": "复制翻译",
-    "copied": "已复制"
+    "copied": "已复制",
+    "sentenceDetails": "句子详情",
+    "sentenceLoadFailed": "暂时无法加载这句话。",
+    "explanation": "说明",
+    "grammarNotes": "结构",
+    "chunks": "表达片段",
+    "keyWords": "关键词",
+    "copyEnglish": "复制英文"
   },
   "timeline": {
     "today": "今天",

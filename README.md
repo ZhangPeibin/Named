@@ -62,7 +62,7 @@ The goal is not to complete a fixed curriculum. It is to build **your own world 
 | **Talk** | Enter a conversation from a Word or Scene, type or speak, receive natural replies, corrections, grammar/word annotations, and audio. |
 | **Voice Talk** | Record a turn, transcribe it, and send automatically after stopping. Empty recordings return quietly without an error. |
 | **Accurate English** | Chinese input gets a natural English version; English with a clear error gets the complete corrected sentence. Already-natural English is not repeated. |
-| **Text selection** | Long-press any Talk message to copy or translate the selected word or phrase; Chinese ↔ English is detected automatically. |
+| **Text selection** | Long-press any Talk message to copy, open Word details for a word, or open Sentence details for a phrase/sentence. Sentence details explain the English and provide Listen. |
 | **Help me say it** | Ask for a natural English expression, hear it, and insert it into Talk without turning the exchange into a grammar lecture. |
 | **Experience + History** | After Talk, an asynchronous agent extracts meaningful life and learning experiences. History lets the learner revisit them, and Talk/Help can use relevant experiences as context. |
 | **Companion memory** | Milo can use relevant prior context, recurring learning errors, and explicit memories without exposing an internal memory-management screen. |
@@ -119,13 +119,15 @@ flowchart TB
         TalkAgent["TalkAgent<br/>reply + corrections + annotations + memory candidates"]
         HelpAgent["HelpAgent<br/>natural expression suggestions"]
         ExperienceAgent["ExperienceAgent<br/>life + learning extraction"]
-        TranslationAgent["TranslationAgent<br/>bidirectional translation"]
+        WordLookupAgent["WordLookupAgent<br/>resolve Chinese or English word"]
+        SentenceAgent["SentenceAgent<br/>English + structure + chunks"]
     end
 
     Discover --> DiscoveryAgent
     Talk --> TalkAgent
     Talk --> HelpAgent
-    API --> TranslationAgent
+    API --> WordLookupAgent
+    API --> SentenceAgent
 
     subgraph ContextLayer["Talk context assembly"]
         Context["Context assembler"]
@@ -162,7 +164,7 @@ flowchart TB
     classDef peach fill:#F8E8DF,stroke:#B86B45,stroke-width:1.7px,color:#3A2820
     class App,API warm
     class Soul,Memory,Errors,Experiences sage
-    class DiscoveryAgent,TalkAgent,HelpAgent,ExperienceAgent,TranslationAgent lavender
+    class DiscoveryAgent,TalkAgent,HelpAgent,ExperienceAgent,WordLookupAgent,SentenceAgent lavender
     class Model,Speech peach
     class DB,Media,Queue,ExperienceStore blue
     style ContextLayer fill:#EAF0E5,stroke:#6F8A62,stroke-width:1.5px
@@ -177,7 +179,8 @@ flowchart TB
 | **TalkAgent** | Focus, Soul, memory, recurring errors, history, new message | Reply, native translation, user-English hint, corrections, annotations, memory candidates | Talk |
 | **HelpAgent** | Desired idea, focus, relevant history | Natural English, note, alternatives | “Help me say it” |
 | **ExperienceAgent** | Full conversation with message sequence numbers, focus, corrections, annotations | At most one life and one learning candidate with evidence and confidence | Experience worker |
-| **TranslationAgent** | Selected Chat word or phrase | Chinese-to-English or English-to-Chinese translation | Talk text selection |
+| **WordLookupAgent** | Selected Chinese or English word | One English word to look up | Word lookup |
+| **SentenceAgent** | Selected phrase or sentence | English version, explanation, structure, chunks, key words | Sentence details |
 
 ### Guardrails
 
@@ -414,11 +417,11 @@ All business routes are under `/api/v1`.
 | Auth | `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `DELETE /me` |
 | Soul | `GET /soul`, `PATCH /soul`, `POST /soul/items`, `PATCH /soul/items/{id}`, `DELETE /soul/items/{id}` |
 | Discover | `POST /discoveries` (multipart text/image), `POST /discoveries/{id}/focus`, `GET /discoveries/{id}`, `DELETE /discoveries/{id}` |
-| Word | `GET /words/{id}`, `GET /words`, `PATCH /words/{id}/progress`, `POST /words/{id}/reviewed` |
+| Word | `GET /words`, `GET /words/lookup`, `GET /words/{id}`, `PATCH /words/{id}/progress`, `POST /words/{id}/reviewed` |
 | Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end`, `POST /conversations/{id}/help` |
 | History | `GET /history`, `GET /experiences/{id}` |
-| Translation | `POST /translate` |
-| Audio | `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
+| Sentence | `POST /sentences/lookup` |
+| Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
 `request_id`. Every response includes an `X-Request-ID` header.
@@ -438,7 +441,7 @@ Implemented:
 - Asynchronous Experience extraction, History list/detail, source navigation
 - Relevant Experience context injection into Talk and Help
 - Accurate English hints for Chinese and corrected English messages
-- Long-press copy and bidirectional translation in Talk
+- Long-press copy, Word details, Sentence details, and sentence Listen in Talk
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
@@ -456,7 +459,7 @@ Not implemented yet:
 Current local gates:
 
 - Backend: **83** tests, Ruff lint/format
-- Flutter app: **91** tests, `make check`
+- Flutter app: **92** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

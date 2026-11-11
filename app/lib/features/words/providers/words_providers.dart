@@ -21,3 +21,8 @@ final wordsRepositoryProvider = Provider<WordsRepository>((ref) {
 final wordShelfProvider = FutureProvider.autoDispose<WordShelf>((ref) {
   return ref.watch(wordsRepositoryProvider).fetch();
 });
+
+final wordLookupProvider = FutureProvider.autoDispose
+    .family<WordShelfItem, String>((ref, text) {
+      return ref.watch(wordsRepositoryProvider).lookup(text);
+    });

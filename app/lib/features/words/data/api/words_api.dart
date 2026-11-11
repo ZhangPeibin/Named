@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_exception.dart';
+import '../../../discover/data/dto/discover_dto.dart';
+import '../../domain/word_shelf.dart';
 import '../dto/word_shelf_dto.dart';
 
 abstract class WordsApi {
   Future<WordShelfDto> fetch();
+
+  Future<WordShelfItemDto> lookup(String text);
 
   Future<void> setKnown({required String wordId, required bool known});
 
@@ -41,6 +45,35 @@ class RemoteWordsApi implements WordsApi {
         );
       }
       return WordShelfDto.fromJson(data);
+    } on DioException catch (error) {
+      final apiException = error.error;
+      if (apiException is ApiException) {
+        throw apiException;
+      }
+      throw ApiException.fromDioException(error);
+    } on FormatException catch (error) {
+      throw ApiException(
+        type: ApiExceptionType.badResponse,
+        message: error.message,
+      );
+    }
+  }
+
+  @override
+  Future<WordShelfItemDto> lookup(String text) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/api/v1/words/lookup',
+        queryParameters: {'text': text},
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const ApiException(
+          type: ApiExceptionType.badResponse,
+          message: 'Word lookup response was empty',
+        );
+      }
+      return WordShelfItemDto.fromJson(data);
     } on DioException catch (error) {
       final apiException = error.error;
       if (apiException is ApiException) {
@@ -120,6 +153,39 @@ class RemoteWordsApi implements WordsApi {
 }
 
 class MockWordsApi implements WordsApi {
+  @override
+  Future<WordShelfItemDto> lookup(String text) async {
+    return WordShelfItemDto(
+      id: 'mock-lookup-word',
+      label: text,
+      word: DiscoveredWordDto(
+        spelling: text,
+        ipa: const {'us': '/wɜːrd/'},
+        pos: const ['n.'],
+        senses: const [
+          WordSenseDto(
+            definitionEn: 'A word selected from Talk.',
+            definitionZh: '从对话中选中的词',
+            exampleEn: 'This is the word.',
+            exampleZh: '这就是这个词。',
+          ),
+        ],
+        grammar: '',
+        related: const [],
+        chunks: const [],
+        varietyNotes: const [],
+        sceneExtensions: const [],
+      ),
+      audio: null,
+      discoveryCount: 1,
+      firstSeenAt: DateTime.now(),
+      lastSeenAt: DateTime.now(),
+      status: WordShelfStatus.needsReview,
+      reviewCount: 0,
+      lastReviewedAt: null,
+    );
+  }
+
   @override
   Future<WordShelfDto> fetch() async {
     return const WordShelfDto(

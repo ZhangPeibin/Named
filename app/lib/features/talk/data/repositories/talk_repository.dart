@@ -31,6 +31,10 @@ class TalkRepository {
     return _api.transcribeAudio(audio);
   }
 
+  Future<TalkAudio> synthesizeSpeech(String text) async {
+    return (await _api.synthesizeSpeech(text)).toDomain();
+  }
+
   Future<HelpSuggestion> helpExpression({
     required String conversationId,
     required String text,

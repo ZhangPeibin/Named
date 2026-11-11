@@ -10,9 +10,6 @@ import 'package:named/features/talk/data/dto/talk_dto.dart';
 import 'package:named/features/talk/data/repositories/talk_repository.dart';
 import 'package:named/features/talk/presentation/talk_page.dart';
 import 'package:named/features/talk/providers/talk_providers.dart';
-import 'package:named/features/translation/data/api/translation_api.dart';
-import 'package:named/features/translation/data/repositories/translation_repository.dart';
-import 'package:named/features/translation/providers/translation_providers.dart';
 import 'package:named/features/words/data/api/words_api.dart';
 import 'package:named/features/words/data/repositories/words_repository.dart';
 import 'package:named/features/words/providers/words_providers.dart';
@@ -144,7 +141,7 @@ void main() {
     },
   );
 
-  testWidgets('long press opens copy and translate actions', (tester) async {
+  testWidgets('long press opens copy and word details actions', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -157,24 +154,23 @@ void main() {
           talkRepositoryProvider.overrideWithValue(
             TalkRepository(_GrammarTalkApi()),
           ),
-          translationRepositoryProvider.overrideWithValue(
-            TranslationRepository(MockTranslationApi()),
+          wordsRepositoryProvider.overrideWithValue(
+            WordsRepository(MockWordsApi()),
           ),
         ],
-        child: const TalkPage(conversationId: 'translation', title: 'tree'),
+        child: const TalkPage(conversationId: 'word-details', title: 'tree'),
       ),
     );
     await tester.pumpAndSettle();
 
     await tester.longPress(find.textContaining('Drink it plain'));
     await tester.pumpAndSettle();
-    expect(find.text(t.talk.translate), findsOneWidget);
+    expect(find.text(t.timeline.wordDetails), findsOneWidget);
     expect(find.text(t.talk.copy), findsOneWidget);
-
-    await tester.tap(find.text(t.talk.translate));
+    expect(find.text(t.talk.sentenceDetails), findsNothing);
+    await tester.tap(find.text(t.timeline.wordDetails));
     await tester.pumpAndSettle();
-    expect(find.text(t.talk.translationTitle), findsOneWidget);
-    expect(find.text('树'), findsOneWidget);
+    expect(find.byKey(const Key('wordDetails.close')), findsOneWidget);
   });
 
   testWidgets('tapping an annotation word opens its notes', (tester) async {

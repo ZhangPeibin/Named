@@ -27,6 +27,8 @@ abstract class TalkApi {
   Future<PronunciationAudioDto> synthesizePronunciation(String text);
 
   Future<String> transcribeAudio(Uint8List audio);
+
+  Future<TalkAudioDto> synthesizeSpeech(String text);
 }
 
 class RemoteTalkApi implements TalkApi {
@@ -135,6 +137,30 @@ class RemoteTalkApi implements TalkApi {
         );
       }
       return data['text'] as String;
+    } on DioException catch (error) {
+      final apiException = error.error;
+      if (apiException is ApiException) {
+        throw apiException;
+      }
+      throw ApiException.fromDioException(error);
+    }
+  }
+
+  @override
+  Future<TalkAudioDto> synthesizeSpeech(String text) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/v1/audio/speech',
+        data: {'text': text},
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const ApiException(
+          type: ApiExceptionType.badResponse,
+          message: 'Speech response was empty',
+        );
+      }
+      return TalkAudioDto.fromJson(data);
     } on DioException catch (error) {
       final apiException = error.error;
       if (apiException is ApiException) {
@@ -276,6 +302,11 @@ class MockTalkApi implements TalkApi {
   @override
   Future<String> transcribeAudio(Uint8List audio) async {
     return 'This is a mock voice transcript.';
+  }
+
+  @override
+  Future<TalkAudioDto> synthesizeSpeech(String text) async {
+    return const TalkAudioDto(url: null, status: 'unavailable');
   }
 
   @override

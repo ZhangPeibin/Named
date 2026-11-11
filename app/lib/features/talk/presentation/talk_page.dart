@@ -20,7 +20,8 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
-import '../../translation/presentation/translation_sheet.dart';
+import '../../sentence/presentation/sentence_detail_sheet.dart';
+import '../../words/presentation/word_lookup_sheet.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/talk.dart';
 import '../providers/talk_providers.dart';
@@ -575,6 +576,16 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   }
 }
 
+bool _isWordSelection(String text) {
+  final value = text.trim();
+  if (RegExp(r'^[A-Za-z][A-Za-z\x27-]*$').hasMatch(value)) {
+    return true;
+  }
+  final hasChinese = RegExp(r'[\u4e00-\u9fff]').hasMatch(value);
+  final hasPunctuation = RegExp(r'[，。！？；：,.!?;:]').hasMatch(value);
+  return hasChinese && value.runes.length <= 4 && !hasPunctuation;
+}
+
 class _InlineMessageText extends StatefulWidget {
   const _InlineMessageText({
     required this.message,
@@ -690,10 +701,16 @@ class _InlineMessageTextState extends State<_InlineMessageText> {
             if (selected.isNotEmpty)
               ContextMenuButtonItem(
                 type: ContextMenuButtonType.custom,
-                label: t.translate,
+                label: _isWordSelection(selected)
+                    ? context.t.timeline.wordDetails
+                    : t.sentenceDetails,
                 onPressed: () {
                   selectableRegionState.hideToolbar();
-                  unawaited(showTranslationSheet(this.context, selected));
+                  if (_isWordSelection(selected)) {
+                    unawaited(showWordLookupSheet(this.context, selected));
+                  } else {
+                    unawaited(showSentenceDetailSheet(this.context, selected));
+                  }
                 },
               ),
           ],

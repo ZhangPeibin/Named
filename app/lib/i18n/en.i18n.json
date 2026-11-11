@@ -229,12 +229,15 @@
     "naturalWay": "A more natural way",
     "youWrote": "You wrote",
     "useThis": "Use this",
-    "translate": "Translate",
     "copy": "Copy",
-    "translationTitle": "Translation",
-    "translationFailed": "Could not translate. Try again.",
-    "copyTranslation": "Copy translation",
-    "copied": "Copied"
+    "copied": "Copied",
+    "sentenceDetails": "Sentence details",
+    "sentenceLoadFailed": "Could not load this sentence.",
+    "explanation": "Explanation",
+    "grammarNotes": "Structure",
+    "chunks": "Chunks",
+    "keyWords": "Key words",
+    "copyEnglish": "Copy English"
   },
   "timeline": {
     "today": "Today",

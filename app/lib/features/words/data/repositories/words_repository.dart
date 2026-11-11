@@ -10,6 +10,10 @@ class WordsRepository {
     return (await _api.fetch()).toDomain();
   }
 
+  Future<WordShelfItem> lookup(String text) async {
+    return (await _api.lookup(text)).toDomain();
+  }
+
   Future<void> setKnown({required String wordId, required bool known}) {
     return _api.setKnown(wordId: wordId, known: known);
   }

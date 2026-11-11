@@ -391,12 +391,15 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get naturalWay => '更自然的说法';
 	@override String get youWrote => '你写的是';
 	@override String get useThis => '用这句';
-	@override String get translate => '翻译';
 	@override String get copy => '复制';
-	@override String get translationTitle => '翻译';
-	@override String get translationFailed => '暂时无法翻译，请重试。';
-	@override String get copyTranslation => '复制翻译';
 	@override String get copied => '已复制';
+	@override String get sentenceDetails => '句子详情';
+	@override String get sentenceLoadFailed => '暂时无法加载这句话。';
+	@override String get explanation => '说明';
+	@override String get grammarNotes => '结构';
+	@override String get chunks => '表达片段';
+	@override String get keyWords => '关键词';
+	@override String get copyEnglish => '复制英文';
 }
 
 // Path: timeline
@@ -717,12 +720,15 @@ extension on TranslationsZh {
 			'talk.naturalWay' => '更自然的说法',
 			'talk.youWrote' => '你写的是',
 			'talk.useThis' => '用这句',
-			'talk.translate' => '翻译',
 			'talk.copy' => '复制',
-			'talk.translationTitle' => '翻译',
-			'talk.translationFailed' => '暂时无法翻译，请重试。',
-			'talk.copyTranslation' => '复制翻译',
 			'talk.copied' => '已复制',
+			'talk.sentenceDetails' => '句子详情',
+			'talk.sentenceLoadFailed' => '暂时无法加载这句话。',
+			'talk.explanation' => '说明',
+			'talk.grammarNotes' => '结构',
+			'talk.chunks' => '表达片段',
+			'talk.keyWords' => '关键词',
+			'talk.copyEnglish' => '复制英文',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
 			'timeline.loadEarlier' => '加载更早',
