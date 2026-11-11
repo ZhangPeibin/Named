@@ -200,23 +200,24 @@ Talk is the main product surface. Experience extraction is intentionally **async
     "fontFamily": "ui-rounded, Trebuchet MS, sans-serif"
   }
 }}%%
-flowchart LR
+flowchart TB
     U["Learner message<br/>text or voice"] --> P["POST conversation message"]
     P --> M["Save user message<br/>and transcript state"]
     M --> A["TalkAgent"]
     A --> R["Reply · corrections · annotations<br/>memory candidates"]
     R --> S["Save assistant message<br/>and learning signals"]
-    S --> J["Upsert experience_job<br/>debounce 3 seconds"]
     S --> OK["Return TurnOut immediately"]
+    S --> J["Upsert experience_job<br/>debounce 3 seconds"]
 
-    J --> W["Experience worker<br/>single-instance v1"]
-    W --> E["ExperienceAgent<br/>full conversation + evidence"]
-    E --> V["Validate evidence<br/>map real source IDs"]
-    V --> X["Upsert one life + one learning<br/>experience per conversation"]
-    X --> H["History list + detail"]
+    subgraph Later["Background · after the reply"]
+        J --> W["Experience worker<br/>single-instance v1"]
+        W --> E["ExperienceAgent<br/>full conversation + evidence"]
+        E --> V["Validate evidence<br/>map real source IDs"]
+        V --> X["Upsert one life + one learning<br/>experience per conversation"]
+        X --> H["History list + detail"]
+    end
+
     H --> C["Open source conversation<br/>or linked Word"]
-
-    OK -.->|failure isolated| H
     X -.->|retry up to 3 times| W
 
     classDef warm fill:#F7F0E3,stroke:#B86B45,stroke-width:1.7px,color:#2D2A26
@@ -227,6 +228,7 @@ flowchart LR
     class P,A,S blue
     class J,W lavender
     class E,V,X,H,C sage
+    style Later fill:#FBF8F2,stroke:#B8C2B3,stroke-width:1.3px
 ```
 
 The worker is a durable database-backed job loop inside the API process for v1. It does not require Redis or Celery. A process restart leaves pending work recoverable.
