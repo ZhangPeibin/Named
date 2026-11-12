@@ -429,6 +429,50 @@ All business routes are under `/api/v1`.
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
 `request_id`. Every response includes an `X-Request-ID` header.
 
+## AI agents
+
+All AI behavior lives in separate PydanticAI agents under `backend/src/`. They
+are not separate services: each agent is created once per process, injected as
+a FastAPI dependency, and uses the shared model/provider configured by
+`AI_MODEL` in `backend/src/ai.py`. The default is `deepseek:deepseek-flash`;
+DeepSeek runs with thinking disabled.
+
+| Agent | Module | Trigger | Responsibility | Output |
+| --- | --- | --- | --- | --- |
+| Intent router | `assistant/agent.py` | `POST /assistant/route` before every text composer submission | Decide whether the message is an app command (`review_words`, `start_challenge`, `view_challenges`) or ordinary learning content (`none`). The app executes the action; `none` continues to discovery. No keyword/regex parsing is done in the app. | `AssistantIntentOut` |
+| Discovery | `discovery/agent.py` | `POST /discoveries`; also generates missing Word content during lookup | Turn text or an image into one top-1 Word or Scene discovery, including native-language explanations, chunks, examples, and corrections where applicable. | `DiscoveryAgentOutput`, persisted as `Discovery` and optional `WordContent` |
+| Word lookup | `discovery/word_lookup_agent.py` | `GET /words/lookup?text=...` from Talk word details and Word lookups | Resolve selected text to one canonical English dictionary word or established compound. Discovery then reuses cached content or generates it. | `WordLookupOutput` |
+| Sentence | `sentence/agent.py` | `POST /sentences/lookup` from Talk long-press | Explain a selected sentence: natural English, native-language explanation, reusable chunks, grammar notes, and key words. | `SentenceAgentOutput` |
+| Talk | `talk/agent.py` | `POST /conversations/{id}/messages` | Produce the conversation reply plus corrections, annotations, memories, user-English hints, and suggested expressions. Injects Soul, memory, error-profile, and relevant Experience context. | `TalkResponse` |
+| Help | `talk/agent.py` | `POST /conversations/{id}/help` | Turn what the learner wants to say into one natural English sentence with an optional native-language note. This is not a chat reply. | `HelpSuggestion` |
+| Experience | `experience/agent.py` | Async Experience worker after a Talk conversation ends; no direct public route | Extract at most one life experience and one learning experience from the conversation, with evidence sequences. Results are persisted and later read by History and Talk context. | `ExperienceExtraction` |
+
+Composer routing flow:
+
+```text
+composer text
+  -> POST /api/v1/assistant/route
+       -> action  -> app navigates to Review or Challenge; no discovery is created
+       -> none    -> POST /api/v1/discoveries -> Discovery agent -> Timeline item
+```
+
+Important behaviors:
+
+- The intent router is a separate agent, not a local parser. It may return
+  `none` for ambiguous input or ordinary content that merely mentions
+  `challenge` or `review`.
+- `start_challenge` opens challenge creation when there is no active challenge;
+  if one is active, the app opens that challenge. `view_challenges` always opens
+  the challenge list.
+- Intent routing happens before discovery, so ordinary text makes two AI calls:
+  routing, then discovery. Command text stops after routing.
+- Discovery, Word lookup, Sentence, Talk, and Help are synchronous request flows.
+  Experience extraction is asynchronous and runs in the worker.
+- If AI is not configured or an agent fails, the API returns `503
+  ai_not_configured` or `502 agent_failed` instead of silently inventing content.
+- Speech-to-text, speech synthesis, and pronunciation are DashScope providers,
+  not PydanticAI agents.
+
 ## Current status
 
 Implemented:
