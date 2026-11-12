@@ -440,11 +440,7 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get pause => '暂停播放';
 	@override String get speed => '播放速度';
 	@override String get audioUnavailable => '音频暂时不可用。';
-	@override String get challengeStart => '开始一轮挑战';
-	@override String get challengeContinue => '继续你的挑战';
-	@override String get reviewPromptTitle => '{count} 个词语可以复习';
-	@override String get reviewPromptBody => '短暂回顾一下，会记得更牢。';
-	@override String get challengeEmptyHint => '收集几件你注意到的小事。';
+	@override String get commandHint => '试试说“复习单词”或“开始一个挑战”。';
 }
 
 // Path: words
@@ -807,11 +803,7 @@ extension on TranslationsZh {
 			'timeline.pause' => '暂停播放',
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
-			'timeline.challengeStart' => '开始一轮挑战',
-			'timeline.challengeContinue' => '继续你的挑战',
-			'timeline.reviewPromptTitle' => '{count} 个词语可以复习',
-			'timeline.reviewPromptBody' => '短暂回顾一下，会记得更牢。',
-			'timeline.challengeEmptyHint' => '收集几件你注意到的小事。',
+			'timeline.commandHint' => '试试说“复习单词”或“开始一个挑战”。',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',

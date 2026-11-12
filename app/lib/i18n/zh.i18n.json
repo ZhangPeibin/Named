@@ -270,11 +270,7 @@
     "pause": "暂停播放",
     "speed": "播放速度",
     "audioUnavailable": "音频暂时不可用。",
-    "challengeStart": "开始一轮挑战",
-    "challengeContinue": "继续你的挑战",
-    "reviewPromptTitle": "{count} 个词语可以复习",
-    "reviewPromptBody": "短暂回顾一下，会记得更牢。",
-    "challengeEmptyHint": "收集几件你注意到的小事。"
+    "commandHint": "试试说“复习单词”或“开始一个挑战”。"
   },
   "words": {
     "title": "词语",

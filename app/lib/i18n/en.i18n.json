@@ -270,11 +270,7 @@
     "pause": "Pause word",
     "speed": "Playback speed",
     "audioUnavailable": "Audio is unavailable.",
-    "challengeStart": "Start a challenge",
-    "challengeContinue": "Continue your challenge",
-    "reviewPromptTitle": "{count} words are ready",
-    "reviewPromptBody": "A short revisit keeps them close.",
-    "challengeEmptyHint": "Gather a few things you noticed."
+    "commandHint": "Try “review words” or “start a challenge”."
   },
   "words": {
     "title": "Words",

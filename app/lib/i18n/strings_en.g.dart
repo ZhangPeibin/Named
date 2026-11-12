@@ -922,20 +922,8 @@ class Translations$timeline$en {
 	/// en: 'Audio is unavailable.'
 	String get audioUnavailable => 'Audio is unavailable.';
 
-	/// en: 'Start a challenge'
-	String get challengeStart => 'Start a challenge';
-
-	/// en: 'Continue your challenge'
-	String get challengeContinue => 'Continue your challenge';
-
-	/// en: '{count} words are ready'
-	String get reviewPromptTitle => '{count} words are ready';
-
-	/// en: 'A short revisit keeps them close.'
-	String get reviewPromptBody => 'A short revisit keeps them close.';
-
-	/// en: 'Gather a few things you noticed.'
-	String get challengeEmptyHint => 'Gather a few things you noticed.';
+	/// en: 'Try “review words” or “start a challenge”.'
+	String get commandHint => 'Try “review words” or “start a challenge”.';
 }
 
 // Path: words
@@ -1452,11 +1440,7 @@ extension on Translations {
 			'timeline.pause' => 'Pause word',
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
-			'timeline.challengeStart' => 'Start a challenge',
-			'timeline.challengeContinue' => 'Continue your challenge',
-			'timeline.reviewPromptTitle' => '{count} words are ready',
-			'timeline.reviewPromptBody' => 'A short revisit keeps them close.',
-			'timeline.challengeEmptyHint' => 'Gather a few things you noticed.',
+			'timeline.commandHint' => 'Try “review words” or “start a challenge”.',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',

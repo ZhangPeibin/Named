@@ -423,6 +423,7 @@ All business routes are under `/api/v1`.
 | History | `GET /history`, `GET /experiences/{id}` |
 | Sentence | `POST /sentences/lookup` |
 | Challenge | `GET /challenges`, `POST /challenges`, `GET /challenges/{id}`, `POST /challenges/{id}/end`, `POST /challenges/{id}/items/{item_id}/visited` |
+| Assistant | `POST /assistant/route` |
 | Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
@@ -444,7 +445,8 @@ Implemented:
 - Relevant Experience context injection into Talk and Help
 - Accurate English hints for Chinese and corrected English messages
 - Long-press copy, Word details, Sentence details, and sentence Listen in Talk
-- Challenge creation, Timeline Continue, opened-content progress, manual ending, and history
+- Challenge creation, opened-content progress, manual ending, and history
+- AI-routed composer commands for review words, starting a challenge, and viewing challenges
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
@@ -460,8 +462,8 @@ Not implemented yet:
 
 Current local gates:
 
-- Backend: **85** tests, Ruff lint/format
-- Flutter app: **96** tests, `make check`
+- Backend: **90** tests, Ruff lint/format
+- Flutter app: **102** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

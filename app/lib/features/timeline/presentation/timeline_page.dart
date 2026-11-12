@@ -9,14 +9,12 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
-import '../../challenge/domain/challenge.dart';
+import '../../assistant/domain/assistant_intent.dart';
+import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
-import '../../words/domain/word_shelf.dart';
-import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
 import 'widgets/moment_card.dart';
@@ -57,6 +55,44 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       _isSubmitting = true;
     });
     try {
+      final intent = await ref.read(assistantRepositoryProvider).route(text);
+      if (!mounted) {
+        return;
+      }
+      if (intent.hasAction) {
+        _textController.clear();
+        FocusScope.of(context).unfocus();
+        switch (intent.intent) {
+          case AssistantIntent.reviewWords:
+            unawaited(context.pushNamed(AppRouteNames.review));
+            break;
+          case AssistantIntent.viewChallenges:
+            unawaited(context.pushNamed(AppRouteNames.challenges));
+            break;
+          case AssistantIntent.startChallenge:
+            final challenges = await ref.read(challengesProvider.future);
+            if (!mounted) {
+              break;
+            }
+            final active = challenges
+                .where((challenge) => challenge.isActive)
+                .firstOrNull;
+            if (active == null) {
+              unawaited(context.pushNamed(AppRouteNames.challengeNew));
+            } else {
+              unawaited(
+                context.pushNamed(
+                  AppRouteNames.challengeDetail,
+                  pathParameters: {'challengeId': active.id},
+                ),
+              );
+            }
+            break;
+          case AssistantIntent.none:
+            break;
+        }
+        return;
+      }
       await ref.read(timelineControllerProvider.notifier).createNamed(text);
       if (!mounted) {
         return;
@@ -194,21 +230,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     }
   }
 
-  void _scrollToBottomIfNear() {
-    if (!_didInitialScroll) {
-      return;
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scrollController.hasClients) {
-        return;
-      }
-      final position = _scrollController.position;
-      if (position.maxScrollExtent - position.pixels <= 220) {
-        _settleScrollToBottom();
-      }
-    });
-  }
-
   void _settleScrollToBottom([int remaining = 4]) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) {
@@ -245,17 +266,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   Widget build(BuildContext context) {
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
-    ref
-      ..listen(challengesProvider, (previous, next) {
-        if (next.hasValue) {
-          _scrollToBottomIfNear();
-        }
-      })
-      ..listen(wordShelfProvider, (previous, next) {
-        if (next.hasValue) {
-          _scrollToBottomIfNear();
-        }
-      });
 
     return AppScaffold(
       title: '',
@@ -369,10 +379,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
           );
       }
     }
-    widgets
-      ..add(const _ChallengeBanner())
-      ..add(const _ReviewBanner());
-
     return ListView.separated(
       key: const Key('timeline.list'),
       controller: _scrollController,
@@ -435,137 +441,6 @@ class _TimelineHeader extends StatelessWidget {
   }
 }
 
-class _ChallengeBanner extends ConsumerWidget {
-  const _ChallengeBanner();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.t.timeline;
-    final palette = context.appPalette;
-    final async = ref.watch(challengesProvider);
-    final active = async.value
-        ?.where((challenge) => challenge.status == ChallengeStatus.active)
-        .firstOrNull;
-    if (async.isLoading || async.hasError) {
-      return const SizedBox.shrink();
-    }
-    return AppCard(
-      onTap: () {
-        if (active != null) {
-          unawaited(
-            context.pushNamed(
-              AppRouteNames.challengeDetail,
-              pathParameters: {'challengeId': active.id},
-            ),
-          );
-        } else {
-          unawaited(context.pushNamed(AppRouteNames.challengeNew));
-        }
-      },
-      padding: const EdgeInsets.all(AppSpacing.s14),
-      color: palette.warm,
-      child: Row(
-        children: [
-          Icon(Icons.flag_outlined, color: palette.accent, size: 20),
-          const SizedBox(width: AppSpacing.s10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  active?.name ?? t.challengeStart,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  active == null ? t.challengeEmptyHint : t.challengeContinue,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: palette.muted),
-        ],
-      ),
-    );
-  }
-}
-
-class _ReviewBanner extends ConsumerWidget {
-  const _ReviewBanner();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = context.appPalette;
-    final async = ref.watch(wordShelfProvider);
-    if (async.isLoading || async.hasError) {
-      return const SizedBox.shrink();
-    }
-    final count =
-        async.value?.words
-            .where((word) => word.status == WordShelfStatus.needsReview)
-            .length ??
-        0;
-    if (count == 0) {
-      return const SizedBox.shrink();
-    }
-    final t = context.t;
-    return AppCard(
-      key: const Key('timeline.review'),
-      onTap: () => unawaited(context.pushNamed(AppRouteNames.review)),
-      padding: const EdgeInsets.all(AppSpacing.s14),
-      color: palette.surfaceMuted,
-      child: Row(
-        children: [
-          Container(
-            width: AppSize.size34,
-            height: AppSize.size34,
-            decoration: BoxDecoration(
-              color: palette.surface,
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
-            child: Icon(Icons.refresh, color: palette.primary, size: 18),
-          ),
-          const SizedBox(width: AppSpacing.s10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t.words.needsReview.toUpperCase(),
-                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  t.timeline.reviewPromptTitle.replaceFirst(
-                    '{count}',
-                    '$count',
-                  ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  t.timeline.reviewPromptBody,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: palette.muted),
-        ],
-      ),
-    );
-  }
-}
-
 class _EmptyTimeline extends StatelessWidget {
   const _EmptyTimeline({required this.t});
 
@@ -607,6 +482,14 @@ class _EmptyTimeline extends StatelessWidget {
             const SizedBox(height: AppSpacing.s8),
             Text(
               t.emptyHint,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: palette.muted),
+            ),
+            const SizedBox(height: AppSpacing.s16),
+            Text(
+              t.commandHint,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
