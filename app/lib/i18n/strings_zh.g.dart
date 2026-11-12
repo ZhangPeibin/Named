@@ -445,6 +445,23 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get menuHistory => '回忆';
 	@override String get challengeStart => '开始一轮挑战';
 	@override String get challengeContinue => '继续你的挑战';
+	@override String get quickDeckEyebrow => '接下来';
+	@override String get quickChallenge => '挑战';
+	@override String get quickChallengeStart => '开始一轮小挑战';
+	@override String get quickChallengeContinue => '继续这一轮';
+	@override String get quickReview => '复习';
+	@override String get quickReviewHint => '回顾你的词语';
+	@override String get quickReviewDue => '{count} 个词语在等你';
+	@override String get quickWords => '词语';
+	@override String get quickWordsHint => '你的词语库';
+	@override String get quickWordsCount => '已保存 {count} 个';
+	@override String get quickHistory => '回忆';
+	@override String get quickHistoryHint => '回看你的经历';
+	@override String get quickSettings => '设置';
+	@override String get quickSettingsHint => '语言、主题和账号';
+	@override String get quickOpen => '打开';
+	@override String get quickMe => '我';
+	@override String get quickMeHint => '你的资料与 Soul';
 }
 
 // Path: words
@@ -812,6 +829,23 @@ extension on TranslationsZh {
 			'timeline.menuHistory' => '回忆',
 			'timeline.challengeStart' => '开始一轮挑战',
 			'timeline.challengeContinue' => '继续你的挑战',
+			'timeline.quickDeckEyebrow' => '接下来',
+			'timeline.quickChallenge' => '挑战',
+			'timeline.quickChallengeStart' => '开始一轮小挑战',
+			'timeline.quickChallengeContinue' => '继续这一轮',
+			'timeline.quickReview' => '复习',
+			'timeline.quickReviewHint' => '回顾你的词语',
+			'timeline.quickReviewDue' => '{count} 个词语在等你',
+			'timeline.quickWords' => '词语',
+			'timeline.quickWordsHint' => '你的词语库',
+			'timeline.quickWordsCount' => '已保存 {count} 个',
+			'timeline.quickHistory' => '回忆',
+			'timeline.quickHistoryHint' => '回看你的经历',
+			'timeline.quickSettings' => '设置',
+			'timeline.quickSettingsHint' => '语言、主题和账号',
+			'timeline.quickOpen' => '打开',
+			'timeline.quickMe' => '我',
+			'timeline.quickMeHint' => '你的资料与 Soul',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',

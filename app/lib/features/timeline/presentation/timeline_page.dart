@@ -11,7 +11,6 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
@@ -22,6 +21,7 @@ import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
+import 'widgets/quick_deck_sheet.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/word_naming_card.dart';
 
@@ -195,16 +195,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     }
   }
 
-  Future<void> _openMenu() async {
-    final destination = await showAppBottomSheet<String>(
-      context: context,
-      builder: (context) => const _TimelineMenu(),
-    );
-    if (!mounted || destination == null) {
-      return;
-    }
-    unawaited(context.pushNamed(destination));
-  }
+  Future<void> _openMenu() => showQuickDeck(context);
 
   void _scheduleScrollToBottom({bool animate = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -506,87 +497,6 @@ class _DaySeparator extends StatelessWidget {
         const SizedBox(width: AppSpacing.s10),
         Expanded(child: Container(height: 1, color: palette.line)),
       ],
-    );
-  }
-}
-
-class _TimelineMenu extends StatelessWidget {
-  const _TimelineMenu();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.t.timeline;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          t.menuTitle.toUpperCase(),
-          style: AppTextStyles.eyebrow.copyWith(
-            color: context.appPalette.muted,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        _MenuRow(
-          icon: Icons.refresh,
-          label: t.menuReview,
-          routeName: AppRouteNames.review,
-        ),
-        _MenuRow(
-          icon: Icons.auto_stories_outlined,
-          label: t.menuHistory,
-          routeName: AppRouteNames.history,
-        ),
-        _MenuRow(
-          icon: Icons.menu_book_outlined,
-          label: t.menuWords,
-          routeName: AppRouteNames.words,
-        ),
-        _MenuRow(
-          icon: Icons.person_outline,
-          label: t.menuMe,
-          routeName: AppRouteNames.me,
-        ),
-        _MenuRow(
-          icon: Icons.settings_outlined,
-          label: t.menuSettings,
-          routeName: AppRouteNames.settings,
-        ),
-      ],
-    );
-  }
-}
-
-class _MenuRow extends StatelessWidget {
-  const _MenuRow({
-    required this.icon,
-    required this.label,
-    required this.routeName,
-  });
-
-  final IconData icon;
-  final String label;
-  final String routeName;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        width: AppSize.size34,
-        height: AppSize.size34,
-        decoration: BoxDecoration(
-          color: palette.surfaceMuted,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-        ),
-        child: Icon(icon, color: palette.primary, size: AppSize.size18),
-      ),
-      title: Text(label),
-      trailing: Icon(Icons.chevron_right, color: palette.muted),
-      onTap: () => Navigator.of(context).pop(routeName),
     );
   }
 }

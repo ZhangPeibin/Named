@@ -936,6 +936,57 @@ class Translations$timeline$en {
 
 	/// en: 'Continue your challenge'
 	String get challengeContinue => 'Continue your challenge';
+
+	/// en: 'Good next steps'
+	String get quickDeckEyebrow => 'Good next steps';
+
+	/// en: 'Challenge'
+	String get quickChallenge => 'Challenge';
+
+	/// en: 'Start a small challenge'
+	String get quickChallengeStart => 'Start a small challenge';
+
+	/// en: 'Continue your round'
+	String get quickChallengeContinue => 'Continue your round';
+
+	/// en: 'Review'
+	String get quickReview => 'Review';
+
+	/// en: 'Revisit your words'
+	String get quickReviewHint => 'Revisit your words';
+
+	/// en: '{count} words waiting'
+	String get quickReviewDue => '{count} words waiting';
+
+	/// en: 'Words'
+	String get quickWords => 'Words';
+
+	/// en: 'Your word shelf'
+	String get quickWordsHint => 'Your word shelf';
+
+	/// en: '{count} saved'
+	String get quickWordsCount => '{count} saved';
+
+	/// en: 'History'
+	String get quickHistory => 'History';
+
+	/// en: 'Revisit experiences'
+	String get quickHistoryHint => 'Revisit experiences';
+
+	/// en: 'Settings'
+	String get quickSettings => 'Settings';
+
+	/// en: 'Language, theme, account'
+	String get quickSettingsHint => 'Language, theme, account';
+
+	/// en: 'Open'
+	String get quickOpen => 'Open';
+
+	/// en: 'Me'
+	String get quickMe => 'Me';
+
+	/// en: 'Your profile and Soul'
+	String get quickMeHint => 'Your profile and Soul';
 }
 
 // Path: words
@@ -1457,6 +1508,23 @@ extension on Translations {
 			'timeline.menuHistory' => 'History',
 			'timeline.challengeStart' => 'Start a challenge',
 			'timeline.challengeContinue' => 'Continue your challenge',
+			'timeline.quickDeckEyebrow' => 'Good next steps',
+			'timeline.quickChallenge' => 'Challenge',
+			'timeline.quickChallengeStart' => 'Start a small challenge',
+			'timeline.quickChallengeContinue' => 'Continue your round',
+			'timeline.quickReview' => 'Review',
+			'timeline.quickReviewHint' => 'Revisit your words',
+			'timeline.quickReviewDue' => '{count} words waiting',
+			'timeline.quickWords' => 'Words',
+			'timeline.quickWordsHint' => 'Your word shelf',
+			'timeline.quickWordsCount' => '{count} saved',
+			'timeline.quickHistory' => 'History',
+			'timeline.quickHistoryHint' => 'Revisit experiences',
+			'timeline.quickSettings' => 'Settings',
+			'timeline.quickSettingsHint' => 'Language, theme, account',
+			'timeline.quickOpen' => 'Open',
+			'timeline.quickMe' => 'Me',
+			'timeline.quickMeHint' => 'Your profile and Soul',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',

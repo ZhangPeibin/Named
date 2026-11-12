@@ -12,7 +12,7 @@ import 'package:named/i18n/strings.g.dart';
 import 'support/i18n_test_helpers.dart';
 
 void main() {
-  testWidgets('renders the timeline with dock and opens the page menu', (
+  testWidgets('renders the timeline with dock and opens the quick deck', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -54,10 +54,14 @@ void main() {
     await tester.tap(find.byKey(const Key('timeline.menu')));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.timeline.menuWords), findsNWidgets(2));
-    expect(find.text(t.timeline.menuSettings), findsOneWidget);
+    expect(
+      find.text(t.timeline.quickDeckEyebrow.toUpperCase()),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('quickDeck.words')), findsOneWidget);
+    expect(find.byKey(const Key('quickDeck.settings')), findsOneWidget);
 
-    await tester.tap(find.text(t.timeline.menuWords).last);
+    await tester.tap(find.byKey(const Key('quickDeck.words')));
     await tester.pumpAndSettle();
     expect(find.text(t.words.empty), findsOneWidget);
   });
