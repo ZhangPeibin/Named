@@ -253,6 +253,23 @@ async def create_discovery(
     if not normalized_text and image is None:
         raise ApiError("text or image is required.", code="input_required")
 
+    if image is None and normalized_text:
+        recent = await session.scalar(
+            select(Discovery)
+            .where(
+                Discovery.account_id == account_id,
+                Discovery.input_type == "text",
+                Discovery.input_text == normalized_text,
+                Discovery.context == context,
+                Discovery.deleted_at.is_(None),
+                Discovery.created_at >= utcnow() - timedelta(seconds=60),
+            )
+            .order_by(Discovery.created_at.desc())
+            .limit(1)
+        )
+        if recent is not None:
+            return await _discovery_out(session, recent, settings, audio_service)
+
     native_language = await _native_language(session, account_id)
 
     try:

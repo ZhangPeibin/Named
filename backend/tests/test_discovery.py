@@ -611,6 +611,21 @@ async def test_discover_rate_limit(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_identical_text_discovery_is_reused_within_cooldown(discovery_env) -> None:
+    http, sender, _, agent, _ = discovery_env
+    verified = await request_and_verify(http, sender, "dedupe@example.com")
+    headers = bearer(verified["session_token"])
+    agent.output = word_output("tree")
+
+    first = await http.post("/api/v1/discoveries", headers=headers, data={"text": "树"})
+    second = await http.post("/api/v1/discoveries", headers=headers, data={"text": "树"})
+    assert first.status_code == 201
+    assert second.status_code == 201
+    assert first.json()["id"] == second.json()["id"]
+    assert len(agent.calls) == 1
+
+
+@pytest.mark.asyncio
 async def test_words_are_deduplicated_and_progress_is_tracked(discovery_env) -> None:
     http, sender, _, agent, _ = discovery_env
     verified = await request_and_verify(http, sender, "words@example.com")
