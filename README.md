@@ -63,6 +63,7 @@ The goal is not to complete a fixed curriculum. It is to build **your own world 
 | **Voice Talk** | Record a turn, transcribe it, and send automatically after stopping. Empty recordings return quietly without an error. |
 | **Accurate English** | Chinese input gets a natural English version; English with a clear error gets the complete corrected sentence. Already-natural English is not repeated. |
 | **Text selection** | Long-press any Talk message to copy, open Word details for a word, or open Sentence details for a phrase/sentence. Sentence details explain the English and provide Listen. |
+| **Challenge** | Select Word/Moment discoveries, set a name and planned days, continue from Timeline, track opened content, and end the round manually. Content is never deleted or treated as mastered. |
 | **Help me say it** | Ask for a natural English expression, hear it, and insert it into Talk without turning the exchange into a grammar lecture. |
 | **Experience + History** | After Talk, an asynchronous agent extracts meaningful life and learning experiences. History lets the learner revisit them, and Talk/Help can use relevant experiences as context. |
 | **Companion memory** | Milo can use relevant prior context, recurring learning errors, and explicit memories without exposing an internal memory-management screen. |
@@ -421,6 +422,7 @@ All business routes are under `/api/v1`.
 | Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end`, `POST /conversations/{id}/help` |
 | History | `GET /history`, `GET /experiences/{id}` |
 | Sentence | `POST /sentences/lookup` |
+| Challenge | `GET /challenges`, `POST /challenges`, `GET /challenges/{id}`, `POST /challenges/{id}/end`, `POST /challenges/{id}/items/{item_id}/visited` |
 | Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
@@ -442,13 +444,13 @@ Implemented:
 - Relevant Experience context injection into Talk and Help
 - Accurate English hints for Chinese and corrected English messages
 - Long-press copy, Word details, Sentence details, and sentence Listen in Talk
+- Challenge creation, Timeline Continue, opened-content progress, manual ending, and history
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
 
 - Real-time full-duplex Live Talk / barge-in
 - Automatic Soul updates from Experience
-- Challenge
 - Full Knowledge Graph / Personal English World
 - Streaming Talk (SSE)
 - Production email delivery, object storage, and deployment automation
@@ -458,8 +460,8 @@ Not implemented yet:
 
 Current local gates:
 
-- Backend: **83** tests, Ruff lint/format
-- Flutter app: **93** tests, `make check`
+- Backend: **84** tests, Ruff lint/format
+- Flutter app: **96** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

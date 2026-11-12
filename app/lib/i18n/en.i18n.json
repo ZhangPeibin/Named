@@ -271,7 +271,9 @@
     "pause": "Pause word",
     "speed": "Playback speed",
     "audioUnavailable": "Audio is unavailable.",
-    "menuHistory": "History"
+    "menuHistory": "History",
+    "challengeStart": "Start a challenge",
+    "challengeContinue": "Continue your challenge"
   },
   "words": {
     "title": "Words",
@@ -320,5 +322,42 @@
     "detailTitle": "Experience",
     "loadEarlier": "Load earlier",
     "openFocus": "Open source"
+  },
+  "challenge": {
+    "title": "Challenges",
+    "eyebrow": "YOUR RHYTHM",
+    "active": "In progress",
+    "ended": "Past explorations",
+    "empty": "No challenges yet.",
+    "start": "Start a challenge",
+    "startShort": "Start a challenge",
+    "continue": "Continue",
+    "end": "End this round",
+    "endConfirm": "End this round? Your words, moments, and conversations stay available.",
+    "name": "Name",
+    "nameHint": "e.g. Small discoveries around me",
+    "duration": "Plan",
+    "twoDays": "2 days",
+    "oneWeek": "One week",
+    "custom": "Custom",
+    "days": "days",
+    "chooseContent": "Choose your discoveries",
+    "selectedCount": "{count} selected",
+    "noContent": "Discover a word or moment first.",
+    "create": "Start this challenge",
+    "createFailed": "Could not start the challenge.",
+    "activeExists": "Finish your current challenge first.",
+    "progress": "Opened",
+    "visitedOf": "{visited} / {total} opened",
+    "due": "Your plan is due. Continue or end when you are ready.",
+    "content": "This round",
+    "open": "Open",
+    "word": "Word",
+    "moment": "Moment",
+    "loadFailed": "Could not load challenges.",
+    "detailFailed": "Could not load this challenge.",
+    "complete": "Done",
+    "challengeStart": "Start a challenge",
+    "challengeContinue": "Continue your challenge"
   }
 }

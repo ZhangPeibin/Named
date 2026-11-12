@@ -271,7 +271,9 @@
     "pause": "暂停播放",
     "speed": "播放速度",
     "audioUnavailable": "音频暂时不可用。",
-    "menuHistory": "回忆"
+    "menuHistory": "回忆",
+    "challengeStart": "开始一轮挑战",
+    "challengeContinue": "继续你的挑战"
   },
   "words": {
     "title": "词语",
@@ -320,5 +322,42 @@
     "detailTitle": "经历",
     "loadEarlier": "加载更早",
     "openFocus": "打开来源"
+  },
+  "challenge": {
+    "title": "挑战",
+    "eyebrow": "你的节奏",
+    "active": "进行中",
+    "ended": "过去的探索",
+    "empty": "还没有挑战。",
+    "start": "开始一轮挑战",
+    "startShort": "开始挑战",
+    "continue": "继续探索",
+    "end": "结束这一轮",
+    "endConfirm": "结束这一轮？Word、场景和对话都会继续保留。",
+    "name": "名称",
+    "nameHint": "例如：身边的小小发现",
+    "duration": "计划",
+    "twoDays": "2 天",
+    "oneWeek": "一周",
+    "custom": "自定义",
+    "days": "天",
+    "chooseContent": "选择你的发现",
+    "selectedCount": "已选 {count} 项",
+    "noContent": "先去发现一个词语或场景。",
+    "create": "开始这轮挑战",
+    "createFailed": "暂时无法开始挑战。",
+    "activeExists": "请先结束当前挑战。",
+    "progress": "已打开",
+    "visitedOf": "已打开 {visited} / {total}",
+    "due": "计划时间到了，可以继续，也可以随时结束。",
+    "content": "本轮发现",
+    "open": "打开",
+    "word": "词语",
+    "moment": "场景",
+    "loadFailed": "暂时无法加载挑战。",
+    "detailFailed": "暂时无法加载这轮挑战。",
+    "complete": "完成",
+    "challengeStart": "开始一轮挑战",
+    "challengeContinue": "继续你的挑战"
   }
 }

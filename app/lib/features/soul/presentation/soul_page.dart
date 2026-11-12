@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
@@ -99,18 +103,33 @@ class SoulPage extends ConsumerWidget {
             const SizedBox(height: AppSpacing.s12),
             AppCard(
               padding: const EdgeInsets.all(AppSpacing.s16),
+              onTap: () =>
+                  unawaited(context.pushNamed(AppRouteNames.challenges)),
               child: Row(
                 children: [
                   const _RoundIcon(icon: Icons.flag_outlined),
                   const SizedBox(width: AppSpacing.s14),
                   Expanded(
-                    child: Text(
-                      t.rhythmBody,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: palette.muted,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t.challenge.title,
+                          style: textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          t.rhythmBody,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: palette.muted,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  Icon(Icons.chevron_right, color: palette.muted),
                 ],
               ),
             ),

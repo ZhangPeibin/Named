@@ -10,9 +10,12 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
+import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../challenge/domain/challenge.dart';
+import '../../challenge/providers/challenge_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
 import 'widgets/moment_card.dart';
@@ -292,7 +295,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       _scheduleScrollToBottom();
     }
 
-    final widgets = <Widget>[];
+    final widgets = <Widget>[const _ChallengeBanner()];
     if (state.nextCursor != null) {
       widgets.add(
         Center(
@@ -366,6 +369,66 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       return t.yesterday;
     }
     return MaterialLocalizations.of(context).formatMediumDate(day);
+  }
+}
+
+class _ChallengeBanner extends ConsumerWidget {
+  const _ChallengeBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t.timeline;
+    final palette = context.appPalette;
+    final async = ref.watch(challengesProvider);
+    final active = async.value
+        ?.where((challenge) => challenge.status == ChallengeStatus.active)
+        .firstOrNull;
+    if (async.isLoading || async.hasError) {
+      return const SizedBox.shrink();
+    }
+    return AppCard(
+      onTap: () {
+        if (active != null) {
+          unawaited(
+            context.pushNamed(
+              AppRouteNames.challengeDetail,
+              pathParameters: {'challengeId': active.id},
+            ),
+          );
+        } else {
+          unawaited(context.pushNamed(AppRouteNames.challengeNew));
+        }
+      },
+      padding: const EdgeInsets.all(AppSpacing.s14),
+      color: palette.warm,
+      child: Row(
+        children: [
+          Icon(Icons.flag_outlined, color: palette.accent, size: 20),
+          const SizedBox(width: AppSpacing.s10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  active?.name ?? t.challengeStart,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  active == null ? t.challengeStart : t.challengeContinue,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, color: palette.muted),
+        ],
+      ),
+    );
   }
 }
 

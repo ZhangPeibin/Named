@@ -56,6 +56,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$words$zh words = _Translations$words$zh._(_root);
 	@override late final _Translations$review$zh review = _Translations$review$zh._(_root);
 	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
+	@override late final _Translations$challenge$zh challenge = _Translations$challenge$zh._(_root);
 }
 
 // Path: app
@@ -441,6 +442,8 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get speed => '播放速度';
 	@override String get audioUnavailable => '音频暂时不可用。';
 	@override String get menuHistory => '回忆';
+	@override String get challengeStart => '开始一轮挑战';
+	@override String get challengeContinue => '继续你的挑战';
 }
 
 // Path: words
@@ -510,6 +513,50 @@ class _Translations$history$zh implements Translations$history$en {
 	@override String get detailTitle => '经历';
 	@override String get loadEarlier => '加载更早';
 	@override String get openFocus => '打开来源';
+}
+
+// Path: challenge
+class _Translations$challenge$zh implements Translations$challenge$en {
+	_Translations$challenge$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '挑战';
+	@override String get eyebrow => '你的节奏';
+	@override String get active => '进行中';
+	@override String get ended => '过去的探索';
+	@override String get empty => '还没有挑战。';
+	@override String get start => '开始一轮挑战';
+	@override String get startShort => '开始挑战';
+	@override String get kContinue => '继续探索';
+	@override String get end => '结束这一轮';
+	@override String get endConfirm => '结束这一轮？Word、场景和对话都会继续保留。';
+	@override String get name => '名称';
+	@override String get nameHint => '例如：身边的小小发现';
+	@override String get duration => '计划';
+	@override String get twoDays => '2 天';
+	@override String get oneWeek => '一周';
+	@override String get custom => '自定义';
+	@override String get days => '天';
+	@override String get chooseContent => '选择你的发现';
+	@override String get selectedCount => '已选 {count} 项';
+	@override String get noContent => '先去发现一个词语或场景。';
+	@override String get create => '开始这轮挑战';
+	@override String get createFailed => '暂时无法开始挑战。';
+	@override String get activeExists => '请先结束当前挑战。';
+	@override String get progress => '已打开';
+	@override String get visitedOf => '已打开 {visited} / {total}';
+	@override String get due => '计划时间到了，可以继续，也可以随时结束。';
+	@override String get content => '本轮发现';
+	@override String get open => '打开';
+	@override String get word => '词语';
+	@override String get moment => '场景';
+	@override String get loadFailed => '暂时无法加载挑战。';
+	@override String get detailFailed => '暂时无法加载这轮挑战。';
+	@override String get complete => '完成';
+	@override String get challengeStart => '开始一轮挑战';
+	@override String get challengeContinue => '继续你的挑战';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -761,6 +808,8 @@ extension on TranslationsZh {
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
 			'timeline.menuHistory' => '回忆',
+			'timeline.challengeStart' => '开始一轮挑战',
+			'timeline.challengeContinue' => '继续你的挑战',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',
@@ -803,6 +852,41 @@ extension on TranslationsZh {
 			'history.detailTitle' => '经历',
 			'history.loadEarlier' => '加载更早',
 			'history.openFocus' => '打开来源',
+			'challenge.title' => '挑战',
+			'challenge.eyebrow' => '你的节奏',
+			'challenge.active' => '进行中',
+			'challenge.ended' => '过去的探索',
+			'challenge.empty' => '还没有挑战。',
+			'challenge.start' => '开始一轮挑战',
+			'challenge.startShort' => '开始挑战',
+			'challenge.kContinue' => '继续探索',
+			'challenge.end' => '结束这一轮',
+			'challenge.endConfirm' => '结束这一轮？Word、场景和对话都会继续保留。',
+			'challenge.name' => '名称',
+			'challenge.nameHint' => '例如：身边的小小发现',
+			'challenge.duration' => '计划',
+			'challenge.twoDays' => '2 天',
+			'challenge.oneWeek' => '一周',
+			'challenge.custom' => '自定义',
+			'challenge.days' => '天',
+			'challenge.chooseContent' => '选择你的发现',
+			'challenge.selectedCount' => '已选 {count} 项',
+			'challenge.noContent' => '先去发现一个词语或场景。',
+			'challenge.create' => '开始这轮挑战',
+			'challenge.createFailed' => '暂时无法开始挑战。',
+			'challenge.activeExists' => '请先结束当前挑战。',
+			'challenge.progress' => '已打开',
+			'challenge.visitedOf' => '已打开 {visited} / {total}',
+			'challenge.due' => '计划时间到了，可以继续，也可以随时结束。',
+			'challenge.content' => '本轮发现',
+			'challenge.open' => '打开',
+			'challenge.word' => '词语',
+			'challenge.moment' => '场景',
+			'challenge.loadFailed' => '暂时无法加载挑战。',
+			'challenge.detailFailed' => '暂时无法加载这轮挑战。',
+			'challenge.complete' => '完成',
+			'challenge.challengeStart' => '开始一轮挑战',
+			'challenge.challengeContinue' => '继续你的挑战',
 			_ => null,
 		};
 	}

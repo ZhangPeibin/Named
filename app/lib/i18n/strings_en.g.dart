@@ -59,6 +59,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$words$en words = Translations$words$en._(_root);
 	late final Translations$review$en review = Translations$review$en._(_root);
 	late final Translations$history$en history = Translations$history$en._(_root);
+	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
 }
 
 // Path: app
@@ -926,6 +927,12 @@ class Translations$timeline$en {
 
 	/// en: 'History'
 	String get menuHistory => 'History';
+
+	/// en: 'Start a challenge'
+	String get challengeStart => 'Start a challenge';
+
+	/// en: 'Continue your challenge'
+	String get challengeContinue => 'Continue your challenge';
 }
 
 // Path: words
@@ -1079,6 +1086,120 @@ class Translations$history$en {
 
 	/// en: 'Open source'
 	String get openFocus => 'Open source';
+}
+
+// Path: challenge
+class Translations$challenge$en {
+	Translations$challenge$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Challenges'
+	String get title => 'Challenges';
+
+	/// en: 'YOUR RHYTHM'
+	String get eyebrow => 'YOUR RHYTHM';
+
+	/// en: 'In progress'
+	String get active => 'In progress';
+
+	/// en: 'Past explorations'
+	String get ended => 'Past explorations';
+
+	/// en: 'No challenges yet.'
+	String get empty => 'No challenges yet.';
+
+	/// en: 'Start a challenge'
+	String get start => 'Start a challenge';
+
+	/// en: 'Start a challenge'
+	String get startShort => 'Start a challenge';
+
+	/// en: 'Continue'
+	String get kContinue => 'Continue';
+
+	/// en: 'End this round'
+	String get end => 'End this round';
+
+	/// en: 'End this round? Your words, moments, and conversations stay available.'
+	String get endConfirm => 'End this round? Your words, moments, and conversations stay available.';
+
+	/// en: 'Name'
+	String get name => 'Name';
+
+	/// en: 'e.g. Small discoveries around me'
+	String get nameHint => 'e.g. Small discoveries around me';
+
+	/// en: 'Plan'
+	String get duration => 'Plan';
+
+	/// en: '2 days'
+	String get twoDays => '2 days';
+
+	/// en: 'One week'
+	String get oneWeek => 'One week';
+
+	/// en: 'Custom'
+	String get custom => 'Custom';
+
+	/// en: 'days'
+	String get days => 'days';
+
+	/// en: 'Choose your discoveries'
+	String get chooseContent => 'Choose your discoveries';
+
+	/// en: '{count} selected'
+	String get selectedCount => '{count} selected';
+
+	/// en: 'Discover a word or moment first.'
+	String get noContent => 'Discover a word or moment first.';
+
+	/// en: 'Start this challenge'
+	String get create => 'Start this challenge';
+
+	/// en: 'Could not start the challenge.'
+	String get createFailed => 'Could not start the challenge.';
+
+	/// en: 'Finish your current challenge first.'
+	String get activeExists => 'Finish your current challenge first.';
+
+	/// en: 'Opened'
+	String get progress => 'Opened';
+
+	/// en: '{visited} / {total} opened'
+	String get visitedOf => '{visited} / {total} opened';
+
+	/// en: 'Your plan is due. Continue or end when you are ready.'
+	String get due => 'Your plan is due. Continue or end when you are ready.';
+
+	/// en: 'This round'
+	String get content => 'This round';
+
+	/// en: 'Open'
+	String get open => 'Open';
+
+	/// en: 'Word'
+	String get word => 'Word';
+
+	/// en: 'Moment'
+	String get moment => 'Moment';
+
+	/// en: 'Could not load challenges.'
+	String get loadFailed => 'Could not load challenges.';
+
+	/// en: 'Could not load this challenge.'
+	String get detailFailed => 'Could not load this challenge.';
+
+	/// en: 'Done'
+	String get complete => 'Done';
+
+	/// en: 'Start a challenge'
+	String get challengeStart => 'Start a challenge';
+
+	/// en: 'Continue your challenge'
+	String get challengeContinue => 'Continue your challenge';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1330,6 +1451,8 @@ extension on Translations {
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
 			'timeline.menuHistory' => 'History',
+			'timeline.challengeStart' => 'Start a challenge',
+			'timeline.challengeContinue' => 'Continue your challenge',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',
@@ -1372,6 +1495,41 @@ extension on Translations {
 			'history.detailTitle' => 'Experience',
 			'history.loadEarlier' => 'Load earlier',
 			'history.openFocus' => 'Open source',
+			'challenge.title' => 'Challenges',
+			'challenge.eyebrow' => 'YOUR RHYTHM',
+			'challenge.active' => 'In progress',
+			'challenge.ended' => 'Past explorations',
+			'challenge.empty' => 'No challenges yet.',
+			'challenge.start' => 'Start a challenge',
+			'challenge.startShort' => 'Start a challenge',
+			'challenge.kContinue' => 'Continue',
+			'challenge.end' => 'End this round',
+			'challenge.endConfirm' => 'End this round? Your words, moments, and conversations stay available.',
+			'challenge.name' => 'Name',
+			'challenge.nameHint' => 'e.g. Small discoveries around me',
+			'challenge.duration' => 'Plan',
+			'challenge.twoDays' => '2 days',
+			'challenge.oneWeek' => 'One week',
+			'challenge.custom' => 'Custom',
+			'challenge.days' => 'days',
+			'challenge.chooseContent' => 'Choose your discoveries',
+			'challenge.selectedCount' => '{count} selected',
+			'challenge.noContent' => 'Discover a word or moment first.',
+			'challenge.create' => 'Start this challenge',
+			'challenge.createFailed' => 'Could not start the challenge.',
+			'challenge.activeExists' => 'Finish your current challenge first.',
+			'challenge.progress' => 'Opened',
+			'challenge.visitedOf' => '{visited} / {total} opened',
+			'challenge.due' => 'Your plan is due. Continue or end when you are ready.',
+			'challenge.content' => 'This round',
+			'challenge.open' => 'Open',
+			'challenge.word' => 'Word',
+			'challenge.moment' => 'Moment',
+			'challenge.loadFailed' => 'Could not load challenges.',
+			'challenge.detailFailed' => 'Could not load this challenge.',
+			'challenge.complete' => 'Done',
+			'challenge.challengeStart' => 'Start a challenge',
+			'challenge.challengeContinue' => 'Continue your challenge',
 			_ => null,
 		};
 	}

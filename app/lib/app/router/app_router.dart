@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers/app_config_provider.dart';
 import '../../features/auth/presentation/sign_in_page.dart';
 import '../../features/auth/providers/auth_notifier.dart';
+import '../../features/challenge/presentation/challenge_create_page.dart';
+import '../../features/challenge/presentation/challenge_detail_page.dart';
+import '../../features/challenge/presentation/challenges_page.dart';
 import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
@@ -29,6 +32,9 @@ class AppRoutePaths {
   static const signIn = '/sign-in';
   static const review = '/review';
   static const history = '/history';
+  static const challenges = '/challenges';
+  static const challengeNew = '/challenges/new';
+  static const challengeDetail = '/challenges/:challengeId';
   static const experience = '/history/:experienceId';
   static const words = '/words';
   static const me = '/me';
@@ -47,6 +53,9 @@ class AppRouteNames {
   static const signIn = 'signIn';
   static const review = 'review';
   static const history = 'history';
+  static const challenges = 'challenges';
+  static const challengeNew = 'challengeNew';
+  static const challengeDetail = 'challengeDetail';
   static const experience = 'experience';
   static const words = 'words';
   static const me = 'me';
@@ -119,6 +128,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutePaths.history,
         name: AppRouteNames.history,
         builder: (context, state) => const HistoryPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.challenges,
+        name: AppRouteNames.challenges,
+        builder: (context, state) => const ChallengesPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.challengeNew,
+        name: AppRouteNames.challengeNew,
+        builder: (context, state) => const ChallengeCreatePage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.challengeDetail,
+        name: AppRouteNames.challengeDetail,
+        builder: (context, state) => ChallengeDetailPage(
+          challengeId: state.pathParameters['challengeId']!,
+        ),
       ),
       GoRoute(
         path: AppRoutePaths.experience,
