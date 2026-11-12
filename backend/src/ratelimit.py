@@ -43,6 +43,20 @@ def enforce_discover_limit(current: CurrentAuthDep, settings: SettingsDep) -> No
         )
 
 
+def enforce_intent_limit(current: CurrentAuthDep, settings: SettingsDep) -> None:
+    retry_after = limiter.check(
+        f"intent:{current.account.id}",
+        settings.rate_limit_discover_per_minute,
+    )
+    if retry_after is not None:
+        raise ApiError(
+            "Too many assistant requests. Try again later.",
+            status_code=429,
+            code="rate_limited",
+            retry_after=retry_after,
+        )
+
+
 def enforce_talk_limit(current: CurrentAuthDep, settings: SettingsDep) -> None:
     retry_after = limiter.check(
         f"talk:{current.account.id}",
@@ -58,4 +72,5 @@ def enforce_talk_limit(current: CurrentAuthDep, settings: SettingsDep) -> None:
 
 
 DiscoverRateLimitDep = Annotated[None, Depends(enforce_discover_limit)]
+IntentRateLimitDep = Annotated[None, Depends(enforce_intent_limit)]
 TalkRateLimitDep = Annotated[None, Depends(enforce_talk_limit)]

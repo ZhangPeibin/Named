@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from assistant.router import router as assistant_router
 from auth.router import me_router
 from auth.router import router as auth_router
 from challenge.router import router as challenge_router
@@ -110,6 +111,7 @@ async def request_context(request: Request, call_next):
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(me_router, prefix=settings.api_v1_prefix)
 app.include_router(soul_router, prefix=settings.api_v1_prefix)
+app.include_router(assistant_router, prefix=settings.api_v1_prefix)
 app.include_router(discovery_router, prefix=settings.api_v1_prefix)
 app.include_router(word_router, prefix=settings.api_v1_prefix)
 app.include_router(image_router, prefix=settings.api_v1_prefix)
