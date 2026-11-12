@@ -12,7 +12,7 @@ import 'package:named/i18n/strings.g.dart';
 import 'support/i18n_test_helpers.dart';
 
 void main() {
-  testWidgets('renders the timeline with dock and opens the quick deck', (
+  testWidgets('renders the timeline and opens Me from the header', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -42,28 +42,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text(t.navigation.explore), findsOneWidget);
-    expect(find.text(t.navigation.words), findsOneWidget);
-    expect(find.text(t.navigation.history), findsOneWidget);
-    expect(find.text(t.navigation.challenge), findsOneWidget);
-    expect(find.text(t.navigation.me), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
     expect(find.text(t.timeline.emptyTitle), findsOneWidget);
     expect(find.byKey(const Key('timeline.composer')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('timeline.menu')));
+    await tester.tap(find.byKey(const Key('timeline.me')));
     await tester.pumpAndSettle();
-
-    expect(
-      find.text(t.timeline.quickDeckEyebrow.toUpperCase()),
-      findsOneWidget,
-    );
-    expect(find.byKey(const Key('quickDeck.words')), findsOneWidget);
-    expect(find.byKey(const Key('quickDeck.settings')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('quickDeck.words')));
-    await tester.pumpAndSettle();
-    expect(find.text(t.words.empty), findsOneWidget);
+    expect(find.byKey(const Key('me.page')), findsOneWidget);
   });
 }
 

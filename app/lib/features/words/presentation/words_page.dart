@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/navigation/main_navigation_bar.dart';
-
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -44,7 +42,6 @@ class _WordsPageState extends ConsumerState<WordsPage> {
     return AppScaffold(
       title: t.title,
       centerBody: false,
-      bottomNavigationBar: const MainNavigationBar(currentIndex: 1),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(

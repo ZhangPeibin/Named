@@ -281,6 +281,9 @@ class _Translations$soul$zh implements Translations$soul$en {
 	@override String source({required Object source}) => '来源：${source}';
 	@override String get rhythm => '我的节奏';
 	@override String get rhythmBody => '挑战会出现在这里。';
+	@override String get library => '你的收藏';
+	@override String get wordsBody => '从经历里留下的词语。';
+	@override String get historyBody => '值得回看的经历。';
 }
 
 // Path: navigation
@@ -424,11 +427,6 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get example => '例句';
 	@override String get loadFailed => '时间线加载失败。';
 	@override String get talkFailed => '无法开始对话，请重试。';
-	@override String get menuReview => '复习 3 个';
-	@override String get menuTitle => '前往';
-	@override String get menuWords => '词语';
-	@override String get menuMe => '我';
-	@override String get menuSettings => '设置';
 	@override String get chunks => '自然搭配';
 	@override String get talkAboutIt => '聊聊它';
 	@override String get sceneExtensions => '同一场景';
@@ -442,26 +440,11 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get pause => '暂停播放';
 	@override String get speed => '播放速度';
 	@override String get audioUnavailable => '音频暂时不可用。';
-	@override String get menuHistory => '回忆';
 	@override String get challengeStart => '开始一轮挑战';
 	@override String get challengeContinue => '继续你的挑战';
-	@override String get quickDeckEyebrow => '接下来';
-	@override String get quickChallenge => '挑战';
-	@override String get quickChallengeStart => '开始一轮小挑战';
-	@override String get quickChallengeContinue => '继续这一轮';
-	@override String get quickReview => '复习';
-	@override String get quickReviewHint => '回顾你的词语';
-	@override String get quickReviewDue => '{count} 个词语在等你';
-	@override String get quickWords => '词语';
-	@override String get quickWordsHint => '你的词语库';
-	@override String get quickWordsCount => '已保存 {count} 个';
-	@override String get quickHistory => '回忆';
-	@override String get quickHistoryHint => '回看你的经历';
-	@override String get quickSettings => '设置';
-	@override String get quickSettingsHint => '语言、主题和账号';
-	@override String get quickOpen => '打开';
-	@override String get quickMe => '我';
-	@override String get quickMeHint => '你的资料与 Soul';
+	@override String get reviewPromptTitle => '{count} 个词语可以复习';
+	@override String get reviewPromptBody => '短暂回顾一下，会记得更牢。';
+	@override String get challengeEmptyHint => '收集几件你注意到的小事。';
 }
 
 // Path: words
@@ -710,6 +693,9 @@ extension on TranslationsZh {
 			'soul.source' => ({required Object source}) => '来源：${source}',
 			'soul.rhythm' => '我的节奏',
 			'soul.rhythmBody' => '挑战会出现在这里。',
+			'soul.library' => '你的收藏',
+			'soul.wordsBody' => '从经历里留下的词语。',
+			'soul.historyBody' => '值得回看的经历。',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -808,11 +794,6 @@ extension on TranslationsZh {
 			'timeline.example' => '例句',
 			'timeline.loadFailed' => '时间线加载失败。',
 			'timeline.talkFailed' => '无法开始对话，请重试。',
-			'timeline.menuReview' => '复习 3 个',
-			'timeline.menuTitle' => '前往',
-			'timeline.menuWords' => '词语',
-			'timeline.menuMe' => '我',
-			'timeline.menuSettings' => '设置',
 			'timeline.chunks' => '自然搭配',
 			'timeline.talkAboutIt' => '聊聊它',
 			'timeline.sceneExtensions' => '同一场景',
@@ -826,26 +807,11 @@ extension on TranslationsZh {
 			'timeline.pause' => '暂停播放',
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
-			'timeline.menuHistory' => '回忆',
 			'timeline.challengeStart' => '开始一轮挑战',
 			'timeline.challengeContinue' => '继续你的挑战',
-			'timeline.quickDeckEyebrow' => '接下来',
-			'timeline.quickChallenge' => '挑战',
-			'timeline.quickChallengeStart' => '开始一轮小挑战',
-			'timeline.quickChallengeContinue' => '继续这一轮',
-			'timeline.quickReview' => '复习',
-			'timeline.quickReviewHint' => '回顾你的词语',
-			'timeline.quickReviewDue' => '{count} 个词语在等你',
-			'timeline.quickWords' => '词语',
-			'timeline.quickWordsHint' => '你的词语库',
-			'timeline.quickWordsCount' => '已保存 {count} 个',
-			'timeline.quickHistory' => '回忆',
-			'timeline.quickHistoryHint' => '回看你的经历',
-			'timeline.quickSettings' => '设置',
-			'timeline.quickSettingsHint' => '语言、主题和账号',
-			'timeline.quickOpen' => '打开',
-			'timeline.quickMe' => '我',
-			'timeline.quickMeHint' => '你的资料与 Soul',
+			'timeline.reviewPromptTitle' => '{count} 个词语可以复习',
+			'timeline.reviewPromptBody' => '短暂回顾一下，会记得更牢。',
+			'timeline.challengeEmptyHint' => '收集几件你注意到的小事。',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',

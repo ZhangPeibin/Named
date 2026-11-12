@@ -534,6 +534,15 @@ class Translations$soul$en {
 
 	/// en: 'Challenges will appear here.'
 	String get rhythmBody => 'Challenges will appear here.';
+
+	/// en: 'Your library'
+	String get library => 'Your library';
+
+	/// en: 'Words you kept from moments.'
+	String get wordsBody => 'Words you kept from moments.';
+
+	/// en: 'Experiences worth looking back on.'
+	String get historyBody => 'Experiences worth looking back on.';
 }
 
 // Path: navigation
@@ -874,21 +883,6 @@ class Translations$timeline$en {
 	/// en: 'Could not start the conversation. Try again.'
 	String get talkFailed => 'Could not start the conversation. Try again.';
 
-	/// en: 'Review 3'
-	String get menuReview => 'Review 3';
-
-	/// en: 'Go to'
-	String get menuTitle => 'Go to';
-
-	/// en: 'Words'
-	String get menuWords => 'Words';
-
-	/// en: 'Me'
-	String get menuMe => 'Me';
-
-	/// en: 'Settings'
-	String get menuSettings => 'Settings';
-
 	/// en: 'Natural chunks'
 	String get chunks => 'Natural chunks';
 
@@ -928,65 +922,20 @@ class Translations$timeline$en {
 	/// en: 'Audio is unavailable.'
 	String get audioUnavailable => 'Audio is unavailable.';
 
-	/// en: 'History'
-	String get menuHistory => 'History';
-
 	/// en: 'Start a challenge'
 	String get challengeStart => 'Start a challenge';
 
 	/// en: 'Continue your challenge'
 	String get challengeContinue => 'Continue your challenge';
 
-	/// en: 'Good next steps'
-	String get quickDeckEyebrow => 'Good next steps';
+	/// en: '{count} words are ready'
+	String get reviewPromptTitle => '{count} words are ready';
 
-	/// en: 'Challenge'
-	String get quickChallenge => 'Challenge';
+	/// en: 'A short revisit keeps them close.'
+	String get reviewPromptBody => 'A short revisit keeps them close.';
 
-	/// en: 'Start a small challenge'
-	String get quickChallengeStart => 'Start a small challenge';
-
-	/// en: 'Continue your round'
-	String get quickChallengeContinue => 'Continue your round';
-
-	/// en: 'Review'
-	String get quickReview => 'Review';
-
-	/// en: 'Revisit your words'
-	String get quickReviewHint => 'Revisit your words';
-
-	/// en: '{count} words waiting'
-	String get quickReviewDue => '{count} words waiting';
-
-	/// en: 'Words'
-	String get quickWords => 'Words';
-
-	/// en: 'Your word shelf'
-	String get quickWordsHint => 'Your word shelf';
-
-	/// en: '{count} saved'
-	String get quickWordsCount => '{count} saved';
-
-	/// en: 'History'
-	String get quickHistory => 'History';
-
-	/// en: 'Revisit experiences'
-	String get quickHistoryHint => 'Revisit experiences';
-
-	/// en: 'Settings'
-	String get quickSettings => 'Settings';
-
-	/// en: 'Language, theme, account'
-	String get quickSettingsHint => 'Language, theme, account';
-
-	/// en: 'Open'
-	String get quickOpen => 'Open';
-
-	/// en: 'Me'
-	String get quickMe => 'Me';
-
-	/// en: 'Your profile and Soul'
-	String get quickMeHint => 'Your profile and Soul';
+	/// en: 'Gather a few things you noticed.'
+	String get challengeEmptyHint => 'Gather a few things you noticed.';
 }
 
 // Path: words
@@ -1389,6 +1338,9 @@ extension on Translations {
 			'soul.source' => ({required Object source}) => 'Source: ${source}',
 			'soul.rhythm' => 'My rhythm',
 			'soul.rhythmBody' => 'Challenges will appear here.',
+			'soul.library' => 'Your library',
+			'soul.wordsBody' => 'Words you kept from moments.',
+			'soul.historyBody' => 'Experiences worth looking back on.',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -1487,11 +1439,6 @@ extension on Translations {
 			'timeline.example' => 'Example',
 			'timeline.loadFailed' => 'Could not load your timeline.',
 			'timeline.talkFailed' => 'Could not start the conversation. Try again.',
-			'timeline.menuReview' => 'Review 3',
-			'timeline.menuTitle' => 'Go to',
-			'timeline.menuWords' => 'Words',
-			'timeline.menuMe' => 'Me',
-			'timeline.menuSettings' => 'Settings',
 			'timeline.chunks' => 'Natural chunks',
 			'timeline.talkAboutIt' => 'Talk about it',
 			'timeline.sceneExtensions' => 'In this scene',
@@ -1505,26 +1452,11 @@ extension on Translations {
 			'timeline.pause' => 'Pause word',
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
-			'timeline.menuHistory' => 'History',
 			'timeline.challengeStart' => 'Start a challenge',
 			'timeline.challengeContinue' => 'Continue your challenge',
-			'timeline.quickDeckEyebrow' => 'Good next steps',
-			'timeline.quickChallenge' => 'Challenge',
-			'timeline.quickChallengeStart' => 'Start a small challenge',
-			'timeline.quickChallengeContinue' => 'Continue your round',
-			'timeline.quickReview' => 'Review',
-			'timeline.quickReviewHint' => 'Revisit your words',
-			'timeline.quickReviewDue' => '{count} words waiting',
-			'timeline.quickWords' => 'Words',
-			'timeline.quickWordsHint' => 'Your word shelf',
-			'timeline.quickWordsCount' => '{count} saved',
-			'timeline.quickHistory' => 'History',
-			'timeline.quickHistoryHint' => 'Revisit experiences',
-			'timeline.quickSettings' => 'Settings',
-			'timeline.quickSettingsHint' => 'Language, theme, account',
-			'timeline.quickOpen' => 'Open',
-			'timeline.quickMe' => 'Me',
-			'timeline.quickMeHint' => 'Your profile and Soul',
+			'timeline.reviewPromptTitle' => '{count} words are ready',
+			'timeline.reviewPromptBody' => 'A short revisit keeps them close.',
+			'timeline.challengeEmptyHint' => 'Gather a few things you noticed.',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',

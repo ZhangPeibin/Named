@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/navigation/main_navigation_bar.dart';
-
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -17,11 +15,12 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../challenge/domain/challenge.dart';
 import '../../challenge/providers/challenge_providers.dart';
+import '../../words/domain/word_shelf.dart';
+import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
-import 'widgets/quick_deck_sheet.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/word_naming_card.dart';
 
@@ -195,7 +194,32 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     }
   }
 
-  Future<void> _openMenu() => showQuickDeck(context);
+  void _scrollToBottomIfNear() {
+    if (!_didInitialScroll) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) {
+        return;
+      }
+      final position = _scrollController.position;
+      if (position.maxScrollExtent - position.pixels <= 220) {
+        _settleScrollToBottom();
+      }
+    });
+  }
+
+  void _settleScrollToBottom([int remaining = 4]) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) {
+        return;
+      }
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      if (remaining > 0) {
+        _settleScrollToBottom(remaining - 1);
+      }
+    });
+  }
 
   void _scheduleScrollToBottom({bool animate = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -221,15 +245,26 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   Widget build(BuildContext context) {
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
+    ref
+      ..listen(challengesProvider, (previous, next) {
+        if (next.hasValue) {
+          _scrollToBottomIfNear();
+        }
+      })
+      ..listen(wordShelfProvider, (previous, next) {
+        if (next.hasValue) {
+          _scrollToBottomIfNear();
+        }
+      });
 
     return AppScaffold(
       title: '',
       showAppBar: false,
-      bottomNavigationBar: const MainNavigationBar(currentIndex: 0),
       centerBody: false,
       padding: EdgeInsets.zero,
       body: Column(
         children: [
+          const _TimelineHeader(),
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -264,10 +299,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
             controller: _textController,
             hintText: t.composerHint,
             sendTooltip: t.send,
-            menuTooltip: t.menuTitle,
             isSubmitting: _isSubmitting,
             onSend: _send,
-            onOpenMenu: _openMenu,
             onChanged: (_) => setState(() => _error = null),
           ),
         ],
@@ -286,10 +319,10 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
 
     if (!_didInitialScroll) {
       _didInitialScroll = true;
-      _scheduleScrollToBottom();
+      _settleScrollToBottom();
     }
 
-    final widgets = <Widget>[const _ChallengeBanner()];
+    final widgets = <Widget>[];
     if (state.nextCursor != null) {
       widgets.add(
         Center(
@@ -336,6 +369,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
           );
       }
     }
+    widgets
+      ..add(const _ChallengeBanner())
+      ..add(const _ReviewBanner());
 
     return ListView.separated(
       key: const Key('timeline.list'),
@@ -363,6 +399,39 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       return t.yesterday;
     }
     return MaterialLocalizations.of(context).formatMediumDate(day);
+  }
+}
+
+class _TimelineHeader extends StatelessWidget {
+  const _TimelineHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s20,
+        AppSpacing.s8,
+        AppSpacing.s12,
+        0,
+      ),
+      child: Row(
+        children: [
+          Text('Named', style: Theme.of(context).textTheme.headlineMedium),
+          const Spacer(),
+          IconButton.filledTonal(
+            key: const Key('timeline.me'),
+            tooltip: context.t.navigation.me,
+            onPressed: () => unawaited(context.pushNamed(AppRouteNames.me)),
+            style: IconButton.styleFrom(
+              backgroundColor: palette.surfaceMuted,
+              foregroundColor: palette.primary,
+            ),
+            icon: const Icon(Icons.person_outline, size: 20),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -411,7 +480,78 @@ class _ChallengeBanner extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  active == null ? t.challengeStart : t.challengeContinue,
+                  active == null ? t.challengeEmptyHint : t.challengeContinue,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, color: palette.muted),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewBanner extends ConsumerWidget {
+  const _ReviewBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.appPalette;
+    final async = ref.watch(wordShelfProvider);
+    if (async.isLoading || async.hasError) {
+      return const SizedBox.shrink();
+    }
+    final count =
+        async.value?.words
+            .where((word) => word.status == WordShelfStatus.needsReview)
+            .length ??
+        0;
+    if (count == 0) {
+      return const SizedBox.shrink();
+    }
+    final t = context.t;
+    return AppCard(
+      key: const Key('timeline.review'),
+      onTap: () => unawaited(context.pushNamed(AppRouteNames.review)),
+      padding: const EdgeInsets.all(AppSpacing.s14),
+      color: palette.surfaceMuted,
+      child: Row(
+        children: [
+          Container(
+            width: AppSize.size34,
+            height: AppSize.size34,
+            decoration: BoxDecoration(
+              color: palette.surface,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+            ),
+            child: Icon(Icons.refresh, color: palette.primary, size: 18),
+          ),
+          const SizedBox(width: AppSpacing.s10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.words.needsReview.toUpperCase(),
+                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.timeline.reviewPromptTitle.replaceFirst(
+                    '{count}',
+                    '$count',
+                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.timeline.reviewPromptBody,
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(color: palette.muted),

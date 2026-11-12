@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/navigation/main_navigation_bar.dart';
-
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -38,7 +36,6 @@ class SoulPage extends ConsumerWidget {
       key: const Key('me.page'),
       title: t.title,
       centerBody: false,
-      bottomNavigationBar: const MainNavigationBar(currentIndex: 4),
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontalPadding,
         AppSpacing.s8,
@@ -137,6 +134,22 @@ class SoulPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.s32),
+            AppSectionHeader(title: t.library),
+            const SizedBox(height: AppSpacing.s12),
+            _LibraryCard(
+              icon: Icons.menu_book_outlined,
+              title: context.t.words.title,
+              body: t.wordsBody,
+              onTap: () => unawaited(context.pushNamed(AppRouteNames.words)),
+            ),
+            const SizedBox(height: AppSpacing.s8),
+            _LibraryCard(
+              icon: Icons.auto_stories_outlined,
+              title: context.t.history.title,
+              body: t.historyBody,
+              onTap: () => unawaited(context.pushNamed(AppRouteNames.history)),
+            ),
+            const SizedBox(height: AppSpacing.s32),
             AppButton(
               key: const Key('soul.editPrimary'),
               label: t.edit,
@@ -176,6 +189,55 @@ class SoulPage extends ConsumerWidget {
         context,
       ).showSnackBar(SnackBar(content: Text(context.t.soul.saved)));
     }
+  }
+}
+
+class _LibraryCard extends StatelessWidget {
+  const _LibraryCard({
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      onTap: onTap,
+      child: Row(
+        children: [
+          _RoundIcon(icon: icon),
+          const SizedBox(width: AppSpacing.s14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  body,
+                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, color: palette.muted),
+        ],
+      ),
+    );
   }
 }
 
