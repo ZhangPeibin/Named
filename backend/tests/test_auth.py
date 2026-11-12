@@ -20,6 +20,8 @@ from models import (
     AuthCode,
     AuthSession,
     Base,
+    Challenge,
+    ChallengeItem,
     Conversation,
     ConversationMessage,
     Discovery,
@@ -552,6 +554,21 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
                 source_id=conversation.id,
             )
         )
+        challenge = Challenge(
+            account_id=account_id,
+            name="Purge challenge",
+            planned_days=2,
+            status="active",
+        )
+        session.add(challenge)
+        await session.flush()
+        session.add(
+            ChallengeItem(
+                challenge_id=challenge.id,
+                discovery_id=discovery.id,
+                position=0,
+            )
+        )
         session.add(
             ExperienceJob(
                 account_id=account_id,
@@ -636,6 +653,13 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
             is None
         )
         assert await session.get(WordProgress, progress_id) is None
+        assert await session.get(Challenge, challenge.id) is None
+        assert (
+            await session.scalar(
+                select(ChallengeItem).where(ChallengeItem.challenge_id == challenge.id)
+            )
+            is None
+        )
         assert await session.get(Word, word_id) is not None
         assert await session.get(Account, other_account_id) is not None
         assert (

@@ -329,6 +329,52 @@ class ExperienceJob(Base):
     )
 
 
+class Challenge(Base):
+    __tablename__ = "challenges"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    planned_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+
+
+class ChallengeItem(Base):
+    __tablename__ = "challenge_items"
+    __table_args__ = (
+        UniqueConstraint(
+            "challenge_id",
+            "discovery_id",
+            name="uq_challenge_items_challenge_discovery",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    challenge_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("challenges.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    discovery_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("discoveries.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    visited_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
 class MemoryItem(Base):
     __tablename__ = "memory_items"
     __table_args__ = (

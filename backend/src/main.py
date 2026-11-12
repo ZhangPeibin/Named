@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from auth.router import me_router
 from auth.router import router as auth_router
+from challenge.router import router as challenge_router
 from config import get_settings
 from database import engine
 from discovery.router import image_router, word_router
@@ -117,6 +118,7 @@ app.include_router(stt_router, prefix=settings.api_v1_prefix)
 app.include_router(history_router, prefix=settings.api_v1_prefix)
 app.include_router(experience_router, prefix=settings.api_v1_prefix)
 app.include_router(sentence_router, prefix=settings.api_v1_prefix)
+app.include_router(challenge_router, prefix=settings.api_v1_prefix)
 app.include_router(talk_router, prefix=settings.api_v1_prefix)
 app.include_router(timeline_router, prefix=settings.api_v1_prefix)
 

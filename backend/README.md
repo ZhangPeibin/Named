@@ -114,6 +114,7 @@ All business routes are under `/api/v1`.
 | Talk | `POST /conversations`, `GET /conversations/{id}`, `POST /conversations/{id}/messages`, `POST /conversations/{id}/end`, `POST /conversations/{id}/help` |
 | History | `GET /history`, `GET /experiences/{id}` |
 | Sentence | `POST /sentences/lookup` |
+| Challenge | `GET /challenges`, `POST /challenges`, `GET /challenges/{id}`, `POST /challenges/{id}/end`, `POST /challenges/{id}/items/{item_id}/visited` |
 | Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
@@ -147,6 +148,7 @@ Implemented P0 foundation:
 - Asynchronous Experience extraction with durable jobs, source evidence,
   life/learning separation, History list/detail, and relevant context injection
 - Word lookup and Sentence details, including sentence TTS
+- Challenge creation, opened-content progress, manual ending, and history
 - Companion memory and recurring error profile
 - Account deletion with a 30-day hard-delete purge command
 - Problem+json errors, request IDs, rate limits, OpenAPI, end-to-end tests
@@ -154,7 +156,7 @@ Implemented P0 foundation:
 Not implemented yet:
 
 - Automatic Soul updates / `soul.md`
-- Challenge and Knowledge Graph / Personal English World pages
+- Knowledge Graph / Personal English World pages
 - Streaming Talk (SSE) and real-time full-duplex voice
 - Production email delivery, S3/MinIO media storage, and deployment automation
 - Age gate / parental consent

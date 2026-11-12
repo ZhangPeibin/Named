@@ -9,6 +9,8 @@ from models import (
     Account,
     AuthCode,
     AuthSession,
+    Challenge,
+    ChallengeItem,
     Conversation,
     ConversationMessage,
     Discovery,
@@ -97,6 +99,15 @@ async def purge_expired_deletions(session: AsyncSession, store: MediaStore) -> i
                 delete(DiscoveryCandidate).where(DiscoveryCandidate.discovery_id.in_(discovery_ids))
             )
             await session.execute(delete(Discovery).where(Discovery.id.in_(discovery_ids)))
+
+        challenge_ids = list(
+            await session.scalars(select(Challenge.id).where(Challenge.account_id == account.id))
+        )
+        if challenge_ids:
+            await session.execute(
+                delete(ChallengeItem).where(ChallengeItem.challenge_id.in_(challenge_ids))
+            )
+        await session.execute(delete(Challenge).where(Challenge.account_id == account.id))
 
         experience_ids = list(
             await session.scalars(select(Experience.id).where(Experience.account_id == account.id))

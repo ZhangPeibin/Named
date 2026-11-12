@@ -552,6 +552,76 @@ async def test_sentence_lookup_and_speech(talk_env) -> None:
 
 
 @pytest.mark.asyncio
+async def test_challenge_lifecycle(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "challenge@example.com")
+    headers = bearer(verified["session_token"])
+    discovery = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "树"},
+    )
+    assert discovery.status_code == 201
+    discovery_id = discovery.json()["id"]
+
+    response = await http.post(
+        "/api/v1/challenges",
+        headers=headers,
+        json={
+            "name": "身边的小发现",
+            "planned_days": 2,
+            "discovery_ids": [discovery_id],
+        },
+    )
+    assert response.status_code == 201, response.text
+    challenge = response.json()
+    assert challenge["status"] == "active"
+    assert challenge["total_count"] == 1
+    assert challenge["items"][0]["focus_type"] == "word"
+    assert challenge["items"][0]["title"] == "tree"
+    challenge_id = challenge["id"]
+    item_id = challenge["items"][0]["id"]
+
+    duplicate = await http.post(
+        "/api/v1/challenges",
+        headers=headers,
+        json={
+            "name": "Another",
+            "planned_days": 7,
+            "discovery_ids": [discovery_id],
+        },
+    )
+    assert duplicate.status_code == 409
+    assert duplicate.json()["code"] == "active_challenge_exists"
+
+    visited = await http.post(
+        f"/api/v1/challenges/{challenge_id}/items/{item_id}/visited",
+        headers=headers,
+    )
+    assert visited.status_code == 200, visited.text
+    assert visited.json()["visited_count"] == 1
+
+    ended = await http.post(f"/api/v1/challenges/{challenge_id}/end", headers=headers)
+    assert ended.status_code == 200
+    assert ended.json()["status"] == "ended"
+
+    response = await http.get("/api/v1/challenges", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["items"][0]["status"] == "ended"
+
+    next_challenge = await http.post(
+        "/api/v1/challenges",
+        headers=headers,
+        json={
+            "name": "Next",
+            "planned_days": 1,
+            "discovery_ids": [discovery_id],
+        },
+    )
+    assert next_challenge.status_code == 201
+
+
+@pytest.mark.asyncio
 async def test_voice_transcript_must_be_confirmed(talk_env) -> None:
     http, sender, _, _, _, _ = talk_env
     _, headers, word_id = await create_word(http, sender, "voice@example.com")
