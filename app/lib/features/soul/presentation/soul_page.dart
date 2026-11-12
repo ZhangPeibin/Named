@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/navigation/main_navigation_bar.dart';
+
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -36,6 +38,7 @@ class SoulPage extends ConsumerWidget {
       key: const Key('me.page'),
       title: t.title,
       centerBody: false,
+      bottomNavigationBar: const MainNavigationBar(currentIndex: 4),
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontalPadding,
         AppSpacing.s8,

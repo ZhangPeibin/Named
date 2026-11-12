@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/navigation/main_navigation_bar.dart';
+
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -232,6 +234,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     return AppScaffold(
       title: '',
       showAppBar: false,
+      bottomNavigationBar: const MainNavigationBar(currentIndex: 0),
       centerBody: false,
       padding: EdgeInsets.zero,
       body: Column(

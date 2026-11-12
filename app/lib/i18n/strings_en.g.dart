@@ -555,6 +555,9 @@ class Translations$navigation$en {
 
 	/// en: 'Me'
 	String get me => 'Me';
+
+	/// en: 'Challenge'
+	String get challenge => 'Challenge';
 }
 
 // Path: write
@@ -1339,6 +1342,7 @@ extension on Translations {
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
 			'navigation.me' => 'Me',
+			'navigation.challenge' => 'Challenge',
 			'write.title' => 'Write',
 			'write.headline' => 'What do you want to understand?',
 			'write.subtitle' => 'Write a word or a sentence you noticed today.',

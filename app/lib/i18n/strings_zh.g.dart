@@ -294,6 +294,7 @@ class _Translations$navigation$zh implements Translations$navigation$en {
 	@override String get words => '词语';
 	@override String get history => '回忆';
 	@override String get me => '我';
+	@override String get challenge => '挑战';
 }
 
 // Path: write
@@ -696,6 +697,7 @@ extension on TranslationsZh {
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
 			'navigation.me' => '我',
+			'navigation.challenge' => '挑战',
 			'write.title' => '写点什么',
 			'write.headline' => '你想理解什么？',
 			'write.subtitle' => '写下今天注意到的一个词或一句话。',

@@ -12,7 +12,7 @@ import 'package:named/i18n/strings.g.dart';
 import 'support/i18n_test_helpers.dart';
 
 void main() {
-  testWidgets('renders the timeline without tabs and opens the page menu', (
+  testWidgets('renders the timeline with dock and opens the page menu', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -42,18 +42,22 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text(t.navigation.explore), findsOneWidget);
+    expect(find.text(t.navigation.words), findsOneWidget);
+    expect(find.text(t.navigation.history), findsOneWidget);
+    expect(find.text(t.navigation.challenge), findsOneWidget);
+    expect(find.text(t.navigation.me), findsOneWidget);
     expect(find.text(t.timeline.emptyTitle), findsOneWidget);
     expect(find.byKey(const Key('timeline.composer')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('timeline.menu')));
     await tester.pumpAndSettle();
 
-    expect(find.text(t.timeline.menuWords), findsOneWidget);
-    expect(find.text(t.timeline.menuMe), findsOneWidget);
+    expect(find.text(t.timeline.menuWords), findsNWidgets(2));
     expect(find.text(t.timeline.menuSettings), findsOneWidget);
 
-    await tester.tap(find.text(t.timeline.menuWords));
+    await tester.tap(find.text(t.timeline.menuWords).last);
     await tester.pumpAndSettle();
     expect(find.text(t.words.empty), findsOneWidget);
   });
