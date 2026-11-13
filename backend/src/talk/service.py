@@ -3,6 +3,7 @@ import logging
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from agents import AgentFailed, agent_api_error
 from ai import AINotConfigured
 from clock import utcnow
 from config import Settings
@@ -22,7 +23,8 @@ from models import (
     Word,
     WordContent,
 )
-from talk.agent import AgentFailed, HelpAgent, TalkAgent
+from talk.agent import HELP_SPEC, HelpAgent, TalkAgent
+from talk.agent import SPEC as TALK_SPEC
 from talk.errors import get_error_profile_context, record_error_profile
 from talk.schemas import (
     AnnotationOut,
@@ -395,11 +397,7 @@ async def send_message(
             code="ai_not_configured",
         ) from exc
     except AgentFailed as exc:
-        raise ApiError(
-            "The conversation agent failed.",
-            status_code=502,
-            code="talk_agent_failed",
-        ) from exc
+        raise agent_api_error(exc, TALK_SPEC) from exc
 
     native_text = (response.native_reply or "").strip() or None
     if native_language.lower().startswith("en"):
@@ -556,11 +554,7 @@ async def help_expression(
             code="ai_not_configured",
         ) from exc
     except AgentFailed as exc:
-        raise ApiError(
-            "The expression helper failed.",
-            status_code=502,
-            code="help_agent_failed",
-        ) from exc
+        raise agent_api_error(exc, HELP_SPEC) from exc
 
     audio, _ = await speech_service.synthesize(session, suggestion.natural_english)
     await session.commit()

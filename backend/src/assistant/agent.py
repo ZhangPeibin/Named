@@ -1,20 +1,13 @@
 from functools import lru_cache
 from typing import Protocol
 
-from pydantic_ai import Agent
-
-from ai import AINotConfigured, build_model, build_model_settings
+from agents import AgentFailed as AgentFailed
+from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
 from assistant.schemas import AssistantIntentOut
-from config import Settings, get_settings
-from errors import ApiError
 
 
 class IntentAgent(Protocol):
     async def route(self, text: str) -> AssistantIntentOut: ...
-
-
-class AgentFailed(Exception):
-    pass
 
 
 SYSTEM_PROMPT = """
@@ -57,32 +50,26 @@ Rules:
 - confidence is your confidence in the chosen intent, from 0 to 1.
 """.strip()
 
+SPEC = register(
+    AgentSpec(
+        name="intent",
+        prompt_version="intent-v1",
+        system_prompt=SYSTEM_PROMPT,
+        output_type=AssistantIntentOut,
+        error_code="agent_failed",
+        error_message="The assistant could not route this message.",
+    )
+)
+
 
 class PydanticAIIntentAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=AssistantIntentOut,
-            system_prompt=SYSTEM_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def route(self, text: str) -> AssistantIntentOut:
-        try:
-            result = await self._agent.run(f"Learner message: {text}")
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output
+        return await self._runtime.run(SPEC, f"Learner message: {text}")
 
 
 @lru_cache
 def get_intent_agent() -> IntentAgent:
-    settings = get_settings()
-    try:
-        return PydanticAIIntentAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAIIntentAgent(get_agent_runtime())

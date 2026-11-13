@@ -1,11 +1,8 @@
 from functools import lru_cache
 from typing import Protocol
 
-from pydantic_ai import Agent
-
-from ai import AINotConfigured, build_model, build_model_settings
-from config import Settings, get_settings
-from errors import ApiError
+from agents import AgentFailed as AgentFailed
+from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
 from experience.schemas import ExperienceExtraction
 
 
@@ -19,10 +16,6 @@ class ExperienceAgent(Protocol):
         corrections: list[str],
         annotations: list[str],
     ) -> ExperienceExtraction: ...
-
-
-class AgentFailed(Exception):
-    pass
 
 
 SYSTEM_PROMPT = """
@@ -55,15 +48,22 @@ For both:
   guessing.
 """.strip()
 
+SPEC = register(
+    AgentSpec(
+        name="experience",
+        prompt_version="experience-v1",
+        system_prompt=SYSTEM_PROMPT,
+        output_type=ExperienceExtraction,
+        error_code="agent_failed",
+        error_message="The experience agent failed.",
+        max_attempts=1,
+    )
+)
+
 
 class PydanticAIExperienceAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=ExperienceExtraction,
-            system_prompt=SYSTEM_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def extract(
         self,
@@ -86,21 +86,9 @@ class PydanticAIExperienceAgent:
             f"Corrections:\n{correction_text}\n\n"
             f"Annotations:\n{annotation_text}"
         )
-        try:
-            result = await self._agent.run(prompt)
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output
+        return await self._runtime.run(SPEC, prompt)
 
 
 @lru_cache
 def get_experience_agent() -> ExperienceAgent:
-    settings = get_settings()
-    try:
-        return PydanticAIExperienceAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAIExperienceAgent(get_agent_runtime())

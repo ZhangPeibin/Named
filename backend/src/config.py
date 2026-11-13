@@ -19,6 +19,9 @@ class Settings(BaseSettings):
 
     ai_model: str = "deepseek:deepseek-flash"
     ai_prompt_version: str = "discover-v3"
+    ai_agent_timeout_seconds: float = 60.0
+    ai_agent_max_attempts: int = 2
+    ai_agent_retry_backoff_seconds: float = 0.5
     deepseek_api_key: str | None = None
     openai_api_key: str | None = None
 

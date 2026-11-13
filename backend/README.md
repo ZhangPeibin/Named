@@ -67,6 +67,10 @@ Copy `.env.example` to `.env`. The most important settings:
 | `AUTH_SECRET` | HMAC secret for verification codes. Change outside development. |
 | `DEEPSEEK_API_KEY` | DeepSeek API key for the Discover and Talk agents. |
 | `AI_MODEL` | Pydantic AI model string, e.g. `deepseek:deepseek-flash`. |
+| `AI_PROMPT_VERSION` | Discovery prompt version; also keys cached Word content. |
+| `AI_AGENT_TIMEOUT_SECONDS` | Timeout for one agent model call. |
+| `AI_AGENT_MAX_ATTEMPTS` | Transient-failure attempts for synchronous agents. |
+| `AI_AGENT_RETRY_BACKOFF_SECONDS` | Linear backoff between runtime attempts. |
 | `DASHSCOPE_API_KEY` | Alibaba Cloud Model Studio / Bailian API key for TTS. |
 | `DASHSCOPE_WORKSPACE` | Workspace where the TTS model is enabled. |
 | `DASHSCOPE_REGION` | Model Studio region, e.g. `cn-beijing`. |
@@ -80,6 +84,18 @@ Copy `.env.example` to `.env`. The most important settings:
 | `EXPERIENCE_WORKER_ENABLED` | Run the in-process Experience worker. |
 | `MEDIA_ROOT` | Local media directory. Compose uses `/app/media`. |
 | `AUTH_DEV_LOG_CODES` | Development only: log verification codes. Keep `false` in production. |
+
+### Agent runtime
+
+All Pydantic AI agents run through `src/agents/`. Each feature module registers
+an `AgentSpec` that owns its output contract, system prompt, prompt version, and
+public error code. `AgentRuntime` owns model-call timeout, transient retry,
+error normalization, and usage/latency logs. Prompts stay with their feature
+module. Discovery keeps `AI_PROMPT_VERSION` as its prompt version so cached Word
+content is not invalidated.
+
+Logs include the agent name, prompt version, model, attempt, latency, and token
+counts. They never include prompts, conversations, or model output text.
 
 ### Qwen TTS notes
 
