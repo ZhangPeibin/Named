@@ -2,11 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
+from agents import AgentFailed, agent_api_error
 from auth.router import CurrentAuthDep, SessionDep, SettingsDep
 from errors import ApiError
 from models import SoulProfile
 from ratelimit import TalkRateLimitDep
-from sentence.agent import AgentFailed, SentenceAgent, get_sentence_agent
+from sentence.agent import SPEC as SENTENCE_SPEC
+from sentence.agent import SentenceAgent, get_sentence_agent
 from sentence.schemas import SentenceLookupRequest, SentenceOut
 
 router = APIRouter(prefix="/sentences", tags=["sentences"])
@@ -31,11 +33,7 @@ async def lookup_sentence(
     try:
         result = await agent.explain(text=text, native_language=native_language)
     except AgentFailed as exc:
-        raise ApiError(
-            "The sentence agent failed.",
-            status_code=502,
-            code="sentence_agent_failed",
-        ) from exc
+        raise agent_api_error(exc, SENTENCE_SPEC) from exc
     return SentenceOut(
         original=text,
         natural_english=result.natural_english,

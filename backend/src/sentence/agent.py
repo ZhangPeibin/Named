@@ -1,11 +1,8 @@
 from functools import lru_cache
 from typing import Protocol
 
-from pydantic_ai import Agent
-
-from ai import AINotConfigured, build_model, build_model_settings
-from config import Settings, get_settings
-from errors import ApiError
+from agents import AgentFailed as AgentFailed
+from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
 from sentence.schemas import SentenceAgentOutput
 
 
@@ -16,10 +13,6 @@ class SentenceAgent(Protocol):
         text: str,
         native_language: str,
     ) -> SentenceAgentOutput: ...
-
-
-class AgentFailed(Exception):
-    pass
 
 
 SYSTEM_PROMPT = """
@@ -45,15 +38,21 @@ Rules:
 - Prefer a useful explanation over a literal word-for-word rewrite.
 """.strip()
 
+SPEC = register(
+    AgentSpec(
+        name="sentence",
+        prompt_version="sentence-v1",
+        system_prompt=SYSTEM_PROMPT,
+        output_type=SentenceAgentOutput,
+        error_code="sentence_agent_failed",
+        error_message="The sentence agent failed.",
+    )
+)
+
 
 class PydanticAISentenceAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=SentenceAgentOutput,
-            system_prompt=SYSTEM_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def explain(
         self,
@@ -61,23 +60,12 @@ class PydanticAISentenceAgent:
         text: str,
         native_language: str,
     ) -> SentenceAgentOutput:
-        try:
-            result = await self._agent.run(
-                f"Learner native language: {native_language}\nSelected sentence: {text}"
-            )
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output
+        return await self._runtime.run(
+            SPEC,
+            f"Learner native language: {native_language}\nSelected sentence: {text}",
+        )
 
 
 @lru_cache
 def get_sentence_agent() -> SentenceAgent:
-    settings = get_settings()
-    try:
-        return PydanticAISentenceAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAISentenceAgent(get_agent_runtime())

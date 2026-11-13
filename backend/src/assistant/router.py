@@ -2,10 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from assistant.agent import AgentFailed, IntentAgent, get_intent_agent
+from agents import AgentFailed, agent_api_error
+from assistant.agent import SPEC as INTENT_SPEC
+from assistant.agent import IntentAgent, get_intent_agent
 from assistant.schemas import AssistantIntentOut, AssistantIntentRequest
 from auth.router import CurrentAuthDep
-from errors import ApiError
 from ratelimit import IntentRateLimitDep
 
 router = APIRouter(prefix="/assistant", tags=["assistant"])
@@ -22,8 +23,4 @@ async def route_input(
     try:
         return await agent.route(payload.text)
     except AgentFailed as exc:
-        raise ApiError(
-            "The assistant could not route this message.",
-            status_code=502,
-            code="agent_failed",
-        ) from exc
+        raise agent_api_error(exc, INTENT_SPEC) from exc

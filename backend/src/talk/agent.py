@@ -1,11 +1,8 @@
 from functools import lru_cache
 from typing import Protocol
 
-from pydantic_ai import Agent
-
-from ai import AINotConfigured, build_model, build_model_settings
-from config import Settings, get_settings
-from errors import ApiError
+from agents import AgentFailed as AgentFailed
+from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
 from talk.schemas import HelpSuggestion, TalkResponse
 
 
@@ -22,10 +19,6 @@ class TalkAgent(Protocol):
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse: ...
-
-
-class AgentFailed(Exception):
-    pass
 
 
 SYSTEM_PROMPT = """
@@ -118,14 +111,21 @@ provide. Do not infer age, gender, English level, interests, or life experiences
 """.strip()
 
 
+SPEC = register(
+    AgentSpec(
+        name="talk",
+        prompt_version="talk-v1",
+        system_prompt=SYSTEM_PROMPT,
+        output_type=TalkResponse,
+        error_code="talk_agent_failed",
+        error_message="The conversation agent failed.",
+    )
+)
+
+
 class PydanticAITalkAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=TalkResponse,
-            system_prompt=SYSTEM_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def respond(
         self,
@@ -156,24 +156,12 @@ class PydanticAITalkAgent:
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"New learner message: {user_text}"
         )
-        try:
-            result = await self._agent.run(prompt)
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output
+        return await self._runtime.run(SPEC, prompt)
 
 
 @lru_cache
 def get_talk_agent() -> TalkAgent:
-    settings = get_settings()
-    try:
-        return PydanticAITalkAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAITalkAgent(get_agent_runtime())
 
 
 class HelpAgent(Protocol):
@@ -215,15 +203,21 @@ Rules:
 - Use plain text only. Never use Markdown.
 """.strip()
 
+HELP_SPEC = register(
+    AgentSpec(
+        name="help",
+        prompt_version="help-v1",
+        system_prompt=HELP_PROMPT,
+        output_type=HelpSuggestion,
+        error_code="help_agent_failed",
+        error_message="The expression helper failed.",
+    )
+)
+
 
 class PydanticAIHelpAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=HelpSuggestion,
-            system_prompt=HELP_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def suggest(
         self,
@@ -252,21 +246,9 @@ class PydanticAIHelpAgent:
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"Learner wants to say: {user_text}"
         )
-        try:
-            result = await self._agent.run(prompt)
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output
+        return await self._runtime.run(HELP_SPEC, prompt)
 
 
 @lru_cache
 def get_help_agent() -> HelpAgent:
-    settings = get_settings()
-    try:
-        return PydanticAIHelpAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAIHelpAgent(get_agent_runtime())
