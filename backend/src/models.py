@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 from uuid import uuid4
 
 from sqlalchemy import (
     JSON,
     Boolean,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -196,6 +197,44 @@ class DiscoveryCandidate(Base):
     selected: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     provider: Mapped[str] = mapped_column(String(32), default="ai", nullable=False)
     raw_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class DailyReading(Base):
+    __tablename__ = "daily_readings"
+    __table_args__ = (
+        UniqueConstraint(
+            "account_id",
+            "reading_date",
+            name="uq_daily_readings_account_date",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    reading_date: Mapped[date] = mapped_column(Date, nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    passage: Mapped[str] = mapped_column(Text, nullable=False)
+    target_words_json: Mapped[list] = mapped_column(JSON, nullable=False)
+    question: Mapped[str | None] = mapped_column(Text, nullable=True)
+    translation_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    translation_language: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    theme: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    completed_duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class TimedSpeechAudio(Base):
+    __tablename__ = "timed_speech_audio"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    cache_key: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    object_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    format: Mapped[str] = mapped_column(String(16), nullable=False)
+    words_json: Mapped[list] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
 

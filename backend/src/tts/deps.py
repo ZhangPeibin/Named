@@ -6,6 +6,8 @@ from config import Settings, get_settings
 from media import MediaStore, get_media_store
 from tts.provider import TTSProvider, get_tts_provider
 from tts.service import SpeechAudioService, WordAudioService
+from tts.timed_provider import TimedSpeechProvider, get_timed_speech_provider
+from tts.timed_service import TimedSpeechService
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 TTSProviderDep = Annotated[TTSProvider, Depends(get_tts_provider)]
@@ -32,3 +34,23 @@ def get_speech_audio_service(
 
 
 SpeechAudioServiceDep = Annotated[SpeechAudioService, Depends(get_speech_audio_service)]
+
+
+TimedSpeechProviderDep = Annotated[
+    TimedSpeechProvider,
+    Depends(get_timed_speech_provider),
+]
+
+
+def get_timed_speech_service(
+    settings: SettingsDep,
+    store: MediaStoreDep,
+    provider: TimedSpeechProviderDep,
+) -> TimedSpeechService:
+    return TimedSpeechService(settings, provider, store)
+
+
+TimedSpeechServiceDep = Annotated[
+    TimedSpeechService,
+    Depends(get_timed_speech_service),
+]
