@@ -265,6 +265,7 @@ class TimelineController extends AsyncNotifier<TimelineState> {
       TimelineWordItem() => 'word:${item.id}',
       TimelineSceneItem() => 'scene:${item.id}',
       TimelineTalkItem() => 'talk:${item.id}',
+      TimelineDailyItem() => 'daily:${item.id}',
     };
   }
 }

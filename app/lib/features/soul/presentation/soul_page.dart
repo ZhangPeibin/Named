@@ -137,6 +137,13 @@ class SoulPage extends ConsumerWidget {
             AppSectionHeader(title: t.library),
             const SizedBox(height: AppSpacing.s12),
             _LibraryCard(
+              icon: Icons.headphones_outlined,
+              title: context.t.daily.title,
+              body: context.t.daily.body,
+              onTap: () => unawaited(context.pushNamed(AppRouteNames.daily)),
+            ),
+            const SizedBox(height: AppSpacing.s8),
+            _LibraryCard(
               icon: Icons.menu_book_outlined,
               title: context.t.words.title,
               body: t.wordsBody,

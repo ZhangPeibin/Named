@@ -424,6 +424,8 @@ All business routes are under `/api/v1`.
 | Sentence | `POST /sentences/lookup` |
 | Challenge | `GET /challenges`, `POST /challenges`, `GET /challenges/{id}`, `POST /challenges/{id}/end`, `POST /challenges/{id}/items/{item_id}/visited` |
 | Assistant | `POST /assistant/route` |
+| Progress | `GET /progress` |
+| Daily | `GET /daily/read?date=YYYY-MM-DD`, `GET /daily/read/translation`, `POST /daily/read/complete` |
 | Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
 Errors use `application/problem+json` with `code`, `status`, `detail`, and
@@ -439,21 +441,49 @@ DeepSeek runs with thinking disabled.
 
 | Agent | Module | Trigger | Responsibility | Output |
 | --- | --- | --- | --- | --- |
-| Intent router | `assistant/agent.py` | `POST /assistant/route` before every text composer submission | Decide whether the message is an app command (`review_words`, `start_challenge`, `view_challenges`) or ordinary learning content (`none`). The app executes the action; `none` continues to discovery. No keyword/regex parsing is done in the app. | `AssistantIntentOut` |
+| Intent router | `assistant/agent.py` | `POST /assistant/route` before every text composer submission | Decide whether the message is an app command (`open_words`, `review_words`, `start_challenge`, `view_challenges`) or ordinary learning content (`none`). The app executes the action; `none` continues to discovery. No keyword/regex parsing is done in the app. | `AssistantIntentOut` |
 | Discovery | `discovery/agent.py` | `POST /discoveries`; also generates missing Word content during lookup | Turn text or an image into one top-1 Word or Scene discovery, including native-language explanations, chunks, examples, and corrections where applicable. | `DiscoveryAgentOutput`, persisted as `Discovery` and optional `WordContent` |
 | Word lookup | `discovery/word_lookup_agent.py` | `GET /words/lookup?text=...` from Talk word details and Word lookups | Resolve selected text to one canonical English dictionary word or established compound. Discovery then reuses cached content or generates it. | `WordLookupOutput` |
 | Sentence | `sentence/agent.py` | `POST /sentences/lookup` from Talk long-press | Explain a selected sentence: natural English, native-language explanation, reusable chunks, grammar notes, and key words. | `SentenceAgentOutput` |
 | Talk | `talk/agent.py` | `POST /conversations/{id}/messages` | Produce the conversation reply plus corrections, annotations, memories, user-English hints, and suggested expressions. Injects Soul, memory, error-profile, and relevant Experience context. | `TalkResponse` |
 | Help | `talk/agent.py` | `POST /conversations/{id}/help` | Turn what the learner wants to say into one natural English sentence with an optional native-language note. This is not a chat reply. | `HelpSuggestion` |
 | Experience | `experience/agent.py` | Async Experience worker after a Talk conversation ends; no direct public route | Extract at most one life experience and one learning experience from the conversation, with evidence sequences. Results are persisted and later read by History and Talk context. | `ExperienceExtraction` |
+| Daily read | `daily/agent.py` | `GET /daily/read`, once per account and day | Write a 220-320 word A2-B1 listening/reading story using recent saved words and a rotating theme. The passage is persisted and synthesized to audio; it is practice text, not a user experience. | `DailyReadAgentOutput` |
+| Daily translation | `daily/translation_agent.py` | `GET /daily/read/translation` on first translation toggle | Translate the stored reading sentence by sentence, preserving sentence order and offsets. The result is cached per account/day/language until the learner changes native language. | `DailyTranslationAgentOutput` |
 
 Composer routing flow:
 
 ```text
 composer text
   -> POST /api/v1/assistant/route
-       -> action  -> app navigates to Review or Challenge; no discovery is created
+       -> action  -> app navigates to Words, Review, or Challenge; no discovery is created
        -> none    -> POST /api/v1/discoveries -> Discovery agent -> Timeline item
+```
+
+Daily reading flow:
+
+```text
+GET /api/v1/daily/read
+  -> recent words / starter words
+  -> Daily read agent
+  -> persisted once per account/day
+  -> TTS audio cached; app renders Listen + Read
+
+GET /api/v1/daily/read/translation
+  -> split stored passage into sentence spans
+  -> Daily translation agent
+  -> cached; app renders English line + native language line
+
+POST /api/v1/daily/read/complete
+  -> the app calls this after the reader reaches the end for 1.5s,
+     the audio finishes, or short content is fully visible
+  -> idempotent; streak + reading stats
+  -> Timeline daily task updates in place
+
+Timeline
+  -> one daily task card for today; it is created before content generation
+  -> completed past readings remain in the Timeline and open by date
+  -> GET /progress supplies cumulative words, conversations, and completed reads
 ```
 
 Important behaviors:
@@ -490,7 +520,11 @@ Implemented:
 - Accurate English hints for Chinese and corrected English messages
 - Long-press copy, Word details, Sentence details, and sentence Listen in Talk
 - Challenge creation, opened-content progress, manual ending, and history
-- AI-routed composer commands for review words, starting a challenge, and viewing challenges
+- AI-routed composer commands for opening words, reviewing words, starting a challenge, and viewing challenges
+- State-aware rotating composer hints for command discovery
+- Automatic scroll-edge paging in Timeline and History
+- Configurable word goal with composer border progress
+- Daily Listen/Read generated from saved words, with cached audio and long-press word lookup
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
@@ -506,8 +540,8 @@ Not implemented yet:
 
 Current local gates:
 
-- Backend: **90** tests, Ruff lint/format
-- Flutter app: **102** tests, `make check`
+- Backend: **98** tests, Ruff lint/format
+- Flutter app: **113** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

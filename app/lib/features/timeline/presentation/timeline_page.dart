@@ -15,11 +15,17 @@ import '../../../i18n/strings.g.dart';
 import '../../assistant/domain/assistant_intent.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
+import '../../progress/providers/progress_providers.dart';
+import '../../words/domain/word_shelf.dart';
+import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
+import 'composer_hint.dart';
+import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
 import 'widgets/talk_event_card.dart';
+import 'widgets/timeline_progress_card.dart';
 import 'widgets/word_naming_card.dart';
 
 class TimelinePage extends ConsumerStatefulWidget {
@@ -37,12 +43,159 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   bool _isSubmitting = false;
   bool _isLoadingEarlier = false;
   bool _didInitialScroll = false;
+  late final ComposerHintSelector _hintSelector;
+  Timer? _hintTimer;
+  ComposerHintCategory _hintCategory = ComposerHintCategory.discovery;
+  bool _hintPaused = false;
+
+  static const _hintInterval = Duration(seconds: 6);
+
+  @override
+  void initState() {
+    super.initState();
+    _hintSelector = ref.read(composerHintSelectorProvider);
+    _textController.addListener(_handleComposerTextChanged);
+    _scrollController.addListener(_handleTimelineScroll);
+    _hintTimer = Timer.periodic(_hintInterval, (_) => _advanceHint());
+  }
 
   @override
   void dispose() {
-    _textController.dispose();
-    _scrollController.dispose();
+    _hintTimer?.cancel();
+    _textController
+      ..removeListener(_handleComposerTextChanged)
+      ..dispose();
+    _scrollController
+      ..removeListener(_handleTimelineScroll)
+      ..dispose();
     super.dispose();
+  }
+
+  void _handleComposerTextChanged() {
+    final hasText = _textController.text.trim().isNotEmpty;
+    if (hasText) {
+      _hintPaused = true;
+      return;
+    }
+    if (_hintPaused) {
+      _hintPaused = false;
+      _advanceHint();
+    }
+  }
+
+  void _advanceHint() {
+    if (!mounted || _isSubmitting || _textController.text.trim().isNotEmpty) {
+      return;
+    }
+    final challenges = ref.read(challengesProvider);
+    final shelf = ref.read(wordShelfProvider);
+    final hasActiveChallenge = challenges.hasValue
+        ? challenges.value!.any((challenge) => challenge.isActive)
+        : null;
+    final reviewCount =
+        shelf.value?.words
+            .where((word) => word.status == WordShelfStatus.needsReview)
+            .length ??
+        0;
+    final next = _hintSelector.next(
+      options: _composerHintOptions(context.t.timeline),
+      weights: composerHintWeights(
+        hasActiveChallenge: hasActiveChallenge,
+        reviewCount: reviewCount,
+      ),
+      previous: _hintCategory,
+    );
+    if (next.category != _hintCategory) {
+      setState(() => _hintCategory = next.category);
+    }
+  }
+
+  void _handleTimelineScroll() {
+    if (!_didInitialScroll ||
+        _isLoadingEarlier ||
+        !_scrollController.hasClients ||
+        _scrollController.position.pixels > 160) {
+      return;
+    }
+    final state = ref.read(timelineControllerProvider).value;
+    if (state?.nextCursor == null) {
+      return;
+    }
+    unawaited(_loadEarlier());
+  }
+
+  Future<void> _loadEarlier() async {
+    if (_isLoadingEarlier) {
+      return;
+    }
+    final state = ref.read(timelineControllerProvider).value;
+    if (state?.nextCursor == null) {
+      return;
+    }
+    final beforeMax = _scrollController.hasClients
+        ? _scrollController.position.maxScrollExtent
+        : 0.0;
+    final beforeOffset = _scrollController.hasClients
+        ? _scrollController.position.pixels
+        : 0.0;
+    setState(() => _isLoadingEarlier = true);
+    try {
+      await ref.read(timelineControllerProvider.notifier).loadEarlier();
+      if (!mounted) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_scrollController.hasClients) {
+          return;
+        }
+        final position = _scrollController.position;
+        final target = beforeOffset + position.maxScrollExtent - beforeMax;
+        position.jumpTo(target.clamp(0.0, position.maxScrollExtent));
+      });
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingEarlier = false);
+      }
+    }
+  }
+
+  List<ComposerHintOption> _composerHintOptions(Translations$timeline$en t) {
+    return [
+      ComposerHintOption(
+        category: ComposerHintCategory.discovery,
+        text: t.composerHint,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.openWords,
+        text: t.composerHintWords,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.review,
+        text: t.composerHintReview,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.startChallenge,
+        text: t.composerHintStartChallenge,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.viewChallenges,
+        text: t.composerHintViewChallenges,
+      ),
+    ];
+  }
+
+  String _hintText(Translations$timeline$en t) {
+    return switch (_hintCategory) {
+      ComposerHintCategory.discovery => t.composerHint,
+      ComposerHintCategory.openWords => t.composerHintWords,
+      ComposerHintCategory.review => t.composerHintReview,
+      ComposerHintCategory.startChallenge => t.composerHintStartChallenge,
+      ComposerHintCategory.viewChallenges => t.composerHintViewChallenges,
+    };
   }
 
   Future<void> _send() async {
@@ -63,6 +216,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         _textController.clear();
         FocusScope.of(context).unfocus();
         switch (intent.intent) {
+          case AssistantIntent.openWords:
+            unawaited(context.pushNamed(AppRouteNames.words));
+            break;
           case AssistantIntent.reviewWords:
             unawaited(context.pushNamed(AppRouteNames.review));
             break;
@@ -97,6 +253,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       if (!mounted) {
         return;
       }
+      ref.invalidate(wordShelfProvider);
+      ref.invalidate(progressProvider);
       _textController.clear();
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
@@ -106,24 +264,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);
-      }
-    }
-  }
-
-  Future<void> _loadEarlier() async {
-    if (_isLoadingEarlier) {
-      return;
-    }
-    setState(() => _isLoadingEarlier = true);
-    try {
-      await ref.read(timelineControllerProvider.notifier).loadEarlier();
-    } on ApiException catch (error) {
-      if (mounted) {
-        setState(() => _error = error.message);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoadingEarlier = false);
+        if (_textController.text.trim().isEmpty) {
+          _advanceHint();
+        }
       }
     }
   }
@@ -157,6 +300,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         conversationId: conversationId,
         title: item.word?.spelling ?? item.inputText ?? 'Talk',
       );
+      ref.invalidate(progressProvider);
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
       if (mounted) {
@@ -198,6 +342,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         conversationId: conversationId,
         title: item.scene.naturalEnglish,
       );
+      ref.invalidate(progressProvider);
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
       if (mounted) {
@@ -242,6 +387,17 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     });
   }
 
+  void _handleProgressExpansion(bool expanded) {
+    if (!expanded) {
+      return;
+    }
+    Future<void>.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        _scheduleScrollToBottom(animate: true);
+      }
+    });
+  }
+
   void _scheduleScrollToBottom({bool animate = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) {
@@ -266,6 +422,18 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   Widget build(BuildContext context) {
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
+    final progress = ref.watch(progressProvider);
+    ref
+      ..listen(challengesProvider, (previous, next) {
+        if (next.hasValue) {
+          _advanceHint();
+        }
+      })
+      ..listen(wordShelfProvider, (previous, next) {
+        if (next.hasValue) {
+          _advanceHint();
+        }
+      });
 
     return AppScaffold(
       title: '',
@@ -274,7 +442,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       padding: EdgeInsets.zero,
       body: Column(
         children: [
-          const _TimelineHeader(),
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -290,6 +457,11 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
               data: (state) => _buildTimeline(context, state, t),
             ),
           ),
+          if (progress.hasValue)
+            TimelineProgressCard(
+              progress: progress.value!,
+              onExpansionChanged: _handleProgressExpansion,
+            ),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -307,15 +479,29 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
             ),
           NamedComposer(
             controller: _textController,
-            hintText: t.composerHint,
+            hintText: _hintText(t),
             sendTooltip: t.send,
+            meTooltip: context.t.navigation.me,
             isSubmitting: _isSubmitting,
             onSend: _send,
+            onOpenMe: () => unawaited(context.pushNamed(AppRouteNames.me)),
             onChanged: (_) => setState(() => _error = null),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openDaily(TimelineDailyItem item) async {
+    final date = item.readingDate.toIso8601String().split('T').first;
+    await context.pushNamed(
+      AppRouteNames.daily,
+      queryParameters: {'date': date},
+    );
+    if (mounted) {
+      ref.invalidate(progressProvider);
+      ref.invalidate(timelineControllerProvider);
+    }
   }
 
   Widget _buildTimeline(
@@ -332,23 +518,18 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       _settleScrollToBottom();
     }
 
-    final widgets = <Widget>[];
-    if (state.nextCursor != null) {
-      widgets.add(
-        Center(
-          child: TextButton(
-            onPressed: _isLoadingEarlier ? null : _loadEarlier,
-            child: _isLoadingEarlier
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.loadEarlier),
+    final widgets = <Widget>[
+      if (_isLoadingEarlier)
+        const Center(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.s8),
+            child: SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           ),
         ),
-      );
-    }
-
+    ];
     DateTime? currentDay;
     for (final item in state.items) {
       final day = DateUtils.dateOnly(item.createdAt.toLocal());
@@ -376,6 +557,10 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         case TimelineTalkItem():
           widgets.add(
             TalkEventCard(item: item, onTap: () => _openTalkEvent(item)),
+          );
+        case TimelineDailyItem():
+          widgets.add(
+            DailyTaskCard(item: item, onTap: () => unawaited(_openDaily(item))),
           );
       }
     }
@@ -405,39 +590,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       return t.yesterday;
     }
     return MaterialLocalizations.of(context).formatMediumDate(day);
-  }
-}
-
-class _TimelineHeader extends StatelessWidget {
-  const _TimelineHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
-        AppSpacing.s8,
-        AppSpacing.s12,
-        0,
-      ),
-      child: Row(
-        children: [
-          Text('Named', style: Theme.of(context).textTheme.headlineMedium),
-          const Spacer(),
-          IconButton.filledTonal(
-            key: const Key('timeline.me'),
-            tooltip: context.t.navigation.me,
-            onPressed: () => unawaited(context.pushNamed(AppRouteNames.me)),
-            style: IconButton.styleFrom(
-              backgroundColor: palette.surfaceMuted,
-              foregroundColor: palette.primary,
-            ),
-            icon: const Icon(Icons.person_outline, size: 20),
-          ),
-        ],
-      ),
-    );
   }
 }
 

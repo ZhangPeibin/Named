@@ -1,0 +1,146 @@
+import 'package:flutter/material.dart';
+
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_text_styles.dart';
+import '../../../../i18n/strings.g.dart';
+import '../../../progress/domain/progress.dart';
+
+class TimelineProgressCard extends StatefulWidget {
+  const TimelineProgressCard({
+    super.key,
+    required this.progress,
+    this.onExpansionChanged,
+  });
+
+  final Progress progress;
+  final ValueChanged<bool>? onExpansionChanged;
+
+  @override
+  State<TimelineProgressCard> createState() => _TimelineProgressCardState();
+}
+
+class _TimelineProgressCardState extends State<TimelineProgressCard> {
+  var _expanded = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.timeline;
+
+    return Container(
+      key: const Key('timeline.progress'),
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.s20,
+        AppSpacing.s4,
+        AppSpacing.s20,
+        AppSpacing.s8,
+      ),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s14,
+        AppSpacing.s8,
+        AppSpacing.s10,
+        AppSpacing.s8,
+      ),
+      decoration: BoxDecoration(
+        color: palette.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(AppRadius.r16),
+        border: Border.all(color: palette.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            key: const Key('timeline.progress.toggle'),
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              final next = !_expanded;
+              setState(() => _expanded = next);
+              widget.onExpansionChanged?.call(next);
+            },
+            child: Row(
+              children: [
+                Text(
+                  t.progressTitle.toUpperCase(),
+                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+                ),
+                const Spacer(),
+                Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                  color: palette.muted,
+                  size: AppSize.size18,
+                ),
+              ],
+            ),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: _expanded
+                ? Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.s6),
+                    child: Row(
+                      children: [
+                        _ProgressStat(
+                          value: widget.progress.words,
+                          label: t.progressWords,
+                        ),
+                        _divider(palette),
+                        _ProgressStat(
+                          value: widget.progress.conversations,
+                          label: t.progressConversations,
+                        ),
+                        _divider(palette),
+                        _ProgressStat(
+                          value: widget.progress.readings,
+                          label: t.progressReads,
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider(AppPalette palette) {
+    return Container(
+      width: 1,
+      height: AppSpacing.s24,
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s12),
+      color: palette.line,
+    );
+  }
+}
+
+class _ProgressStat extends StatelessWidget {
+  const _ProgressStat({required this.value, required this.label});
+
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$value',
+            style: textTheme.titleMedium?.copyWith(color: palette.primary),
+          ),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(color: palette.muted),
+          ),
+        ],
+      ),
+    );
+  }
+}

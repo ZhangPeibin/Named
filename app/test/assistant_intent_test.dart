@@ -3,6 +3,16 @@ import 'package:named/features/assistant/data/dto/assistant_intent_dto.dart';
 import 'package:named/features/assistant/domain/assistant_intent.dart';
 
 void main() {
+  test('maps open words intent', () {
+    final result = const AssistantIntentDto(
+      intent: 'open_words',
+      confidence: 0.9,
+    ).toDomain();
+
+    expect(result.intent, AssistantIntent.openWords);
+    expect(result.hasAction, isTrue);
+  });
+
   test('maps review intent', () {
     final result = const AssistantIntentDto(
       intent: 'review_words',
