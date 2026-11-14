@@ -168,6 +168,10 @@ class _Translations$settings$zh implements Translations$settings$en {
 	@override String get languageTitle => '语言';
 	@override String get english => 'English';
 	@override String get chinese => '中文';
+	@override String get reminder => '每日提醒';
+	@override String get reminderHint => '故事准备好时，轻轻提醒你。';
+	@override String get reminderTime => '提醒时间';
+	@override String get notificationsDenied => '通知权限未开启，请在系统设置中允许通知。';
 }
 
 // Path: auth
@@ -598,6 +602,8 @@ class _Translations$daily$zh implements Translations$daily$en {
 	@override String get madeWithBody => '用你最近保存的词写成的短篇。';
 	@override String get completeUnavailable => '暂时无法记录阅读完成。';
 	@override String get completeTitlePast => '阅读完成';
+	@override String get reminderTitle => '今天的阅读准备好了';
+	@override String get reminderBody => '用你的词写成的一篇短读，2–3 分钟。';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -664,6 +670,10 @@ extension on TranslationsZh {
 			'settings.languageTitle' => '语言',
 			'settings.english' => 'English',
 			'settings.chinese' => '中文',
+			'settings.reminder' => '每日提醒',
+			'settings.reminderHint' => '故事准备好时，轻轻提醒你。',
+			'settings.reminderTime' => '提醒时间',
+			'settings.notificationsDenied' => '通知权限未开启，请在系统设置中允许通知。',
 			'auth.signInTitle' => '登录',
 			'auth.devSignIn' => '开发登录',
 			'auth.devSignInHint' => '写入假 token，用于本地验证登录态骨架。',
@@ -959,6 +969,8 @@ extension on TranslationsZh {
 			'daily.madeWithBody' => '用你最近保存的词写成的短篇。',
 			'daily.completeUnavailable' => '暂时无法记录阅读完成。',
 			'daily.completeTitlePast' => '阅读完成',
+			'daily.reminderTitle' => '今天的阅读准备好了',
+			'daily.reminderBody' => '用你的词写成的一篇短读，2–3 分钟。',
 			_ => null,
 		};
 	}

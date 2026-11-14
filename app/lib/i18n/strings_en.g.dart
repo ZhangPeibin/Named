@@ -283,6 +283,18 @@ class Translations$settings$en {
 
 	/// en: 'Chinese'
 	String get chinese => 'Chinese';
+
+	/// en: 'Daily reminder'
+	String get reminder => 'Daily reminder';
+
+	/// en: 'A quiet nudge when your story is ready.'
+	String get reminderHint => 'A quiet nudge when your story is ready.';
+
+	/// en: 'Reminder time'
+	String get reminderTime => 'Reminder time';
+
+	/// en: 'Notifications are disabled. Allow them in system settings.'
+	String get notificationsDenied => 'Notifications are disabled. Allow them in system settings.';
 }
 
 // Path: auth
@@ -1303,6 +1315,12 @@ class Translations$daily$en {
 
 	/// en: 'Reading complete'
 	String get completeTitlePast => 'Reading complete';
+
+	/// en: 'Your daily story is ready'
+	String get reminderTitle => 'Your daily story is ready';
+
+	/// en: 'A short reading made from your words. 2–3 min.'
+	String get reminderBody => 'A short reading made from your words. 2–3 min.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1369,6 +1387,10 @@ extension on Translations {
 			'settings.languageTitle' => 'Language',
 			'settings.english' => 'English',
 			'settings.chinese' => 'Chinese',
+			'settings.reminder' => 'Daily reminder',
+			'settings.reminderHint' => 'A quiet nudge when your story is ready.',
+			'settings.reminderTime' => 'Reminder time',
+			'settings.notificationsDenied' => 'Notifications are disabled. Allow them in system settings.',
 			'auth.signInTitle' => 'Sign in',
 			'auth.devSignIn' => 'Dev Sign In',
 			'auth.devSignInHint' => 'Writes a fake token so you can verify the auth session skeleton locally.',
@@ -1664,6 +1686,8 @@ extension on Translations {
 			'daily.madeWithBody' => 'A short story built from words you saved recently.',
 			'daily.completeUnavailable' => 'Could not save your reading.',
 			'daily.completeTitlePast' => 'Reading complete',
+			'daily.reminderTitle' => 'Your daily story is ready',
+			'daily.reminderBody' => 'A short reading made from your words. 2–3 min.',
 			_ => null,
 		};
 	}

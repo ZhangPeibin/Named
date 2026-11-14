@@ -530,6 +530,8 @@ Implemented:
 - Automatic scroll-edge paging in Timeline and History
 - Daily Listen/Read generated from saved words, with cached audio, timed words, sentence translation, completion streaks, and auto-completion
 - Timeline Daily task cards and cumulative Words/Talks/Reads progress
+- Daily reminder setting with local notifications
+- Background audio session configured for iOS/Android playback
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
@@ -538,6 +540,7 @@ Not implemented yet:
 - Automatic Soul updates from Experience
 - Full Knowledge Graph / Personal English World
 - Streaming Talk (SSE)
+- Lock-screen media controls
 - Production email delivery, object storage, and deployment automation
 - Age gate / parental consent
 
@@ -546,7 +549,7 @@ Not implemented yet:
 Current local gates:
 
 - Backend: **107** tests, Ruff lint/format
-- Flutter app: **113** tests, `make check`
+- Flutter app: **115** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -94,6 +96,9 @@ Future<void> bootstrapApp({
         );
         return true;
       };
+
+      final session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration.speech());
 
       final prefs = await SharedPreferences.getInstance();
       final keyValueStorage = SharedPreferencesKeyValueStorage(prefs);
