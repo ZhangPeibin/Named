@@ -57,6 +57,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$review$zh review = _Translations$review$zh._(_root);
 	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
 	@override late final _Translations$challenge$zh challenge = _Translations$challenge$zh._(_root);
+	@override late final _Translations$daily$zh daily = _Translations$daily$zh._(_root);
 }
 
 // Path: app
@@ -416,7 +417,6 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	// Translations
 	@override String get today => '今天';
 	@override String get yesterday => '昨天';
-	@override String get loadEarlier => '加载更早';
 	@override String get emptyTitle => '今天看到了什么？';
 	@override String get emptyCopy => '在下面命名一个东西，它会成为你时间线里的第一张卡片。';
 	@override String get emptyHint => '一个词或一句话就够了。';
@@ -441,6 +441,14 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get speed => '播放速度';
 	@override String get audioUnavailable => '音频暂时不可用。';
 	@override String get commandHint => '试试说“复习单词”或“开始一个挑战”。';
+	@override String get composerHintReview => '试试“复习单词”';
+	@override String get composerHintStartChallenge => '试试“开始一个挑战”';
+	@override String get composerHintViewChallenges => '试试“看看我的挑战”';
+	@override String get composerHintWords => '试试“我的单词”';
+	@override String get progressTitle => '足迹';
+	@override String get progressWords => '单词';
+	@override String get progressConversations => '对话';
+	@override String get progressReads => '阅读';
 }
 
 // Path: words
@@ -508,7 +516,6 @@ class _Translations$history$zh implements Translations$history$en {
 	@override String get evidence => '来源';
 	@override String get expressions => '表达';
 	@override String get detailTitle => '经历';
-	@override String get loadEarlier => '加载更早';
 	@override String get openFocus => '打开来源';
 }
 
@@ -554,6 +561,43 @@ class _Translations$challenge$zh implements Translations$challenge$en {
 	@override String get complete => '完成';
 	@override String get challengeStart => '开始一轮挑战';
 	@override String get challengeContinue => '继续你的挑战';
+}
+
+// Path: daily
+class _Translations$daily$zh implements Translations$daily$en {
+	_Translations$daily$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '每日听读';
+	@override String get body => '用你的词语生成的短篇阅读。';
+	@override String get today => '今日阅读';
+	@override String get listen => '听读';
+	@override String get pause => '暂停';
+	@override String get audioUnavailable => '音频暂不可用';
+	@override String get question => '想一想';
+	@override String get targetWords => '这篇阅读里的词';
+	@override String get back10 => '后退 10 秒';
+	@override String get forward10 => '前进 10 秒';
+	@override String get translate => '显示翻译';
+	@override String get hideTranslation => '隐藏翻译';
+	@override String get translationUnavailable => '翻译暂不可用';
+	@override String get taskToday => '今日阅读';
+	@override String get taskPast => '每日阅读';
+	@override String get taskUnread => '2–3 分钟 · 用你的词写成';
+	@override String get taskDone => '今日已读 · 连续 {streak} 天';
+	@override String get read => '阅读';
+	@override String get readAgain => '再读一次';
+	@override String get finish => '我读完了';
+	@override String get completeTitle => '今日阅读完成';
+	@override String get completeStats => '{minutes} 分钟 · {words} 个词 · {targets} 个目标词';
+	@override String get streakDays => '连续 {count} 天';
+	@override String get newStoryTomorrow => '明天有新的故事。';
+	@override String get madeWith => '用你保存的词写成';
+	@override String get madeWithBody => '用你最近保存的词写成的短篇。';
+	@override String get completeUnavailable => '暂时无法记录阅读完成。';
+	@override String get completeTitlePast => '阅读完成';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -779,7 +823,6 @@ extension on TranslationsZh {
 			'talk.copyEnglish' => '复制英文',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
-			'timeline.loadEarlier' => '加载更早',
 			'timeline.emptyTitle' => '今天看到了什么？',
 			'timeline.emptyCopy' => '在下面命名一个东西，它会成为你时间线里的第一张卡片。',
 			'timeline.emptyHint' => '一个词或一句话就够了。',
@@ -804,6 +847,14 @@ extension on TranslationsZh {
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
 			'timeline.commandHint' => '试试说“复习单词”或“开始一个挑战”。',
+			'timeline.composerHintReview' => '试试“复习单词”',
+			'timeline.composerHintStartChallenge' => '试试“开始一个挑战”',
+			'timeline.composerHintViewChallenges' => '试试“看看我的挑战”',
+			'timeline.composerHintWords' => '试试“我的单词”',
+			'timeline.progressTitle' => '足迹',
+			'timeline.progressWords' => '单词',
+			'timeline.progressConversations' => '对话',
+			'timeline.progressReads' => '阅读',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',
@@ -844,7 +895,6 @@ extension on TranslationsZh {
 			'history.evidence' => '来源',
 			'history.expressions' => '表达',
 			'history.detailTitle' => '经历',
-			'history.loadEarlier' => '加载更早',
 			'history.openFocus' => '打开来源',
 			'challenge.title' => '挑战',
 			'challenge.eyebrow' => '你的节奏',
@@ -881,6 +931,34 @@ extension on TranslationsZh {
 			'challenge.complete' => '完成',
 			'challenge.challengeStart' => '开始一轮挑战',
 			'challenge.challengeContinue' => '继续你的挑战',
+			'daily.title' => '每日听读',
+			'daily.body' => '用你的词语生成的短篇阅读。',
+			'daily.today' => '今日阅读',
+			'daily.listen' => '听读',
+			'daily.pause' => '暂停',
+			'daily.audioUnavailable' => '音频暂不可用',
+			'daily.question' => '想一想',
+			'daily.targetWords' => '这篇阅读里的词',
+			'daily.back10' => '后退 10 秒',
+			'daily.forward10' => '前进 10 秒',
+			'daily.translate' => '显示翻译',
+			'daily.hideTranslation' => '隐藏翻译',
+			'daily.translationUnavailable' => '翻译暂不可用',
+			'daily.taskToday' => '今日阅读',
+			'daily.taskPast' => '每日阅读',
+			'daily.taskUnread' => '2–3 分钟 · 用你的词写成',
+			'daily.taskDone' => '今日已读 · 连续 {streak} 天',
+			'daily.read' => '阅读',
+			'daily.readAgain' => '再读一次',
+			'daily.finish' => '我读完了',
+			'daily.completeTitle' => '今日阅读完成',
+			'daily.completeStats' => '{minutes} 分钟 · {words} 个词 · {targets} 个目标词',
+			'daily.streakDays' => '连续 {count} 天',
+			'daily.newStoryTomorrow' => '明天有新的故事。',
+			'daily.madeWith' => '用你保存的词写成',
+			'daily.madeWithBody' => '用你最近保存的词写成的短篇。',
+			'daily.completeUnavailable' => '暂时无法记录阅读完成。',
+			'daily.completeTitlePast' => '阅读完成',
 			_ => null,
 		};
 	}

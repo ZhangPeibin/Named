@@ -60,6 +60,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$review$en review = Translations$review$en._(_root);
 	late final Translations$history$en history = Translations$history$en._(_root);
 	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
+	late final Translations$daily$en daily = Translations$daily$en._(_root);
 }
 
 // Path: app
@@ -850,9 +851,6 @@ class Translations$timeline$en {
 	/// en: 'Yesterday'
 	String get yesterday => 'Yesterday';
 
-	/// en: 'Load earlier'
-	String get loadEarlier => 'Load earlier';
-
 	/// en: 'What did you see today?'
 	String get emptyTitle => 'What did you see today?';
 
@@ -924,6 +922,30 @@ class Translations$timeline$en {
 
 	/// en: 'Try “review words” or “start a challenge”.'
 	String get commandHint => 'Try “review words” or “start a challenge”.';
+
+	/// en: 'Try “review words”'
+	String get composerHintReview => 'Try “review words”';
+
+	/// en: 'Try “start a challenge”'
+	String get composerHintStartChallenge => 'Try “start a challenge”';
+
+	/// en: 'Try “show my challenge”'
+	String get composerHintViewChallenges => 'Try “show my challenge”';
+
+	/// en: 'Try “my words”'
+	String get composerHintWords => 'Try “my words”';
+
+	/// en: 'Trail'
+	String get progressTitle => 'Trail';
+
+	/// en: 'Words'
+	String get progressWords => 'Words';
+
+	/// en: 'Talks'
+	String get progressConversations => 'Talks';
+
+	/// en: 'Reads'
+	String get progressReads => 'Reads';
 }
 
 // Path: words
@@ -1072,9 +1094,6 @@ class Translations$history$en {
 	/// en: 'Experience'
 	String get detailTitle => 'Experience';
 
-	/// en: 'Load earlier'
-	String get loadEarlier => 'Load earlier';
-
 	/// en: 'Open source'
 	String get openFocus => 'Open source';
 }
@@ -1191,6 +1210,99 @@ class Translations$challenge$en {
 
 	/// en: 'Continue your challenge'
 	String get challengeContinue => 'Continue your challenge';
+}
+
+// Path: daily
+class Translations$daily$en {
+	Translations$daily$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Daily listen/read'
+	String get title => 'Daily listen/read';
+
+	/// en: 'A short reading made from your words.'
+	String get body => 'A short reading made from your words.';
+
+	/// en: 'Today's reading'
+	String get today => 'Today\'s reading';
+
+	/// en: 'Listen'
+	String get listen => 'Listen';
+
+	/// en: 'Pause'
+	String get pause => 'Pause';
+
+	/// en: 'Audio unavailable'
+	String get audioUnavailable => 'Audio unavailable';
+
+	/// en: 'Think about it'
+	String get question => 'Think about it';
+
+	/// en: 'Words in this reading'
+	String get targetWords => 'Words in this reading';
+
+	/// en: 'Back 10 seconds'
+	String get back10 => 'Back 10 seconds';
+
+	/// en: 'Forward 10 seconds'
+	String get forward10 => 'Forward 10 seconds';
+
+	/// en: 'Show translation'
+	String get translate => 'Show translation';
+
+	/// en: 'Hide translation'
+	String get hideTranslation => 'Hide translation';
+
+	/// en: 'Translation unavailable'
+	String get translationUnavailable => 'Translation unavailable';
+
+	/// en: 'Today's story'
+	String get taskToday => 'Today\'s story';
+
+	/// en: 'Daily story'
+	String get taskPast => 'Daily story';
+
+	/// en: '2–3 min · Made with your words'
+	String get taskUnread => '2–3 min · Made with your words';
+
+	/// en: 'Read today · {streak}-day streak'
+	String get taskDone => 'Read today · {streak}-day streak';
+
+	/// en: 'Read'
+	String get read => 'Read';
+
+	/// en: 'Read again'
+	String get readAgain => 'Read again';
+
+	/// en: 'I finished'
+	String get finish => 'I finished';
+
+	/// en: 'Today's reading complete'
+	String get completeTitle => 'Today\'s reading complete';
+
+	/// en: '{minutes} min · {words} words · {targets} target words'
+	String get completeStats => '{minutes} min · {words} words · {targets} target words';
+
+	/// en: '{count}-day streak'
+	String get streakDays => '{count}-day streak';
+
+	/// en: 'A new story tomorrow.'
+	String get newStoryTomorrow => 'A new story tomorrow.';
+
+	/// en: 'MADE WITH YOUR WORDS'
+	String get madeWith => 'MADE WITH YOUR WORDS';
+
+	/// en: 'A short story built from words you saved recently.'
+	String get madeWithBody => 'A short story built from words you saved recently.';
+
+	/// en: 'Could not save your reading.'
+	String get completeUnavailable => 'Could not save your reading.';
+
+	/// en: 'Reading complete'
+	String get completeTitlePast => 'Reading complete';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1416,7 +1528,6 @@ extension on Translations {
 			'talk.copyEnglish' => 'Copy English',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
-			'timeline.loadEarlier' => 'Load earlier',
 			'timeline.emptyTitle' => 'What did you see today?',
 			'timeline.emptyCopy' => 'Name one thing below. It becomes the first card in your timeline.',
 			'timeline.emptyHint' => 'A word or a short sentence is enough.',
@@ -1441,6 +1552,14 @@ extension on Translations {
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
 			'timeline.commandHint' => 'Try “review words” or “start a challenge”.',
+			'timeline.composerHintReview' => 'Try “review words”',
+			'timeline.composerHintStartChallenge' => 'Try “start a challenge”',
+			'timeline.composerHintViewChallenges' => 'Try “show my challenge”',
+			'timeline.composerHintWords' => 'Try “my words”',
+			'timeline.progressTitle' => 'Trail',
+			'timeline.progressWords' => 'Words',
+			'timeline.progressConversations' => 'Talks',
+			'timeline.progressReads' => 'Reads',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',
@@ -1481,7 +1600,6 @@ extension on Translations {
 			'history.evidence' => 'Evidence',
 			'history.expressions' => 'Expressions',
 			'history.detailTitle' => 'Experience',
-			'history.loadEarlier' => 'Load earlier',
 			'history.openFocus' => 'Open source',
 			'challenge.title' => 'Challenges',
 			'challenge.eyebrow' => 'YOUR RHYTHM',
@@ -1518,6 +1636,34 @@ extension on Translations {
 			'challenge.complete' => 'Done',
 			'challenge.challengeStart' => 'Start a challenge',
 			'challenge.challengeContinue' => 'Continue your challenge',
+			'daily.title' => 'Daily listen/read',
+			'daily.body' => 'A short reading made from your words.',
+			'daily.today' => 'Today\'s reading',
+			'daily.listen' => 'Listen',
+			'daily.pause' => 'Pause',
+			'daily.audioUnavailable' => 'Audio unavailable',
+			'daily.question' => 'Think about it',
+			'daily.targetWords' => 'Words in this reading',
+			'daily.back10' => 'Back 10 seconds',
+			'daily.forward10' => 'Forward 10 seconds',
+			'daily.translate' => 'Show translation',
+			'daily.hideTranslation' => 'Hide translation',
+			'daily.translationUnavailable' => 'Translation unavailable',
+			'daily.taskToday' => 'Today\'s story',
+			'daily.taskPast' => 'Daily story',
+			'daily.taskUnread' => '2–3 min · Made with your words',
+			'daily.taskDone' => 'Read today · {streak}-day streak',
+			'daily.read' => 'Read',
+			'daily.readAgain' => 'Read again',
+			'daily.finish' => 'I finished',
+			'daily.completeTitle' => 'Today\'s reading complete',
+			'daily.completeStats' => '{minutes} min · {words} words · {targets} target words',
+			'daily.streakDays' => '{count}-day streak',
+			'daily.newStoryTomorrow' => 'A new story tomorrow.',
+			'daily.madeWith' => 'MADE WITH YOUR WORDS',
+			'daily.madeWithBody' => 'A short story built from words you saved recently.',
+			'daily.completeUnavailable' => 'Could not save your reading.',
+			'daily.completeTitlePast' => 'Reading complete',
 			_ => null,
 		};
 	}

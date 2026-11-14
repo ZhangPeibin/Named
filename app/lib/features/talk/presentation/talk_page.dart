@@ -50,6 +50,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   bool _isSending = false;
   TalkMessage? _pendingMessage;
   final _visibleNativeMessageIds = <String>{};
+  final _unlockedNativeMessageIds = <String>{};
   double _playbackRate = 1.0;
   late final AudioPlayer _player;
   late final StreamSubscription<PlayerState> _playerStateSub;
@@ -74,10 +75,14 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       }
     });
     _playerCompleteSub = _player.onPlayerComplete.listen((_) {
+      final completedId = _playingMessageId;
       if (mounted) {
         setState(() {
           _isPlaying = false;
           _playingMessageId = null;
+          if (completedId != null) {
+            _unlockedNativeMessageIds.add(completedId);
+          }
         });
       }
     });
@@ -115,6 +120,9 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           _title = conversation.title;
           _focusType = conversation.focusType;
           _messages = conversation.messages;
+          _unlockedNativeMessageIds.addAll(
+            conversation.messages.map((message) => message.id),
+          );
           _isLoading = false;
         });
         _scrollToBottom(animate: false);
@@ -427,6 +435,14 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     return bytes;
   }
 
+  bool _isNativeUnlocked(TalkMessage message) {
+    final audio = message.audio;
+    if (audio == null || !audio.isReady) {
+      return true;
+    }
+    return _unlockedNativeMessageIds.contains(message.id);
+  }
+
   void _scrollToBottom({
     bool animate = true,
     int attempt = 0,
@@ -553,6 +569,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                         showNative: _visibleNativeMessageIds.contains(
                           message.id,
                         ),
+                        nativeUnlocked: _isNativeUnlocked(message),
                         playbackRate: _playbackRate,
                         isPlaying:
                             _playingMessageId == message.id && _isPlaying,
@@ -564,11 +581,19 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                           unawaited(_setPlaybackRate(rate));
                         },
                         onToggleNative: () {
+                          final show = !_visibleNativeMessageIds.contains(
+                            message.id,
+                          );
                           setState(() {
-                            if (!_visibleNativeMessageIds.add(message.id)) {
+                            if (show) {
+                              _visibleNativeMessageIds.add(message.id);
+                            } else {
                               _visibleNativeMessageIds.remove(message.id);
                             }
                           });
+                          if (show) {
+                            _scrollToBottom();
+                          }
                         },
                         onUseSuggestion: _useSuggestion,
                         onAnnotationTap: _showAnnotation,
@@ -1417,6 +1442,7 @@ class _MessageBubble extends StatelessWidget {
   const _MessageBubble({
     required this.message,
     required this.showNative,
+    required this.nativeUnlocked,
     required this.playbackRate,
     required this.isPlaying,
     required this.isLoading,
@@ -1429,6 +1455,7 @@ class _MessageBubble extends StatelessWidget {
 
   final TalkMessage message;
   final bool showNative;
+  final bool nativeUnlocked;
   final double playbackRate;
   final bool isPlaying;
   final bool isLoading;
@@ -1446,7 +1473,9 @@ class _MessageBubble extends StatelessWidget {
     final isUser = message.isUser;
     final onPlay = this.onPlay;
     final hasNative =
-        message.nativeText != null && message.nativeText!.trim().isNotEmpty;
+        nativeUnlocked &&
+        message.nativeText != null &&
+        message.nativeText!.trim().isNotEmpty;
     final hasEnglish =
         isUser &&
         message.englishText != null &&

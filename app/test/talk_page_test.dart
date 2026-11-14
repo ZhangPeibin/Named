@@ -87,6 +87,17 @@ void main() {
     );
     expect(find.byKey(const Key('talk.avatar.mock-message-1')), findsOneWidget);
     expect(find.byKey(const Key('talk.avatar.mock-message-2')), findsOneWidget);
+
+    expect(
+      find.byKey(const Key('talk.native.toggle.mock-message-2')),
+      findsOneWidget,
+    );
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsNothing);
+    await tester.tap(
+      find.byKey(const Key('talk.native.toggle.mock-message-2')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('那听起来像一个真实的小瞬间。你最先注意到了什么？'), findsOneWidget);
   });
 
   testWidgets('shows an English hint under a Chinese user message', (

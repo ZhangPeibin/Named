@@ -161,6 +161,51 @@ class TimelineTalkItemDto extends TimelineItemDto {
   }
 }
 
+class TimelineDailyItemDto extends TimelineItemDto {
+  const TimelineDailyItemDto({
+    required this.id,
+    required this.createdAt,
+    required this.readingDate,
+    required this.title,
+    required this.completed,
+    required this.wordCount,
+    required this.streak,
+  });
+
+  factory TimelineDailyItemDto.fromJson(Map<String, dynamic> json) {
+    return TimelineDailyItemDto(
+      id: json['id'] as String? ?? '',
+      createdAt: _parseDate(json['created_at']),
+      readingDate: _parseDate(json['reading_date']),
+      title: json['title'] as String?,
+      completed: json['completed'] as bool? ?? false,
+      wordCount: (json['word_count'] as num?)?.toInt() ?? 0,
+      streak: (json['streak'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  final String id;
+  final DateTime createdAt;
+  final DateTime readingDate;
+  final String? title;
+  final bool completed;
+  final int wordCount;
+  final int streak;
+
+  @override
+  TimelineItem toDomain() {
+    return TimelineDailyItem(
+      id: id,
+      createdAt: createdAt,
+      readingDate: readingDate,
+      title: title,
+      completed: completed,
+      wordCount: wordCount,
+      streak: streak,
+    );
+  }
+}
+
 class TimelineResponseDto {
   const TimelineResponseDto({required this.items, required this.nextCursor});
 
@@ -177,6 +222,8 @@ class TimelineResponseDto {
         items.add(TimelineSceneItemDto.fromJson(raw));
       } else if (type == 'talk') {
         items.add(TimelineTalkItemDto.fromJson(raw));
+      } else if (type == 'daily') {
+        items.add(TimelineDailyItemDto.fromJson(raw));
       }
     }
     return TimelineResponseDto(

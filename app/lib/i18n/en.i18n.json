@@ -246,7 +246,6 @@
   "timeline": {
     "today": "Today",
     "yesterday": "Yesterday",
-    "loadEarlier": "Load earlier",
     "emptyTitle": "What did you see today?",
     "emptyCopy": "Name one thing below. It becomes the first card in your timeline.",
     "emptyHint": "A word or a short sentence is enough.",
@@ -270,7 +269,15 @@
     "pause": "Pause word",
     "speed": "Playback speed",
     "audioUnavailable": "Audio is unavailable.",
-    "commandHint": "Try “review words” or “start a challenge”."
+    "commandHint": "Try “review words” or “start a challenge”.",
+    "composerHintReview": "Try “review words”",
+    "composerHintStartChallenge": "Try “start a challenge”",
+    "composerHintViewChallenges": "Try “show my challenge”",
+    "composerHintWords": "Try “my words”",
+    "progressTitle": "Trail",
+    "progressWords": "Words",
+    "progressConversations": "Talks",
+    "progressReads": "Reads"
   },
   "words": {
     "title": "Words",
@@ -317,7 +324,6 @@
     "evidence": "Evidence",
     "expressions": "Expressions",
     "detailTitle": "Experience",
-    "loadEarlier": "Load earlier",
     "openFocus": "Open source"
   },
   "challenge": {
@@ -356,5 +362,35 @@
     "complete": "Done",
     "challengeStart": "Start a challenge",
     "challengeContinue": "Continue your challenge"
+  },
+  "daily": {
+    "title": "Daily listen/read",
+    "body": "A short reading made from your words.",
+    "today": "Today's reading",
+    "listen": "Listen",
+    "pause": "Pause",
+    "audioUnavailable": "Audio unavailable",
+    "question": "Think about it",
+    "targetWords": "Words in this reading",
+    "back10": "Back 10 seconds",
+    "forward10": "Forward 10 seconds",
+    "translate": "Show translation",
+    "hideTranslation": "Hide translation",
+    "translationUnavailable": "Translation unavailable",
+    "taskToday": "Today's story",
+    "taskPast": "Daily story",
+    "taskUnread": "2–3 min · Made with your words",
+    "taskDone": "Read today · {streak}-day streak",
+    "read": "Read",
+    "readAgain": "Read again",
+    "finish": "I finished",
+    "completeTitle": "Today's reading complete",
+    "completeStats": "{minutes} min · {words} words · {targets} target words",
+    "streakDays": "{count}-day streak",
+    "newStoryTomorrow": "A new story tomorrow.",
+    "madeWith": "MADE WITH YOUR WORDS",
+    "madeWithBody": "A short story built from words you saved recently.",
+    "completeUnavailable": "Could not save your reading.",
+    "completeTitlePast": "Reading complete"
   }
 }

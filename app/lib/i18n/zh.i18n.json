@@ -246,7 +246,6 @@
   "timeline": {
     "today": "今天",
     "yesterday": "昨天",
-    "loadEarlier": "加载更早",
     "emptyTitle": "今天看到了什么？",
     "emptyCopy": "在下面命名一个东西，它会成为你时间线里的第一张卡片。",
     "emptyHint": "一个词或一句话就够了。",
@@ -270,7 +269,15 @@
     "pause": "暂停播放",
     "speed": "播放速度",
     "audioUnavailable": "音频暂时不可用。",
-    "commandHint": "试试说“复习单词”或“开始一个挑战”。"
+    "commandHint": "试试说“复习单词”或“开始一个挑战”。",
+    "composerHintReview": "试试“复习单词”",
+    "composerHintStartChallenge": "试试“开始一个挑战”",
+    "composerHintViewChallenges": "试试“看看我的挑战”",
+    "composerHintWords": "试试“我的单词”",
+    "progressTitle": "足迹",
+    "progressWords": "单词",
+    "progressConversations": "对话",
+    "progressReads": "阅读"
   },
   "words": {
     "title": "词语",
@@ -317,7 +324,6 @@
     "evidence": "来源",
     "expressions": "表达",
     "detailTitle": "经历",
-    "loadEarlier": "加载更早",
     "openFocus": "打开来源"
   },
   "challenge": {
@@ -356,5 +362,35 @@
     "complete": "完成",
     "challengeStart": "开始一轮挑战",
     "challengeContinue": "继续你的挑战"
+  },
+  "daily": {
+    "title": "每日听读",
+    "body": "用你的词语生成的短篇阅读。",
+    "today": "今日阅读",
+    "listen": "听读",
+    "pause": "暂停",
+    "audioUnavailable": "音频暂不可用",
+    "question": "想一想",
+    "targetWords": "这篇阅读里的词",
+    "back10": "后退 10 秒",
+    "forward10": "前进 10 秒",
+    "translate": "显示翻译",
+    "hideTranslation": "隐藏翻译",
+    "translationUnavailable": "翻译暂不可用",
+    "taskToday": "今日阅读",
+    "taskPast": "每日阅读",
+    "taskUnread": "2–3 分钟 · 用你的词写成",
+    "taskDone": "今日已读 · 连续 {streak} 天",
+    "read": "阅读",
+    "readAgain": "再读一次",
+    "finish": "我读完了",
+    "completeTitle": "今日阅读完成",
+    "completeStats": "{minutes} 分钟 · {words} 个词 · {targets} 个目标词",
+    "streakDays": "连续 {count} 天",
+    "newStoryTomorrow": "明天有新的故事。",
+    "madeWith": "用你保存的词写成",
+    "madeWithBody": "用你最近保存的词写成的短篇。",
+    "completeUnavailable": "暂时无法记录阅读完成。",
+    "completeTitlePast": "阅读完成"
   }
 }

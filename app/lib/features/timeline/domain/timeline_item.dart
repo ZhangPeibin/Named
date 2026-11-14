@@ -103,6 +103,25 @@ class TimelineTalkItem extends TimelineItem {
   }
 }
 
+class TimelineDailyItem extends TimelineItem {
+  const TimelineDailyItem({
+    required this.id,
+    required super.createdAt,
+    required this.readingDate,
+    required this.title,
+    required this.completed,
+    required this.wordCount,
+    required this.streak,
+  });
+
+  final String id;
+  final DateTime readingDate;
+  final String? title;
+  final bool completed;
+  final int wordCount;
+  final int streak;
+}
+
 class TimelinePage {
   const TimelinePage({required this.items, required this.nextCursor});
 

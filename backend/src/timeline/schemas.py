@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
@@ -49,8 +49,19 @@ class TimelineTalkItem(BaseModel):
     message_count: int
 
 
+class TimelineDailyItem(BaseModel):
+    type: Literal["daily"] = "daily"
+    id: str
+    created_at: datetime
+    reading_date: date
+    title: str | None = None
+    completed: bool = False
+    word_count: int = 0
+    streak: int = 0
+
+
 TimelineItem = Annotated[
-    TimelineWordItem | TimelineSceneItem | TimelineTalkItem,
+    TimelineWordItem | TimelineSceneItem | TimelineTalkItem | TimelineDailyItem,
     Field(discriminator="type"),
 ]
 

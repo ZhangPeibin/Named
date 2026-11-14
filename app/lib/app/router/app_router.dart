@@ -8,6 +8,7 @@ import '../../features/auth/providers/auth_notifier.dart';
 import '../../features/challenge/presentation/challenge_create_page.dart';
 import '../../features/challenge/presentation/challenge_detail_page.dart';
 import '../../features/challenge/presentation/challenges_page.dart';
+import '../../features/daily/presentation/daily_read_page.dart';
 import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
@@ -37,6 +38,7 @@ class AppRoutePaths {
   static const challengeDetail = '/challenges/:challengeId';
   static const experience = '/history/:experienceId';
   static const words = '/words';
+  static const daily = '/daily';
   static const me = '/me';
   static const settings = '/settings';
   static const theme = '/settings/theme';
@@ -58,6 +60,7 @@ class AppRouteNames {
   static const challengeDetail = 'challengeDetail';
   static const experience = 'experience';
   static const words = 'words';
+  static const daily = 'daily';
   static const me = 'me';
   static const settings = 'settings';
   static const theme = 'theme';
@@ -158,6 +161,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRouteNames.words,
         builder: (context, state) =>
             WordsPage(initialWordId: state.uri.queryParameters['wordId']),
+      ),
+      GoRoute(
+        path: AppRoutePaths.daily,
+        name: AppRouteNames.daily,
+        builder: (context, state) => DailyReadPage(
+          date: DateTime.tryParse(state.uri.queryParameters['date'] ?? ''),
+        ),
       ),
       GoRoute(
         path: AppRoutePaths.me,

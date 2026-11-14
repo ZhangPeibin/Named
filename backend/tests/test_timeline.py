@@ -30,6 +30,10 @@ def auth_headers(verified: dict) -> dict[str, str]:
     return bearer(verified["session_token"])
 
 
+def without_daily(items: list[dict]) -> list[dict]:
+    return [item for item in items if item["type"] != "daily"]
+
+
 @pytest.mark.asyncio
 async def test_timeline_returns_word_and_talk_items(timeline_env) -> None:
     http, sender, _, _, _ = timeline_env
@@ -38,8 +42,8 @@ async def test_timeline_returns_word_and_talk_items(timeline_env) -> None:
     response = await http.get("/api/v1/timeline", headers=headers)
     assert response.status_code == 200, response.text
     body = response.json()
-    assert len(body["items"]) == 1
-    word_item = body["items"][0]
+    assert [item["type"] for item in body["items"]] == ["daily", "word"]
+    word_item = without_daily(body["items"])[0]
     assert word_item["type"] == "word"
     assert word_item["input_text"] == "树"
     assert word_item["word"]["spelling"] == "tree"
@@ -48,7 +52,7 @@ async def test_timeline_returns_word_and_talk_items(timeline_env) -> None:
 
     conversation_id = await create_conversation(http, headers, word_id)
     response = await http.get("/api/v1/timeline", headers=headers)
-    word_item = response.json()["items"][0]
+    word_item = without_daily(response.json()["items"])[0]
     assert word_item["conversation_id"] == conversation_id
 
     await http.post(
@@ -57,7 +61,7 @@ async def test_timeline_returns_word_and_talk_items(timeline_env) -> None:
         json={"client_message_id": "timeline-1", "text": "I saw a tree."},
     )
     response = await http.get("/api/v1/timeline", headers=headers)
-    items = response.json()["items"]
+    items = without_daily(response.json()["items"])
     assert [item["type"] for item in items] == ["talk", "word"]
     talk_item = items[0]
     assert talk_item["conversation_id"] == conversation_id
@@ -79,7 +83,11 @@ async def test_timeline_type_filter_and_cursor(timeline_env) -> None:
         data={"text": "花"},
     )
 
-    first = await http.get("/api/v1/timeline", headers=headers, params={"limit": 1})
+    first = await http.get(
+        "/api/v1/timeline",
+        headers=headers,
+        params={"limit": 1, "type": "word"},
+    )
     assert first.status_code == 200, first.text
     first_body = first.json()
     assert len(first_body["items"]) == 1
@@ -89,7 +97,11 @@ async def test_timeline_type_filter_and_cursor(timeline_env) -> None:
     second = await http.get(
         "/api/v1/timeline",
         headers=headers,
-        params={"limit": 1, "before": first_body["next_cursor"]},
+        params={
+            "limit": 1,
+            "before": first_body["next_cursor"],
+            "type": "word",
+        },
     )
     assert second.status_code == 200, second.text
     assert second.json()["items"][0]["word"]["spelling"] == "tree"
@@ -120,7 +132,7 @@ async def test_timeline_is_scoped_to_account(timeline_env) -> None:
         headers=auth_headers(other),
     )
     assert response.status_code == 200
-    assert response.json()["items"] == []
+    assert without_daily(response.json()["items"]) == []
 
 
 @pytest.mark.asyncio
@@ -154,7 +166,7 @@ async def test_timeline_returns_scene_items(timeline_env) -> None:
 
     response = await http.get("/api/v1/timeline", headers=headers)
     assert response.status_code == 200, response.text
-    items = response.json()["items"]
+    items = without_daily(response.json()["items"])
     assert len(items) == 1
     scene_item = items[0]
     assert scene_item["type"] == "scene"
@@ -172,5 +184,31 @@ async def test_timeline_returns_scene_items(timeline_env) -> None:
     conversation_id = conversation.json()["id"]
 
     response = await http.get("/api/v1/timeline", headers=headers)
-    scene_item = response.json()["items"][0]
+    scene_item = without_daily(response.json()["items"])[0]
     assert scene_item["conversation_id"] == conversation_id
+
+
+@pytest.mark.asyncio
+async def test_timeline_returns_one_daily_task_per_day(timeline_env) -> None:
+    http, sender, _, _, _ = timeline_env
+    verified = await request_and_verify(http, sender, "daily-timeline@example.com")
+    headers = bearer(verified["session_token"])
+
+    first = await http.get("/api/v1/timeline", headers=headers)
+    assert first.status_code == 200, first.text
+    daily = [item for item in first.json()["items"] if item["type"] == "daily"]
+    assert len(daily) == 1
+    assert daily[0]["completed"] is False
+    assert daily[0]["title"] is None
+    assert daily[0]["word_count"] == 0
+
+    second = await http.get("/api/v1/timeline", headers=headers)
+    daily = [item for item in second.json()["items"] if item["type"] == "daily"]
+    assert len(daily) == 1
+
+    filtered = await http.get(
+        "/api/v1/timeline",
+        headers=headers,
+        params={"type": "daily"},
+    )
+    assert [item["type"] for item in filtered.json()["items"]] == ["daily"]
