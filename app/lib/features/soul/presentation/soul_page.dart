@@ -36,6 +36,14 @@ class SoulPage extends ConsumerWidget {
       key: const Key('me.page'),
       title: t.title,
       centerBody: false,
+      actions: [
+        IconButton(
+          key: const Key('me.settings'),
+          tooltip: context.t.settings.title,
+          onPressed: () => unawaited(context.pushNamed(AppRouteNames.settings)),
+          icon: const Icon(Icons.settings_outlined),
+        ),
+      ],
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontalPadding,
         AppSpacing.s8,
