@@ -10,7 +10,6 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_tag.dart';
 import '../../../i18n/strings.g.dart';
@@ -429,13 +428,9 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
                                 streak: _completion?.streak ?? value.streak,
                                 wordCount:
                                     _completion?.wordCount ?? _wordCount(value),
-                                targetWords:
-                                    _completion?.targetWords.length ??
-                                    value.targetWords.length,
                                 durationSeconds:
                                     _completion?.durationSeconds ??
                                     value.durationSeconds,
-                                isToday: _isToday,
                               ),
                             ],
                           ),
@@ -546,85 +541,54 @@ class _DailyCompletion extends StatelessWidget {
     required this.completed,
     required this.streak,
     required this.wordCount,
-    required this.targetWords,
     required this.durationSeconds,
-    required this.isToday,
   });
 
   final bool completed;
   final int streak;
   final int wordCount;
-  final int targetWords;
   final int? durationSeconds;
-  final bool isToday;
 
   @override
   Widget build(BuildContext context) {
+    if (!completed) {
+      return const SizedBox.shrink();
+    }
     final t = context.t.daily;
     final palette = context.appPalette;
-    final textTheme = Theme.of(context).textTheme;
+    final summary = t.completeSummary
+        .replaceFirst('{minutes}', '$_minutes')
+        .replaceFirst('{words}', '$wordCount');
+    final streakLabel = streak > 0
+        ? t.streakDays.replaceFirst('{count}', '$streak')
+        : null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.s20,
-        AppSpacing.s8,
+        AppSpacing.s4,
         AppSpacing.s20,
-        AppSpacing.s32,
+        AppSpacing.s24,
       ),
-      child: completed
-          ? AppCard(
-              padding: const EdgeInsets.all(AppSpacing.s16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: palette.primary,
-                        size: AppSize.size20,
-                      ),
-                      const SizedBox(width: AppSpacing.s8),
-                      Expanded(
-                        child: Text(
-                          isToday ? t.completeTitle : t.completeTitlePast,
-                          style: textTheme.titleSmall?.copyWith(
-                            color: palette.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.s8),
-                  Text(
-                    t.completeStats
-                        .replaceFirst('{minutes}', '$_minutes')
-                        .replaceFirst('{words}', '$wordCount')
-                        .replaceFirst('{targets}', '$targetWords'),
-                    style: textTheme.bodySmall?.copyWith(color: palette.muted),
-                  ),
-                  if (streak > 0) ...[
-                    const SizedBox(height: AppSpacing.s4),
-                    Text(
-                      t.streakDays.replaceFirst('{count}', '$streak'),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: palette.primary,
-                      ),
-                    ),
-                  ],
-                  if (isToday) ...[
-                    const SizedBox(height: AppSpacing.s12),
-                    Text(
-                      t.newStoryTomorrow,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: palette.muted,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            )
-          : const SizedBox.shrink(),
+      child: Row(
+        key: const Key('daily.completion'),
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            color: palette.primary,
+            size: AppSize.size18,
+          ),
+          const SizedBox(width: AppSpacing.s6),
+          Expanded(
+            child: Text(
+              streakLabel == null ? summary : '$summary · $streakLabel',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: palette.muted),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

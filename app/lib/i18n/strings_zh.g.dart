@@ -606,6 +606,7 @@ class _Translations$daily$zh implements Translations$daily$en {
 	@override String get reminderBody => '用你的词写成的一篇短读，2–3 分钟。';
 	@override String get darkReading => '深色阅读';
 	@override String get lightReading => '浅色阅读';
+	@override String get completeSummary => '{minutes} 分钟 · {words} 个词';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -975,6 +976,7 @@ extension on TranslationsZh {
 			'daily.reminderBody' => '用你的词写成的一篇短读，2–3 分钟。',
 			'daily.darkReading' => '深色阅读',
 			'daily.lightReading' => '浅色阅读',
+			'daily.completeSummary' => '{minutes} 分钟 · {words} 个词',
 			_ => null,
 		};
 	}

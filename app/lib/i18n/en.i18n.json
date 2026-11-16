@@ -399,6 +399,7 @@
     "reminderTitle": "Your daily story is ready",
     "reminderBody": "A short reading made from your words. 2–3 min.",
     "darkReading": "Dark reading",
-    "lightReading": "Light reading"
+    "lightReading": "Light reading",
+    "completeSummary": "{minutes} min · {words} words"
   }
 }
