@@ -45,6 +45,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   final _startedAt = DateTime.now();
   var _completing = false;
   Timer? _completionTimer;
+  Timer? _followPauseTimer;
+  var _autoFollow = true;
 
   bool get _isToday =>
       widget.date == null || DateUtils.isSameDay(widget.date, DateTime.now());
@@ -58,6 +60,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   @override
   void dispose() {
     _completionTimer?.cancel();
+    _followPauseTimer?.cancel();
     _scrollController
       ..removeListener(_handleScroll)
       ..dispose();
@@ -78,6 +81,41 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       _completionTimer?.cancel();
       _completionTimer = null;
     }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    final isUserScroll =
+        (notification is ScrollStartNotification &&
+            notification.dragDetails != null) ||
+        (notification is ScrollUpdateNotification &&
+            notification.dragDetails != null);
+    if (isUserScroll) {
+      _pauseAutoFollow();
+    }
+    return false;
+  }
+
+  void _pauseAutoFollow() {
+    _autoFollow = false;
+    _followPauseTimer?.cancel();
+    _followPauseTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) {
+        return;
+      }
+      _autoFollow = true;
+      if (_audioKey.currentState?.isPlaying != true) {
+        return;
+      }
+      _lastPassageLine = -1;
+      _lastBilingualLine = -1;
+      _scrollToActiveWord();
+    });
+  }
+
+  void _seekAudio(int seconds) {
+    _lastPassageLine = -1;
+    _lastBilingualLine = -1;
+    unawaited(_audioKey.currentState?.seekBy(seconds) ?? Future<void>.value());
   }
 
   void _scheduleCompletion() {
@@ -128,7 +166,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       return;
     }
     setState(() => _activeWordIndex = index);
-    if (index >= 0) {
+    if (index >= 0 && _autoFollow) {
       _scrollToWord(reading, index);
     }
   }
@@ -351,10 +389,10 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
         MediaQuery.sizeOf(context).height -
         MediaQuery.paddingOf(context).bottom -
         148;
-    if (wordGlobal.dy >= topGuard && wordGlobal.dy <= bottomGuard) {
+    final targetLine = topGuard + (bottomGuard - topGuard) * 0.5;
+    if ((wordGlobal.dy - targetLine).abs() < 6) {
       return;
     }
-    final targetLine = topGuard + (bottomGuard - topGuard) * 0.34;
     final target = _scrollController.offset + wordGlobal.dy - targetLine;
     final max = _scrollController.position.maxScrollExtent;
     final clamped = target.clamp(0.0, max);
@@ -401,71 +439,82 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.only(top: 48, bottom: 120),
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        async.when(
-                          loading: () =>
-                              const Center(child: CircularProgressIndicator()),
-                          error: (error, stack) => Center(
-                            child: AppErrorView(
-                              title: t.title,
-                              message: error is ApiException
-                                  ? error.message
-                                  : context.t.common.somethingWentWrong,
-                              onRetry: () => ref.invalidate(
-                                dailyReadProvider(widget.date),
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: _handleScrollNotification,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.only(top: 48, bottom: 120),
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          async.when(
+                            loading: () => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            error: (error, stack) => Center(
+                              child: AppErrorView(
+                                title: t.title,
+                                message: error is ApiException
+                                    ? error.message
+                                    : context.t.common.somethingWentWrong,
+                                onRetry: () => ref.invalidate(
+                                  dailyReadProvider(widget.date),
+                                ),
                               ),
                             ),
-                          ),
-                          data: (value) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (translation == null)
-                                _DailyReadBody(
-                                  reading: value,
-                                  textKey: _textKey,
-                                  activeWordIndex: _activeWordIndex,
-                                  passageStyle: _passageStyle(context, palette),
-                                  onShowWord: (text) => unawaited(
-                                    showWordLookupSheet(context, text),
+                            data: (value) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (translation == null)
+                                  _DailyReadBody(
+                                    reading: value,
+                                    textKey: _textKey,
+                                    activeWordIndex: _activeWordIndex,
+                                    passageStyle: _passageStyle(
+                                      context,
+                                      palette,
+                                    ),
+                                    onShowWord: (text) => unawaited(
+                                      showWordLookupSheet(context, text),
+                                    ),
+                                    onShowSentence: (text) => unawaited(
+                                      showSentenceDetailSheet(context, text),
+                                    ),
+                                  )
+                                else
+                                  _BilingualReadBody(
+                                    reading: value,
+                                    translation: translation,
+                                    lineKeys: _lineKeys,
+                                    activeWordIndex: _activeWordIndex,
+                                    passageStyle: _passageStyle(
+                                      context,
+                                      palette,
+                                    ),
+                                    onShowWord: (text) => unawaited(
+                                      showWordLookupSheet(context, text),
+                                    ),
+                                    onShowSentence: (text) => unawaited(
+                                      showSentenceDetailSheet(context, text),
+                                    ),
                                   ),
-                                  onShowSentence: (text) => unawaited(
-                                    showSentenceDetailSheet(context, text),
-                                  ),
-                                )
-                              else
-                                _BilingualReadBody(
-                                  reading: value,
-                                  translation: translation,
-                                  lineKeys: _lineKeys,
-                                  activeWordIndex: _activeWordIndex,
-                                  passageStyle: _passageStyle(context, palette),
-                                  onShowWord: (text) => unawaited(
-                                    showWordLookupSheet(context, text),
-                                  ),
-                                  onShowSentence: (text) => unawaited(
-                                    showSentenceDetailSheet(context, text),
-                                  ),
+                                _DailyCompletion(
+                                  completed:
+                                      _completion != null || value.completed,
+                                  streak: _completion?.streak ?? value.streak,
+                                  wordCount:
+                                      _completion?.wordCount ??
+                                      _wordCount(value),
+                                  durationSeconds:
+                                      _completion?.durationSeconds ??
+                                      value.durationSeconds,
                                 ),
-                              _DailyCompletion(
-                                completed:
-                                    _completion != null || value.completed,
-                                streak: _completion?.streak ?? value.streak,
-                                wordCount:
-                                    _completion?.wordCount ?? _wordCount(value),
-                                durationSeconds:
-                                    _completion?.durationSeconds ??
-                                    value.durationSeconds,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -515,8 +564,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
                               _ReaderControl(
                                 key: const Key('daily.back10'),
                                 tooltip: t.back10,
-                                onPressed: () =>
-                                    _audioKey.currentState?.seekBy(-10),
+                                onPressed: () => _seekAudio(-10),
                                 icon: const Icon(Icons.replay_10),
                               ),
                               DailyAudioButton(
@@ -529,8 +577,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
                               _ReaderControl(
                                 key: const Key('daily.forward10'),
                                 tooltip: t.forward10,
-                                onPressed: () =>
-                                    _audioKey.currentState?.seekBy(10),
+                                onPressed: () => _seekAudio(10),
                                 icon: const Icon(Icons.forward_10),
                               ),
                             ],
@@ -1119,6 +1166,8 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
     unawaited(_player.dispose());
     super.dispose();
   }
+
+  bool get isPlaying => _isPlaying;
 
   Future<void> seekBy(int seconds) async {
     if (seconds == 0) {
