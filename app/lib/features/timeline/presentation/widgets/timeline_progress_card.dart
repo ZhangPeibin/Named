@@ -5,6 +5,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
+import 'spot_mark.dart';
 
 class TimelineProgressCard extends StatefulWidget {
   const TimelineProgressCard({
@@ -60,6 +61,8 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
             },
             child: Row(
               children: [
+                const SpotMark(kind: SpotMarkKind.trail, size: 20),
+                const SizedBox(width: AppSpacing.s6),
                 Text(
                   t.progressTitle.toUpperCase(),
                   style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
@@ -85,16 +88,19 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
                         _ProgressStat(
                           value: widget.progress.words,
                           label: t.progressWords,
+                          icon: Icons.menu_book_outlined,
                         ),
                         _divider(palette),
                         _ProgressStat(
                           value: widget.progress.conversations,
                           label: t.progressConversations,
+                          icon: Icons.chat_bubble_outline,
                         ),
                         _divider(palette),
                         _ProgressStat(
                           value: widget.progress.readings,
                           label: t.progressReads,
+                          icon: Icons.headphones_outlined,
                         ),
                       ],
                     ),
@@ -117,10 +123,15 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
 }
 
 class _ProgressStat extends StatelessWidget {
-  const _ProgressStat({required this.value, required this.label});
+  const _ProgressStat({
+    required this.value,
+    required this.label,
+    required this.icon,
+  });
 
   final int value;
   final String label;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -135,9 +146,15 @@ class _ProgressStat extends StatelessWidget {
             '$value',
             style: textTheme.titleMedium?.copyWith(color: palette.primary),
           ),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(color: palette.muted),
+          Row(
+            children: [
+              Icon(icon, size: 12, color: palette.muted),
+              const SizedBox(width: 3),
+              Text(
+                label,
+                style: AppTextStyles.caption.copyWith(color: palette.muted),
+              ),
+            ],
           ),
         ],
       ),

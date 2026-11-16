@@ -5,6 +5,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/timeline_item.dart';
+import 'spot_mark.dart';
 
 class TalkEventCard extends StatelessWidget {
   const TalkEventCard({super.key, required this.item, required this.onTap});
@@ -28,19 +29,7 @@ class TalkEventCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.s14),
       child: Row(
         children: [
-          Container(
-            width: AppSize.size34,
-            height: AppSize.size34,
-            decoration: BoxDecoration(
-              color: palette.surfaceMuted,
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
-            child: Icon(
-              Icons.chat_bubble_outline,
-              color: palette.primary,
-              size: AppSize.size18,
-            ),
-          ),
+          const MiloMark(size: 40),
           const SizedBox(width: AppSpacing.s12),
           Expanded(
             child: Column(

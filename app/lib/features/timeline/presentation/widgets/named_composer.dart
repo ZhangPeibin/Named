@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import 'spot_mark.dart';
 
 class NamedComposer extends StatelessWidget {
   const NamedComposer({
@@ -55,20 +56,13 @@ class NamedComposer extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(width: AppSpacing.s4),
-                    SizedBox.square(
-                      dimension: 34,
-                      child: IconButton.filledTonal(
+                    Tooltip(
+                      message: meTooltip,
+                      child: InkWell(
                         key: const Key('timeline.me'),
-                        onPressed: onOpenMe,
-                        tooltip: meTooltip,
-                        style: IconButton.styleFrom(
-                          backgroundColor: palette.surfaceMuted,
-                          foregroundColor: palette.primary,
-                          minimumSize: const Size.square(34),
-                          maximumSize: const Size.square(34),
-                          padding: EdgeInsets.zero,
-                        ),
-                        icon: const Icon(Icons.person_outline, size: 18),
+                        onTap: onOpenMe,
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        child: const UserMark(size: 34),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s6),

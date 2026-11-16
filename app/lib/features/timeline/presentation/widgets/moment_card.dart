@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/timeline_item.dart';
 import 'scene_audio_button.dart';
+import 'spot_mark.dart';
 import 'talk_action.dart';
 
 class MomentCard extends StatelessWidget {
@@ -57,6 +58,11 @@ class MomentCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 3),
+                child: SpotMark(kind: SpotMarkKind.moment, size: 32),
+              ),
+              const SizedBox(width: AppSpacing.s8),
               Expanded(
                 child: Text(
                   scene.naturalEnglish,

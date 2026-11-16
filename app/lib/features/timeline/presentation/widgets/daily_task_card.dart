@@ -6,6 +6,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/timeline_item.dart';
+import 'spot_mark.dart';
 
 class DailyTaskCard extends StatelessWidget {
   const DailyTaskCard({super.key, required this.item, required this.onTap});
@@ -38,18 +39,10 @@ class DailyTaskCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.s14),
       child: Row(
         children: [
-          Container(
-            width: AppSize.size34,
-            height: AppSize.size34,
-            decoration: BoxDecoration(
-              color: palette.surfaceMuted,
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
-            child: Icon(
-              item.completed ? Icons.check_rounded : Icons.menu_book_outlined,
-              color: palette.primary,
-              size: AppSize.size18,
-            ),
+          SpotMark(
+            kind: SpotMarkKind.daily,
+            size: 40,
+            completed: item.completed,
           ),
           const SizedBox(width: AppSpacing.s12),
           Expanded(

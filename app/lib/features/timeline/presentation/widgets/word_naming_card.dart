@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/timeline_item.dart';
+import 'spot_mark.dart';
 import 'talk_action.dart';
 import 'word_audio_button.dart';
 import 'word_details_sheet.dart';
@@ -76,6 +77,8 @@ class WordNamingCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SpotMark(kind: SpotMarkKind.word, size: 32),
+              const SizedBox(width: AppSpacing.s8),
               Expanded(
                 child: Text(
                   word.spelling,
