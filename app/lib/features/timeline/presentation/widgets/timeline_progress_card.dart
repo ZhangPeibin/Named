@@ -5,7 +5,6 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
-import 'spot_mark.dart';
 
 class TimelineProgressCard extends StatefulWidget {
   const TimelineProgressCard({
@@ -61,8 +60,6 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
             },
             child: Row(
               children: [
-                const SpotMark(kind: SpotMarkKind.trail, size: 20),
-                const SizedBox(width: AppSpacing.s6),
                 Text(
                   t.progressTitle.toUpperCase(),
                   style: AppTextStyles.eyebrow.copyWith(color: palette.muted),

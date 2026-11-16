@@ -4,29 +4,15 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 
-enum SpotMarkKind { daily, word, moment, trail }
+class DailyMark extends StatelessWidget {
+  const DailyMark({super.key, this.size = 38, this.completed = false});
 
-class SpotMark extends StatelessWidget {
-  const SpotMark({
-    super.key,
-    required this.kind,
-    this.size = 38,
-    this.completed = false,
-  });
-
-  final SpotMarkKind kind;
   final double size;
   final bool completed;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
-    final background = switch (kind) {
-      SpotMarkKind.daily => palette.warm,
-      SpotMarkKind.word => palette.surfaceMuted,
-      SpotMarkKind.moment => palette.warm,
-      SpotMarkKind.trail => palette.surfaceMuted,
-    };
 
     return SizedBox.square(
       dimension: size,
@@ -35,17 +21,12 @@ class SpotMark extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: background,
+              color: palette.warm,
               borderRadius: BorderRadius.circular(size * 0.31),
               border: Border.all(color: palette.line.withValues(alpha: 0.7)),
             ),
             child: CustomPaint(
-              painter: _SpotPainter(
-                kind: kind,
-                primary: palette.primary,
-                accent: palette.accent,
-                ink: palette.ink,
-              ),
+              painter: _DailyPainter(primary: palette.primary),
               child: const SizedBox.expand(),
             ),
           ),
@@ -148,18 +129,15 @@ class UserMark extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: palette.line),
       ),
-      child: CustomPaint(
-        painter: _UserPainter(primary: palette.primary, accent: palette.accent),
-      ),
+      child: CustomPaint(painter: _UserPainter(primary: palette.primary)),
     );
   }
 }
 
 class _UserPainter extends CustomPainter {
-  const _UserPainter({required this.primary, required this.accent});
+  const _UserPainter({required this.primary});
 
   final Color primary;
-  final Color accent;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -168,14 +146,8 @@ class _UserPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round;
-    final accentFill = Paint()..color = accent.withValues(alpha: 0.7);
     final head = Offset(size.width * 0.5, size.height * 0.38);
     canvas.drawCircle(head, size.width * 0.14, stroke);
-    canvas.drawCircle(
-      Offset(size.width * 0.64, size.height * 0.25),
-      size.width * 0.045,
-      accentFill,
-    );
     final shoulders = Path()
       ..moveTo(size.width * 0.27, size.height * 0.76)
       ..quadraticBezierTo(
@@ -195,197 +167,57 @@ class _UserPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _UserPainter oldDelegate) {
-    return oldDelegate.primary != primary || oldDelegate.accent != accent;
+    return oldDelegate.primary != primary;
   }
 }
 
-class _SpotPainter extends CustomPainter {
-  const _SpotPainter({
-    required this.kind,
-    required this.primary,
-    required this.accent,
-    required this.ink,
-  });
+class _DailyPainter extends CustomPainter {
+  const _DailyPainter({required this.primary});
 
-  final SpotMarkKind kind;
   final Color primary;
-  final Color accent;
-  final Color ink;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
     final stroke = Paint()
       ..color = primary
       ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(1.3, size.width * 0.045)
+      ..strokeWidth = math.max(1.4, w * 0.048)
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    final accentFill = Paint()..color = accent.withValues(alpha: 0.8);
-    final softFill = Paint()..color = primary.withValues(alpha: 0.10);
 
-    switch (kind) {
-      case SpotMarkKind.daily:
-        _paintDaily(canvas, size, stroke, accentFill, softFill);
-      case SpotMarkKind.word:
-        _paintWord(canvas, size, stroke, accentFill);
-      case SpotMarkKind.moment:
-        _paintMoment(canvas, size, stroke, accentFill, softFill);
-      case SpotMarkKind.trail:
-        _paintTrail(canvas, size, stroke, accentFill);
-    }
-  }
-
-  void _paintDaily(
-    Canvas canvas,
-    Size size,
-    Paint stroke,
-    Paint accentFill,
-    Paint softFill,
-  ) {
-    final w = size.width;
-    final h = size.height;
-    final book = RRect.fromRectAndRadius(
-      Rect.fromLTWH(w * 0.22, h * 0.36, w * 0.56, h * 0.38),
-      Radius.circular(w * 0.08),
-    );
-    canvas.drawRRect(book, softFill);
-    canvas.drawRRect(book, stroke);
+    final left = Path()
+      ..moveTo(w * 0.5, h * 0.33)
+      ..quadraticBezierTo(w * 0.36, h * 0.29, w * 0.24, h * 0.35)
+      ..lineTo(w * 0.24, h * 0.68)
+      ..quadraticBezierTo(w * 0.37, h * 0.63, w * 0.5, h * 0.7);
+    final right = Path()
+      ..moveTo(w * 0.5, h * 0.33)
+      ..quadraticBezierTo(w * 0.64, h * 0.29, w * 0.76, h * 0.35)
+      ..lineTo(w * 0.76, h * 0.68)
+      ..quadraticBezierTo(w * 0.63, h * 0.63, w * 0.5, h * 0.7);
+    canvas.drawPath(left, stroke);
+    canvas.drawPath(right, stroke);
     canvas.drawLine(
-      Offset(w * 0.5, h * 0.37),
-      Offset(w * 0.5, h * 0.73),
+      Offset(w * 0.5, h * 0.34),
+      Offset(w * 0.5, h * 0.7),
       stroke,
     );
     canvas.drawLine(
-      Offset(w * 0.28, h * 0.48),
-      Offset(w * 0.44, h * 0.48),
+      Offset(w * 0.31, h * 0.45),
+      Offset(w * 0.42, h * 0.45),
       stroke,
     );
     canvas.drawLine(
-      Offset(w * 0.56, h * 0.48),
-      Offset(w * 0.72, h * 0.48),
+      Offset(w * 0.58, h * 0.45),
+      Offset(w * 0.69, h * 0.45),
       stroke,
     );
-    canvas.drawCircle(Offset(w * 0.72, h * 0.25), w * 0.09, accentFill);
-    for (var i = 0; i < 4; i++) {
-      final angle = -math.pi / 2 + (i - 1.5) * 0.55;
-      canvas.drawLine(
-        Offset(w * 0.81, h * 0.25),
-        Offset(
-          w * 0.81 + math.cos(angle) * w * 0.08,
-          h * 0.25 + math.sin(angle) * h * 0.08,
-        ),
-        stroke,
-      );
-    }
-  }
-
-  void _paintWord(Canvas canvas, Size size, Paint stroke, Paint accentFill) {
-    final w = size.width;
-    final h = size.height;
-    final painter = TextPainter(
-      text: TextSpan(
-        text: 'Aa',
-        style: TextStyle(
-          color: primary,
-          fontSize: w * 0.34,
-          fontWeight: FontWeight.w600,
-          fontFamily: 'Lora',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(canvas, Offset(w * 0.23, h * 0.35));
-    final stem = Path()
-      ..moveTo(w * 0.72, h * 0.55)
-      ..quadraticBezierTo(w * 0.69, h * 0.44, w * 0.74, h * 0.36);
-    canvas.drawPath(stem, stroke);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(w * 0.77, h * 0.35),
-        width: w * 0.13,
-        height: h * 0.09,
-      ),
-      accentFill,
-    );
-  }
-
-  void _paintMoment(
-    Canvas canvas,
-    Size size,
-    Paint stroke,
-    Paint accentFill,
-    Paint softFill,
-  ) {
-    final w = size.width;
-    final h = size.height;
-    final window = RRect.fromRectAndRadius(
-      Rect.fromLTWH(w * 0.23, h * 0.23, w * 0.42, h * 0.46),
-      Radius.circular(w * 0.07),
-    );
-    canvas.drawRRect(window, softFill);
-    canvas.drawRRect(window, stroke);
-    canvas.drawLine(
-      Offset(w * 0.44, h * 0.24),
-      Offset(w * 0.44, h * 0.68),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(w * 0.24, h * 0.46),
-      Offset(w * 0.64, h * 0.46),
-      stroke,
-    );
-    final plant = Path()
-      ..moveTo(w * 0.62, h * 0.76)
-      ..quadraticBezierTo(w * 0.68, h * 0.6, w * 0.78, h * 0.56);
-    canvas.drawPath(plant, stroke);
-    canvas.drawCircle(Offset(w * 0.78, h * 0.55), w * 0.075, accentFill);
-    canvas.drawLine(
-      Offset(w * 0.62, h * 0.77),
-      Offset(w * 0.76, h * 0.77),
-      stroke,
-    );
-  }
-
-  void _paintTrail(Canvas canvas, Size size, Paint stroke, Paint accentFill) {
-    final w = size.width;
-    final h = size.height;
-    final path = Path()
-      ..moveTo(w * 0.2, h * 0.7)
-      ..cubicTo(w * 0.34, h * 0.42, w * 0.48, h * 0.72, w * 0.62, h * 0.45)
-      ..cubicTo(w * 0.7, h * 0.3, w * 0.76, h * 0.32, w * 0.84, h * 0.24);
-    final dashed = Paint()
-      ..color = stroke.color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke.strokeWidth
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    _drawDashedPath(canvas, path, dashed);
-    for (final point in [
-      Offset(w * 0.2, h * 0.7),
-      Offset(w * 0.54, h * 0.57),
-      Offset(w * 0.84, h * 0.24),
-    ]) {
-      canvas.drawCircle(point, w * 0.065, accentFill);
-      canvas.drawCircle(point, w * 0.065, stroke);
-    }
-  }
-
-  void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = math.min(distance + 3.2, metric.length);
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance += 6.4;
-      }
-    }
   }
 
   @override
-  bool shouldRepaint(covariant _SpotPainter oldDelegate) {
-    return oldDelegate.kind != kind ||
-        oldDelegate.primary != primary ||
-        oldDelegate.accent != accent ||
-        oldDelegate.ink != ink;
+  bool shouldRepaint(covariant _DailyPainter oldDelegate) {
+    return oldDelegate.primary != primary;
   }
 }

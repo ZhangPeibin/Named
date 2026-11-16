@@ -39,11 +39,7 @@ class DailyTaskCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.s14),
       child: Row(
         children: [
-          SpotMark(
-            kind: SpotMarkKind.daily,
-            size: 40,
-            completed: item.completed,
-          ),
+          DailyMark(size: 40, completed: item.completed),
           const SizedBox(width: AppSpacing.s12),
           Expanded(
             child: Column(
