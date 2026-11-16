@@ -35,7 +35,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   final _textKey = GlobalKey();
   final _audioKey = GlobalKey<_DailyAudioButtonState>();
   var _activeWordIndex = -1;
-  var _lastScrolledWord = -1;
+  var _lastPassageLine = -1;
+  var _lastBilingualLine = -1;
   var _showTranslation = false;
   var _translationLoading = false;
   DailyTranslation? _translation;
@@ -127,19 +128,27 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       return;
     }
     setState(() => _activeWordIndex = index);
-    if (index >= 0 && index != _lastScrolledWord) {
-      _lastScrolledWord = index;
+    if (index >= 0) {
       _scrollToWord(reading, index);
     }
   }
 
   Future<void> _toggleTranslation() async {
     if (_showTranslation) {
-      setState(() => _showTranslation = false);
+      setState(() {
+        _showTranslation = false;
+        _lastPassageLine = -1;
+        _lastBilingualLine = -1;
+      });
+      _scrollToActiveWord();
       return;
     }
     if (_translation != null) {
-      setState(() => _showTranslation = true);
+      setState(() {
+        _showTranslation = true;
+        _lastPassageLine = -1;
+        _lastBilingualLine = -1;
+      });
       _scrollToActiveWord();
       return;
     }
@@ -157,6 +166,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       setState(() {
         _translation = translation;
         _lineKeys = List.generate(translation.lines.length, (_) => GlobalKey());
+        _lastPassageLine = -1;
+        _lastBilingualLine = -1;
         _showTranslation = true;
       });
       _scrollToActiveWord();
@@ -275,6 +286,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     if (textBox == null || !_scrollController.hasClients) {
       return;
     }
+    final word = reading.words[index];
     final painter = TextPainter(
       text: TextSpan(
         text: reading.passage,
@@ -282,7 +294,14 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       ),
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: textBox.size.width);
-    final word = reading.words[index];
+    final lineStart = painter
+        .getLineBoundary(TextPosition(offset: word.startChar))
+        .start;
+    if (lineStart == _lastPassageLine) {
+      painter.dispose();
+      return;
+    }
+    _lastPassageLine = lineStart;
     final local = painter.getOffsetForCaret(
       TextPosition(offset: word.startChar),
       Rect.zero,
@@ -297,6 +316,11 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     GlobalKey lineKey,
     DailyWord word,
   ) {
+    final lineIndex = _translation?.lines.indexOf(line) ?? -1;
+    if (lineIndex >= 0 && lineIndex == _lastBilingualLine) {
+      return;
+    }
+    _lastBilingualLine = lineIndex;
     final textBox = lineKey.currentContext?.findRenderObject() as RenderBox?;
     if (textBox == null || !_scrollController.hasClients) {
       return;
@@ -322,7 +346,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   }
 
   void _ensureVisible(Offset wordGlobal) {
-    final topGuard = MediaQuery.paddingOf(context).top + 96;
+    final topGuard = MediaQuery.paddingOf(context).top + 92;
     final bottomGuard =
         MediaQuery.sizeOf(context).height -
         MediaQuery.paddingOf(context).bottom -
@@ -330,12 +354,18 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     if (wordGlobal.dy >= topGuard && wordGlobal.dy <= bottomGuard) {
       return;
     }
-    final target = _scrollController.offset + wordGlobal.dy - topGuard;
+    final targetLine = topGuard + (bottomGuard - topGuard) * 0.34;
+    final target = _scrollController.offset + wordGlobal.dy - targetLine;
     final max = _scrollController.position.maxScrollExtent;
+    final clamped = target.clamp(0.0, max);
+    final distance = (clamped - _scrollController.offset).abs();
+    final duration = Duration(
+      milliseconds: (220 + distance * 0.22).clamp(260, 460).round(),
+    );
     unawaited(
       _scrollController.animateTo(
-        target.clamp(0.0, max),
-        duration: const Duration(milliseconds: 420),
+        clamped,
+        duration: duration,
         curve: Curves.easeInOutCubic,
       ),
     );
