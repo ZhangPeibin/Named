@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:named/core/config/app_config.dart';
 import 'package:named/core/providers/app_config_provider.dart';
+import 'package:named/core/providers/key_value_storage_provider.dart';
 import 'package:named/features/daily/presentation/daily_read_page.dart';
 import 'package:named/i18n/strings.g.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/i18n_test_helpers.dart';
 
@@ -22,10 +24,15 @@ void main() {
       useMockApi: true,
     );
 
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
     await pumpWithTranslations(
       tester,
       child: ProviderScope(
-        overrides: [appConfigProvider.overrideWithValue(config)],
+        overrides: [
+          appConfigProvider.overrideWithValue(config),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
         child: const MaterialApp(home: DailyReadPage()),
       ),
     );

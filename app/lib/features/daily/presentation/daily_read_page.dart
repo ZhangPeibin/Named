@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -14,6 +15,7 @@ import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_tag.dart';
+import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
 import '../../progress/providers/progress_providers.dart';
 import '../../sentence/presentation/sentence_detail_sheet.dart';
@@ -21,6 +23,7 @@ import '../../words/presentation/word_lookup_sheet.dart';
 import '../domain/daily_read.dart';
 import '../domain/reader_theme.dart';
 import '../providers/daily_providers.dart';
+import '../providers/reader_speed_provider.dart';
 import '../providers/reader_theme_provider.dart';
 
 class DailyReadPage extends ConsumerStatefulWidget {
@@ -53,6 +56,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
   late final Ticker _followTicker;
   double? _scrollTarget;
   double? _lastTickSeconds;
+  final _playbackRate = ValueNotifier<double>(readerSpeedDefault);
 
   bool get _isToday =>
       widget.date == null || DateUtils.isSameDay(widget.date, DateTime.now());
@@ -62,6 +66,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     super.initState();
     _scrollController.addListener(_handleScroll);
     _followTicker = createTicker(_onFollowTick);
+    unawaited(_restorePlaybackRate());
   }
 
   @override
@@ -69,6 +74,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     _completionTimer?.cancel();
     _followPauseTimer?.cancel();
     _followTicker.dispose();
+    _playbackRate.dispose();
     _scrollController
       ..removeListener(_handleScroll)
       ..dispose();
@@ -143,6 +149,13 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     _lastTickSeconds = null;
   }
 
+  Future<void> _restorePlaybackRate() async {
+    final rate = await ref.read(readerSpeedProvider.future);
+    if (mounted) {
+      _playbackRate.value = rate;
+    }
+  }
+
   void _onFollowTick(Duration elapsed) {
     final target = _scrollTarget;
     if (!mounted ||
@@ -167,7 +180,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
       _stopFollowTicker();
       return;
     }
-    final speed = (error * 5).clamp(-110.0, 110.0);
+    final maxSpeed = (110 * _playbackRate.value).clamp(70.0, 180.0);
+    final speed = (error * 5).clamp(-maxSpeed, maxSpeed);
     final next = (current + speed * dt).clamp(0.0, position.maxScrollExtent);
     if ((next - current).abs() < 0.01) {
       return;
@@ -588,6 +602,32 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                     ),
                   ),
                 ),
+                if (reading?.audioUrl != null)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 76,
+                    child: Center(
+                      child: ValueListenableBuilder<double>(
+                        valueListenable: _playbackRate,
+                        builder: (context, rate, child) => _SpeedRail(
+                          rate: rate,
+                          onChanged: (value) {
+                            _playbackRate.value = value;
+                            unawaited(
+                              _audioKey.currentState?.setPlaybackRate(value) ??
+                                  Future<void>.value(),
+                            );
+                          },
+                          onCommit: () => unawaited(
+                            ref
+                                .read(readerSpeedProvider.notifier)
+                                .setRate(_playbackRate.value),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (reading != null)
                   Positioned(
                     left: 0,
@@ -619,6 +659,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                               DailyAudioButton(
                                 key: _audioKey,
                                 url: reading.audioUrl!,
+                                playbackRate: _playbackRate,
                                 onPosition: (position) =>
                                     _onPosition(reading, position),
                                 onComplete: () => unawaited(_finishReading()),
@@ -659,6 +700,132 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
         ),
       ),
     );
+  }
+}
+
+class _SpeedRail extends StatelessWidget {
+  const _SpeedRail({
+    required this.rate,
+    required this.onChanged,
+    required this.onCommit,
+  });
+
+  final double rate;
+  final ValueChanged<double> onChanged;
+  final VoidCallback onCommit;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.daily;
+    final fraction =
+        ((rate - readerSpeedMin) / (readerSpeedMax - readerSpeedMin)).clamp(
+          0.0,
+          1.0,
+        );
+
+    return Tooltip(
+      message: t.speed,
+      child: Container(
+        width: 192,
+        height: 32,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s10),
+        decoration: BoxDecoration(
+          color: palette.surface.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: palette.line),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 40,
+              child: Text(
+                audioRateLabel(rate),
+                style: AppTextStyles.caption.copyWith(
+                  color: palette.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s4),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+                  return GestureDetector(
+                    key: const Key('daily.speed'),
+                    behavior: HitTestBehavior.opaque,
+                    onTapDown: (details) {
+                      onChanged(_rateFor(details.localPosition.dx, width));
+                      onCommit();
+                    },
+                    onHorizontalDragUpdate: (details) {
+                      onChanged(_rateFor(details.localPosition.dx, width));
+                    },
+                    onHorizontalDragEnd: (_) => onCommit(),
+                    child: SizedBox(
+                      height: 32,
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: palette.line,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            width: fraction * width,
+                            child: Container(
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: palette.primary,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: (fraction * (width - 12)).clamp(0.0, width),
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: palette.primary,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: palette.canvas.withValues(
+                                      alpha: 0.25,
+                                    ),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  double _rateFor(double dx, double width) {
+    final fraction = (dx / width).clamp(0.0, 1.0);
+    final raw = readerSpeedMin + fraction * (readerSpeedMax - readerSpeedMin);
+    return ((raw * 20).round() / 20).clamp(readerSpeedMin, readerSpeedMax);
   }
 }
 
@@ -1165,11 +1332,13 @@ class DailyAudioButton extends ConsumerStatefulWidget {
   const DailyAudioButton({
     super.key,
     required this.url,
+    required this.playbackRate,
     required this.onPosition,
     this.onComplete,
   });
 
   final String url;
+  final ValueListenable<double> playbackRate;
   final ValueChanged<Duration> onPosition;
   final VoidCallback? onComplete;
 
@@ -1203,6 +1372,7 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
       widget.onComplete?.call();
     });
     _positionSub = _player.onPositionChanged.listen(widget.onPosition);
+    widget.playbackRate.addListener(_applyPlaybackRate);
   }
 
   @override
@@ -1210,11 +1380,20 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
     unawaited(_stateSub.cancel());
     unawaited(_completeSub.cancel());
     unawaited(_positionSub.cancel());
+    widget.playbackRate.removeListener(_applyPlaybackRate);
     unawaited(_player.dispose());
     super.dispose();
   }
 
   bool get isPlaying => _isPlaying;
+
+  void _applyPlaybackRate() {
+    unawaited(_player.setPlaybackRate(widget.playbackRate.value));
+  }
+
+  Future<void> setPlaybackRate(double rate) async {
+    await _player.setPlaybackRate(rate);
+  }
 
   Future<void> seekBy(int seconds) async {
     if (seconds == 0) {
@@ -1234,6 +1413,7 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
       return;
     }
     if (_player.state == PlayerState.paused) {
+      await _player.setPlaybackRate(widget.playbackRate.value);
       await _player.resume();
       return;
     }
@@ -1246,6 +1426,7 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
           );
       _bytes = bytes;
       await _player.stop();
+      await _player.setPlaybackRate(widget.playbackRate.value);
       await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
     } catch (_) {
       if (mounted) {

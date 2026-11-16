@@ -1330,6 +1330,9 @@ class Translations$daily$en {
 
 	/// en: '{minutes} min · {words} words'
 	String get completeSummary => '{minutes} min · {words} words';
+
+	/// en: 'Playback speed'
+	String get speed => 'Playback speed';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1700,6 +1703,7 @@ extension on Translations {
 			'daily.darkReading' => 'Dark reading',
 			'daily.lightReading' => 'Light reading',
 			'daily.completeSummary' => '{minutes} min · {words} words',
+			'daily.speed' => 'Playback speed',
 			_ => null,
 		};
 	}

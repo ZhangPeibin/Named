@@ -607,6 +607,7 @@ class _Translations$daily$zh implements Translations$daily$en {
 	@override String get darkReading => '深色阅读';
 	@override String get lightReading => '浅色阅读';
 	@override String get completeSummary => '{minutes} 分钟 · {words} 个词';
+	@override String get speed => '播放速度';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -977,6 +978,7 @@ extension on TranslationsZh {
 			'daily.darkReading' => '深色阅读',
 			'daily.lightReading' => '浅色阅读',
 			'daily.completeSummary' => '{minutes} 分钟 · {words} 个词',
+			'daily.speed' => '播放速度',
 			_ => null,
 		};
 	}
