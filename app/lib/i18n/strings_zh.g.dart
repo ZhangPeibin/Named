@@ -647,6 +647,9 @@ class _Translations$ask$zh implements Translations$ask$en {
 	@override String get confidenceHigh => '确定';
 	@override String get confidenceMedium => '比较确定';
 	@override String get confidenceLow => '不太确定';
+	@override String get helpful => '有帮助';
+	@override String get notHelpful => '没帮助';
+	@override String get feedbackError => '暂时无法保存反馈。';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -1047,6 +1050,9 @@ extension on TranslationsZh {
 			'ask.confidenceHigh' => '确定',
 			'ask.confidenceMedium' => '比较确定',
 			'ask.confidenceLow' => '不太确定',
+			'ask.helpful' => '有帮助',
+			'ask.notHelpful' => '没帮助',
+			'ask.feedbackError' => '暂时无法保存反馈。',
 			_ => null,
 		};
 	}

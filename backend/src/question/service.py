@@ -23,6 +23,7 @@ def _message_out(row: QuestionMessage) -> QuestionMessageOut:
         native_explanation=row.native_explanation,
         confidence=row.confidence,
         follow_up_suggestions=list(row.suggestions_json or []),
+        feedback=row.feedback,
         created_at=row.created_at,
     )
 
@@ -290,3 +291,41 @@ async def delete_thread(
     thread.deleted_at = utcnow()
     session.add(thread)
     await session.commit()
+
+
+async def set_feedback(
+    session: AsyncSession,
+    *,
+    account_id: str,
+    thread_id: str,
+    message_id: str,
+    feedback: str,
+) -> QuestionMessageOut:
+    thread = await _thread_or_404(
+        session,
+        account_id=account_id,
+        thread_id=thread_id,
+    )
+    message = await session.scalar(
+        select(QuestionMessage).where(
+            QuestionMessage.id == message_id,
+            QuestionMessage.thread_id == thread.id,
+        )
+    )
+    if message is None:
+        raise ApiError(
+            "Question message not found.",
+            status_code=404,
+            code="question_message_not_found",
+        )
+    if message.role != "assistant":
+        raise ApiError(
+            "Only assistant answers can receive feedback.",
+            status_code=400,
+            code="question_feedback_invalid",
+        )
+    message.feedback = feedback
+    session.add(message)
+    await session.commit()
+    await session.refresh(message)
+    return _message_out(message)

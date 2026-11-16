@@ -14,6 +14,12 @@ abstract class QuestionApi {
   Future<QuestionThreadDto> followUp(String threadId, String text);
 
   Future<void> deleteThread(String threadId);
+
+  Future<QuestionMessageDto> setFeedback({
+    required String threadId,
+    required String messageId,
+    required String feedback,
+  });
 }
 
 class RemoteQuestionApi implements QuestionApi {
@@ -105,6 +111,30 @@ class RemoteQuestionApi implements QuestionApi {
     }
   }
 
+  @override
+  Future<QuestionMessageDto> setFeedback({
+    required String threadId,
+    required String messageId,
+    required String feedback,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/v1/questions/$threadId/messages/$messageId/feedback',
+        data: {'feedback': feedback},
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const ApiException(
+          type: ApiExceptionType.badResponse,
+          message: 'Question feedback response was empty',
+        );
+      }
+      return QuestionMessageDto.fromJson(data);
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
   ApiException _mapError(DioException error) {
     final apiException = error.error;
     if (apiException is ApiException) {
@@ -139,6 +169,7 @@ class MockQuestionApi implements QuestionApi {
           nativeExplanation: null,
           confidence: null,
           followUpSuggestions: const [],
+          feedback: null,
           createdAt: now,
         ),
         QuestionMessageDto(
@@ -152,6 +183,7 @@ class MockQuestionApi implements QuestionApi {
             'Could I use will instead?',
             'Show me another example.',
           ],
+          feedback: null,
           createdAt: now,
         ),
       ],
@@ -202,6 +234,7 @@ class MockQuestionApi implements QuestionApi {
           nativeExplanation: null,
           confidence: null,
           followUpSuggestions: const [],
+          feedback: null,
           createdAt: now,
         ),
         QuestionMessageDto(
@@ -212,6 +245,7 @@ class MockQuestionApi implements QuestionApi {
           nativeExplanation: '这是追问后的中文解释。',
           confidence: 'high',
           followUpSuggestions: const [],
+          feedback: null,
           createdAt: now,
         ),
       ],
@@ -223,5 +257,48 @@ class MockQuestionApi implements QuestionApi {
   @override
   Future<void> deleteThread(String threadId) async {
     _threads.removeWhere((thread) => thread.id == threadId);
+  }
+
+  @override
+  Future<QuestionMessageDto> setFeedback({
+    required String threadId,
+    required String messageId,
+    required String feedback,
+  }) async {
+    final index = _threads.indexWhere((thread) => thread.id == threadId);
+    final current = _threads[index];
+    QuestionMessageDto? updated;
+    final messages = current.messages.map((message) {
+      if (message.id != messageId) {
+        return message;
+      }
+      updated = QuestionMessageDto(
+        id: message.id,
+        role: message.role,
+        text: message.text,
+        example: message.example,
+        nativeExplanation: message.nativeExplanation,
+        confidence: message.confidence,
+        followUpSuggestions: message.followUpSuggestions,
+        feedback: feedback,
+        createdAt: message.createdAt,
+      );
+      return updated!;
+    }).toList();
+    _threads[index] = QuestionThreadDto(
+      id: current.id,
+      title: current.title,
+      contextType: current.contextType,
+      contextRef: current.contextRef,
+      contextQuote: current.contextQuote,
+      messages: messages,
+      createdAt: current.createdAt,
+      updatedAt: current.updatedAt,
+    );
+    return updated ??
+        (throw const ApiException(
+          type: ApiExceptionType.notFound,
+          message: 'Question message not found',
+        ));
   }
 }

@@ -29,4 +29,16 @@ class QuestionRepository {
   Future<void> deleteThread(String threadId) {
     return _api.deleteThread(threadId);
   }
+
+  Future<void> setFeedback({
+    required String threadId,
+    required String messageId,
+    required String feedback,
+  }) async {
+    await _api.setFeedback(
+      threadId: threadId,
+      messageId: messageId,
+      feedback: feedback,
+    );
+  }
 }

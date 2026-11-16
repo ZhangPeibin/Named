@@ -432,6 +432,9 @@
     "emptyHistory": "你的提问会出现在这里。",
     "confidenceHigh": "确定",
     "confidenceMedium": "比较确定",
-    "confidenceLow": "不太确定"
+    "confidenceLow": "不太确定",
+    "helpful": "有帮助",
+    "notHelpful": "没帮助",
+    "feedbackError": "暂时无法保存反馈。"
   }
 }

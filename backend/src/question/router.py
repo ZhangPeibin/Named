@@ -6,7 +6,9 @@ from auth.router import CurrentAuthDep, SessionDep
 from question.agent import QuestionAgent, get_question_agent
 from question.schemas import (
     QuestionAskIn,
+    QuestionFeedbackIn,
     QuestionFollowUpIn,
+    QuestionMessageOut,
     QuestionThreadListOut,
     QuestionThreadOut,
 )
@@ -16,6 +18,7 @@ from question.service import (
     follow_up,
     get_thread,
     list_threads,
+    set_feedback,
 )
 from ratelimit import TalkRateLimitDep
 
@@ -96,4 +99,24 @@ async def remove_question(
         session,
         account_id=current.account.id,
         thread_id=thread_id,
+    )
+
+
+@router.post(
+    "/{thread_id}/messages/{message_id}/feedback",
+    response_model=QuestionMessageOut,
+)
+async def update_question_feedback(
+    thread_id: str,
+    message_id: str,
+    payload: QuestionFeedbackIn,
+    current: CurrentAuthDep,
+    session: SessionDep,
+) -> QuestionMessageOut:
+    return await set_feedback(
+        session,
+        account_id=current.account.id,
+        thread_id=thread_id,
+        message_id=message_id,
+        feedback=payload.feedback,
     )

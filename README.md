@@ -536,7 +536,7 @@ Implemented:
 - Independent light/dark reader theme with persistence
 - Background audio session configured for iOS/Android playback
 - Daily playback speed rail and illustrated timeline content marks
-- Ask entry with contextual Word/Sentence/Talk entry, threaded follow-ups, structured answers, and saved history
+- Ask entry with contextual Word/Sentence/Talk/Daily entry, threaded follow-ups, structured answers, confidence, feedback, and saved history
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:

@@ -18,6 +18,7 @@ import '../../../core/widgets/app_tag.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
 import '../../progress/providers/progress_providers.dart';
+import '../../question/presentation/ask_launcher.dart';
 import '../../sentence/presentation/sentence_detail_sheet.dart';
 import '../../words/presentation/word_lookup_sheet.dart';
 import '../domain/daily_read.dart';
@@ -378,6 +379,23 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
         .length;
   }
 
+  void _openAsk(DailyRead reading) {
+    final hasActiveWord =
+        _activeWordIndex >= 0 && _activeWordIndex < reading.words.length;
+    final quote = hasActiveWord ? reading.words[_activeWordIndex].text : null;
+    unawaited(
+      openAsk(
+        context,
+        type: 'reading',
+        ref: reading.date.toIso8601String().split('T').first,
+        quote: quote,
+        suggestedQuestion: quote == null
+            ? 'Ask about this reading.'
+            : 'What does "$quote" mean here?',
+      ),
+    );
+  }
+
   void _scrollToActiveWord() {
     final reading = ref.read(dailyReadProvider(widget.date)).value;
     if (reading == null || _activeWordIndex < 0) {
@@ -591,6 +609,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                     child: _ReaderTopBar(
                       title: reading?.title ?? t.title,
                       isDark: isDark,
+                      onAsk: reading == null ? null : () => _openAsk(reading),
                       onToggleTheme: () => unawaited(
                         ref
                             .read(readerThemeProvider.notifier)
@@ -999,11 +1018,13 @@ class _ReaderTopBar extends StatelessWidget {
     required this.title,
     required this.isDark,
     required this.onToggleTheme,
+    this.onAsk,
   });
 
   final String title;
   final bool isDark;
   final VoidCallback onToggleTheme;
+  final VoidCallback? onAsk;
 
   @override
   Widget build(BuildContext context) {
@@ -1029,6 +1050,17 @@ class _ReaderTopBar extends StatelessWidget {
               style: textTheme.titleMedium?.copyWith(color: palette.muted),
             ),
           ),
+          if (onAsk != null)
+            IconButton(
+              key: const Key('daily.ask'),
+              tooltip: context.t.ask.entryTooltip,
+              visualDensity: VisualDensity.compact,
+              onPressed: onAsk,
+              icon: Icon(
+                Icons.question_answer_outlined,
+                color: palette.primary,
+              ),
+            ),
           IconButton(
             key: const Key('daily.theme'),
             tooltip: isDark

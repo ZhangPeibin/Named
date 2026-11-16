@@ -1430,6 +1430,15 @@ class Translations$ask$en {
 
 	/// en: 'Not fully sure'
 	String get confidenceLow => 'Not fully sure';
+
+	/// en: 'Helpful'
+	String get helpful => 'Helpful';
+
+	/// en: 'Not helpful'
+	String get notHelpful => 'Not helpful';
+
+	/// en: 'Could not save feedback.'
+	String get feedbackError => 'Could not save feedback.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1830,6 +1839,9 @@ extension on Translations {
 			'ask.confidenceHigh' => 'Confident',
 			'ask.confidenceMedium' => 'Fairly confident',
 			'ask.confidenceLow' => 'Not fully sure',
+			'ask.helpful' => 'Helpful',
+			'ask.notHelpful' => 'Not helpful',
+			'ask.feedbackError' => 'Could not save feedback.',
 			_ => null,
 		};
 	}

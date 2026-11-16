@@ -19,6 +19,10 @@ class QuestionFollowUpIn(BaseModel):
     text: str = Field(min_length=1, max_length=2000)
 
 
+class QuestionFeedbackIn(BaseModel):
+    feedback: Literal["helpful", "not_helpful"]
+
+
 class QuestionAgentOutput(BaseModel):
     answer: str = Field(min_length=1, max_length=4000)
     example: str | None = Field(default=None, max_length=1200)
@@ -35,6 +39,7 @@ class QuestionMessageOut(BaseModel):
     native_explanation: str | None = None
     confidence: str | None = None
     follow_up_suggestions: list[str] = Field(default_factory=list)
+    feedback: str | None = None
     created_at: datetime
 
 

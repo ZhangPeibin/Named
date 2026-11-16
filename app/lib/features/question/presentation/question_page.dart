@@ -366,6 +366,24 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
     });
   }
 
+  Future<void> _sendFeedback(String messageId, String feedback) async {
+    try {
+      await ref
+          .read(questionRepositoryProvider)
+          .setFeedback(
+            threadId: widget.threadId,
+            messageId: messageId,
+            feedback: feedback,
+          );
+    } on ApiException {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t.ask.feedbackError)));
+      }
+    }
+  }
+
   void _useFollowUpSuggestion(String suggestion) {
     _controller.text = suggestion;
     _controller.selection = TextSelection.collapsed(offset: suggestion.length);
@@ -426,6 +444,10 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
                         _QuestionMessageView(
                           message: message,
                           onSuggestion: _useFollowUpSuggestion,
+                          onFeedback: message.isUser
+                              ? null
+                              : (feedback) =>
+                                    _sendFeedback(message.id, feedback),
                         ),
                         const SizedBox(height: AppSpacing.s16),
                       ],
@@ -439,6 +461,7 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
                             nativeExplanation: null,
                             confidence: null,
                             followUpSuggestions: const [],
+                            feedback: null,
                             createdAt: DateTime.now(),
                           ),
                         ),
@@ -542,10 +565,15 @@ class _ThreadRow extends StatelessWidget {
 }
 
 class _QuestionMessageView extends StatelessWidget {
-  const _QuestionMessageView({required this.message, this.onSuggestion});
+  const _QuestionMessageView({
+    required this.message,
+    this.onSuggestion,
+    this.onFeedback,
+  });
 
   final QuestionMessage message;
   final ValueChanged<String>? onSuggestion;
+  final Future<void> Function(String)? onFeedback;
 
   @override
   Widget build(BuildContext context) {
@@ -662,8 +690,102 @@ class _QuestionMessageView extends StatelessWidget {
               ],
             ),
           ],
+          if (onFeedback != null) ...[
+            const SizedBox(height: AppSpacing.s8),
+            _FeedbackRow(initial: message.feedback, onFeedback: onFeedback!),
+          ],
         ],
       ),
+    );
+  }
+}
+
+class _FeedbackRow extends StatefulWidget {
+  const _FeedbackRow({required this.initial, required this.onFeedback});
+
+  final String? initial;
+  final Future<void> Function(String) onFeedback;
+
+  @override
+  State<_FeedbackRow> createState() => _FeedbackRowState();
+}
+
+class _FeedbackRowState extends State<_FeedbackRow> {
+  String? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initial;
+  }
+
+  void _select(String feedback) {
+    if (_selected == feedback) {
+      return;
+    }
+    setState(() => _selected = feedback);
+    unawaited(widget.onFeedback(feedback));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.ask;
+    return Wrap(
+      spacing: AppSpacing.s8,
+      runSpacing: AppSpacing.s4,
+      children: [
+        _FeedbackButton(
+          key: const Key('ask.helpful'),
+          label: t.helpful,
+          selected: _selected == 'helpful',
+          up: true,
+          onTap: () => _select('helpful'),
+        ),
+        _FeedbackButton(
+          key: const Key('ask.notHelpful'),
+          label: t.notHelpful,
+          selected: _selected == 'not_helpful',
+          up: false,
+          onTap: () => _select('not_helpful'),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeedbackButton extends StatelessWidget {
+  const _FeedbackButton({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.up,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final bool up;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return TextButton.icon(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        foregroundColor: selected ? palette.primary : palette.muted,
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
+        minimumSize: const Size(0, 30),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      icon: Icon(
+        up
+            ? (selected ? Icons.thumb_up : Icons.thumb_up_outlined)
+            : (selected ? Icons.thumb_down : Icons.thumb_down_outlined),
+        size: 15,
+      ),
+      label: Text(label),
     );
   }
 }

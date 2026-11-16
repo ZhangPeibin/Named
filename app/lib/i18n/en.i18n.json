@@ -432,6 +432,9 @@
     "emptyHistory": "Your questions will appear here.",
     "confidenceHigh": "Confident",
     "confidenceMedium": "Fairly confident",
-    "confidenceLow": "Not fully sure"
+    "confidenceLow": "Not fully sure",
+    "helpful": "Helpful",
+    "notHelpful": "Not helpful",
+    "feedbackError": "Could not save feedback."
   }
 }

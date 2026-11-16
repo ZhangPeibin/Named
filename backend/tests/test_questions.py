@@ -102,6 +102,15 @@ async def test_question_thread_context_and_follow_up(question_env) -> None:
     assert followed["messages"][2]["text"] == "Could I use will instead?"
     assert agent.calls[1]["history"][-1]["text"].startswith("Simple answer")
 
+    assistant = followed["messages"][-1]
+    feedback = await http.post(
+        f"/api/v1/questions/{body['id']}/messages/{assistant['id']}/feedback",
+        headers=headers,
+        json={"feedback": "helpful"},
+    )
+    assert feedback.status_code == 200, feedback.text
+    assert feedback.json()["feedback"] == "helpful"
+
     listed = await http.get("/api/v1/questions", headers=headers)
     assert listed.status_code == 200, listed.text
     item = listed.json()["items"][0]
