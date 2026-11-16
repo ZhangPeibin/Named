@@ -607,7 +607,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                   Positioned(
                     left: 0,
                     right: 0,
-                    bottom: 76,
+                    bottom: 88,
                     child: IgnorePointer(
                       ignoring: !_showSpeed,
                       child: AnimatedSlide(
