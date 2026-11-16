@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,13 +32,14 @@ class DailyReadPage extends ConsumerStatefulWidget {
   ConsumerState<DailyReadPage> createState() => _DailyReadPageState();
 }
 
-class _DailyReadPageState extends ConsumerState<DailyReadPage> {
+class _DailyReadPageState extends ConsumerState<DailyReadPage>
+    with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
   final _textKey = GlobalKey();
   final _audioKey = GlobalKey<_DailyAudioButtonState>();
   var _activeWordIndex = -1;
-  var _lastPassageLine = -1;
-  var _lastBilingualLine = -1;
+  double? _lastPassageLineTop;
+  int _lastBilingualLineIndex = -1;
   var _showTranslation = false;
   var _translationLoading = false;
   DailyTranslation? _translation;
@@ -47,6 +50,9 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   Timer? _completionTimer;
   Timer? _followPauseTimer;
   var _autoFollow = true;
+  late final Ticker _followTicker;
+  double? _scrollTarget;
+  double? _lastTickSeconds;
 
   bool get _isToday =>
       widget.date == null || DateUtils.isSameDay(widget.date, DateTime.now());
@@ -55,12 +61,14 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _followTicker = createTicker(_onFollowTick);
   }
 
   @override
   void dispose() {
     _completionTimer?.cancel();
     _followPauseTimer?.cancel();
+    _followTicker.dispose();
     _scrollController
       ..removeListener(_handleScroll)
       ..dispose();
@@ -97,6 +105,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
 
   void _pauseAutoFollow() {
     _autoFollow = false;
+    _scrollTarget = null;
+    _stopFollowTicker();
     _followPauseTimer?.cancel();
     _followPauseTimer = Timer(const Duration(seconds: 3), () {
       if (!mounted) {
@@ -106,16 +116,82 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       if (_audioKey.currentState?.isPlaying != true) {
         return;
       }
-      _lastPassageLine = -1;
-      _lastBilingualLine = -1;
+      _lastPassageLineTop = null;
+      _lastBilingualLineIndex = -1;
       _scrollToActiveWord();
     });
   }
 
   void _seekAudio(int seconds) {
-    _lastPassageLine = -1;
-    _lastBilingualLine = -1;
+    _lastPassageLineTop = null;
+    _lastBilingualLineIndex = -1;
     unawaited(_audioKey.currentState?.seekBy(seconds) ?? Future<void>.value());
+  }
+
+  void _startFollowTicker() {
+    if (!_autoFollow || _followTicker.isActive) {
+      return;
+    }
+    _lastTickSeconds = null;
+    unawaited(_followTicker.start());
+  }
+
+  void _stopFollowTicker() {
+    if (_followTicker.isActive) {
+      _followTicker.stop();
+    }
+    _lastTickSeconds = null;
+  }
+
+  void _onFollowTick(Duration elapsed) {
+    final target = _scrollTarget;
+    if (!mounted ||
+        !_autoFollow ||
+        target == null ||
+        !_scrollController.hasClients) {
+      return;
+    }
+    final seconds = elapsed.inMicroseconds / 1000000;
+    final last = _lastTickSeconds;
+    _lastTickSeconds = seconds;
+    if (last == null) {
+      return;
+    }
+    final dt = (seconds - last).clamp(0.0, 0.05);
+    final position = _scrollController.position;
+    final current = position.pixels;
+    final error = target - current;
+    if (error.abs() < 0.5) {
+      position.jumpTo(target.clamp(0.0, position.maxScrollExtent));
+      _scrollTarget = null;
+      _stopFollowTicker();
+      return;
+    }
+    final speed = (error * 5).clamp(-110.0, 110.0);
+    final next = (current + speed * dt).clamp(0.0, position.maxScrollExtent);
+    if ((next - current).abs() < 0.01) {
+      return;
+    }
+    position.jumpTo(next);
+  }
+
+  void _setScrollTarget(Offset wordGlobal) {
+    if (!_autoFollow || !_scrollController.hasClients) {
+      return;
+    }
+    final topGuard = MediaQuery.paddingOf(context).top + 92;
+    final bottomGuard =
+        MediaQuery.sizeOf(context).height -
+        MediaQuery.paddingOf(context).bottom -
+        148;
+    final center = (topGuard + bottomGuard) / 2;
+    if ((wordGlobal.dy - center).abs() < 6) {
+      return;
+    }
+    final target = _scrollController.offset + wordGlobal.dy - center;
+    final max = _scrollController.position.maxScrollExtent;
+    _scrollTarget = target.clamp(0.0, max);
+    _startFollowTicker();
   }
 
   void _scheduleCompletion() {
@@ -175,8 +251,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     if (_showTranslation) {
       setState(() {
         _showTranslation = false;
-        _lastPassageLine = -1;
-        _lastBilingualLine = -1;
+        _lastPassageLineTop = null;
+        _lastBilingualLineIndex = -1;
       });
       _scrollToActiveWord();
       return;
@@ -184,8 +260,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     if (_translation != null) {
       setState(() {
         _showTranslation = true;
-        _lastPassageLine = -1;
-        _lastBilingualLine = -1;
+        _lastPassageLineTop = null;
+        _lastBilingualLineIndex = -1;
       });
       _scrollToActiveWord();
       return;
@@ -204,8 +280,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       setState(() {
         _translation = translation;
         _lineKeys = List.generate(translation.lines.length, (_) => GlobalKey());
-        _lastPassageLine = -1;
-        _lastBilingualLine = -1;
+        _lastPassageLineTop = null;
+        _lastBilingualLineIndex = -1;
         _showTranslation = true;
       });
       _scrollToActiveWord();
@@ -237,6 +313,8 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     }
     _completionTimer?.cancel();
     _completionTimer = null;
+    _scrollTarget = null;
+    _stopFollowTicker();
     setState(() => _completing = true);
     final seconds = DateTime.now()
         .difference(_startedAt)
@@ -319,33 +397,30 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     });
   }
 
+  RenderParagraph? _paragraph(GlobalKey key) {
+    return key.currentContext?.findRenderObject() as RenderParagraph?;
+  }
+
   void _scrollToPassageWord(DailyRead reading, int index) {
-    final textBox = _textKey.currentContext?.findRenderObject() as RenderBox?;
-    if (textBox == null || !_scrollController.hasClients) {
+    final paragraph = _paragraph(_textKey);
+    if (paragraph == null || !_scrollController.hasClients) {
       return;
     }
     final word = reading.words[index];
-    final painter = TextPainter(
-      text: TextSpan(
-        text: reading.passage,
-        style: _passageStyle(context, context.appPalette),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: textBox.size.width);
-    final lineStart = painter
-        .getLineBoundary(TextPosition(offset: word.startChar))
-        .start;
-    if (lineStart == _lastPassageLine) {
-      painter.dispose();
+    final boxes = paragraph.getBoxesForSelection(
+      TextSelection(baseOffset: word.startChar, extentOffset: word.endChar),
+    );
+    if (boxes.isEmpty) {
       return;
     }
-    _lastPassageLine = lineStart;
-    final local = painter.getOffsetForCaret(
-      TextPosition(offset: word.startChar),
-      Rect.zero,
+    final box = boxes.first;
+    if (box.top == _lastPassageLineTop) {
+      return;
+    }
+    _lastPassageLineTop = box.top;
+    _setScrollTarget(
+      paragraph.localToGlobal(Offset(0, (box.top + box.bottom) / 2)),
     );
-    painter.dispose();
-    _ensureVisible(textBox.localToGlobal(local));
   }
 
   void _scrollToBilingualWord(
@@ -355,57 +430,31 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     DailyWord word,
   ) {
     final lineIndex = _translation?.lines.indexOf(line) ?? -1;
-    if (lineIndex >= 0 && lineIndex == _lastBilingualLine) {
+    if (lineIndex >= 0 && lineIndex == _lastBilingualLineIndex) {
       return;
     }
-    _lastBilingualLine = lineIndex;
-    final textBox = lineKey.currentContext?.findRenderObject() as RenderBox?;
-    if (textBox == null || !_scrollController.hasClients) {
+    _lastBilingualLineIndex = lineIndex;
+    final paragraph = _paragraph(lineKey);
+    if (paragraph == null || !_scrollController.hasClients) {
       return;
     }
-    final lineText = reading.passage.substring(line.startChar, line.endChar);
-    final painter = TextPainter(
-      text: TextSpan(
-        text: lineText,
-        style: _passageStyle(context, context.appPalette),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: textBox.size.width);
-    final localOffset = (word.startChar - line.startChar).clamp(
+    final localStart = (word.startChar - line.startChar).clamp(
       0,
-      lineText.length,
+      line.text.length,
     );
-    final local = painter.getOffsetForCaret(
-      TextPosition(offset: localOffset),
-      Rect.zero,
+    final localEnd = (word.endChar - line.startChar).clamp(
+      localStart,
+      line.text.length,
     );
-    painter.dispose();
-    _ensureVisible(textBox.localToGlobal(local));
-  }
-
-  void _ensureVisible(Offset wordGlobal) {
-    final topGuard = MediaQuery.paddingOf(context).top + 92;
-    final bottomGuard =
-        MediaQuery.sizeOf(context).height -
-        MediaQuery.paddingOf(context).bottom -
-        148;
-    final targetLine = topGuard + (bottomGuard - topGuard) * 0.5;
-    if ((wordGlobal.dy - targetLine).abs() < 6) {
+    final boxes = paragraph.getBoxesForSelection(
+      TextSelection(baseOffset: localStart, extentOffset: localEnd),
+    );
+    if (boxes.isEmpty) {
       return;
     }
-    final target = _scrollController.offset + wordGlobal.dy - targetLine;
-    final max = _scrollController.position.maxScrollExtent;
-    final clamped = target.clamp(0.0, max);
-    final distance = (clamped - _scrollController.offset).abs();
-    final duration = Duration(
-      milliseconds: (220 + distance * 0.22).clamp(260, 460).round(),
-    );
-    unawaited(
-      _scrollController.animateTo(
-        clamped,
-        duration: duration,
-        curve: Curves.easeInOutCubic,
-      ),
+    final box = boxes.first;
+    _setScrollTarget(
+      paragraph.localToGlobal(Offset(0, (box.top + box.bottom) / 2)),
     );
   }
 
@@ -766,6 +815,14 @@ class _ReaderTopBar extends StatelessWidget {
   }
 }
 
+TextStyle? _activeWordStyle(AppPalette palette, TextStyle? base) {
+  final isDark = palette.canvas.computeLuminance() < 0.2;
+  return base?.copyWith(
+    color: palette.ink,
+    backgroundColor: isDark ? const Color(0xFF3B3028) : const Color(0xFFF2E4D3),
+  );
+}
+
 class _ReadingHeader extends StatelessWidget {
   const _ReadingHeader({required this.targetWords});
 
@@ -874,12 +931,7 @@ class _DailyReadBody extends StatelessWidget {
       spans.add(
         TextSpan(
           text: reading.passage.substring(word.startChar, word.endChar),
-          style: active
-              ? passageStyle?.copyWith(
-                  color: palette.primary,
-                  backgroundColor: palette.accent.withValues(alpha: 0.18),
-                )
-              : null,
+          style: active ? _activeWordStyle(palette, passageStyle) : null,
         ),
       );
       cursor = word.endChar;
@@ -1043,12 +1095,7 @@ class _BilingualReadBody extends StatelessWidget {
       spans.add(
         TextSpan(
           text: reading.passage.substring(word.startChar, word.endChar),
-          style: active
-              ? passageStyle?.copyWith(
-                  color: palette.primary,
-                  backgroundColor: palette.accent.withValues(alpha: 0.18),
-                )
-              : null,
+          style: active ? _activeWordStyle(palette, passageStyle) : null,
         ),
       );
       cursor = word.endChar;
