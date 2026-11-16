@@ -22,6 +22,7 @@ def _message_out(row: QuestionMessage) -> QuestionMessageOut:
         example=row.example,
         native_explanation=row.native_explanation,
         confidence=row.confidence,
+        follow_up_suggestions=list(row.suggestions_json or []),
         created_at=row.created_at,
     )
 
@@ -167,6 +168,7 @@ async def ask_question(
                 example=result.example,
                 native_explanation=result.native_explanation,
                 confidence=result.confidence,
+                suggestions_json=result.follow_up_suggestions,
             ),
         ]
     )
@@ -215,6 +217,7 @@ async def follow_up(
                 example=result.example,
                 native_explanation=result.native_explanation,
                 confidence=result.confidence,
+                suggestions_json=result.follow_up_suggestions,
             ),
         ]
     )

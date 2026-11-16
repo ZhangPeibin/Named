@@ -34,6 +34,7 @@ class QuestionMessageOut(BaseModel):
     example: str | None = None
     native_explanation: str | None = None
     confidence: str | None = None
+    follow_up_suggestions: list[str] = Field(default_factory=list)
     created_at: datetime
 
 

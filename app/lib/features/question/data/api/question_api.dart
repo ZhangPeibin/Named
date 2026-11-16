@@ -138,6 +138,7 @@ class MockQuestionApi implements QuestionApi {
           example: null,
           nativeExplanation: null,
           confidence: null,
+          followUpSuggestions: const [],
           createdAt: now,
         ),
         QuestionMessageDto(
@@ -147,6 +148,10 @@ class MockQuestionApi implements QuestionApi {
           example: 'Here is a short example.',
           nativeExplanation: '这是这个问题的中文解释。',
           confidence: 'high',
+          followUpSuggestions: const [
+            'Could I use will instead?',
+            'Show me another example.',
+          ],
           createdAt: now,
         ),
       ],
@@ -196,6 +201,7 @@ class MockQuestionApi implements QuestionApi {
           example: null,
           nativeExplanation: null,
           confidence: null,
+          followUpSuggestions: const [],
           createdAt: now,
         ),
         QuestionMessageDto(
@@ -205,6 +211,7 @@ class MockQuestionApi implements QuestionApi {
           example: 'Another short example.',
           nativeExplanation: '这是追问后的中文解释。',
           confidence: 'high',
+          followUpSuggestions: const [],
           createdAt: now,
         ),
       ],

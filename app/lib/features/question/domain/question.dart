@@ -22,6 +22,7 @@ class QuestionMessage {
     required this.example,
     required this.nativeExplanation,
     required this.confidence,
+    required this.followUpSuggestions,
     required this.createdAt,
   });
 
@@ -31,6 +32,7 @@ class QuestionMessage {
   final String? example;
   final String? nativeExplanation;
   final String? confidence;
+  final List<String> followUpSuggestions;
   final DateTime createdAt;
 
   bool get isUser => role == 'user';

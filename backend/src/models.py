@@ -261,6 +261,7 @@ class QuestionMessage(Base):
     example: Mapped[str | None] = mapped_column(Text, nullable=True)
     native_explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    suggestions_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
 

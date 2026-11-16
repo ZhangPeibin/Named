@@ -8,6 +8,7 @@ class QuestionMessageDto {
     required this.example,
     required this.nativeExplanation,
     required this.confidence,
+    required this.followUpSuggestions,
     required this.createdAt,
   });
 
@@ -19,6 +20,10 @@ class QuestionMessageDto {
       example: json['example'] as String?,
       nativeExplanation: json['native_explanation'] as String?,
       confidence: json['confidence'] as String?,
+      followUpSuggestions:
+          (json['follow_up_suggestions'] as List<dynamic>? ?? const [])
+              .whereType<String>()
+              .toList(),
       createdAt:
           DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
@@ -31,6 +36,7 @@ class QuestionMessageDto {
   final String? example;
   final String? nativeExplanation;
   final String? confidence;
+  final List<String> followUpSuggestions;
   final DateTime createdAt;
 
   QuestionMessage toDomain() {
@@ -41,6 +47,7 @@ class QuestionMessageDto {
       example: example,
       nativeExplanation: nativeExplanation,
       confidence: confidence,
+      followUpSuggestions: followUpSuggestions,
       createdAt: createdAt,
     );
   }

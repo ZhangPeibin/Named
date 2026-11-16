@@ -239,6 +239,7 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
   var _loading = true;
   var _sending = false;
   String? _error;
+  String? _pendingFollowUp;
 
   @override
   void initState() {
@@ -282,7 +283,12 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
     if (text.isEmpty || _sending) {
       return;
     }
-    setState(() => _sending = true);
+    setState(() {
+      _sending = true;
+      _pendingFollowUp = text;
+    });
+    _controller.clear();
+    _scrollToBottom();
     try {
       final thread = await ref
           .read(questionRepositoryProvider)
@@ -290,11 +296,18 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
       if (!mounted) {
         return;
       }
-      _controller.clear();
-      setState(() => _thread = thread);
+      setState(() {
+        _thread = thread;
+        _pendingFollowUp = null;
+      });
       _scrollToBottom();
     } on ApiException catch (error) {
       if (mounted) {
+        setState(() {
+          _pendingFollowUp = null;
+          _controller.text = text;
+          _controller.selection = TextSelection.collapsed(offset: text.length);
+        });
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(error.message)));
@@ -353,6 +366,12 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
     });
   }
 
+  void _useFollowUpSuggestion(String suggestion) {
+    _controller.text = suggestion;
+    _controller.selection = TextSelection.collapsed(offset: suggestion.length);
+    _followUpFocusNode.requestFocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t.ask;
@@ -404,7 +423,43 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
                         const SizedBox(height: AppSpacing.s20),
                       ],
                       for (final message in messages) ...[
-                        _QuestionMessageView(message: message),
+                        _QuestionMessageView(
+                          message: message,
+                          onSuggestion: _useFollowUpSuggestion,
+                        ),
+                        const SizedBox(height: AppSpacing.s16),
+                      ],
+                      if (_pendingFollowUp != null) ...[
+                        _QuestionMessageView(
+                          message: QuestionMessage(
+                            id: 'pending',
+                            role: 'user',
+                            text: _pendingFollowUp!,
+                            example: null,
+                            nativeExplanation: null,
+                            confidence: null,
+                            followUpSuggestions: const [],
+                            createdAt: DateTime.now(),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.s10),
+                        Row(
+                          children: [
+                            SizedBox.square(
+                              dimension: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: context.appPalette.primary,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.s8),
+                            Text(
+                              context.t.ask.thinking,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: context.appPalette.muted),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: AppSpacing.s16),
                       ],
                     ],
@@ -487,9 +542,10 @@ class _ThreadRow extends StatelessWidget {
 }
 
 class _QuestionMessageView extends StatelessWidget {
-  const _QuestionMessageView({required this.message});
+  const _QuestionMessageView({required this.message, this.onSuggestion});
 
   final QuestionMessage message;
+  final ValueChanged<String>? onSuggestion;
 
   @override
   Widget build(BuildContext context) {
@@ -589,6 +645,21 @@ class _QuestionMessageView extends StatelessWidget {
             Text(
               message.nativeExplanation!,
               style: textTheme.bodyMedium?.copyWith(color: palette.muted),
+            ),
+          ],
+          if (message.followUpSuggestions.isNotEmpty &&
+              onSuggestion != null) ...[
+            const SizedBox(height: AppSpacing.s12),
+            Wrap(
+              spacing: AppSpacing.s8,
+              runSpacing: AppSpacing.s8,
+              children: [
+                for (final suggestion in message.followUpSuggestions)
+                  ActionChip(
+                    label: Text(suggestion),
+                    onPressed: () => onSuggestion!(suggestion),
+                  ),
+              ],
             ),
           ],
         ],

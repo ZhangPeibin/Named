@@ -35,6 +35,7 @@ class FakeQuestionAgent:
             example="A short example.",
             native_explanation=f"Native explanation for: {text}",
             confidence="high",
+            follow_up_suggestions=["Could I use will instead?"],
         )
 
 
@@ -87,6 +88,7 @@ async def test_question_thread_context_and_follow_up(question_env) -> None:
     ]
     assert body["messages"][1]["example"] == "A short example."
     assert body["messages"][1]["confidence"] == "high"
+    assert body["messages"][1]["follow_up_suggestions"] == ["Could I use will instead?"]
     assert agent.calls[0]["context_quote"] == "If I had time, I would read more."
 
     follow_up = await http.post(
