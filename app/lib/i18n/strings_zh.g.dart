@@ -625,11 +625,28 @@ class _Translations$ask$zh implements Translations$ask$en {
 	@override String get emptyBody => '可以问一个词、一句话，或任何你想弄明白的事。';
 	@override String get thinking => '正在想…';
 	@override String get error => '暂时无法回答，再试一次。';
-	@override String get loadFailed => '暂时无法加载提问记录。';
+	@override String get loadFailed => '暂时无法加载这个问题。';
 	@override String get retry => '重试';
 	@override String get named => 'Named';
 	@override String get native => '中文解释';
 	@override String get send => '发送问题';
+	@override String get recent => '最近提问';
+	@override String get thread => '问答';
+	@override String get context => '来自这里';
+	@override String get followUpHint => '继续追问…';
+	@override String get followUp => '继续问';
+	@override String get delete => '删除问答';
+	@override String get deleteConfirm => '删除这个问答？';
+	@override String get cancel => '取消';
+	@override String get deleteAction => '删除';
+	@override String get suggestions => '可以试试';
+	@override String get suggestion1 => '这里是什么意思？';
+	@override String get suggestion2 => '这里为什么用这个语法？';
+	@override String get suggestion3 => '这句话怎么说更自然？';
+	@override String get emptyHistory => '你的提问会出现在这里。';
+	@override String get confidenceHigh => '确定';
+	@override String get confidenceMedium => '比较确定';
+	@override String get confidenceLow => '不太确定';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -1008,11 +1025,28 @@ extension on TranslationsZh {
 			'ask.emptyBody' => '可以问一个词、一句话，或任何你想弄明白的事。',
 			'ask.thinking' => '正在想…',
 			'ask.error' => '暂时无法回答，再试一次。',
-			'ask.loadFailed' => '暂时无法加载提问记录。',
+			'ask.loadFailed' => '暂时无法加载这个问题。',
 			'ask.retry' => '重试',
 			'ask.named' => 'Named',
 			'ask.native' => '中文解释',
 			'ask.send' => '发送问题',
+			'ask.recent' => '最近提问',
+			'ask.thread' => '问答',
+			'ask.context' => '来自这里',
+			'ask.followUpHint' => '继续追问…',
+			'ask.followUp' => '继续问',
+			'ask.delete' => '删除问答',
+			'ask.deleteConfirm' => '删除这个问答？',
+			'ask.cancel' => '取消',
+			'ask.deleteAction' => '删除',
+			'ask.suggestions' => '可以试试',
+			'ask.suggestion1' => '这里是什么意思？',
+			'ask.suggestion2' => '这里为什么用这个语法？',
+			'ask.suggestion3' => '这句话怎么说更自然？',
+			'ask.emptyHistory' => '你的提问会出现在这里。',
+			'ask.confidenceHigh' => '确定',
+			'ask.confidenceMedium' => '比较确定',
+			'ask.confidenceLow' => '不太确定',
 			_ => null,
 		};
 	}

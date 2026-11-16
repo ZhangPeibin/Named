@@ -1365,8 +1365,8 @@ class Translations$ask$en {
 	/// en: 'Could not answer that. Try again.'
 	String get error => 'Could not answer that. Try again.';
 
-	/// en: 'Could not load your questions.'
-	String get loadFailed => 'Could not load your questions.';
+	/// en: 'Could not load this question.'
+	String get loadFailed => 'Could not load this question.';
 
 	/// en: 'Try again'
 	String get retry => 'Try again';
@@ -1379,6 +1379,57 @@ class Translations$ask$en {
 
 	/// en: 'Send question'
 	String get send => 'Send question';
+
+	/// en: 'Recent questions'
+	String get recent => 'Recent questions';
+
+	/// en: 'Question thread'
+	String get thread => 'Question thread';
+
+	/// en: 'From this context'
+	String get context => 'From this context';
+
+	/// en: 'Ask a follow-up...'
+	String get followUpHint => 'Ask a follow-up...';
+
+	/// en: 'Ask follow-up'
+	String get followUp => 'Ask follow-up';
+
+	/// en: 'Delete thread'
+	String get delete => 'Delete thread';
+
+	/// en: 'Delete this question thread?'
+	String get deleteConfirm => 'Delete this question thread?';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Delete'
+	String get deleteAction => 'Delete';
+
+	/// en: 'Try asking'
+	String get suggestions => 'Try asking';
+
+	/// en: 'What does this mean here?'
+	String get suggestion1 => 'What does this mean here?';
+
+	/// en: 'Why is this grammar used?'
+	String get suggestion2 => 'Why is this grammar used?';
+
+	/// en: 'Make this sentence more natural.'
+	String get suggestion3 => 'Make this sentence more natural.';
+
+	/// en: 'Your questions will appear here.'
+	String get emptyHistory => 'Your questions will appear here.';
+
+	/// en: 'Confident'
+	String get confidenceHigh => 'Confident';
+
+	/// en: 'Fairly confident'
+	String get confidenceMedium => 'Fairly confident';
+
+	/// en: 'Not fully sure'
+	String get confidenceLow => 'Not fully sure';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1757,11 +1808,28 @@ extension on Translations {
 			'ask.emptyBody' => 'Ask about a word, a sentence, or anything you want to understand.',
 			'ask.thinking' => 'Thinking...',
 			'ask.error' => 'Could not answer that. Try again.',
-			'ask.loadFailed' => 'Could not load your questions.',
+			'ask.loadFailed' => 'Could not load this question.',
 			'ask.retry' => 'Try again',
 			'ask.named' => 'Named',
 			'ask.native' => 'In your language',
 			'ask.send' => 'Send question',
+			'ask.recent' => 'Recent questions',
+			'ask.thread' => 'Question thread',
+			'ask.context' => 'From this context',
+			'ask.followUpHint' => 'Ask a follow-up...',
+			'ask.followUp' => 'Ask follow-up',
+			'ask.delete' => 'Delete thread',
+			'ask.deleteConfirm' => 'Delete this question thread?',
+			'ask.cancel' => 'Cancel',
+			'ask.deleteAction' => 'Delete',
+			'ask.suggestions' => 'Try asking',
+			'ask.suggestion1' => 'What does this mean here?',
+			'ask.suggestion2' => 'Why is this grammar used?',
+			'ask.suggestion3' => 'Make this sentence more natural.',
+			'ask.emptyHistory' => 'Your questions will appear here.',
+			'ask.confidenceHigh' => 'Confident',
+			'ask.confidenceMedium' => 'Fairly confident',
+			'ask.confidenceLow' => 'Not fully sure',
 			_ => null,
 		};
 	}

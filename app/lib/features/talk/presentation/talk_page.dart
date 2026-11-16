@@ -20,6 +20,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
+import '../../question/presentation/ask_launcher.dart';
 import '../../sentence/presentation/sentence_detail_sheet.dart';
 import '../../words/presentation/word_lookup_sheet.dart';
 import '../../words/providers/words_providers.dart';
@@ -783,6 +784,25 @@ class _InlineMessageTextState extends State<_InlineMessageText> {
                   } else {
                     unawaited(showSentenceDetailSheet(this.context, selected));
                   }
+                },
+              ),
+            if (selected.isNotEmpty)
+              ContextMenuButtonItem(
+                type: ContextMenuButtonType.custom,
+                label: context.t.ask.title,
+                onPressed: () {
+                  selectableRegionState.hideToolbar();
+                  unawaited(
+                    openAsk(
+                      this.context,
+                      type: 'talk',
+                      ref: widget.message.id,
+                      quote: selected,
+                      suggestedQuestion: _isWordSelection(selected)
+                          ? 'What does "$selected" mean here?'
+                          : 'Explain this sentence simply.',
+                    ),
+                  );
                 },
               ),
           ],

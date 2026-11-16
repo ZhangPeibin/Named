@@ -227,6 +227,43 @@ class DailyReading(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
 
+class QuestionThread(Base):
+    __tablename__ = "question_threads"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    context_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    context_ref: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    context_quote: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class QuestionMessage(Base):
+    __tablename__ = "question_messages"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    thread_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("question_threads.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    sequence: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    example: Mapped[str | None] = mapped_column(Text, nullable=True)
+    native_explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    confidence: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
 class QuestionExchange(Base):
     __tablename__ = "question_exchanges"
 

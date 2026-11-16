@@ -14,6 +14,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
+import '../../question/presentation/ask_launcher.dart';
 import '../../talk/domain/talk.dart';
 import '../../talk/providers/talk_providers.dart';
 import '../domain/sentence_detail.dart';
@@ -148,7 +149,25 @@ class _SentenceDetailView extends StatelessWidget {
             ],
           ),
         ],
-        const SizedBox(height: AppSpacing.s20),
+        const SizedBox(height: AppSpacing.s12),
+        TextButton.icon(
+          key: const Key('sentence.ask'),
+          onPressed: () {
+            final navigator = Navigator.of(context);
+            navigator.pop();
+            unawaited(
+              openAsk(
+                navigator.context,
+                type: 'sentence',
+                quote: detail.original,
+                suggestedQuestion: 'Explain this sentence simply.',
+              ),
+            );
+          },
+          icon: const Icon(Icons.question_answer_outlined, size: 18),
+          label: Text(context.t.ask.title),
+        ),
+        const SizedBox(height: AppSpacing.s8),
         AppButton(
           key: const Key('sentence.copyEnglish'),
           label: t.copyEnglish,

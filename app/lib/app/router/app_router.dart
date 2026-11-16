@@ -13,6 +13,7 @@ import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
+import '../../features/question/domain/question.dart';
 import '../../features/question/presentation/question_page.dart';
 import '../../features/review/presentation/review_page.dart';
 import '../../features/settings/presentation/language_page.dart';
@@ -41,6 +42,7 @@ class AppRoutePaths {
   static const words = '/words';
   static const daily = '/daily';
   static const ask = '/ask';
+  static const questionThread = '/ask/:threadId';
   static const me = '/me';
   static const settings = '/settings';
   static const theme = '/settings/theme';
@@ -64,6 +66,7 @@ class AppRouteNames {
   static const words = 'words';
   static const daily = 'daily';
   static const ask = 'ask';
+  static const questionThread = 'questionThread';
   static const me = 'me';
   static const settings = 'settings';
   static const theme = 'theme';
@@ -175,7 +178,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutePaths.ask,
         name: AppRouteNames.ask,
-        builder: (context, state) => const QuestionPage(),
+        builder: (context, state) {
+          final type = state.uri.queryParameters['contextType'];
+          final quote = state.uri.queryParameters['contextQuote'];
+          return QuestionPage(
+            context: type == null
+                ? null
+                : QuestionContext(
+                    type: type,
+                    ref: state.uri.queryParameters['contextRef'],
+                    quote: quote,
+                  ),
+            suggestedQuestion: state.uri.queryParameters['suggested'],
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutePaths.questionThread,
+        name: AppRouteNames.questionThread,
+        builder: (context, state) =>
+            QuestionThreadPage(threadId: state.pathParameters['threadId']!),
       ),
       GoRoute(
         path: AppRoutePaths.me,

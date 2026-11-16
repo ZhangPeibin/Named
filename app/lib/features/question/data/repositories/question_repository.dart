@@ -6,13 +6,27 @@ class QuestionRepository {
 
   final QuestionApi _api;
 
-  Future<Question> ask(String text) async {
-    final dto = await _api.ask(text);
+  Future<QuestionThread> ask(String text, {QuestionContext? context}) async {
+    final dto = await _api.ask(text, context: context);
     return dto.toDomain();
   }
 
-  Future<List<Question>> fetchHistory() async {
-    final items = await _api.fetchHistory();
+  Future<List<QuestionThreadSummary>> fetchThreads() async {
+    final items = await _api.fetchThreads();
     return items.map((item) => item.toDomain()).toList();
+  }
+
+  Future<QuestionThread> fetchThread(String threadId) async {
+    final dto = await _api.fetchThread(threadId);
+    return dto.toDomain();
+  }
+
+  Future<QuestionThread> followUp(String threadId, String text) async {
+    final dto = await _api.followUp(threadId, text);
+    return dto.toDomain();
+  }
+
+  Future<void> deleteThread(String threadId) {
+    return _api.deleteThread(threadId);
   }
 }

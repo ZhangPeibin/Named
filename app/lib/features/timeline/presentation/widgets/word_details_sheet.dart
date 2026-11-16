@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -6,6 +8,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../discover/domain/discover.dart';
+import '../../../question/presentation/ask_launcher.dart';
 import '../../domain/timeline_item.dart';
 import 'word_audio_button.dart';
 
@@ -102,6 +105,26 @@ class _WordDetailsSheetState extends State<WordDetailsSheet> {
                 ],
               ),
             ],
+            const SizedBox(height: AppSpacing.s8),
+            TextButton.icon(
+              key: const Key('wordDetails.ask'),
+              onPressed: () {
+                final navigator = Navigator.of(context);
+                navigator.pop();
+                unawaited(
+                  openAsk(
+                    navigator.context,
+                    type: 'word',
+                    ref: item.wordId,
+                    quote: word.spelling,
+                    suggestedQuestion:
+                        'What does "${word.spelling}" mean here?',
+                  ),
+                );
+              },
+              icon: const Icon(Icons.question_answer_outlined, size: 18),
+              label: Text(context.t.ask.title),
+            ),
             if (widget.onToggleKnown != null) ...[
               const SizedBox(height: AppSpacing.s4),
               Align(
