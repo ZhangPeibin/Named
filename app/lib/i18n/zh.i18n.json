@@ -402,5 +402,19 @@
     "lightReading": "浅色阅读",
     "completeSummary": "{minutes} 分钟 · {words} 个词",
     "speed": "播放速度"
+  },
+  "ask": {
+    "title": "提问",
+    "entryTooltip": "问一个问题",
+    "placeholder": "想问什么？",
+    "emptyTitle": "你对什么感到好奇？",
+    "emptyBody": "可以问一个词、一句话，或任何你想弄明白的事。",
+    "thinking": "正在想…",
+    "error": "暂时无法回答，再试一次。",
+    "loadFailed": "暂时无法加载提问记录。",
+    "retry": "重试",
+    "named": "Named",
+    "native": "中文解释",
+    "send": "发送问题"
   }
 }

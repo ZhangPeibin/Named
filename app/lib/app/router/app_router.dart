@@ -13,6 +13,7 @@ import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
+import '../../features/question/presentation/question_page.dart';
 import '../../features/review/presentation/review_page.dart';
 import '../../features/settings/presentation/language_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
@@ -39,6 +40,7 @@ class AppRoutePaths {
   static const experience = '/history/:experienceId';
   static const words = '/words';
   static const daily = '/daily';
+  static const ask = '/ask';
   static const me = '/me';
   static const settings = '/settings';
   static const theme = '/settings/theme';
@@ -61,6 +63,7 @@ class AppRouteNames {
   static const experience = 'experience';
   static const words = 'words';
   static const daily = 'daily';
+  static const ask = 'ask';
   static const me = 'me';
   static const settings = 'settings';
   static const theme = 'theme';
@@ -168,6 +171,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => DailyReadPage(
           date: DateTime.tryParse(state.uri.queryParameters['date'] ?? ''),
         ),
+      ),
+      GoRoute(
+        path: AppRoutePaths.ask,
+        name: AppRouteNames.ask,
+        builder: (context, state) => const QuestionPage(),
       ),
       GoRoute(
         path: AppRoutePaths.me,

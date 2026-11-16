@@ -11,9 +11,11 @@ class NamedComposer extends StatelessWidget {
     required this.hintText,
     required this.sendTooltip,
     required this.meTooltip,
+    required this.askTooltip,
     required this.isSubmitting,
     required this.onSend,
     required this.onOpenMe,
+    required this.onOpenAsk,
     required this.onChanged,
   });
 
@@ -21,9 +23,11 @@ class NamedComposer extends StatelessWidget {
   final String hintText;
   final String sendTooltip;
   final String meTooltip;
+  final String askTooltip;
   final bool isSubmitting;
   final VoidCallback onSend;
   final VoidCallback onOpenMe;
+  final VoidCallback onOpenAsk;
   final ValueChanged<String> onChanged;
 
   @override
@@ -93,6 +97,25 @@ class NamedComposer extends StatelessWidget {
                         ),
                       ),
                     ),
+                    SizedBox.square(
+                      dimension: 38,
+                      child: IconButton(
+                        key: const Key('timeline.ask'),
+                        onPressed: onOpenAsk,
+                        tooltip: askTooltip,
+                        style: IconButton.styleFrom(
+                          foregroundColor: palette.primary,
+                          minimumSize: const Size.square(38),
+                          maximumSize: const Size.square(38),
+                          padding: EdgeInsets.zero,
+                        ),
+                        icon: const Icon(
+                          Icons.question_answer_outlined,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.s2),
                     ValueListenableBuilder<TextEditingValue>(
                       valueListenable: controller,
                       builder: (context, value, child) {

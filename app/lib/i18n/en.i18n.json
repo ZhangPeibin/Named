@@ -402,5 +402,19 @@
     "lightReading": "Light reading",
     "completeSummary": "{minutes} min · {words} words",
     "speed": "Playback speed"
+  },
+  "ask": {
+    "title": "Ask",
+    "entryTooltip": "Ask a question",
+    "placeholder": "Ask anything...",
+    "emptyTitle": "What are you curious about?",
+    "emptyBody": "Ask about a word, a sentence, or anything you want to understand.",
+    "thinking": "Thinking...",
+    "error": "Could not answer that. Try again.",
+    "loadFailed": "Could not load your questions.",
+    "retry": "Try again",
+    "named": "Named",
+    "native": "In your language",
+    "send": "Send question"
   }
 }

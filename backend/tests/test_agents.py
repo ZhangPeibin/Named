@@ -17,6 +17,7 @@ AGENT_MODULES = [
     "sentence.agent",
     "talk.agent",
     "experience.agent",
+    "question.agent",
 ]
 
 EXPECTED_AGENTS = {
@@ -27,6 +28,7 @@ EXPECTED_AGENTS = {
     "talk",
     "help",
     "experience",
+    "question",
 }
 
 

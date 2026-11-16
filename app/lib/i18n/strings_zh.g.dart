@@ -58,6 +58,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
 	@override late final _Translations$challenge$zh challenge = _Translations$challenge$zh._(_root);
 	@override late final _Translations$daily$zh daily = _Translations$daily$zh._(_root);
+	@override late final _Translations$ask$zh ask = _Translations$ask$zh._(_root);
 }
 
 // Path: app
@@ -610,6 +611,27 @@ class _Translations$daily$zh implements Translations$daily$en {
 	@override String get speed => '播放速度';
 }
 
+// Path: ask
+class _Translations$ask$zh implements Translations$ask$en {
+	_Translations$ask$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '提问';
+	@override String get entryTooltip => '问一个问题';
+	@override String get placeholder => '想问什么？';
+	@override String get emptyTitle => '你对什么感到好奇？';
+	@override String get emptyBody => '可以问一个词、一句话，或任何你想弄明白的事。';
+	@override String get thinking => '正在想…';
+	@override String get error => '暂时无法回答，再试一次。';
+	@override String get loadFailed => '暂时无法加载提问记录。';
+	@override String get retry => '重试';
+	@override String get named => 'Named';
+	@override String get native => '中文解释';
+	@override String get send => '发送问题';
+}
+
 /// The flat map containing all translations for locale <zh>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -979,6 +1001,18 @@ extension on TranslationsZh {
 			'daily.lightReading' => '浅色阅读',
 			'daily.completeSummary' => '{minutes} 分钟 · {words} 个词',
 			'daily.speed' => '播放速度',
+			'ask.title' => '提问',
+			'ask.entryTooltip' => '问一个问题',
+			'ask.placeholder' => '想问什么？',
+			'ask.emptyTitle' => '你对什么感到好奇？',
+			'ask.emptyBody' => '可以问一个词、一句话，或任何你想弄明白的事。',
+			'ask.thinking' => '正在想…',
+			'ask.error' => '暂时无法回答，再试一次。',
+			'ask.loadFailed' => '暂时无法加载提问记录。',
+			'ask.retry' => '重试',
+			'ask.named' => 'Named',
+			'ask.native' => '中文解释',
+			'ask.send' => '发送问题',
 			_ => null,
 		};
 	}

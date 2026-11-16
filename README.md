@@ -427,6 +427,7 @@ All business routes are under `/api/v1`.
 | Challenge | `GET /challenges`, `POST /challenges`, `GET /challenges/{id}`, `POST /challenges/{id}/end`, `POST /challenges/{id}/items/{item_id}/visited` |
 | Assistant | `POST /assistant/route` |
 | Progress | `GET /progress` |
+| Questions | `POST /questions`, `GET /questions` |
 | Daily | `GET /daily/read?date=YYYY-MM-DD`, `GET /daily/read/translation`, `POST /daily/read/complete` |
 | Audio | `POST /audio/speech`, `POST /audio/transcribe`, `POST /audio/pronunciation`, `GET /audio/{key}`, `GET /images/{key}` |
 
@@ -455,6 +456,7 @@ and output contracts stay in each feature module.
 | Experience | `experience/agent.py` | Async Experience worker after a Talk conversation ends; no direct public route | Extract at most one life experience and one learning experience from the conversation, with evidence sequences. Results are persisted and later read by History and Talk context. | `ExperienceExtraction` |
 | Daily read | `daily/agent.py` | `GET /daily/read`, once per account and day | Write a 220-320 word A2-B1 listening/reading story using recent saved words and a rotating theme. The passage is persisted and synthesized to audio; it is practice text, not a user experience. | `DailyReadAgentOutput` |
 | Daily translation | `daily/translation_agent.py` | `GET /daily/read/translation` on first translation toggle | Translate the stored reading sentence by sentence, preserving sentence order and offsets. The result is cached per account/day/language until the learner changes native language. | `DailyTranslationAgentOutput` |
+| Question | `question/agent.py` | `POST /questions` from the Ask screen | Answer a free-form learner question directly in simple English with a native-language explanation; persist the exchange for later reopening. | `QuestionAgentOutput` |
 
 Composer routing flow:
 
@@ -533,6 +535,8 @@ Implemented:
 - Daily reminder setting with local notifications
 - Independent light/dark reader theme with persistence
 - Background audio session configured for iOS/Android playback
+- Daily playback speed rail and illustrated timeline content marks
+- Ask entry with saved question/answer history
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
 Not implemented yet:
@@ -549,8 +553,8 @@ Not implemented yet:
 
 Current local gates:
 
-- Backend: **107** tests, Ruff lint/format
-- Flutter app: **116** tests, `make check`
+- Backend: **109** tests, Ruff lint/format
+- Flutter app: **118** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

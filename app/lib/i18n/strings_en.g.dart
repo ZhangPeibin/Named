@@ -61,6 +61,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$history$en history = Translations$history$en._(_root);
 	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
 	late final Translations$daily$en daily = Translations$daily$en._(_root);
+	late final Translations$ask$en ask = Translations$ask$en._(_root);
 }
 
 // Path: app
@@ -1335,6 +1336,51 @@ class Translations$daily$en {
 	String get speed => 'Playback speed';
 }
 
+// Path: ask
+class Translations$ask$en {
+	Translations$ask$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Ask'
+	String get title => 'Ask';
+
+	/// en: 'Ask a question'
+	String get entryTooltip => 'Ask a question';
+
+	/// en: 'Ask anything...'
+	String get placeholder => 'Ask anything...';
+
+	/// en: 'What are you curious about?'
+	String get emptyTitle => 'What are you curious about?';
+
+	/// en: 'Ask about a word, a sentence, or anything you want to understand.'
+	String get emptyBody => 'Ask about a word, a sentence, or anything you want to understand.';
+
+	/// en: 'Thinking...'
+	String get thinking => 'Thinking...';
+
+	/// en: 'Could not answer that. Try again.'
+	String get error => 'Could not answer that. Try again.';
+
+	/// en: 'Could not load your questions.'
+	String get loadFailed => 'Could not load your questions.';
+
+	/// en: 'Try again'
+	String get retry => 'Try again';
+
+	/// en: 'Named'
+	String get named => 'Named';
+
+	/// en: 'In your language'
+	String get native => 'In your language';
+
+	/// en: 'Send question'
+	String get send => 'Send question';
+}
+
 /// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -1704,6 +1750,18 @@ extension on Translations {
 			'daily.lightReading' => 'Light reading',
 			'daily.completeSummary' => '{minutes} min · {words} words',
 			'daily.speed' => 'Playback speed',
+			'ask.title' => 'Ask',
+			'ask.entryTooltip' => 'Ask a question',
+			'ask.placeholder' => 'Ask anything...',
+			'ask.emptyTitle' => 'What are you curious about?',
+			'ask.emptyBody' => 'Ask about a word, a sentence, or anything you want to understand.',
+			'ask.thinking' => 'Thinking...',
+			'ask.error' => 'Could not answer that. Try again.',
+			'ask.loadFailed' => 'Could not load your questions.',
+			'ask.retry' => 'Try again',
+			'ask.named' => 'Named',
+			'ask.native' => 'In your language',
+			'ask.send' => 'Send question',
 			_ => null,
 		};
 	}
