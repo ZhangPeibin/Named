@@ -1321,6 +1321,12 @@ class Translations$daily$en {
 
 	/// en: 'A short reading made from your words. 2–3 min.'
 	String get reminderBody => 'A short reading made from your words. 2–3 min.';
+
+	/// en: 'Dark reading'
+	String get darkReading => 'Dark reading';
+
+	/// en: 'Light reading'
+	String get lightReading => 'Light reading';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1688,6 +1694,8 @@ extension on Translations {
 			'daily.completeTitlePast' => 'Reading complete',
 			'daily.reminderTitle' => 'Your daily story is ready',
 			'daily.reminderBody' => 'A short reading made from your words. 2–3 min.',
+			'daily.darkReading' => 'Dark reading',
+			'daily.lightReading' => 'Light reading',
 			_ => null,
 		};
 	}

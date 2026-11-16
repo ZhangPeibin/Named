@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
@@ -18,7 +18,9 @@ import '../../progress/providers/progress_providers.dart';
 import '../../sentence/presentation/sentence_detail_sheet.dart';
 import '../../words/presentation/word_lookup_sheet.dart';
 import '../domain/daily_read.dart';
+import '../domain/reader_theme.dart';
 import '../providers/daily_providers.dart';
+import '../providers/reader_theme_provider.dart';
 
 class DailyReadPage extends ConsumerStatefulWidget {
   const DailyReadPage({super.key, this.date});
@@ -109,10 +111,12 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     });
   }
 
-  TextStyle? _passageStyle(BuildContext context) {
-    return Theme.of(
-      context,
-    ).textTheme.bodyLarge?.copyWith(fontSize: 19, height: 1.75);
+  TextStyle? _passageStyle(BuildContext context, AppPalette palette) {
+    return Theme.of(context).textTheme.bodyLarge?.copyWith(
+      fontSize: 19,
+      height: 1.75,
+      color: palette.ink,
+    );
   }
 
   void _onPosition(DailyRead reading, Duration position) {
@@ -273,7 +277,10 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
       return;
     }
     final painter = TextPainter(
-      text: TextSpan(text: reading.passage, style: _passageStyle(context)),
+      text: TextSpan(
+        text: reading.passage,
+        style: _passageStyle(context, context.appPalette),
+      ),
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: textBox.size.width);
     final word = reading.words[index];
@@ -297,7 +304,10 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     }
     final lineText = reading.passage.substring(line.startChar, line.endChar);
     final painter = TextPainter(
-      text: TextSpan(text: lineText, style: _passageStyle(context)),
+      text: TextSpan(
+        text: lineText,
+        style: _passageStyle(context, context.appPalette),
+      ),
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: textBox.size.width);
     final localOffset = (word.startChar - line.startChar).clamp(
@@ -335,7 +345,16 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t.daily;
-    final palette = context.appPalette;
+    final baseTheme = Theme.of(context);
+    final readerMode =
+        ref.watch(readerThemeProvider).value ?? ReaderThemeMode.system;
+    final isDark = switch (readerMode) {
+      ReaderThemeMode.light => false,
+      ReaderThemeMode.dark => true,
+      ReaderThemeMode.system =>
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+    };
+    final palette = isDark ? AppPalette.readerDark : context.appPalette;
     final async = ref.watch(dailyReadProvider(widget.date));
     final reading = async.value;
     if (reading != null) {
@@ -343,156 +362,179 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage> {
     }
     final translation = _showTranslation ? _translation : null;
 
-    return Scaffold(
-      backgroundColor: palette.canvas,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                padding: const EdgeInsets.only(top: 48, bottom: 120),
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    async.when(
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (error, stack) => Center(
-                        child: AppErrorView(
-                          title: t.title,
-                          message: error is ApiException
-                              ? error.message
-                              : context.t.common.somethingWentWrong,
-                          onRetry: () =>
-                              ref.invalidate(dailyReadProvider(widget.date)),
-                        ),
-                      ),
-                      data: (value) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (translation == null)
-                            _DailyReadBody(
-                              reading: value,
-                              textKey: _textKey,
-                              activeWordIndex: _activeWordIndex,
-                              passageStyle: _passageStyle(context),
-                              onShowWord: (text) =>
-                                  unawaited(showWordLookupSheet(context, text)),
-                              onShowSentence: (text) => unawaited(
-                                showSentenceDetailSheet(context, text),
-                              ),
-                            )
-                          else
-                            _BilingualReadBody(
-                              reading: value,
-                              translation: translation,
-                              lineKeys: _lineKeys,
-                              activeWordIndex: _activeWordIndex,
-                              passageStyle: _passageStyle(context),
-                              onShowWord: (text) =>
-                                  unawaited(showWordLookupSheet(context, text)),
-                              onShowSentence: (text) => unawaited(
-                                showSentenceDetailSheet(context, text),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Theme(
+        data: baseTheme.copyWith(extensions: [palette]),
+        child: Scaffold(
+          backgroundColor: palette.canvas,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(top: 48, bottom: 120),
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        async.when(
+                          loading: () =>
+                              const Center(child: CircularProgressIndicator()),
+                          error: (error, stack) => Center(
+                            child: AppErrorView(
+                              title: t.title,
+                              message: error is ApiException
+                                  ? error.message
+                                  : context.t.common.somethingWentWrong,
+                              onRetry: () => ref.invalidate(
+                                dailyReadProvider(widget.date),
                               ),
                             ),
-                          _DailyCompletion(
-                            completed: _completion != null || value.completed,
-                            streak: _completion?.streak ?? value.streak,
-                            wordCount:
-                                _completion?.wordCount ?? _wordCount(value),
-                            targetWords:
-                                _completion?.targetWords.length ??
-                                value.targetWords.length,
-                            durationSeconds:
-                                _completion?.durationSeconds ??
-                                value.durationSeconds,
-                            isToday: _isToday,
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ColoredBox(
-                color: palette.canvas,
-                child: _ReaderTopBar(title: reading?.title ?? t.title),
-              ),
-            ),
-            if (reading != null)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 18,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: palette.surface.withValues(alpha: 0.62),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: palette.primary.withValues(alpha: 0.08),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (reading.audioUrl != null) ...[
-                          _ReaderControl(
-                            key: const Key('daily.back10'),
-                            tooltip: t.back10,
-                            onPressed: () =>
-                                _audioKey.currentState?.seekBy(-10),
-                            icon: const Icon(Icons.replay_10),
-                          ),
-                          DailyAudioButton(
-                            key: _audioKey,
-                            url: reading.audioUrl!,
-                            onPosition: (position) =>
-                                _onPosition(reading, position),
-                            onComplete: () => unawaited(_finishReading()),
-                          ),
-                          _ReaderControl(
-                            key: const Key('daily.forward10'),
-                            tooltip: t.forward10,
-                            onPressed: () => _audioKey.currentState?.seekBy(10),
-                            icon: const Icon(Icons.forward_10),
-                          ),
-                        ],
-                        _ReaderControl(
-                          key: const Key('daily.translate'),
-                          tooltip: _showTranslation
-                              ? t.hideTranslation
-                              : t.translate,
-                          onPressed: _translationLoading
-                              ? null
-                              : _toggleTranslation,
-                          active: _showTranslation,
-                          icon: _translationLoading
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                          data: (value) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (translation == null)
+                                _DailyReadBody(
+                                  reading: value,
+                                  textKey: _textKey,
+                                  activeWordIndex: _activeWordIndex,
+                                  passageStyle: _passageStyle(context, palette),
+                                  onShowWord: (text) => unawaited(
+                                    showWordLookupSheet(context, text),
+                                  ),
+                                  onShowSentence: (text) => unawaited(
+                                    showSentenceDetailSheet(context, text),
                                   ),
                                 )
-                              : const Icon(Icons.translate),
+                              else
+                                _BilingualReadBody(
+                                  reading: value,
+                                  translation: translation,
+                                  lineKeys: _lineKeys,
+                                  activeWordIndex: _activeWordIndex,
+                                  passageStyle: _passageStyle(context, palette),
+                                  onShowWord: (text) => unawaited(
+                                    showWordLookupSheet(context, text),
+                                  ),
+                                  onShowSentence: (text) => unawaited(
+                                    showSentenceDetailSheet(context, text),
+                                  ),
+                                ),
+                              _DailyCompletion(
+                                completed:
+                                    _completion != null || value.completed,
+                                streak: _completion?.streak ?? value.streak,
+                                wordCount:
+                                    _completion?.wordCount ?? _wordCount(value),
+                                targetWords:
+                                    _completion?.targetWords.length ??
+                                    value.targetWords.length,
+                                durationSeconds:
+                                    _completion?.durationSeconds ??
+                                    value.durationSeconds,
+                                isToday: _isToday,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-          ],
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ColoredBox(
+                    color: palette.canvas,
+                    child: _ReaderTopBar(
+                      title: reading?.title ?? t.title,
+                      isDark: isDark,
+                      onToggleTheme: () => unawaited(
+                        ref
+                            .read(readerThemeProvider.notifier)
+                            .setMode(
+                              isDark
+                                  ? ReaderThemeMode.light
+                                  : ReaderThemeMode.dark,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (reading != null)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 18,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: palette.surface.withValues(alpha: 0.62),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: palette.primary.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (reading.audioUrl != null) ...[
+                              _ReaderControl(
+                                key: const Key('daily.back10'),
+                                tooltip: t.back10,
+                                onPressed: () =>
+                                    _audioKey.currentState?.seekBy(-10),
+                                icon: const Icon(Icons.replay_10),
+                              ),
+                              DailyAudioButton(
+                                key: _audioKey,
+                                url: reading.audioUrl!,
+                                onPosition: (position) =>
+                                    _onPosition(reading, position),
+                                onComplete: () => unawaited(_finishReading()),
+                              ),
+                              _ReaderControl(
+                                key: const Key('daily.forward10'),
+                                tooltip: t.forward10,
+                                onPressed: () =>
+                                    _audioKey.currentState?.seekBy(10),
+                                icon: const Icon(Icons.forward_10),
+                              ),
+                            ],
+                            _ReaderControl(
+                              key: const Key('daily.translate'),
+                              tooltip: _showTranslation
+                                  ? t.hideTranslation
+                                  : t.translate,
+                              onPressed: _translationLoading
+                                  ? null
+                                  : _toggleTranslation,
+                              active: _showTranslation,
+                              icon: _translationLoading
+                                  ? const SizedBox.square(
+                                      dimension: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.translate),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -631,9 +673,15 @@ class _ReaderControl extends StatelessWidget {
 }
 
 class _ReaderTopBar extends StatelessWidget {
-  const _ReaderTopBar({required this.title});
+  const _ReaderTopBar({
+    required this.title,
+    required this.isDark,
+    required this.onToggleTheme,
+  });
 
   final String title;
+  final bool isDark;
+  final VoidCallback onToggleTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -657,6 +705,18 @@ class _ReaderTopBar extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: textTheme.titleMedium?.copyWith(color: palette.muted),
+            ),
+          ),
+          IconButton(
+            key: const Key('daily.theme'),
+            tooltip: isDark
+                ? context.t.daily.lightReading
+                : context.t.daily.darkReading,
+            visualDensity: VisualDensity.compact,
+            onPressed: onToggleTheme,
+            icon: Icon(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              color: palette.primary,
             ),
           ),
         ],

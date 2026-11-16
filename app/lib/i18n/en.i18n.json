@@ -397,6 +397,8 @@
     "completeUnavailable": "Could not save your reading.",
     "completeTitlePast": "Reading complete",
     "reminderTitle": "Your daily story is ready",
-    "reminderBody": "A short reading made from your words. 2–3 min."
+    "reminderBody": "A short reading made from your words. 2–3 min.",
+    "darkReading": "Dark reading",
+    "lightReading": "Light reading"
   }
 }

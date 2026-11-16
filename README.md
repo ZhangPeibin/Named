@@ -531,6 +531,7 @@ Implemented:
 - Daily Listen/Read generated from saved words, with cached audio, timed words, sentence translation, completion streaks, and auto-completion
 - Timeline Daily task cards and cumulative Words/Talks/Reads progress
 - Daily reminder setting with local notifications
+- Independent light/dark reader theme with persistence
 - Background audio session configured for iOS/Android playback
 - Problem+json errors, request IDs, rate limits, OpenAPI, backend tests, app tests
 
@@ -549,7 +550,7 @@ Not implemented yet:
 Current local gates:
 
 - Backend: **107** tests, Ruff lint/format
-- Flutter app: **115** tests, `make check`
+- Flutter app: **116** tests, `make check`
 - iOS simulator build
 - Android debug APK build
 

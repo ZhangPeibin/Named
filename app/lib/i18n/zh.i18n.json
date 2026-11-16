@@ -397,6 +397,8 @@
     "completeUnavailable": "暂时无法记录阅读完成。",
     "completeTitlePast": "阅读完成",
     "reminderTitle": "今天的阅读准备好了",
-    "reminderBody": "用你的词写成的一篇短读，2–3 分钟。"
+    "reminderBody": "用你的词写成的一篇短读，2–3 分钟。",
+    "darkReading": "深色阅读",
+    "lightReading": "浅色阅读"
   }
 }
