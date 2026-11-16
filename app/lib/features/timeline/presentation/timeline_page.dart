@@ -35,7 +35,8 @@ class TimelinePage extends ConsumerStatefulWidget {
   ConsumerState<TimelinePage> createState() => _TimelinePageState();
 }
 
-class _TimelinePageState extends ConsumerState<TimelinePage> {
+class _TimelinePageState extends ConsumerState<TimelinePage>
+    with WidgetsBindingObserver {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   String? _error;
@@ -45,6 +46,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   bool _didInitialScroll = false;
   late final ComposerHintSelector _hintSelector;
   Timer? _hintTimer;
+  Timer? _dayTimer;
+  DateTime _currentDay = DateUtils.dateOnly(DateTime.now());
   ComposerHintCategory _hintCategory = ComposerHintCategory.discovery;
   bool _hintPaused = false;
 
@@ -57,11 +60,35 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     _textController.addListener(_handleComposerTextChanged);
     _scrollController.addListener(_handleTimelineScroll);
     _hintTimer = Timer.periodic(_hintInterval, (_) => _advanceHint());
+    _dayTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _refreshIfDayChanged(),
+    );
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshIfDayChanged();
+    }
+  }
+
+  void _refreshIfDayChanged() {
+    final today = DateUtils.dateOnly(DateTime.now());
+    if (DateUtils.isSameDay(today, _currentDay)) {
+      return;
+    }
+    _currentDay = today;
+    ref.invalidate(timelineControllerProvider);
+    ref.invalidate(progressProvider);
   }
 
   @override
   void dispose() {
     _hintTimer?.cancel();
+    _dayTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     _textController
       ..removeListener(_handleComposerTextChanged)
       ..dispose();
