@@ -4,6 +4,61 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 
+class ContentAccent {
+  const ContentAccent({required this.background, required this.foreground});
+
+  final Color background;
+  final Color foreground;
+}
+
+class ContentAccents {
+  const ContentAccents._();
+
+  static bool _isDark(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
+
+  static ContentAccent daily(BuildContext context) {
+    return _isDark(context)
+        ? const ContentAccent(
+            background: Color(0x33FFB86B),
+            foreground: Color(0xFFFFB86B),
+          )
+        : const ContentAccent(
+            background: Color(0xFFFFE3C4),
+            foreground: Color(0xFFC56A2D),
+          );
+  }
+
+  static ContentAccent user(BuildContext context) {
+    return _isDark(context)
+        ? const ContentAccent(
+            background: Color(0x33FF9D8A),
+            foreground: Color(0xFFFFA594),
+          )
+        : const ContentAccent(
+            background: Color(0xFFFFDAD3),
+            foreground: Color(0xFFB85C4C),
+          );
+  }
+
+  static Color talk(BuildContext context) {
+    return _isDark(context) ? const Color(0xFFFF9D8A) : const Color(0xFFF08A72);
+  }
+
+  static Color words(BuildContext context) {
+    return _isDark(context) ? const Color(0xFFFFB86B) : const Color(0xFFC56A2D);
+  }
+
+  static Color talks(BuildContext context) {
+    return _isDark(context) ? const Color(0xFF82C8FF) : const Color(0xFF3A86C8);
+  }
+
+  static Color reads(BuildContext context) {
+    return _isDark(context) ? const Color(0xFF9ED8A8) : const Color(0xFF4F9B69);
+  }
+}
+
 class DailyMark extends StatelessWidget {
   const DailyMark({super.key, this.size = 38, this.completed = false});
 
@@ -13,6 +68,7 @@ class DailyMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
+    final accent = ContentAccents.daily(context);
 
     return SizedBox.square(
       dimension: size,
@@ -21,12 +77,14 @@ class DailyMark extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: palette.warm,
+              color: accent.background,
               borderRadius: BorderRadius.circular(size * 0.31),
-              border: Border.all(color: palette.line.withValues(alpha: 0.7)),
+              border: Border.all(
+                color: accent.foreground.withValues(alpha: 0.18),
+              ),
             ),
             child: CustomPaint(
-              painter: _DailyPainter(primary: palette.primary),
+              painter: _DailyPainter(primary: accent.foreground),
               child: const SizedBox.expand(),
             ),
           ),
@@ -38,14 +96,14 @@ class DailyMark extends StatelessWidget {
                 width: 15,
                 height: 15,
                 decoration: BoxDecoration(
-                  color: palette.primary,
+                  color: accent.foreground,
                   shape: BoxShape.circle,
                   border: Border.all(color: palette.canvas, width: 1.5),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.check_rounded,
                   size: 10,
-                  color: palette.onPrimary,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -96,14 +154,14 @@ class MiloMark extends StatelessWidget {
               width: 15,
               height: 15,
               decoration: BoxDecoration(
-                color: palette.primary,
+                color: ContentAccents.talk(context),
                 shape: BoxShape.circle,
                 border: Border.all(color: palette.canvas, width: 1.5),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.chat_bubble_rounded,
                 size: 8,
-                color: palette.onPrimary,
+                color: Colors.white,
               ),
             ),
           ),

@@ -5,6 +5,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
+import 'spot_mark.dart';
 
 class TimelineProgressCard extends StatefulWidget {
   const TimelineProgressCard({
@@ -86,18 +87,21 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
                           value: widget.progress.words,
                           label: t.progressWords,
                           icon: Icons.menu_book_outlined,
+                          color: ContentAccents.words(context),
                         ),
                         _divider(palette),
                         _ProgressStat(
                           value: widget.progress.conversations,
                           label: t.progressConversations,
                           icon: Icons.chat_bubble_outline,
+                          color: ContentAccents.talks(context),
                         ),
                         _divider(palette),
                         _ProgressStat(
                           value: widget.progress.readings,
                           label: t.progressReads,
                           icon: Icons.headphones_outlined,
+                          color: ContentAccents.reads(context),
                         ),
                       ],
                     ),
@@ -124,11 +128,13 @@ class _ProgressStat extends StatelessWidget {
     required this.value,
     required this.label,
     required this.icon,
+    required this.color,
   });
 
   final int value;
   final String label;
   final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +151,7 @@ class _ProgressStat extends StatelessWidget {
           ),
           Row(
             children: [
-              Icon(icon, size: 12, color: palette.muted),
+              Icon(icon, size: 12, color: color),
               const SizedBox(width: 3),
               Text(
                 label,
