@@ -53,6 +53,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
   Timer? _completionTimer;
   Timer? _followPauseTimer;
   var _autoFollow = true;
+  var _showSpeed = false;
   late final Ticker _followTicker;
   double? _scrollTarget;
   double? _lastTickSeconds;
@@ -607,22 +608,38 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                     left: 0,
                     right: 0,
                     bottom: 76,
-                    child: Center(
-                      child: ValueListenableBuilder<double>(
-                        valueListenable: _playbackRate,
-                        builder: (context, rate, child) => _SpeedRail(
-                          rate: rate,
-                          onChanged: (value) {
-                            _playbackRate.value = value;
-                            unawaited(
-                              _audioKey.currentState?.setPlaybackRate(value) ??
-                                  Future<void>.value(),
-                            );
-                          },
-                          onCommit: () => unawaited(
-                            ref
-                                .read(readerSpeedProvider.notifier)
-                                .setRate(_playbackRate.value),
+                    child: IgnorePointer(
+                      ignoring: !_showSpeed,
+                      child: AnimatedSlide(
+                        offset: _showSpeed
+                            ? Offset.zero
+                            : const Offset(0, 0.18),
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOutCubic,
+                        child: AnimatedOpacity(
+                          opacity: _showSpeed ? 1 : 0,
+                          duration: const Duration(milliseconds: 160),
+                          child: Center(
+                            child: ValueListenableBuilder<double>(
+                              valueListenable: _playbackRate,
+                              builder: (context, rate, child) => _SpeedRail(
+                                rate: rate,
+                                onChanged: (value) {
+                                  _playbackRate.value = value;
+                                  unawaited(
+                                    _audioKey.currentState?.setPlaybackRate(
+                                          value,
+                                        ) ??
+                                        Future<void>.value(),
+                                  );
+                                },
+                                onCommit: () => unawaited(
+                                  ref
+                                      .read(readerSpeedProvider.notifier)
+                                      .setRate(_playbackRate.value),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -670,6 +687,15 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                                 onPressed: () => _seekAudio(10),
                                 icon: const Icon(Icons.forward_10),
                               ),
+                              ValueListenableBuilder<double>(
+                                valueListenable: _playbackRate,
+                                builder: (context, rate, child) => _SpeedButton(
+                                  rate: rate,
+                                  active: _showSpeed,
+                                  onTap: () =>
+                                      setState(() => _showSpeed = !_showSpeed),
+                                ),
+                              ),
                             ],
                             _ReaderControl(
                               key: const Key('daily.translate'),
@@ -697,6 +723,45 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SpeedButton extends StatelessWidget {
+  const _SpeedButton({
+    required this.rate,
+    required this.active,
+    required this.onTap,
+  });
+
+  final double rate;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return IconButton(
+      key: const Key('daily.speed.button'),
+      tooltip: context.t.daily.speed,
+      onPressed: onTap,
+      style: IconButton.styleFrom(
+        backgroundColor: active
+            ? palette.primary.withValues(alpha: 0.08)
+            : Colors.transparent,
+        foregroundColor: palette.primary,
+        minimumSize: const Size(36, 36),
+        fixedSize: const Size(36, 36),
+        padding: EdgeInsets.zero,
+      ),
+      icon: Text(
+        audioRateLabel(rate),
+        style: TextStyle(
+          color: palette.primary,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
