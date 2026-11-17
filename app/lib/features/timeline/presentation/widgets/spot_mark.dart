@@ -21,33 +21,33 @@ class ContentAccents {
   static ContentAccent daily(BuildContext context) {
     return _isDark(context)
         ? const ContentAccent(
-            background: Color(0x33FFB86B),
-            foreground: Color(0xFFFFB86B),
+            background: Color(0x339CC4B8),
+            foreground: Color(0xFF9CC4B8),
           )
         : const ContentAccent(
-            background: Color(0xFFFFE3C4),
-            foreground: Color(0xFFC56A2D),
+            background: Color(0xFFE0EEE8),
+            foreground: Color(0xFF4F7C74),
           );
   }
 
   static ContentAccent user(BuildContext context) {
     return _isDark(context)
         ? const ContentAccent(
-            background: Color(0x33FF9D8A),
-            foreground: Color(0xFFFFA594),
+            background: Color(0x33E0A8B0),
+            foreground: Color(0xFFE0A8B0),
           )
         : const ContentAccent(
-            background: Color(0xFFFFDAD3),
-            foreground: Color(0xFFB85C4C),
+            background: Color(0xFFF2E3E6),
+            foreground: Color(0xFFA85F6B),
           );
   }
 
   static Color talk(BuildContext context) {
-    return _isDark(context) ? const Color(0xFFFF9D8A) : const Color(0xFFF08A72);
+    return _isDark(context) ? const Color(0xFF9BBEDC) : const Color(0xFF4F7C9E);
   }
 
   static Color words(BuildContext context) {
-    return _isDark(context) ? const Color(0xFFFFB86B) : const Color(0xFFC56A2D);
+    return _isDark(context) ? const Color(0xFF9CC4B8) : const Color(0xFF4F7C74);
   }
 
   static Color talks(BuildContext context) {

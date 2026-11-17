@@ -8,7 +8,6 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_otp_field.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -238,14 +237,13 @@ class _SignInPageState extends ConsumerState<SignInPage> {
             style: textTheme.bodyLarge?.copyWith(color: palette.muted),
           ),
           const SizedBox(height: AppSpacing.s24),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: isLanguageStep
-                  ? _languageStep(context)
-                  : _emailStep(context),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: isLanguageStep
+                ? _languageStep(context)
+                : _emailStep(context),
           ),
+          const SizedBox(height: AppSpacing.s16),
         ],
       ),
     );
