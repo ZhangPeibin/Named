@@ -30,8 +30,8 @@ class QuestionThreadCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: palette.surfaceMuted,
               borderRadius: BorderRadius.circular(10),
@@ -39,8 +39,8 @@ class QuestionThreadCard extends StatelessWidget {
             ),
             child: Icon(
               Icons.chat_bubble_rounded,
-              color: palette.ink,
-              size: 17,
+              color: palette.primary,
+              size: 18,
             ),
           ),
           const SizedBox(width: AppSpacing.s12),

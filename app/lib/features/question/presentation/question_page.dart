@@ -532,7 +532,7 @@ class _AskAgentAvatar extends StatelessWidget {
       child: Icon(
         Icons.chat_bubble_rounded,
         size: size * 0.5,
-        color: palette.ink,
+        color: palette.primary,
       ),
     );
   }

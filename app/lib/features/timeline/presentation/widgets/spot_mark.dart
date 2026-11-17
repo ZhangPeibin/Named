@@ -16,7 +16,7 @@ class ContentAccents {
     final palette = context.appPalette;
     return ContentAccent(
       background: palette.surfaceMuted,
-      foreground: palette.ink,
+      foreground: palette.primary,
     );
   }
 
@@ -24,11 +24,11 @@ class ContentAccents {
     final palette = context.appPalette;
     return ContentAccent(
       background: palette.surfaceMuted,
-      foreground: palette.ink,
+      foreground: palette.primary,
     );
   }
 
-  static Color talk(BuildContext context) => context.appPalette.ink;
+  static Color talk(BuildContext context) => context.appPalette.primary;
 
   static Color words(BuildContext context) => context.appPalette.muted;
 
@@ -56,10 +56,8 @@ class DailyMark extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: accent.background,
-              borderRadius: BorderRadius.circular(size * 0.3),
-              border: Border.all(
-                color: accent.foreground.withValues(alpha: 0.14),
-              ),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: palette.line),
             ),
             child: Center(
               child: Icon(
@@ -77,7 +75,7 @@ class DailyMark extends StatelessWidget {
                 width: 15,
                 height: 15,
                 decoration: BoxDecoration(
-                  color: palette.ink,
+                  color: palette.primary,
                   shape: BoxShape.circle,
                   border: Border.all(color: palette.canvas, width: 1.5),
                 ),
@@ -166,7 +164,7 @@ class UserMark extends StatelessWidget {
       decoration: BoxDecoration(
         color: accent.background,
         shape: BoxShape.circle,
-        border: Border.all(color: accent.foreground.withValues(alpha: 0.14)),
+        border: Border.all(color: context.appPalette.line),
       ),
       child: Icon(
         Icons.person_rounded,
