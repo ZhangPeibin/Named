@@ -415,17 +415,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     });
   }
 
-  void _handleProgressExpansion(bool expanded) {
-    if (!expanded) {
-      return;
-    }
-    Future<void>.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) {
-        _scheduleScrollToBottom(animate: true);
-      }
-    });
-  }
-
   void _scheduleScrollToBottom({bool animate = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) {
@@ -486,10 +475,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
             ),
           ),
           if (progress.hasValue)
-            TimelineProgressCard(
-              progress: progress.value!,
-              onExpansionChanged: _handleProgressExpansion,
-            ),
+            TimelineProgressCard(progress: progress.value!),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(

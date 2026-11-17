@@ -19,20 +19,11 @@ void main() {
       ),
     );
 
-    expect(find.text(t.timeline.progressTitle.toUpperCase()), findsOneWidget);
     expect(find.text('500'), findsOneWidget);
     expect(find.text('300'), findsOneWidget);
     expect(find.text('100'), findsOneWidget);
     expect(find.text(t.timeline.progressWords), findsOneWidget);
     expect(find.text(t.timeline.progressConversations), findsOneWidget);
     expect(find.text(t.timeline.progressReads), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('timeline.progress.toggle')));
-    await tester.pumpAndSettle();
-    expect(find.text('500'), findsNothing);
-
-    await tester.tap(find.byKey(const Key('timeline.progress.toggle')));
-    await tester.pumpAndSettle();
-    expect(find.text('500'), findsOneWidget);
   });
 }

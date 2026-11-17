@@ -7,22 +7,10 @@ import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
 import 'spot_mark.dart';
 
-class TimelineProgressCard extends StatefulWidget {
-  const TimelineProgressCard({
-    super.key,
-    required this.progress,
-    this.onExpansionChanged,
-  });
+class TimelineProgressCard extends StatelessWidget {
+  const TimelineProgressCard({super.key, required this.progress});
 
   final Progress progress;
-  final ValueChanged<bool>? onExpansionChanged;
-
-  @override
-  State<TimelineProgressCard> createState() => _TimelineProgressCardState();
-}
-
-class _TimelineProgressCardState extends State<TimelineProgressCard> {
-  var _expanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -39,74 +27,36 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
       ),
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.s14,
-        AppSpacing.s8,
-        AppSpacing.s10,
-        AppSpacing.s8,
+        AppSpacing.s12,
+        AppSpacing.s14,
+        AppSpacing.s12,
       ),
       decoration: BoxDecoration(
         color: palette.surface.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(AppRadius.r16),
         border: Border.all(color: palette.line),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          GestureDetector(
-            key: const Key('timeline.progress.toggle'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              final next = !_expanded;
-              setState(() => _expanded = next);
-              widget.onExpansionChanged?.call(next);
-            },
-            child: Row(
-              children: [
-                Text(
-                  t.progressTitle.toUpperCase(),
-                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-                ),
-                const Spacer(),
-                Icon(
-                  _expanded ? Icons.expand_less : Icons.expand_more,
-                  color: palette.muted,
-                  size: AppSize.size18,
-                ),
-              ],
-            ),
+          _ProgressStat(
+            value: progress.words,
+            label: t.progressWords,
+            icon: Icons.menu_book_outlined,
+            color: ContentAccents.words(context),
           ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.topCenter,
-            child: _expanded
-                ? Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.s6),
-                    child: Row(
-                      children: [
-                        _ProgressStat(
-                          value: widget.progress.words,
-                          label: t.progressWords,
-                          icon: Icons.menu_book_outlined,
-                          color: ContentAccents.words(context),
-                        ),
-                        _divider(palette),
-                        _ProgressStat(
-                          value: widget.progress.conversations,
-                          label: t.progressConversations,
-                          icon: Icons.chat_bubble_outline,
-                          color: ContentAccents.talks(context),
-                        ),
-                        _divider(palette),
-                        _ProgressStat(
-                          value: widget.progress.readings,
-                          label: t.progressReads,
-                          icon: Icons.headphones_outlined,
-                          color: ContentAccents.reads(context),
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox(width: double.infinity),
+          _divider(palette),
+          _ProgressStat(
+            value: progress.conversations,
+            label: t.progressConversations,
+            icon: Icons.chat_bubble_outline,
+            color: ContentAccents.talks(context),
+          ),
+          _divider(palette),
+          _ProgressStat(
+            value: progress.readings,
+            label: t.progressReads,
+            icon: Icons.headphones_outlined,
+            color: ContentAccents.reads(context),
           ),
         ],
       ),
