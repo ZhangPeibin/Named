@@ -36,7 +36,10 @@ class DailyTaskCard extends StatelessWidget {
     return AppCard(
       key: Key('timeline.daily.${item.id}'),
       onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.s14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s12,
+        vertical: AppSpacing.s10,
+      ),
       child: Row(
         children: [
           DailyMark(size: 40, completed: item.completed),
@@ -61,13 +64,13 @@ class DailyTaskCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: AppSpacing.s8),
+          const SizedBox(width: AppSpacing.s4),
           Text(
             item.completed ? t.readAgain : t.read,
             style: AppTextStyles.caption.copyWith(color: palette.primary),
           ),
           const SizedBox(width: AppSpacing.s4),
-          Icon(Icons.chevron_right, color: palette.muted, size: AppSize.size18),
+          Icon(Icons.chevron_right, color: palette.muted, size: AppSize.size16),
         ],
       ),
     );

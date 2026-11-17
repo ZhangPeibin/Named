@@ -26,10 +26,13 @@ class TalkEventCard extends StatelessWidget {
     return AppCard(
       key: Key('timeline.talkEvent.${item.conversationId}'),
       onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.s14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s12,
+        vertical: AppSpacing.s10,
+      ),
       child: Row(
         children: [
-          const MiloMark(size: 40),
+          const MiloMark(size: 36),
           const SizedBox(width: AppSpacing.s12),
           Expanded(
             child: Column(
@@ -55,7 +58,7 @@ class TalkEventCard extends StatelessWidget {
             style: AppTextStyles.caption.copyWith(color: palette.muted),
           ),
           const SizedBox(width: AppSpacing.s4),
-          Icon(Icons.chevron_right, color: palette.muted, size: AppSize.size18),
+          Icon(Icons.chevron_right, color: palette.muted, size: AppSize.size16),
         ],
       ),
     );

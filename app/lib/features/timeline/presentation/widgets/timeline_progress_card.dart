@@ -32,9 +32,9 @@ class _TimelineProgressCardState extends State<TimelineProgressCard> {
     return Container(
       key: const Key('timeline.progress'),
       margin: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
+        AppSpacing.s16,
         AppSpacing.s4,
-        AppSpacing.s20,
+        AppSpacing.s16,
         AppSpacing.s8,
       ),
       padding: const EdgeInsets.fromLTRB(

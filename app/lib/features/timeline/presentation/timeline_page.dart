@@ -620,9 +620,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       key: const Key('timeline.list'),
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
         AppSpacing.s16,
-        AppSpacing.s20,
+        AppSpacing.s12,
+        AppSpacing.s16,
         AppSpacing.s24,
       ),
       itemCount: widgets.length,

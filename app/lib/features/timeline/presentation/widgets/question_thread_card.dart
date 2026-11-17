@@ -23,21 +23,24 @@ class QuestionThreadCard extends StatelessWidget {
     return AppCard(
       key: Key('timeline.question.${item.id}'),
       onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.s14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s12,
+        vertical: AppSpacing.s10,
+      ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: palette.warm,
-              borderRadius: BorderRadius.circular(13),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: palette.accent.withValues(alpha: 0.2)),
             ),
             child: Icon(
               Icons.question_answer_rounded,
               color: palette.accent,
-              size: 20,
+              size: 17,
             ),
           ),
           const SizedBox(width: AppSpacing.s12),
@@ -55,7 +58,7 @@ class QuestionThreadCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.s2),
                   Text(
                     item.lastText,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.bodySmall?.copyWith(color: palette.muted),
                   ),
@@ -63,8 +66,8 @@ class QuestionThreadCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: AppSpacing.s8),
-          Icon(Icons.chevron_right, color: palette.muted, size: 18),
+          const SizedBox(width: AppSpacing.s4),
+          Icon(Icons.chevron_right, color: palette.muted, size: 16),
         ],
       ),
     );
