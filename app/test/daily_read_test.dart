@@ -43,7 +43,6 @@ void main() {
       find.textContaining('Today I noticed a small thing'),
       findsOneWidget,
     );
-    expect(find.text('notice'), findsOneWidget);
     expect(find.text(t.daily.question.toUpperCase()), findsNothing);
 
     await tester.tap(find.byKey(const Key('daily.translate')));

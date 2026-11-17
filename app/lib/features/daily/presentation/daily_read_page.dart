@@ -14,7 +14,6 @@ import '../../../app/theme/app_text_styles.dart';
 import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
-import '../../../core/widgets/app_tag.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
 import '../../progress/providers/progress_providers.dart';
@@ -1146,42 +1145,25 @@ TextStyle? _activeWordStyle(AppPalette palette, TextStyle? base) {
   );
 }
 
-class _ReadingHeader extends StatelessWidget {
-  const _ReadingHeader({required this.targetWords});
-
-  final List<String> targetWords;
-
-  @override
-  Widget build(BuildContext context) {
-    if (targetWords.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    final t = context.t.daily;
-    final palette = context.appPalette;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          t.madeWith.toUpperCase(),
-          style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-        ),
-        const SizedBox(height: AppSpacing.s4),
-        Text(
-          t.madeWithBody,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: palette.muted),
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        Wrap(
-          spacing: AppSpacing.s6,
-          runSpacing: AppSpacing.s6,
-          children: [for (final word in targetWords) AppTag(label: word)],
-        ),
-        const SizedBox(height: AppSpacing.s20),
-      ],
+TextStyle? _wordStyle(
+  AppPalette palette,
+  TextStyle? base, {
+  required bool active,
+  required bool target,
+}) {
+  if (!active && !target) {
+    return null;
+  }
+  var style = active ? _activeWordStyle(palette, base) : base;
+  if (target) {
+    style = style?.copyWith(
+      decoration: TextDecoration.underline,
+      decorationStyle: TextDecorationStyle.dotted,
+      decorationColor: palette.accent.withValues(alpha: 0.6),
+      decorationThickness: 1.4,
     );
   }
+  return style;
 }
 
 class _DailyReadBody extends StatelessWidget {
@@ -1215,7 +1197,6 @@ class _DailyReadBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _ReadingHeader(targetWords: reading.targetWords),
           GestureDetector(
             onLongPressStart: (details) => _handleLongPress(details),
             child: Text.rich(
@@ -1251,10 +1232,18 @@ class _DailyReadBody extends StatelessWidget {
       }
       final active =
           activeWord != null && word.startChar == activeWord.startChar;
+      final target = reading.targetWords.any(
+        (value) => value.toLowerCase() == word.text.toLowerCase(),
+      );
       spans.add(
         TextSpan(
           text: reading.passage.substring(word.startChar, word.endChar),
-          style: active ? _activeWordStyle(palette, passageStyle) : null,
+          style: _wordStyle(
+            palette,
+            passageStyle,
+            active: active,
+            target: target,
+          ),
         ),
       );
       cursor = word.endChar;
@@ -1348,7 +1337,6 @@ class _BilingualReadBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _ReadingHeader(targetWords: reading.targetWords),
           for (var index = 0; index < translation.lines.length; index++) ...[
             GestureDetector(
               onLongPressStart: (details) => _handleLineLongPress(
@@ -1415,10 +1403,18 @@ class _BilingualReadBody extends StatelessWidget {
       }
       final active =
           activeWord != null && word.startChar == activeWord.startChar;
+      final target = reading.targetWords.any(
+        (value) => value.toLowerCase() == word.text.toLowerCase(),
+      );
       spans.add(
         TextSpan(
           text: reading.passage.substring(word.startChar, word.endChar),
-          style: active ? _activeWordStyle(palette, passageStyle) : null,
+          style: _wordStyle(
+            palette,
+            passageStyle,
+            active: active,
+            target: target,
+          ),
         ),
       );
       cursor = word.endChar;
