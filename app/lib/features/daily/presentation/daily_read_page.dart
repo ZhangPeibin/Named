@@ -54,6 +54,10 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
   Timer? _followPauseTimer;
   var _autoFollow = true;
   var _showSpeed = false;
+  var _chromeVisible = true;
+  var _chromeHideArmed = false;
+  Timer? _chromeTimer;
+  final _readingProgress = ValueNotifier<double>(0);
   late final Ticker _followTicker;
   double? _scrollTarget;
   double? _lastTickSeconds;
@@ -68,14 +72,17 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     _scrollController.addListener(_handleScroll);
     _followTicker = createTicker(_onFollowTick);
     unawaited(_restorePlaybackRate());
+    _chromeTimer = Timer(const Duration(milliseconds: 2600), _hideChrome);
   }
 
   @override
   void dispose() {
     _completionTimer?.cancel();
     _followPauseTimer?.cancel();
+    _chromeTimer?.cancel();
     _followTicker.dispose();
     _playbackRate.dispose();
+    _readingProgress.dispose();
     _scrollController
       ..removeListener(_handleScroll)
       ..dispose();
@@ -87,10 +94,14 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
       return;
     }
     final position = _scrollController.position;
-    if (position.maxScrollExtent <= 0) {
+    final max = position.maxScrollExtent;
+    _readingProgress.value = max <= 0
+        ? 0
+        : (position.pixels / max).clamp(0.0, 1.0);
+    if (max <= 0) {
       return;
     }
-    if (position.pixels >= position.maxScrollExtent - 24) {
+    if (position.pixels >= max - 24) {
       _scheduleCompletion();
     } else {
       _completionTimer?.cancel();
@@ -108,6 +119,45 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
       _pauseAutoFollow();
     }
     return false;
+  }
+
+  void _hideChrome() {
+    _chromeTimer?.cancel();
+    _chromeTimer = null;
+    if (!mounted || !_chromeVisible) {
+      return;
+    }
+    setState(() {
+      _chromeVisible = false;
+      _showSpeed = false;
+    });
+  }
+
+  void _showChrome({bool autoHide = true}) {
+    _chromeTimer?.cancel();
+    if (!_chromeVisible) {
+      setState(() => _chromeVisible = true);
+    }
+    if (autoHide) {
+      _chromeTimer = Timer(const Duration(milliseconds: 2600), _hideChrome);
+    }
+  }
+
+  void _toggleChrome() {
+    if (_chromeVisible) {
+      _hideChrome();
+    } else {
+      _showChrome();
+    }
+  }
+
+  void _armChromeHide() {
+    if (_chromeHideArmed) {
+      return;
+    }
+    _chromeHideArmed = true;
+    _chromeTimer?.cancel();
+    _chromeTimer = Timer(const Duration(milliseconds: 2600), _hideChrome);
   }
 
   void _pauseAutoFollow() {
@@ -512,6 +562,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     final reading = async.value;
     if (reading != null) {
       _maybeScheduleShortContentCompletion(reading);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _armChromeHide());
     }
     final translation = _showTranslation ? _translation : null;
 
@@ -525,79 +576,83 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: _handleScrollNotification,
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(top: 48, bottom: 120),
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          async.when(
-                            loading: () => const _DailyLoading(),
-                            error: (error, stack) => Center(
-                              child: AppErrorView(
-                                title: t.title,
-                                message: error is ApiException
-                                    ? error.message
-                                    : context.t.common.somethingWentWrong,
-                                onRetry: () => ref.invalidate(
-                                  dailyReadProvider(widget.date),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _toggleChrome,
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: _handleScrollNotification,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.only(top: 48, bottom: 120),
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            async.when(
+                              loading: () => const _DailyLoading(),
+                              error: (error, stack) => Center(
+                                child: AppErrorView(
+                                  title: t.title,
+                                  message: error is ApiException
+                                      ? error.message
+                                      : context.t.common.somethingWentWrong,
+                                  onRetry: () => ref.invalidate(
+                                    dailyReadProvider(widget.date),
+                                  ),
                                 ),
                               ),
-                            ),
-                            data: (value) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (translation == null)
-                                  _DailyReadBody(
-                                    reading: value,
-                                    textKey: _textKey,
-                                    activeWordIndex: _activeWordIndex,
-                                    passageStyle: _passageStyle(
-                                      context,
-                                      palette,
+                              data: (value) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (translation == null)
+                                    _DailyReadBody(
+                                      reading: value,
+                                      textKey: _textKey,
+                                      activeWordIndex: _activeWordIndex,
+                                      passageStyle: _passageStyle(
+                                        context,
+                                        palette,
+                                      ),
+                                      onShowWord: (text) => unawaited(
+                                        showWordLookupSheet(context, text),
+                                      ),
+                                      onShowSentence: (text) => unawaited(
+                                        showSentenceDetailSheet(context, text),
+                                      ),
+                                    )
+                                  else
+                                    _BilingualReadBody(
+                                      reading: value,
+                                      translation: translation,
+                                      lineKeys: _lineKeys,
+                                      activeWordIndex: _activeWordIndex,
+                                      passageStyle: _passageStyle(
+                                        context,
+                                        palette,
+                                      ),
+                                      onShowWord: (text) => unawaited(
+                                        showWordLookupSheet(context, text),
+                                      ),
+                                      onShowSentence: (text) => unawaited(
+                                        showSentenceDetailSheet(context, text),
+                                      ),
                                     ),
-                                    onShowWord: (text) => unawaited(
-                                      showWordLookupSheet(context, text),
-                                    ),
-                                    onShowSentence: (text) => unawaited(
-                                      showSentenceDetailSheet(context, text),
-                                    ),
-                                  )
-                                else
-                                  _BilingualReadBody(
-                                    reading: value,
-                                    translation: translation,
-                                    lineKeys: _lineKeys,
-                                    activeWordIndex: _activeWordIndex,
-                                    passageStyle: _passageStyle(
-                                      context,
-                                      palette,
-                                    ),
-                                    onShowWord: (text) => unawaited(
-                                      showWordLookupSheet(context, text),
-                                    ),
-                                    onShowSentence: (text) => unawaited(
-                                      showSentenceDetailSheet(context, text),
-                                    ),
+                                  _DailyCompletion(
+                                    completed:
+                                        _completion != null || value.completed,
+                                    streak: _completion?.streak ?? value.streak,
+                                    wordCount:
+                                        _completion?.wordCount ??
+                                        _wordCount(value),
+                                    durationSeconds:
+                                        _completion?.durationSeconds ??
+                                        value.durationSeconds,
                                   ),
-                                _DailyCompletion(
-                                  completed:
-                                      _completion != null || value.completed,
-                                  streak: _completion?.streak ?? value.streak,
-                                  wordCount:
-                                      _completion?.wordCount ??
-                                      _wordCount(value),
-                                  durationSeconds:
-                                      _completion?.durationSeconds ??
-                                      value.durationSeconds,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -606,20 +661,29 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                   top: 0,
                   left: 0,
                   right: 0,
-                  child: ColoredBox(
-                    color: palette.canvas,
-                    child: _ReaderTopBar(
-                      title: reading?.title ?? t.title,
-                      isDark: isDark,
-                      onAsk: reading == null ? null : () => _openAsk(reading),
-                      onToggleTheme: () => unawaited(
-                        ref
-                            .read(readerThemeProvider.notifier)
-                            .setMode(
-                              isDark
-                                  ? ReaderThemeMode.light
-                                  : ReaderThemeMode.dark,
-                            ),
+                  child: IgnorePointer(
+                    ignoring: !_chromeVisible,
+                    child: AnimatedOpacity(
+                      opacity: _chromeVisible ? 1 : 0,
+                      duration: const Duration(milliseconds: 180),
+                      child: ColoredBox(
+                        color: palette.canvas,
+                        child: _ReaderTopBar(
+                          title: reading?.title ?? t.title,
+                          isDark: isDark,
+                          onAsk: reading == null
+                              ? null
+                              : () => _openAsk(reading),
+                          onToggleTheme: () => unawaited(
+                            ref
+                                .read(readerThemeProvider.notifier)
+                                .setMode(
+                                  isDark
+                                      ? ReaderThemeMode.light
+                                      : ReaderThemeMode.dark,
+                                ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -630,7 +694,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                     right: 0,
                     bottom: 88,
                     child: IgnorePointer(
-                      ignoring: !_showSpeed,
+                      ignoring: !_showSpeed || !_chromeVisible,
                       child: AnimatedSlide(
                         offset: _showSpeed
                             ? Offset.zero
@@ -671,76 +735,106 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                     left: 0,
                     right: 0,
                     bottom: 18,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: palette.surface.withValues(alpha: 0.62),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: palette.primary.withValues(alpha: 0.08),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (reading.audioUrl != null) ...[
-                              _ReaderControl(
-                                key: const Key('daily.back10'),
-                                tooltip: t.back10,
-                                onPressed: () => _seekAudio(-10),
-                                icon: const Icon(Icons.replay_10),
-                              ),
-                              DailyAudioButton(
-                                key: _audioKey,
-                                url: reading.audioUrl!,
-                                playbackRate: _playbackRate,
-                                onPosition: (position) =>
-                                    _onPosition(reading, position),
-                                onComplete: () => unawaited(_finishReading()),
-                              ),
-                              _ReaderControl(
-                                key: const Key('daily.forward10'),
-                                tooltip: t.forward10,
-                                onPressed: () => _seekAudio(10),
-                                icon: const Icon(Icons.forward_10),
-                              ),
-                              ValueListenableBuilder<double>(
-                                valueListenable: _playbackRate,
-                                builder: (context, rate, child) => _SpeedButton(
-                                  rate: rate,
-                                  active: _showSpeed,
-                                  onTap: () =>
-                                      setState(() => _showSpeed = !_showSpeed),
-                                ),
-                              ),
-                            ],
-                            _ReaderControl(
-                              key: const Key('daily.translate'),
-                              tooltip: _showTranslation
-                                  ? t.hideTranslation
-                                  : t.translate,
-                              onPressed: _translationLoading
-                                  ? null
-                                  : _toggleTranslation,
-                              active: _showTranslation,
-                              icon: _translationLoading
-                                  ? const SizedBox.square(
-                                      dimension: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Icon(Icons.translate),
+                    child: IgnorePointer(
+                      ignoring: !_chromeVisible,
+                      child: AnimatedOpacity(
+                        opacity: _chromeVisible ? 1 : 0,
+                        duration: const Duration(milliseconds: 180),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 4,
                             ),
-                          ],
+                            decoration: BoxDecoration(
+                              color: palette.surface.withValues(alpha: 0.62),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: palette.primary.withValues(alpha: 0.08),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (reading.audioUrl != null) ...[
+                                  _ReaderControl(
+                                    key: const Key('daily.back10'),
+                                    tooltip: t.back10,
+                                    onPressed: () => _seekAudio(-10),
+                                    icon: const Icon(Icons.replay_10),
+                                  ),
+                                  DailyAudioButton(
+                                    key: _audioKey,
+                                    url: reading.audioUrl!,
+                                    playbackRate: _playbackRate,
+                                    onPosition: (position) =>
+                                        _onPosition(reading, position),
+                                    onComplete: () =>
+                                        unawaited(_finishReading()),
+                                  ),
+                                  _ReaderControl(
+                                    key: const Key('daily.forward10'),
+                                    tooltip: t.forward10,
+                                    onPressed: () => _seekAudio(10),
+                                    icon: const Icon(Icons.forward_10),
+                                  ),
+                                  ValueListenableBuilder<double>(
+                                    valueListenable: _playbackRate,
+                                    builder: (context, rate, child) =>
+                                        _SpeedButton(
+                                          rate: rate,
+                                          active: _showSpeed,
+                                          onTap: () => setState(
+                                            () => _showSpeed = !_showSpeed,
+                                          ),
+                                        ),
+                                  ),
+                                ],
+                                _ReaderControl(
+                                  key: const Key('daily.translate'),
+                                  tooltip: _showTranslation
+                                      ? t.hideTranslation
+                                      : t.translate,
+                                  onPressed: _translationLoading
+                                      ? null
+                                      : _toggleTranslation,
+                                  active: _showTranslation,
+                                  icon: _translationLoading
+                                      ? const SizedBox.square(
+                                          dimension: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.translate),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: 2,
+                  child: IgnorePointer(
+                    child: ValueListenableBuilder<double>(
+                      valueListenable: _readingProgress,
+                      builder: (context, value, child) => Align(
+                        alignment: Alignment.bottomCenter,
+                        child: FractionallySizedBox(
+                          heightFactor: value.clamp(0.0, 1.0),
+                          child: ColoredBox(
+                            color: palette.primary.withValues(alpha: 0.22),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
