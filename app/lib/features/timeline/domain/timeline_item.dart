@@ -122,6 +122,21 @@ class TimelineDailyItem extends TimelineItem {
   final int streak;
 }
 
+class TimelineQuestionItem extends TimelineItem {
+  const TimelineQuestionItem({
+    required this.id,
+    required super.createdAt,
+    required this.title,
+    required this.lastText,
+    required this.contextType,
+  });
+
+  final String id;
+  final String title;
+  final String lastText;
+  final String? contextType;
+}
+
 class TimelinePage {
   const TimelinePage({required this.items, required this.nextCursor});
 

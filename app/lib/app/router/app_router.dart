@@ -42,7 +42,6 @@ class AppRoutePaths {
   static const words = '/words';
   static const daily = '/daily';
   static const ask = '/ask';
-  static const questionThread = '/ask/:threadId';
   static const me = '/me';
   static const settings = '/settings';
   static const theme = '/settings/theme';
@@ -66,7 +65,6 @@ class AppRouteNames {
   static const words = 'words';
   static const daily = 'daily';
   static const ask = 'ask';
-  static const questionThread = 'questionThread';
   static const me = 'me';
   static const settings = 'settings';
   static const theme = 'theme';
@@ -182,6 +180,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final type = state.uri.queryParameters['contextType'];
           final quote = state.uri.queryParameters['contextQuote'];
           return QuestionPage(
+            threadId: state.uri.queryParameters['threadId'],
             context: type == null
                 ? null
                 : QuestionContext(
@@ -192,12 +191,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             suggestedQuestion: state.uri.queryParameters['suggested'],
           );
         },
-      ),
-      GoRoute(
-        path: AppRoutePaths.questionThread,
-        name: AppRouteNames.questionThread,
-        builder: (context, state) =>
-            QuestionThreadPage(threadId: state.pathParameters['threadId']!),
       ),
       GoRoute(
         path: AppRoutePaths.me,

@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
@@ -12,12 +10,19 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../timeline/providers/timeline_providers.dart';
 import '../domain/question.dart';
 import '../providers/question_providers.dart';
 
 class QuestionPage extends ConsumerStatefulWidget {
-  const QuestionPage({super.key, this.context, this.suggestedQuestion});
+  const QuestionPage({
+    super.key,
+    this.threadId,
+    this.context,
+    this.suggestedQuestion,
+  });
 
+  final String? threadId;
   final QuestionContext? context;
   final String? suggestedQuestion;
 
@@ -27,12 +32,16 @@ class QuestionPage extends ConsumerStatefulWidget {
 
 class _QuestionPageState extends ConsumerState<QuestionPage> {
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
   final _focusNode = FocusNode();
-  late QuestionContext? _context = widget.context;
   var _threads = <QuestionThreadSummary>[];
+  QuestionThread? _thread;
+  late QuestionContext? _context = widget.context;
   var _loading = true;
+  var _threadLoading = false;
   var _asking = false;
   String? _error;
+  String? _pendingFollowUp;
 
   @override
   void initState() {
@@ -40,12 +49,17 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     if (widget.suggestedQuestion != null) {
       _controller.text = widget.suggestedQuestion!;
     }
-    unawaited(_load());
+    if (widget.threadId != null) {
+      unawaited(_openThread(widget.threadId!));
+    } else {
+      unawaited(_load());
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -75,9 +89,37 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     }
   }
 
+  Future<void> _openThread(String threadId) async {
+    setState(() {
+      _threadLoading = true;
+      _error = null;
+    });
+    try {
+      final thread = await ref
+          .read(questionRepositoryProvider)
+          .fetchThread(threadId);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _thread = thread;
+        _context = null;
+        _threadLoading = false;
+      });
+      _scrollToBottom(jump: true);
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() {
+          _error = error.message;
+          _threadLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _ask() async {
     final text = _controller.text.trim();
-    if (text.isEmpty || _asking) {
+    if (text.isEmpty || _asking || _thread != null) {
       return;
     }
     setState(() {
@@ -92,234 +134,81 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
         return;
       }
       _controller.clear();
-      _context = null;
-      await context.pushNamed(
-        AppRouteNames.questionThread,
-        pathParameters: {'threadId': thread.id},
-      );
-      if (mounted) {
-        await _load();
-      }
-    } on ApiException catch (error) {
+      setState(() {
+        _thread = thread;
+        _context = null;
+        _asking = false;
+      });
+      ref.invalidate(timelineControllerProvider);
+      _scrollToBottom(jump: true);
+    } on ApiException {
       if (!mounted) {
         return;
       }
-      setState(() => _error = error.message);
+      setState(() => _asking = false);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(context.t.ask.error)));
-    } finally {
-      if (mounted) {
-        setState(() => _asking = false);
-      }
-    }
-  }
-
-  void _useSuggestion(String suggestion) {
-    _controller.text = suggestion;
-    _controller.selection = TextSelection.collapsed(offset: suggestion.length);
-    _focusNode.requestFocus();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.t.ask;
-    final palette = context.appPalette;
-
-    return AppScaffold(
-      key: const Key('ask.page'),
-      title: t.title,
-      centerBody: false,
-      padding: EdgeInsets.zero,
-      body: Column(
-        children: [
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null && _threads.isEmpty
-                ? AppErrorView(title: t.title, message: _error!, onRetry: _load)
-                : _threads.isEmpty && _context == null
-                ? _EmptyAsk(t: t, onSelected: _useSuggestion)
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.pageHorizontalPadding,
-                      AppSpacing.s16,
-                      AppSpacing.pageHorizontalPadding,
-                      AppSpacing.s16,
-                    ),
-                    children: [
-                      if (_context != null) ...[
-                        _ContextCard(
-                          context: _context!,
-                          onRemove: () => setState(() => _context = null),
-                        ),
-                        const SizedBox(height: AppSpacing.s20),
-                      ],
-                      if (_threads.isEmpty) ...[
-                        _SuggestionList(t: t, onSelected: _useSuggestion),
-                        const SizedBox(height: AppSpacing.s20),
-                      ] else ...[
-                        Text(
-                          t.suggestions.toUpperCase(),
-                          style: AppTextStyles.eyebrow.copyWith(
-                            color: palette.muted,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.s8),
-                        Wrap(
-                          spacing: AppSpacing.s8,
-                          runSpacing: AppSpacing.s8,
-                          children: [
-                            for (final suggestion in [
-                              t.suggestion1,
-                              t.suggestion2,
-                              t.suggestion3,
-                            ])
-                              ActionChip(
-                                label: Text(suggestion),
-                                onPressed: () => _useSuggestion(suggestion),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.s24),
-                        Text(
-                          t.recent.toUpperCase(),
-                          style: AppTextStyles.eyebrow.copyWith(
-                            color: palette.muted,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.s8),
-                        for (final thread in _threads) ...[
-                          _ThreadRow(
-                            thread: thread,
-                            onTap: () async {
-                              await context.pushNamed(
-                                AppRouteNames.questionThread,
-                                pathParameters: {'threadId': thread.id},
-                              );
-                              if (mounted) {
-                                await _load();
-                              }
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.s8),
-                        ],
-                      ],
-                    ],
-                  ),
-          ),
-          _AskComposer(
-            controller: _controller,
-            focusNode: _focusNode,
-            hintText: t.placeholder,
-            sendTooltip: t.send,
-            enabled: !_asking,
-            onSend: _ask,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class QuestionThreadPage extends ConsumerStatefulWidget {
-  const QuestionThreadPage({super.key, required this.threadId});
-
-  final String threadId;
-
-  @override
-  ConsumerState<QuestionThreadPage> createState() => _QuestionThreadPageState();
-}
-
-class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
-  final _controller = TextEditingController();
-  final _scrollController = ScrollController();
-  final _followUpFocusNode = FocusNode();
-  QuestionThread? _thread;
-  var _loading = true;
-  var _sending = false;
-  String? _error;
-  String? _pendingFollowUp;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_load());
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _scrollController.dispose();
-    _followUpFocusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _load() async {
-    try {
-      final thread = await ref
-          .read(questionRepositoryProvider)
-          .fetchThread(widget.threadId);
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _thread = thread;
-        _loading = false;
-      });
-      _scrollToBottom(jump: true);
-    } on ApiException catch (error) {
-      if (mounted) {
-        setState(() {
-          _error = error.message;
-          _loading = false;
-        });
-      }
     }
   }
 
   Future<void> _followUp() async {
+    final thread = _thread;
     final text = _controller.text.trim();
-    if (text.isEmpty || _sending) {
+    if (thread == null || text.isEmpty || _asking) {
       return;
     }
     setState(() {
-      _sending = true;
+      _asking = true;
       _pendingFollowUp = text;
     });
     _controller.clear();
     _scrollToBottom();
     try {
-      final thread = await ref
+      final updated = await ref
           .read(questionRepositoryProvider)
-          .followUp(widget.threadId, text);
+          .followUp(thread.id, text);
       if (!mounted) {
         return;
       }
       setState(() {
-        _thread = thread;
+        _thread = updated;
         _pendingFollowUp = null;
+        _asking = false;
       });
+      ref.invalidate(timelineControllerProvider);
       _scrollToBottom();
     } on ApiException catch (error) {
-      if (mounted) {
-        setState(() {
-          _pendingFollowUp = null;
-          _controller.text = text;
-          _controller.selection = TextSelection.collapsed(offset: text.length);
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.message)));
+      if (!mounted) {
+        return;
       }
-    } finally {
-      if (mounted) {
-        setState(() => _sending = false);
-      }
+      setState(() {
+        _pendingFollowUp = null;
+        _asking = false;
+        _controller.text = text;
+        _controller.selection = TextSelection.collapsed(offset: text.length);
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
     }
   }
 
-  Future<void> _delete() async {
+  void _backToHistory() {
+    setState(() {
+      _thread = null;
+      _pendingFollowUp = null;
+      _controller.clear();
+      _context = null;
+    });
+    unawaited(_load());
+  }
+
+  Future<void> _deleteThread() async {
+    final thread = _thread;
+    if (thread == null) {
+      return;
+    }
     final t = context.t.ask;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -340,9 +229,37 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
     if (confirmed != true || !mounted) {
       return;
     }
-    await ref.read(questionRepositoryProvider).deleteThread(widget.threadId);
+    await ref.read(questionRepositoryProvider).deleteThread(thread.id);
     if (mounted) {
-      context.pop();
+      _backToHistory();
+    }
+  }
+
+  void _useSuggestion(String suggestion) {
+    _controller.text = suggestion;
+    _controller.selection = TextSelection.collapsed(offset: suggestion.length);
+    _focusNode.requestFocus();
+  }
+
+  Future<void> _sendFeedback(String messageId, String feedback) async {
+    final thread = _thread;
+    if (thread == null) {
+      return;
+    }
+    try {
+      await ref
+          .read(questionRepositoryProvider)
+          .setFeedback(
+            threadId: thread.id,
+            messageId: messageId,
+            feedback: feedback,
+          );
+    } on ApiException {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t.ask.feedbackError)));
+      }
     }
   }
 
@@ -366,138 +283,176 @@ class _QuestionThreadPageState extends ConsumerState<QuestionThreadPage> {
     });
   }
 
-  Future<void> _sendFeedback(String messageId, String feedback) async {
-    try {
-      await ref
-          .read(questionRepositoryProvider)
-          .setFeedback(
-            threadId: widget.threadId,
-            messageId: messageId,
-            feedback: feedback,
-          );
-    } on ApiException {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t.ask.feedbackError)));
-      }
-    }
-  }
-
-  void _useFollowUpSuggestion(String suggestion) {
-    _controller.text = suggestion;
-    _controller.selection = TextSelection.collapsed(offset: suggestion.length);
-    _followUpFocusNode.requestFocus();
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = context.t.ask;
+    final palette = context.appPalette;
     final thread = _thread;
-    final messages = thread?.messages ?? const <QuestionMessage>[];
 
-    return AppScaffold(
-      key: const Key('ask.thread'),
-      title: t.thread,
-      centerBody: false,
-      padding: EdgeInsets.zero,
-      actions: [
-        if (thread != null)
-          IconButton(
-            key: const Key('ask.delete'),
-            tooltip: t.delete,
-            onPressed: _delete,
-            icon: const Icon(Icons.delete_outline),
-          ),
-      ],
-      body: Column(
-        children: [
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                ? AppErrorView(
-                    title: t.thread,
-                    message: _error!,
-                    onRetry: _load,
-                  )
-                : ListView(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.pageHorizontalPadding,
-                      AppSpacing.s16,
-                      AppSpacing.pageHorizontalPadding,
-                      AppSpacing.s16,
-                    ),
-                    children: [
-                      if (thread?.contextQuote != null) ...[
-                        _ContextCard(
-                          context: QuestionContext(
-                            type: thread!.contextType ?? 'none',
-                            ref: thread.contextRef,
-                            quote: thread.contextQuote,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.s20),
-                      ],
-                      for (final message in messages) ...[
-                        _QuestionMessageView(
-                          message: message,
-                          onSuggestion: _useFollowUpSuggestion,
-                          onFeedback: message.isUser
-                              ? null
-                              : (feedback) =>
-                                    _sendFeedback(message.id, feedback),
-                        ),
-                        const SizedBox(height: AppSpacing.s16),
-                      ],
-                      if (_pendingFollowUp != null) ...[
-                        _QuestionMessageView(
-                          message: QuestionMessage(
-                            id: 'pending',
-                            role: 'user',
-                            text: _pendingFollowUp!,
-                            example: null,
-                            nativeExplanation: null,
-                            confidence: null,
-                            followUpSuggestions: const [],
-                            feedback: null,
-                            createdAt: DateTime.now(),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.s10),
-                        Row(
-                          children: [
-                            SizedBox.square(
-                              dimension: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: context.appPalette.primary,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.s8),
-                            Text(
-                              context.t.ask.thinking,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: context.appPalette.muted),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.s16),
-                      ],
-                    ],
-                  ),
-          ),
-          _AskComposer(
-            controller: _controller,
-            focusNode: _followUpFocusNode,
-            hintText: t.followUpHint,
-            sendTooltip: t.followUp,
-            enabled: !_sending,
-            onSend: _followUp,
-          ),
+    return PopScope(
+      canPop: thread == null,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _backToHistory();
+        }
+      },
+      child: AppScaffold(
+        key: const Key('ask.page'),
+        title: thread == null ? t.title : thread.title,
+        centerBody: false,
+        padding: EdgeInsets.zero,
+        actions: [
+          if (thread != null) ...[
+            IconButton(
+              key: const Key('ask.history'),
+              tooltip: t.recent,
+              onPressed: _backToHistory,
+              icon: const Icon(Icons.forum_outlined),
+            ),
+            IconButton(
+              key: const Key('ask.delete'),
+              tooltip: t.delete,
+              onPressed: _deleteThread,
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
         ],
+        body: Column(
+          children: [
+            Expanded(
+              child: _threadLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : thread != null
+                  ? _buildThread(thread)
+                  : _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null && _threads.isEmpty
+                  ? AppErrorView(
+                      title: t.title,
+                      message: _error!,
+                      onRetry: _load,
+                    )
+                  : _buildHome(t, palette),
+            ),
+            _AskComposer(
+              controller: _controller,
+              focusNode: _focusNode,
+              hintText: thread == null ? t.placeholder : t.followUpHint,
+              sendTooltip: thread == null ? t.send : t.followUp,
+              enabled: !_asking,
+              onSend: thread == null ? _ask : _followUp,
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildHome(Translations$ask$en t, AppPalette palette) {
+    if (_threads.isEmpty && _context == null) {
+      return _EmptyAsk(t: t, onSelected: _useSuggestion);
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s16,
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s16,
+      ),
+      children: [
+        if (_context != null) ...[
+          _ContextCard(
+            context: _context!,
+            onRemove: () => setState(() => _context = null),
+          ),
+          const SizedBox(height: AppSpacing.s20),
+        ],
+        _SuggestionList(t: t, onSelected: _useSuggestion),
+        const SizedBox(height: AppSpacing.s24),
+        if (_threads.isNotEmpty) ...[
+          Text(
+            t.recent.toUpperCase(),
+            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s8),
+          for (final item in _threads) ...[
+            _ThreadRow(
+              thread: item,
+              onTap: () => unawaited(_openThread(item.id)),
+            ),
+            const SizedBox(height: AppSpacing.s8),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildThread(QuestionThread thread) {
+    return ListView(
+      controller: _scrollController,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s16,
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s16,
+      ),
+      children: [
+        if (thread.contextQuote != null) ...[
+          _ContextCard(
+            context: QuestionContext(
+              type: thread.contextType ?? 'none',
+              ref: thread.contextRef,
+              quote: thread.contextQuote,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s20),
+        ],
+        for (final message in thread.messages) ...[
+          _QuestionMessageView(
+            message: message,
+            onSuggestion: _useSuggestion,
+            onFeedback: message.isUser
+                ? null
+                : (feedback) => _sendFeedback(message.id, feedback),
+          ),
+          const SizedBox(height: AppSpacing.s16),
+        ],
+        if (_pendingFollowUp != null) ...[
+          _QuestionMessageView(
+            message: QuestionMessage(
+              id: 'pending',
+              role: 'user',
+              text: _pendingFollowUp!,
+              example: null,
+              nativeExplanation: null,
+              confidence: null,
+              followUpSuggestions: const [],
+              feedback: null,
+              createdAt: DateTime.now(),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s10),
+          Row(
+            children: [
+              SizedBox.square(
+                dimension: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: context.appPalette.primary,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s8),
+              Text(
+                context.t.ask.thinking,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: context.appPalette.muted,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s16),
+        ],
+      ],
     );
   }
 }

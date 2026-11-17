@@ -60,8 +60,21 @@ class TimelineDailyItem(BaseModel):
     streak: int = 0
 
 
+class TimelineQuestionItem(BaseModel):
+    type: Literal["question"] = "question"
+    id: str
+    created_at: datetime
+    title: str
+    last_text: str = ""
+    context_type: str | None = None
+
+
 TimelineItem = Annotated[
-    TimelineWordItem | TimelineSceneItem | TimelineTalkItem | TimelineDailyItem,
+    TimelineWordItem
+    | TimelineSceneItem
+    | TimelineTalkItem
+    | TimelineDailyItem
+    | TimelineQuestionItem,
     Field(discriminator="type"),
 ]
 

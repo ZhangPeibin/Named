@@ -206,6 +206,43 @@ class TimelineDailyItemDto extends TimelineItemDto {
   }
 }
 
+class TimelineQuestionItemDto extends TimelineItemDto {
+  const TimelineQuestionItemDto({
+    required this.id,
+    required this.createdAt,
+    required this.title,
+    required this.lastText,
+    required this.contextType,
+  });
+
+  factory TimelineQuestionItemDto.fromJson(Map<String, dynamic> json) {
+    return TimelineQuestionItemDto(
+      id: json['id'] as String? ?? '',
+      createdAt: _parseDate(json['created_at']),
+      title: json['title'] as String? ?? '',
+      lastText: json['last_text'] as String? ?? '',
+      contextType: json['context_type'] as String?,
+    );
+  }
+
+  final String id;
+  final DateTime createdAt;
+  final String title;
+  final String lastText;
+  final String? contextType;
+
+  @override
+  TimelineItem toDomain() {
+    return TimelineQuestionItem(
+      id: id,
+      createdAt: createdAt,
+      title: title,
+      lastText: lastText,
+      contextType: contextType,
+    );
+  }
+}
+
 class TimelineResponseDto {
   const TimelineResponseDto({required this.items, required this.nextCursor});
 
@@ -224,6 +261,8 @@ class TimelineResponseDto {
         items.add(TimelineTalkItemDto.fromJson(raw));
       } else if (type == 'daily') {
         items.add(TimelineDailyItemDto.fromJson(raw));
+      } else if (type == 'question') {
+        items.add(TimelineQuestionItemDto.fromJson(raw));
       }
     }
     return TimelineResponseDto(

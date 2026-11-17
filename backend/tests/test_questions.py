@@ -111,6 +111,13 @@ async def test_question_thread_context_and_follow_up(question_env) -> None:
     assert feedback.status_code == 200, feedback.text
     assert feedback.json()["feedback"] == "helpful"
 
+    timeline = await http.get("/api/v1/timeline", headers=headers)
+    assert timeline.status_code == 200, timeline.text
+    question_items = [item for item in timeline.json()["items"] if item["type"] == "question"]
+    assert len(question_items) == 1
+    assert question_items[0]["id"] == body["id"]
+    assert question_items[0]["last_text"].startswith("Simple answer")
+
     listed = await http.get("/api/v1/questions", headers=headers)
     assert listed.status_code == 200, listed.text
     item = listed.json()["items"][0]
@@ -125,6 +132,8 @@ async def test_question_thread_context_and_follow_up(question_env) -> None:
     assert deleted.status_code == 204
     missing = await http.get(f"/api/v1/questions/{body['id']}", headers=headers)
     assert missing.status_code == 404
+    timeline = await http.get("/api/v1/timeline", headers=headers)
+    assert all(item["type"] != "question" for item in timeline.json()["items"])
 
 
 @pytest.mark.asyncio

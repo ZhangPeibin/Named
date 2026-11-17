@@ -51,12 +51,12 @@ void main() {
         overrides: [
           questionRepositoryProvider.overrideWithValue(QuestionRepository(api)),
         ],
-        child: MaterialApp(home: QuestionThreadPage(threadId: thread.id)),
+        child: MaterialApp(home: QuestionPage(threadId: thread.id)),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Why do we say would here?'), findsOneWidget);
+    expect(find.text('Why do we say would here?'), findsWidgets);
     expect(find.text('A simple answer to your question.'), findsOneWidget);
     expect(find.text('Here is a short example.'), findsOneWidget);
     expect(find.text('这是这个问题的中文解释。'), findsOneWidget);

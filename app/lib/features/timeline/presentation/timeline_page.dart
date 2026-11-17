@@ -24,6 +24,7 @@ import 'composer_hint.dart';
 import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
+import 'widgets/question_thread_card.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/timeline_progress_card.dart';
 import 'widgets/word_naming_card.dart';
@@ -513,12 +514,27 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
             isSubmitting: _isSubmitting,
             onSend: _send,
             onOpenMe: () => unawaited(context.pushNamed(AppRouteNames.me)),
-            onOpenAsk: () => unawaited(context.pushNamed(AppRouteNames.ask)),
+            onOpenAsk: () => unawaited(_openAsk()),
             onChanged: (_) => setState(() => _error = null),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openAsk({String? threadId}) async {
+    final queryParameters = <String, String>{};
+    if (threadId != null) {
+      queryParameters['threadId'] = threadId;
+    }
+    await context.pushNamed(
+      AppRouteNames.ask,
+      queryParameters: queryParameters,
+    );
+    if (mounted) {
+      ref.invalidate(timelineControllerProvider);
+      ref.invalidate(progressProvider);
+    }
   }
 
   Future<void> _openDaily(TimelineDailyItem item) async {
@@ -590,6 +606,13 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         case TimelineDailyItem():
           widgets.add(
             DailyTaskCard(item: item, onTap: () => unawaited(_openDaily(item))),
+          );
+        case TimelineQuestionItem():
+          widgets.add(
+            QuestionThreadCard(
+              item: item,
+              onTap: () => unawaited(_openAsk(threadId: item.id)),
+            ),
           );
       }
     }
