@@ -41,10 +41,7 @@ class NamedComposer extends StatelessWidget {
         AppSpacing.s16,
         AppSpacing.s12,
       ),
-      decoration: BoxDecoration(
-        color: palette.canvas,
-        border: Border(top: BorderSide(color: palette.line)),
-      ),
+      decoration: BoxDecoration(color: palette.canvas),
       child: SizedBox(
         height: 52,
         child: Stack(
