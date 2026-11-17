@@ -1,5 +1,4 @@
-import 'dart:math' as math;
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -21,11 +20,11 @@ class ContentAccents {
   static ContentAccent daily(BuildContext context) {
     return _isDark(context)
         ? const ContentAccent(
-            background: Color(0x339CC4B8),
+            background: Color(0x269CC4B8),
             foreground: Color(0xFF9CC4B8),
           )
         : const ContentAccent(
-            background: Color(0xFFE0EEE8),
+            background: Color(0xFFE5F0EA),
             foreground: Color(0xFF4F7C74),
           );
   }
@@ -33,11 +32,11 @@ class ContentAccents {
   static ContentAccent user(BuildContext context) {
     return _isDark(context)
         ? const ContentAccent(
-            background: Color(0x33E0A8B0),
+            background: Color(0x26E0A8B0),
             foreground: Color(0xFFE0A8B0),
           )
         : const ContentAccent(
-            background: Color(0xFFF2E3E6),
+            background: Color(0xFFF5E7EA),
             foreground: Color(0xFFA85F6B),
           );
   }
@@ -75,17 +74,20 @@ class DailyMark extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          DecoratedBox(
+          Container(
             decoration: BoxDecoration(
               color: accent.background,
-              borderRadius: BorderRadius.circular(size * 0.31),
+              borderRadius: BorderRadius.circular(size * 0.3),
               border: Border.all(
-                color: accent.foreground.withValues(alpha: 0.18),
+                color: accent.foreground.withValues(alpha: 0.14),
               ),
             ),
-            child: CustomPaint(
-              painter: _DailyPainter(primary: accent.foreground),
-              child: const SizedBox.expand(),
+            child: Center(
+              child: Icon(
+                CupertinoIcons.book_solid,
+                size: size * 0.52,
+                color: accent.foreground,
+              ),
             ),
           ),
           if (completed)
@@ -140,7 +142,7 @@ class MiloMark extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) => ColoredBox(
                 color: palette.surfaceMuted,
                 child: Icon(
-                  Icons.face_outlined,
+                  CupertinoIcons.person_fill,
                   size: size * 0.5,
                   color: palette.primary,
                 ),
@@ -159,8 +161,8 @@ class MiloMark extends StatelessWidget {
                 border: Border.all(color: palette.canvas, width: 1.5),
               ),
               child: const Icon(
-                Icons.chat_bubble_rounded,
-                size: 8,
+                CupertinoIcons.chat_bubble_2_fill,
+                size: 9,
                 color: Colors.white,
               ),
             ),
@@ -178,104 +180,20 @@ class UserMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appPalette;
+    final accent = ContentAccents.user(context);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: palette.warm,
+        color: accent.background,
         shape: BoxShape.circle,
-        border: Border.all(color: palette.line),
+        border: Border.all(color: accent.foreground.withValues(alpha: 0.14)),
       ),
-      child: CustomPaint(painter: _UserPainter(primary: palette.primary)),
+      child: Icon(
+        CupertinoIcons.person_fill,
+        size: size * 0.55,
+        color: accent.foreground,
+      ),
     );
-  }
-}
-
-class _UserPainter extends CustomPainter {
-  const _UserPainter({required this.primary});
-
-  final Color primary;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = primary
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round;
-    final head = Offset(size.width * 0.5, size.height * 0.38);
-    canvas.drawCircle(head, size.width * 0.14, stroke);
-    final shoulders = Path()
-      ..moveTo(size.width * 0.27, size.height * 0.76)
-      ..quadraticBezierTo(
-        size.width * 0.36,
-        size.height * 0.56,
-        size.width * 0.5,
-        size.height * 0.56,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.64,
-        size.height * 0.56,
-        size.width * 0.73,
-        size.height * 0.76,
-      );
-    canvas.drawPath(shoulders, stroke);
-  }
-
-  @override
-  bool shouldRepaint(covariant _UserPainter oldDelegate) {
-    return oldDelegate.primary != primary;
-  }
-}
-
-class _DailyPainter extends CustomPainter {
-  const _DailyPainter({required this.primary});
-
-  final Color primary;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final stroke = Paint()
-      ..color = primary
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(1.4, w * 0.048)
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final left = Path()
-      ..moveTo(w * 0.5, h * 0.33)
-      ..quadraticBezierTo(w * 0.36, h * 0.29, w * 0.24, h * 0.35)
-      ..lineTo(w * 0.24, h * 0.68)
-      ..quadraticBezierTo(w * 0.37, h * 0.63, w * 0.5, h * 0.7);
-    final right = Path()
-      ..moveTo(w * 0.5, h * 0.33)
-      ..quadraticBezierTo(w * 0.64, h * 0.29, w * 0.76, h * 0.35)
-      ..lineTo(w * 0.76, h * 0.68)
-      ..quadraticBezierTo(w * 0.63, h * 0.63, w * 0.5, h * 0.7);
-    canvas.drawPath(left, stroke);
-    canvas.drawPath(right, stroke);
-    canvas.drawLine(
-      Offset(w * 0.5, h * 0.34),
-      Offset(w * 0.5, h * 0.7),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(w * 0.31, h * 0.45),
-      Offset(w * 0.42, h * 0.45),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(w * 0.58, h * 0.45),
-      Offset(w * 0.69, h * 0.45),
-      stroke,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _DailyPainter oldDelegate) {
-    return oldDelegate.primary != primary;
   }
 }

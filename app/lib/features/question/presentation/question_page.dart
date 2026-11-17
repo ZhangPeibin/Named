@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -520,19 +521,21 @@ class _AskAgentAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.appPalette;
+    final tint = Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF9BBEDC)
+        : const Color(0xFF4F7C9E);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: palette.warm,
+        color: tint.withValues(alpha: 0.12),
         shape: BoxShape.circle,
-        border: Border.all(color: palette.line),
+        border: Border.all(color: tint.withValues(alpha: 0.18)),
       ),
       child: Icon(
-        Icons.question_answer_rounded,
+        CupertinoIcons.chat_bubble_2_fill,
         size: size * 0.5,
-        color: palette.accent,
+        color: tint,
       ),
     );
   }
