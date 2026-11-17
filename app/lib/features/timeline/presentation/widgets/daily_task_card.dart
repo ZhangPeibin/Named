@@ -52,7 +52,7 @@ class DailyTaskCard extends StatelessWidget {
                   displayTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.labelLarge?.copyWith(color: palette.primary),
+                  style: textTheme.labelLarge?.copyWith(color: palette.ink),
                 ),
                 const SizedBox(height: AppSpacing.s2),
                 Text(
@@ -67,7 +67,7 @@ class DailyTaskCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.s4),
           Text(
             item.completed ? t.readAgain : t.read,
-            style: AppTextStyles.caption.copyWith(color: palette.primary),
+            style: AppTextStyles.caption.copyWith(color: palette.ink),
           ),
           const SizedBox(width: AppSpacing.s4),
           Icon(Icons.chevron_right, color: palette.muted, size: AppSize.size16),

@@ -45,19 +45,21 @@ class TalkAction extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.chat_bubble_outline,
+                      Icons.chat_bubble_outline_rounded,
                       size: 14,
-                      color: palette.primary,
+                      color: palette.muted,
                     ),
                     const SizedBox(width: AppSpacing.s6),
                     Text(
                       label,
-                      style: AppTextStyles.label.copyWith(
-                        color: palette.primary,
-                      ),
+                      style: AppTextStyles.label.copyWith(color: palette.ink),
                     ),
                     const SizedBox(width: AppSpacing.s4),
-                    Icon(Icons.arrow_forward, size: 12, color: palette.primary),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 12,
+                      color: palette.muted,
+                    ),
                   ],
                 ),
         ),

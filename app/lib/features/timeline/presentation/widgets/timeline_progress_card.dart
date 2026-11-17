@@ -97,7 +97,7 @@ class _ProgressStat extends StatelessWidget {
         children: [
           Text(
             '$value',
-            style: textTheme.titleMedium?.copyWith(color: palette.primary),
+            style: textTheme.titleMedium?.copyWith(color: palette.ink),
           ),
           Row(
             children: [

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -13,49 +12,29 @@ class ContentAccent {
 class ContentAccents {
   const ContentAccents._();
 
-  static bool _isDark(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark;
-  }
-
   static ContentAccent daily(BuildContext context) {
-    return _isDark(context)
-        ? const ContentAccent(
-            background: Color(0x269CC4B8),
-            foreground: Color(0xFF9CC4B8),
-          )
-        : const ContentAccent(
-            background: Color(0xFFE5F0EA),
-            foreground: Color(0xFF4F7C74),
-          );
+    final palette = context.appPalette;
+    return ContentAccent(
+      background: palette.surfaceMuted,
+      foreground: palette.ink,
+    );
   }
 
   static ContentAccent user(BuildContext context) {
-    return _isDark(context)
-        ? const ContentAccent(
-            background: Color(0x26E0A8B0),
-            foreground: Color(0xFFE0A8B0),
-          )
-        : const ContentAccent(
-            background: Color(0xFFF5E7EA),
-            foreground: Color(0xFFA85F6B),
-          );
+    final palette = context.appPalette;
+    return ContentAccent(
+      background: palette.surfaceMuted,
+      foreground: palette.ink,
+    );
   }
 
-  static Color talk(BuildContext context) {
-    return _isDark(context) ? const Color(0xFF9BBEDC) : const Color(0xFF4F7C9E);
-  }
+  static Color talk(BuildContext context) => context.appPalette.ink;
 
-  static Color words(BuildContext context) {
-    return _isDark(context) ? const Color(0xFF9CC4B8) : const Color(0xFF4F7C74);
-  }
+  static Color words(BuildContext context) => context.appPalette.muted;
 
-  static Color talks(BuildContext context) {
-    return _isDark(context) ? const Color(0xFF82C8FF) : const Color(0xFF3A86C8);
-  }
+  static Color talks(BuildContext context) => context.appPalette.muted;
 
-  static Color reads(BuildContext context) {
-    return _isDark(context) ? const Color(0xFF9ED8A8) : const Color(0xFF4F9B69);
-  }
+  static Color reads(BuildContext context) => context.appPalette.muted;
 }
 
 class DailyMark extends StatelessWidget {
@@ -84,7 +63,7 @@ class DailyMark extends StatelessWidget {
             ),
             child: Center(
               child: Icon(
-                CupertinoIcons.book_solid,
+                Icons.menu_book_rounded,
                 size: size * 0.52,
                 color: accent.foreground,
               ),
@@ -98,7 +77,7 @@ class DailyMark extends StatelessWidget {
                 width: 15,
                 height: 15,
                 decoration: BoxDecoration(
-                  color: accent.foreground,
+                  color: palette.ink,
                   shape: BoxShape.circle,
                   border: Border.all(color: palette.canvas, width: 1.5),
                 ),
@@ -142,7 +121,7 @@ class MiloMark extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) => ColoredBox(
                 color: palette.surfaceMuted,
                 child: Icon(
-                  CupertinoIcons.person_fill,
+                  Icons.person_rounded,
                   size: size * 0.5,
                   color: palette.primary,
                 ),
@@ -156,12 +135,12 @@ class MiloMark extends StatelessWidget {
               width: 15,
               height: 15,
               decoration: BoxDecoration(
-                color: ContentAccents.talk(context),
+                color: palette.ink,
                 shape: BoxShape.circle,
                 border: Border.all(color: palette.canvas, width: 1.5),
               ),
               child: const Icon(
-                CupertinoIcons.chat_bubble_2_fill,
+                Icons.chat_bubble_rounded,
                 size: 9,
                 color: Colors.white,
               ),
@@ -190,7 +169,7 @@ class UserMark extends StatelessWidget {
         border: Border.all(color: accent.foreground.withValues(alpha: 0.14)),
       ),
       child: Icon(
-        CupertinoIcons.person_fill,
+        Icons.person_rounded,
         size: size * 0.55,
         color: accent.foreground,
       ),

@@ -40,7 +40,7 @@ class TalkEventCard extends StatelessWidget {
               children: [
                 Text(
                   item.title,
-                  style: textTheme.labelLarge?.copyWith(color: palette.primary),
+                  style: textTheme.labelLarge?.copyWith(color: palette.ink),
                 ),
                 const SizedBox(height: AppSpacing.s2),
                 Text(

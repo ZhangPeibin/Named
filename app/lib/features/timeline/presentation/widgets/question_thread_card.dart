@@ -1,11 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/timeline_item.dart';
-import 'spot_mark.dart';
 
 class QuestionThreadCard extends StatelessWidget {
   const QuestionThreadCard({
@@ -35,15 +33,13 @@ class QuestionThreadCard extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: ContentAccents.talk(context).withValues(alpha: 0.12),
+              color: palette.surfaceMuted,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: ContentAccents.talk(context).withValues(alpha: 0.18),
-              ),
+              border: Border.all(color: palette.line),
             ),
             child: Icon(
-              CupertinoIcons.chat_bubble_2_fill,
-              color: ContentAccents.talk(context),
+              Icons.chat_bubble_rounded,
+              color: palette.ink,
               size: 17,
             ),
           ),
@@ -56,7 +52,7 @@ class QuestionThreadCard extends StatelessWidget {
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.labelLarge?.copyWith(color: palette.primary),
+                  style: textTheme.labelLarge?.copyWith(color: palette.ink),
                 ),
                 if (item.lastText.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.s2),

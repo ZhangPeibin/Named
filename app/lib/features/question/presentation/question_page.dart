@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -521,21 +520,19 @@ class _AskAgentAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xFF9BBEDC)
-        : const Color(0xFF4F7C9E);
+    final palette = context.appPalette;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
+        color: palette.surfaceMuted,
         shape: BoxShape.circle,
-        border: Border.all(color: tint.withValues(alpha: 0.18)),
+        border: Border.all(color: palette.line),
       ),
       child: Icon(
-        CupertinoIcons.chat_bubble_2_fill,
+        Icons.chat_bubble_rounded,
         size: size * 0.5,
-        color: tint,
+        color: palette.ink,
       ),
     );
   }
@@ -663,7 +660,7 @@ class _ThreadRow extends StatelessWidget {
                 thread.contextType == null
                     ? Icons.question_answer_outlined
                     : Icons.bookmark_border_rounded,
-                color: palette.primary,
+                color: palette.muted,
                 size: 18,
               ),
               const SizedBox(width: AppSpacing.s12),
@@ -768,9 +765,7 @@ class _QuestionMessageView extends StatelessWidget {
                   children: [
                     Text(
                       t.named,
-                      style: textTheme.labelLarge?.copyWith(
-                        color: palette.primary,
-                      ),
+                      style: textTheme.labelLarge?.copyWith(color: palette.ink),
                     ),
                     if (confidence != null) ...[
                       const SizedBox(width: AppSpacing.s8),
@@ -795,9 +790,7 @@ class _QuestionMessageView extends StatelessWidget {
                   const SizedBox(height: AppSpacing.s4),
                   Text(
                     message.example!,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: palette.primary,
-                    ),
+                    style: textTheme.bodyMedium?.copyWith(color: palette.ink),
                   ),
                 ],
                 if (message.nativeExplanation != null &&
@@ -1010,9 +1003,7 @@ class _SuggestionList extends StatelessWidget {
                 const SizedBox(width: AppSpacing.s8),
             itemBuilder: (context, index) => ActionChip(
               label: Text(suggestions[index]),
-              labelStyle: AppTextStyles.caption.copyWith(
-                color: palette.primary,
-              ),
+              labelStyle: AppTextStyles.caption.copyWith(color: palette.ink),
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
               visualDensity: VisualDensity.compact,
               side: BorderSide(color: palette.line),
