@@ -81,7 +81,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refreshListenable.dispose);
 
   final router = GoRouter(
-    initialLocation: AppRoutePaths.daily,
+    initialLocation: AppRoutePaths.timeline,
     refreshListenable: refreshListenable,
     redirect: (context, state) {
       final auth = ref.read(authNotifierProvider);
@@ -97,7 +97,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final goingToPublic = _publicRoutePaths.contains(state.matchedLocation);
 
       if (state.matchedLocation == AppRoutePaths.loading) {
-        return isSignedIn ? AppRoutePaths.daily : AppRoutePaths.signIn;
+        return isSignedIn ? AppRoutePaths.timeline : AppRoutePaths.signIn;
       }
 
       if (!isSignedIn && !goingToPublic) {
