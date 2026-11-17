@@ -290,15 +290,10 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     final thread = _thread;
 
     return PopScope(
-      canPop: thread == null,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          _backToHistory();
-        }
-      },
+      canPop: true,
       child: AppScaffold(
         key: const Key('ask.page'),
-        title: thread == null ? t.title : thread.title,
+        title: t.title,
         centerBody: false,
         padding: EdgeInsets.zero,
         actions: [
@@ -367,21 +362,27 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
           ),
           const SizedBox(height: AppSpacing.s20),
         ],
+        Text(t.emptyTitle, style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: AppSpacing.s6),
+        Text(
+          t.emptyBody,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: palette.muted),
+        ),
+        const SizedBox(height: AppSpacing.s20),
         _SuggestionList(t: t, onSelected: _useSuggestion),
-        const SizedBox(height: AppSpacing.s24),
         if (_threads.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s24),
           Text(
             t.recent.toUpperCase(),
             style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
           ),
           const SizedBox(height: AppSpacing.s8),
-          for (final item in _threads) ...[
-            _ThreadRow(
-              thread: item,
-              onTap: () => unawaited(_openThread(item.id)),
-            ),
-            const SizedBox(height: AppSpacing.s8),
-          ],
+          _ThreadList(
+            threads: _threads,
+            onTap: (item) => unawaited(_openThread(item.id)),
+          ),
         ],
       ],
     );
@@ -397,6 +398,10 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
         AppSpacing.s16,
       ),
       children: [
+        if (thread.title.trim().isNotEmpty) ...[
+          Text(thread.title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.s16),
+        ],
         if (thread.contextQuote != null) ...[
           _ContextCard(
             context: QuestionContext(
@@ -457,6 +462,38 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
   }
 }
 
+class _ThreadList extends StatelessWidget {
+  const _ThreadList({required this.threads, required this.onTap});
+
+  final List<QuestionThreadSummary> threads;
+  final ValueChanged<QuestionThreadSummary> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(AppRadius.r16),
+        border: Border.all(color: palette.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var index = 0; index < threads.length; index++) ...[
+            _ThreadRow(
+              thread: threads[index],
+              onTap: () => onTap(threads[index]),
+            ),
+            if (index < threads.length - 1)
+              Divider(height: 1, indent: AppSpacing.s40, color: palette.line),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _ThreadRow extends StatelessWidget {
   const _ThreadRow({required this.thread, required this.onTap});
 
@@ -468,13 +505,14 @@ class _ThreadRow extends StatelessWidget {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
     return Material(
-      color: palette.surface,
-      borderRadius: BorderRadius.circular(AppRadius.r16),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.r16),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.s14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s14,
+            vertical: AppSpacing.s12,
+          ),
           child: Row(
             children: [
               Icon(
@@ -482,9 +520,9 @@ class _ThreadRow extends StatelessWidget {
                     ? Icons.question_answer_outlined
                     : Icons.bookmark_border_rounded,
                 color: palette.primary,
-                size: 20,
+                size: 18,
               ),
-              const SizedBox(width: AppSpacing.s10),
+              const SizedBox(width: AppSpacing.s12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -800,30 +838,35 @@ class _SuggestionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final suggestions = [t.suggestion1, t.suggestion2, t.suggestion3];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           t.suggestions.toUpperCase(),
-          style: AppTextStyles.eyebrow.copyWith(
-            color: context.appPalette.muted,
-          ),
+          style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
         ),
         const SizedBox(height: AppSpacing.s8),
-        Wrap(
-          spacing: AppSpacing.s8,
-          runSpacing: AppSpacing.s8,
-          children: [
-            for (final suggestion in [
-              t.suggestion1,
-              t.suggestion2,
-              t.suggestion3,
-            ])
-              ActionChip(
-                label: Text(suggestion),
-                onPressed: () => onSelected(suggestion),
+        SizedBox(
+          height: 38,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: suggestions.length,
+            separatorBuilder: (context, index) =>
+                const SizedBox(width: AppSpacing.s8),
+            itemBuilder: (context, index) => ActionChip(
+              label: Text(suggestions[index]),
+              labelStyle: AppTextStyles.caption.copyWith(
+                color: palette.primary,
               ),
-          ],
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
+              visualDensity: VisualDensity.compact,
+              side: BorderSide(color: palette.line),
+              backgroundColor: palette.surface,
+              onPressed: () => onSelected(suggestions[index]),
+            ),
+          ),
         ),
       ],
     );
