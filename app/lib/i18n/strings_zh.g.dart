@@ -650,6 +650,7 @@ class _Translations$ask$zh implements Translations$ask$en {
 	@override String get helpful => '有帮助';
 	@override String get notHelpful => '没帮助';
 	@override String get feedbackError => '暂时无法保存反馈。';
+	@override String get agentGreeting => '关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -1053,6 +1054,7 @@ extension on TranslationsZh {
 			'ask.helpful' => '有帮助',
 			'ask.notHelpful' => '没帮助',
 			'ask.feedbackError' => '暂时无法保存反馈。',
+			'ask.agentGreeting' => '关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。',
 			_ => null,
 		};
 	}

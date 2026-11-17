@@ -37,11 +37,11 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
   var _threads = <QuestionThreadSummary>[];
   QuestionThread? _thread;
   late QuestionContext? _context = widget.context;
-  var _loading = true;
   var _threadLoading = false;
   var _asking = false;
   String? _error;
   String? _pendingFollowUp;
+  String? _pendingQuestion;
 
   @override
   void initState() {
@@ -65,27 +65,13 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
   }
 
   Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
     try {
       final threads = await ref.read(questionRepositoryProvider).fetchThreads();
-      if (!mounted) {
-        return;
+      if (mounted) {
+        setState(() => _threads = threads);
       }
-      setState(() {
-        _threads = threads;
-        _loading = false;
-      });
-    } on ApiException catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _error = error.message;
-        _loading = false;
-      });
+    } on ApiException {
+      // History is secondary; the composer remains usable.
     }
   }
 
@@ -124,8 +110,11 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     }
     setState(() {
       _asking = true;
+      _pendingQuestion = text;
       _error = null;
     });
+    _controller.clear();
+    _scrollToBottom(jump: true);
     try {
       final thread = await ref
           .read(questionRepositoryProvider)
@@ -133,19 +122,25 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
       if (!mounted) {
         return;
       }
-      _controller.clear();
       setState(() {
         _thread = thread;
         _context = null;
+        _pendingQuestion = null;
         _asking = false;
       });
       ref.invalidate(timelineControllerProvider);
+      unawaited(_load());
       _scrollToBottom(jump: true);
     } on ApiException {
       if (!mounted) {
         return;
       }
-      setState(() => _asking = false);
+      setState(() {
+        _pendingQuestion = null;
+        _asking = false;
+        _controller.text = text;
+        _controller.selection = TextSelection.collapsed(offset: text.length);
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(context.t.ask.error)));
@@ -177,6 +172,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
         _asking = false;
       });
       ref.invalidate(timelineControllerProvider);
+      unawaited(_load());
       _scrollToBottom();
     } on ApiException catch (error) {
       if (!mounted) {
@@ -194,12 +190,74 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     }
   }
 
-  void _backToHistory() {
+  Future<void> _openHistory() async {
+    await _load();
+    if (!mounted) {
+      return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.appPalette.canvas,
+      builder: (context) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.68,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.pageHorizontalPadding,
+              AppSpacing.s16,
+              AppSpacing.pageHorizontalPadding,
+              AppSpacing.s20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  context.t.ask.recent.toUpperCase(),
+                  style: AppTextStyles.eyebrow.copyWith(
+                    color: context.appPalette.muted,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.s12),
+                Expanded(
+                  child: _threads.isEmpty
+                      ? Center(
+                          child: Text(
+                            context.t.ask.emptyHistory,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: context.appPalette.muted),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: _threads.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: AppSpacing.s8),
+                          itemBuilder: (context, index) => _ThreadList(
+                            threads: [_threads[index]],
+                            onTap: (item) {
+                              Navigator.of(context).pop();
+                              unawaited(_openThread(item.id));
+                            },
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _clearThread() {
     setState(() {
       _thread = null;
       _pendingFollowUp = null;
-      _controller.clear();
+      _pendingQuestion = null;
       _context = null;
+      _controller.clear();
     });
     unawaited(_load());
   }
@@ -231,7 +289,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     }
     await ref.read(questionRepositoryProvider).deleteThread(thread.id);
     if (mounted) {
-      _backToHistory();
+      _clearThread();
     }
   }
 
@@ -286,68 +344,66 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t.ask;
-    final palette = context.appPalette;
     final thread = _thread;
 
-    return PopScope(
-      canPop: true,
-      child: AppScaffold(
-        key: const Key('ask.page'),
-        title: t.title,
-        centerBody: false,
-        padding: EdgeInsets.zero,
-        actions: [
-          if (thread != null) ...[
-            IconButton(
-              key: const Key('ask.history'),
-              tooltip: t.recent,
-              onPressed: _backToHistory,
-              icon: const Icon(Icons.forum_outlined),
-            ),
-            IconButton(
-              key: const Key('ask.delete'),
-              tooltip: t.delete,
-              onPressed: _deleteThread,
-              icon: const Icon(Icons.delete_outline),
-            ),
-          ],
-        ],
-        body: Column(
-          children: [
-            Expanded(
-              child: _threadLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : thread != null
-                  ? _buildThread(thread)
-                  : _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _error != null && _threads.isEmpty
-                  ? AppErrorView(
-                      title: t.title,
-                      message: _error!,
-                      onRetry: _load,
-                    )
-                  : _buildHome(t, palette),
-            ),
-            _AskComposer(
-              controller: _controller,
-              focusNode: _focusNode,
-              hintText: thread == null ? t.placeholder : t.followUpHint,
-              sendTooltip: thread == null ? t.send : t.followUp,
-              enabled: !_asking,
-              onSend: thread == null ? _ask : _followUp,
-            ),
-          ],
+    return AppScaffold(
+      key: const Key('ask.page'),
+      title: t.title,
+      centerBody: false,
+      padding: EdgeInsets.zero,
+      actions: [
+        IconButton(
+          key: const Key('ask.history'),
+          tooltip: t.recent,
+          onPressed: _openHistory,
+          icon: const Icon(Icons.forum_outlined),
         ),
+        if (thread != null)
+          IconButton(
+            key: const Key('ask.delete'),
+            tooltip: t.delete,
+            onPressed: _deleteThread,
+            icon: const Icon(Icons.delete_outline),
+          ),
+      ],
+      body: Column(
+        children: [
+          Expanded(
+            child: _threadLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null && thread == null
+                ? AppErrorView(
+                    title: t.loadFailed,
+                    message: _error!,
+                    onRetry: () {
+                      final threadId = widget.threadId;
+                      if (threadId != null) {
+                        unawaited(_openThread(threadId));
+                      } else {
+                        setState(() => _error = null);
+                      }
+                    },
+                  )
+                : thread == null
+                ? _buildIntro(t)
+                : _buildThread(thread),
+          ),
+          _AskComposer(
+            controller: _controller,
+            focusNode: _focusNode,
+            hintText: thread == null ? t.placeholder : t.followUpHint,
+            sendTooltip: thread == null ? t.send : t.followUp,
+            enabled: !_asking,
+            onSend: thread == null ? _ask : _followUp,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildHome(Translations$ask$en t, AppPalette palette) {
-    if (_threads.isEmpty && _context == null) {
-      return _EmptyAsk(t: t, onSelected: _useSuggestion);
-    }
+  Widget _buildIntro(Translations$ask$en t) {
     return ListView(
+      controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontalPadding,
         AppSpacing.s16,
@@ -362,27 +418,26 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
           ),
           const SizedBox(height: AppSpacing.s20),
         ],
-        Text(t.emptyTitle, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: AppSpacing.s6),
-        Text(
-          t.emptyBody,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: palette.muted),
-        ),
-        const SizedBox(height: AppSpacing.s20),
+        _AgentGreeting(text: t.agentGreeting),
+        const SizedBox(height: AppSpacing.s16),
         _SuggestionList(t: t, onSelected: _useSuggestion),
-        if (_threads.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.s24),
-          Text(
-            t.recent.toUpperCase(),
-            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+        if (_pendingQuestion != null) ...[
+          const SizedBox(height: AppSpacing.s20),
+          _QuestionMessageView(
+            message: QuestionMessage(
+              id: 'pending',
+              role: 'user',
+              text: _pendingQuestion!,
+              example: null,
+              nativeExplanation: null,
+              confidence: null,
+              followUpSuggestions: const [],
+              feedback: null,
+              createdAt: DateTime.now(),
+            ),
           ),
-          const SizedBox(height: AppSpacing.s8),
-          _ThreadList(
-            threads: _threads,
-            onTap: (item) => unawaited(_openThread(item.id)),
-          ),
+          const SizedBox(height: AppSpacing.s10),
+          _ThinkingRow(text: t.thinking),
         ],
       ],
     );
@@ -398,10 +453,6 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
         AppSpacing.s16,
       ),
       children: [
-        if (thread.title.trim().isNotEmpty) ...[
-          Text(thread.title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.s16),
-        ],
         if (thread.contextQuote != null) ...[
           _ContextCard(
             context: QuestionContext(
@@ -457,6 +508,96 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
           ),
           const SizedBox(height: AppSpacing.s16),
         ],
+      ],
+    );
+  }
+}
+
+class _AskAgentAvatar extends StatelessWidget {
+  const _AskAgentAvatar({this.size = 30});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: palette.warm,
+        shape: BoxShape.circle,
+        border: Border.all(color: palette.line),
+      ),
+      child: Icon(
+        Icons.question_answer_rounded,
+        size: size * 0.5,
+        color: palette.accent,
+      ),
+    );
+  }
+}
+
+class _AgentGreeting extends StatelessWidget {
+  const _AgentGreeting({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _AskAgentAvatar(),
+        const SizedBox(width: AppSpacing.s8),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.s14),
+            decoration: BoxDecoration(
+              color: palette.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+              border: Border.all(color: palette.line),
+            ),
+            child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThinkingRow extends StatelessWidget {
+  const _ThinkingRow({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    return Row(
+      children: [
+        const _AskAgentAvatar(size: 24),
+        const SizedBox(width: AppSpacing.s8),
+        SizedBox.square(
+          dimension: 14,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: palette.primary,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.s8),
+        Text(
+          text,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: palette.muted),
+        ),
       ],
     );
   }
@@ -599,96 +740,105 @@ class _QuestionMessageView extends StatelessWidget {
       _ => null,
     };
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.s16),
-      decoration: BoxDecoration(
-        color: palette.surface,
-        borderRadius: BorderRadius.circular(AppRadius.r16),
-        border: Border.all(color: palette.line),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  color: palette.surfaceMuted,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: Icon(
-                  Icons.auto_awesome_outlined,
-                  size: 14,
-                  color: palette.primary,
-                ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _AskAgentAvatar(size: 28),
+        const SizedBox(width: AppSpacing.s8),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.s14),
+            decoration: BoxDecoration(
+              color: palette.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
               ),
-              const SizedBox(width: AppSpacing.s8),
-              Text(
-                t.named,
-                style: textTheme.labelLarge?.copyWith(color: palette.primary),
-              ),
-              if (confidence != null) ...[
-                const SizedBox(width: AppSpacing.s8),
-                Text(
-                  confidence,
-                  style: AppTextStyles.caption.copyWith(color: palette.muted),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s10),
-          Text(message.text, style: textTheme.bodyLarge),
-          if (message.example != null &&
-              message.example!.trim().isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.s12),
-            Text(
-              'EXAMPLE',
-              style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+              border: Border.all(color: palette.line),
             ),
-            const SizedBox(height: AppSpacing.s4),
-            Text(
-              message.example!,
-              style: textTheme.bodyMedium?.copyWith(color: palette.primary),
-            ),
-          ],
-          if (message.nativeExplanation != null &&
-              message.nativeExplanation!.trim().isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.s12),
-            Divider(color: palette.line, height: 1),
-            const SizedBox(height: AppSpacing.s10),
-            Text(
-              t.native.toUpperCase(),
-              style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-            ),
-            const SizedBox(height: AppSpacing.s4),
-            Text(
-              message.nativeExplanation!,
-              style: textTheme.bodyMedium?.copyWith(color: palette.muted),
-            ),
-          ],
-          if (message.followUpSuggestions.isNotEmpty &&
-              onSuggestion != null) ...[
-            const SizedBox(height: AppSpacing.s12),
-            Wrap(
-              spacing: AppSpacing.s8,
-              runSpacing: AppSpacing.s8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final suggestion in message.followUpSuggestions)
-                  ActionChip(
-                    label: Text(suggestion),
-                    onPressed: () => onSuggestion!(suggestion),
+                Row(
+                  children: [
+                    Text(
+                      t.named,
+                      style: textTheme.labelLarge?.copyWith(
+                        color: palette.primary,
+                      ),
+                    ),
+                    if (confidence != null) ...[
+                      const SizedBox(width: AppSpacing.s8),
+                      Text(
+                        confidence,
+                        style: AppTextStyles.caption.copyWith(
+                          color: palette.muted,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.s10),
+                Text(message.text, style: textTheme.bodyLarge),
+                if (message.example != null &&
+                    message.example!.trim().isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.s12),
+                  Text(
+                    'EXAMPLE',
+                    style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
                   ),
+                  const SizedBox(height: AppSpacing.s4),
+                  Text(
+                    message.example!,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: palette.primary,
+                    ),
+                  ),
+                ],
+                if (message.nativeExplanation != null &&
+                    message.nativeExplanation!.trim().isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.s12),
+                  Divider(color: palette.line, height: 1),
+                  const SizedBox(height: AppSpacing.s10),
+                  Text(
+                    t.native.toUpperCase(),
+                    style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+                  ),
+                  const SizedBox(height: AppSpacing.s4),
+                  Text(
+                    message.nativeExplanation!,
+                    style: textTheme.bodyMedium?.copyWith(color: palette.muted),
+                  ),
+                ],
+                if (message.followUpSuggestions.isNotEmpty &&
+                    onSuggestion != null) ...[
+                  const SizedBox(height: AppSpacing.s12),
+                  Wrap(
+                    spacing: AppSpacing.s8,
+                    runSpacing: AppSpacing.s8,
+                    children: [
+                      for (final suggestion in message.followUpSuggestions)
+                        ActionChip(
+                          label: Text(suggestion),
+                          onPressed: () => onSuggestion!(suggestion),
+                        ),
+                    ],
+                  ),
+                ],
+                if (onFeedback != null) ...[
+                  const SizedBox(height: AppSpacing.s8),
+                  _FeedbackRow(
+                    initial: message.feedback,
+                    onFeedback: onFeedback!,
+                  ),
+                ],
               ],
             ),
-          ],
-          if (onFeedback != null) ...[
-            const SizedBox(height: AppSpacing.s8),
-            _FeedbackRow(initial: message.feedback, onFeedback: onFeedback!),
-          ],
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -869,57 +1019,6 @@ class _SuggestionList extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _EmptyAsk extends StatelessWidget {
-  const _EmptyAsk({required this.t, required this.onSelected});
-
-  final Translations$ask$en t;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: palette.warm,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                Icons.question_mark_rounded,
-                color: palette.primary,
-                size: 28,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s16),
-            Text(
-              t.emptyTitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: AppSpacing.s6),
-            Text(
-              t.emptyBody,
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: palette.muted),
-            ),
-            const SizedBox(height: AppSpacing.s20),
-            _SuggestionList(t: t, onSelected: onSelected),
-          ],
-        ),
-      ),
     );
   }
 }

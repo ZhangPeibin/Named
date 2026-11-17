@@ -435,6 +435,7 @@
     "confidenceLow": "Not fully sure",
     "helpful": "Helpful",
     "notHelpful": "Not helpful",
-    "feedbackError": "Could not save feedback."
+    "feedbackError": "Could not save feedback.",
+    "agentGreeting": "Ask me anything about English — a word, a sentence, or why something sounds the way it does."
   }
 }

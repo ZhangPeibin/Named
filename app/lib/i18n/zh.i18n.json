@@ -435,6 +435,7 @@
     "confidenceLow": "不太确定",
     "helpful": "有帮助",
     "notHelpful": "没帮助",
-    "feedbackError": "暂时无法保存反馈。"
+    "feedbackError": "暂时无法保存反馈。",
+    "agentGreeting": "关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。"
   }
 }

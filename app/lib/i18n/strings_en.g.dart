@@ -1439,6 +1439,9 @@ class Translations$ask$en {
 
 	/// en: 'Could not save feedback.'
 	String get feedbackError => 'Could not save feedback.';
+
+	/// en: 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.'
+	String get agentGreeting => 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1842,6 +1845,7 @@ extension on Translations {
 			'ask.helpful' => 'Helpful',
 			'ask.notHelpful' => 'Not helpful',
 			'ask.feedbackError' => 'Could not save feedback.',
+			'ask.agentGreeting' => 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.',
 			_ => null,
 		};
 	}
