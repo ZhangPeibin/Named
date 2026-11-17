@@ -401,7 +401,9 @@
     "darkReading": "深色阅读",
     "lightReading": "浅色阅读",
     "completeSummary": "{minutes} 分钟 · {words} 个词",
-    "speed": "播放速度"
+    "speed": "播放速度",
+    "preparing": "正在准备今天的阅读…",
+    "preparingBody": "正在写作并生成语音。"
   },
   "ask": {
     "title": "提问",

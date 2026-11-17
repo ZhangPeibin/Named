@@ -53,6 +53,7 @@ class RemoteDailyApi implements DailyApi {
       final response = await _dio.get<Map<String, dynamic>>(
         '/api/v1/daily/read/translation',
         queryParameters: date == null ? null : {'date': _dateKey(date)},
+        options: Options(receiveTimeout: const Duration(seconds: 60)),
       );
       final data = response.data;
       if (data == null) {

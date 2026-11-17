@@ -243,8 +243,13 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
 
   TextStyle? _passageStyle(BuildContext context, AppPalette palette) {
     return Theme.of(context).textTheme.bodyLarge?.copyWith(
-      fontSize: 19,
-      height: 1.75,
+      fontFamily: 'Lora',
+      fontFamilyFallback: AppTextStyles.editorialFallback,
+      fontVariations: const [FontVariation('wght', 600)],
+      fontWeight: FontWeight.w600,
+      fontSize: 22,
+      height: 1.55,
+      letterSpacing: -0.2,
       color: palette.ink,
     );
   }
@@ -503,7 +508,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
       ReaderThemeMode.system =>
         MediaQuery.platformBrightnessOf(context) == Brightness.dark,
     };
-    final palette = isDark ? AppPalette.readerDark : context.appPalette;
+    final palette = isDark ? AppPalette.readerDark : AppPalette.readerLight;
     final async = ref.watch(dailyReadProvider(widget.date));
     final reading = async.value;
     if (reading != null) {
@@ -531,9 +536,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           async.when(
-                            loading: () => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            loading: () => const _DailyLoading(),
                             error: (error, stack) => Center(
                               child: AppErrorView(
                                 title: t.title,
@@ -742,6 +745,62 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DailyLoading extends StatelessWidget {
+  const _DailyLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.daily;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: palette.warm,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.auto_stories_rounded,
+                size: 28,
+                color: palette.primary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s16),
+            Text(
+              t.preparing,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            Text(
+              t.preparingBody,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: palette.muted),
+            ),
+            const SizedBox(height: AppSpacing.s20),
+            SizedBox(
+              width: 120,
+              child: LinearProgressIndicator(
+                minHeight: 2,
+                color: palette.primary,
+                backgroundColor: palette.line,
+              ),
+            ),
+          ],
         ),
       ),
     );

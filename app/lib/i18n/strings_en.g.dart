@@ -1334,6 +1334,12 @@ class Translations$daily$en {
 
 	/// en: 'Playback speed'
 	String get speed => 'Playback speed';
+
+	/// en: 'Preparing today's story…'
+	String get preparing => 'Preparing today\'s story…';
+
+	/// en: 'Writing and recording your reading.'
+	String get preparingBody => 'Writing and recording your reading.';
 }
 
 // Path: ask
@@ -1813,6 +1819,8 @@ extension on Translations {
 			'daily.lightReading' => 'Light reading',
 			'daily.completeSummary' => '{minutes} min · {words} words',
 			'daily.speed' => 'Playback speed',
+			'daily.preparing' => 'Preparing today\'s story…',
+			'daily.preparingBody' => 'Writing and recording your reading.',
 			'ask.title' => 'Ask',
 			'ask.entryTooltip' => 'Ask a question',
 			'ask.placeholder' => 'Ask anything...',

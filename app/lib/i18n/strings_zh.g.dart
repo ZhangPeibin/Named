@@ -609,6 +609,8 @@ class _Translations$daily$zh implements Translations$daily$en {
 	@override String get lightReading => '浅色阅读';
 	@override String get completeSummary => '{minutes} 分钟 · {words} 个词';
 	@override String get speed => '播放速度';
+	@override String get preparing => '正在准备今天的阅读…';
+	@override String get preparingBody => '正在写作并生成语音。';
 }
 
 // Path: ask
@@ -1022,6 +1024,8 @@ extension on TranslationsZh {
 			'daily.lightReading' => '浅色阅读',
 			'daily.completeSummary' => '{minutes} 分钟 · {words} 个词',
 			'daily.speed' => '播放速度',
+			'daily.preparing' => '正在准备今天的阅读…',
+			'daily.preparingBody' => '正在写作并生成语音。',
 			'ask.title' => '提问',
 			'ask.entryTooltip' => '问一个问题',
 			'ask.placeholder' => '想问什么？',

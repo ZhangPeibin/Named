@@ -401,7 +401,9 @@
     "darkReading": "Dark reading",
     "lightReading": "Light reading",
     "completeSummary": "{minutes} min · {words} words",
-    "speed": "Playback speed"
+    "speed": "Playback speed",
+    "preparing": "Preparing today's story…",
+    "preparingBody": "Writing and recording your reading."
   },
   "ask": {
     "title": "Ask",

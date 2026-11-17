@@ -136,6 +136,23 @@ class AppPalette extends ThemeExtension<AppPalette> {
     error: Color(0xFFE6A09A),
   );
 
+  static const readerLight = AppPalette(
+    canvas: Color(0xFFFFFFFF),
+    surface: Color(0xFFFFFFFF),
+    surfaceMuted: Color(0xFFF2F2F2),
+    primary: Color(0xFF111111),
+    primaryPressed: Color(0xFF000000),
+    onPrimary: Color(0xFFFFFFFF),
+    ink: Color(0xFF111111),
+    muted: Color(0xFF6B6B6B),
+    accent: Color(0xFFB05230),
+    warm: Color(0xFFF7F1E8),
+    line: Color(0xFFE7E7E7),
+    warningSurface: Color(0xFFF4E5D2),
+    warningText: Color(0xFF7A4C2A),
+    error: Color(0xFFA13D32),
+  );
+
   static const readerDark = AppPalette(
     canvas: Color(0xFF17191C),
     surface: Color(0xFF202328),
