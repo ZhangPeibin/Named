@@ -7,15 +7,14 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../challenge/domain/challenge.dart';
 import '../../../challenge/providers/challenge_providers.dart';
 
 /// A horizontally swipeable row of the learner's in-progress challenges, shown
-/// in the timeline so they can continue a round on entry.
+/// in the timeline so they can continue a round on entry. Cards are full width
+/// so they line up with the rest of the timeline.
 class ChallengeCarousel extends ConsumerStatefulWidget {
   const ChallengeCarousel({super.key});
 
@@ -24,7 +23,7 @@ class ChallengeCarousel extends ConsumerStatefulWidget {
 }
 
 class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
-  final _controller = PageController(viewportFraction: 0.9);
+  final _controller = PageController();
   var _index = 0;
 
   @override
@@ -44,34 +43,23 @@ class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
       return const SizedBox.shrink();
     }
 
-    final t = context.t.challenge;
     final palette = context.appPalette;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.s8),
-          child: Text(
-            t.active.toUpperCase(),
-            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-          ),
-        ),
         SizedBox(
-          height: 138,
+          height: 88,
           child: PageView.builder(
             controller: _controller,
             onPageChanged: (index) => setState(() => _index = index),
             itemCount: active.length,
-            itemBuilder: (context, index) => Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.s12),
-              child: _ChallengeMiniCard(
-                challenge: active[index],
-                onTap: () => unawaited(
-                  context.pushNamed(
-                    AppRouteNames.challengeDetail,
-                    pathParameters: {'challengeId': active[index].id},
-                  ),
+            itemBuilder: (context, index) => _ChallengeMiniCard(
+              challenge: active[index],
+              onTap: () => unawaited(
+                context.pushNamed(
+                  AppRouteNames.challengeDetail,
+                  pathParameters: {'challengeId': active[index].id},
                 ),
               ),
             ),
@@ -86,7 +74,7 @@ class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
                 if (index > 0) const SizedBox(width: AppSpacing.s6),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: index == _index ? 18 : 6,
+                  width: index == _index ? 16 : 6,
                   height: 6,
                   decoration: BoxDecoration(
                     color: index == _index ? palette.primary : palette.line,
@@ -117,43 +105,30 @@ class _ChallengeMiniCard extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       key: Key('timeline.challenge.${challenge.id}'),
-      padding: const EdgeInsets.all(AppSpacing.s16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s16,
+        vertical: AppSpacing.s12,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             challenge.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: textTheme.headlineMedium,
+            style: textTheme.titleLarge?.copyWith(
+              color: palette.ink,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: AppSpacing.s6),
+          const SizedBox(height: AppSpacing.s2),
           Text(
             '${challenge.plannedDays} ${t.days} · '
             '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodySmall?.copyWith(color: palette.muted),
-          ),
-          if (challenge.isDue) ...[
-            const SizedBox(height: AppSpacing.s4),
-            Text(
-              t.due,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.bodySmall?.copyWith(color: palette.accent),
-            ),
-          ],
-          const Spacer(),
-          Row(
-            children: [
-              Text(
-                t.kContinue,
-                style: textTheme.labelLarge?.copyWith(color: palette.primary),
-              ),
-              const SizedBox(width: AppSpacing.s4),
-              AppLineIcon(AppLineGlyph.chevronRight, color: palette.primary),
-            ],
           ),
         ],
       ),

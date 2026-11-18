@@ -42,7 +42,7 @@ void main() {
 
     expect(find.byKey(const Key('timeline.challenge.a')), findsOneWidget);
 
-    await tester.drag(find.byType(PageView), const Offset(-400, 0));
+    await tester.fling(find.byType(PageView), const Offset(-600, 0), 1200);
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('timeline.challenge.b')), findsOneWidget);
