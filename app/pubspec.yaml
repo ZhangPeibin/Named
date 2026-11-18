@@ -78,10 +78,12 @@ flutter_launcher_icons:
   remove_alpha_ios: true
 
 flutter_native_splash:
-  color: '#FFFFFF'
-  color_dark: '#121212'
-  image: assets/branding/app_icon.png
+  color: '#FBF8F2'
+  color_dark: '#171A1D'
+  image: assets/branding/splash_mark.png
+  image_dark: assets/branding/splash_mark_dark.png
   android_12:
-    color: '#FFFFFF'
-    color_dark: '#121212'
-    image: assets/branding/app_icon.png
+    color: '#FBF8F2'
+    color_dark: '#171A1D'
+    image: assets/branding/splash_mark.png
+    image_dark: assets/branding/splash_mark_dark.png
