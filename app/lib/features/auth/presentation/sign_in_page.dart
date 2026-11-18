@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_otp_field.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -17,8 +17,6 @@ import '../domain/initial_soul.dart';
 import '../providers/auth_notifier.dart';
 import '../providers/auth_providers.dart';
 
-enum _SignInStep { nativeLanguage, email }
-
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
@@ -27,11 +25,15 @@ class SignInPage extends ConsumerStatefulWidget {
 }
 
 class _SignInPageState extends ConsumerState<SignInPage> {
+  static const _pageCount = 2;
+
   final _nativeLanguageController = TextEditingController();
   final _emailController = TextEditingController();
   final _codeController = TextEditingController();
+  final _pageController = PageController();
 
-  _SignInStep _step = _SignInStep.nativeLanguage;
+  int _page = 0;
+  bool _languageDone = false;
   bool _skipInitialSoul = false;
   bool _codeSent = false;
   bool _isSendingCode = false;
@@ -49,6 +51,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     _nativeLanguageController.dispose();
     _emailController.dispose();
     _codeController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -67,6 +70,36 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     return email.contains('@') && email.contains('.');
   }
 
+  void _goToPage(int index) {
+    setState(() {
+      _page = index;
+      _error = null;
+    });
+    if (_pageController.hasClients) {
+      final reduceMotion =
+          MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      if (reduceMotion) {
+        _pageController.jumpToPage(index);
+      } else {
+        unawaited(
+          _pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+          ),
+        );
+      }
+    }
+  }
+
+  void _handlePageChanged(int index) {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _page = index;
+      _error = null;
+    });
+  }
+
   Future<void> _continueFromLanguage() async {
     final language = _nativeLanguageController.text.trim();
     if (language.isEmpty) {
@@ -77,19 +110,15 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     if (!mounted) {
       return;
     }
-    setState(() {
-      _error = null;
-      _skipInitialSoul = false;
-      _step = _SignInStep.email;
-    });
+    _skipInitialSoul = false;
+    _languageDone = true;
+    _goToPage(1);
   }
 
   void _useExistingAccount() {
-    setState(() {
-      _error = null;
-      _skipInitialSoul = true;
-      _step = _SignInStep.email;
-    });
+    _skipInitialSoul = true;
+    _languageDone = true;
+    _goToPage(1);
   }
 
   Future<void> _sendCode() async {
@@ -126,6 +155,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 
   Future<void> _verify() async {
+    if (_isVerifying) {
+      return;
+    }
     final email = _emailController.text.trim();
     final code = _codeController.text.trim();
     final language = _nativeLanguageController.text.trim();
@@ -139,10 +171,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       return;
     }
     if (!_skipInitialSoul && language.isEmpty) {
-      setState(() {
-        _step = _SignInStep.nativeLanguage;
-        _error = context.t.auth.nativeLanguageRequired;
-      });
+      _languageDone = false;
+      setState(() => _error = context.t.auth.nativeLanguageRequired);
+      _goToPage(0);
       return;
     }
 
@@ -167,11 +198,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
         return;
       }
       if (error.code == 'native_language_required') {
-        setState(() {
-          _skipInitialSoul = false;
-          _step = _SignInStep.nativeLanguage;
-          _error = context.t.auth.nativeLanguageRequired;
-        });
+        _skipInitialSoul = false;
+        _languageDone = false;
+        setState(() => _error = context.t.auth.nativeLanguageRequired);
+        _goToPage(0);
       } else {
         setState(() => _error = error.message);
       }
@@ -187,152 +217,204 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     final t = context.t.auth;
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
-    final isLanguageStep = _step == _SignInStep.nativeLanguage;
 
     return AppScaffold(
       title: '',
       showAppBar: false,
       centerBody: false,
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontalPadding,
-        AppSpacing.s8,
-        AppSpacing.pageHorizontalPadding,
-        AppSpacing.s32,
-      ),
-      body: ListView(
+      padding: EdgeInsets.zero,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Named', style: textTheme.displayMedium),
-              const SizedBox(width: AppSpacing.s6),
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.s10),
-                child: Icon(
-                  Icons.eco_outlined,
-                  color: palette.primary,
-                  size: AppSize.size18,
-                ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.s8,
+              AppSpacing.s8,
+              AppSpacing.s8,
+              0,
+            ),
+            child: SizedBox(
+              height: 48,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Named', style: textTheme.headlineLarge),
+                        const SizedBox(width: AppSpacing.s8),
+                        AppLineIcon(
+                          AppLineGlyph.leaf,
+                          color: palette.primary,
+                          size: AppSize.size18,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_page > 0)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        key: const Key('signIn.backToLanguage'),
+                        tooltip: t.back,
+                        onPressed: () => _goToPage(0),
+                        icon: AppLineIcon(
+                          AppLineGlyph.chevronLeft,
+                          size: 22,
+                          color: palette.ink,
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              const Spacer(),
-              Flexible(
-                child: Text(
-                  t.brandEyebrow,
-                  textAlign: TextAlign.right,
-                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: AppSpacing.s32),
-          _StepProgress(current: isLanguageStep ? 1 : 2),
-          const SizedBox(height: AppSpacing.s24),
-          Text(
-            isLanguageStep ? t.languageTitle : t.emailTitle,
-            style: textTheme.displayMedium,
+          const SizedBox(height: AppSpacing.s12),
+          _StepIndicator(current: _page, count: _pageCount),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: _languageDone
+                  ? const PageScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              onPageChanged: _handlePageChanged,
+              children: [_languagePage(context), _emailPage(context)],
+            ),
           ),
-          const SizedBox(height: AppSpacing.s10),
-          Text(
-            isLanguageStep ? t.nativeLanguageIntro : t.emailIntro,
-            style: textTheme.bodyLarge?.copyWith(color: palette.muted),
-          ),
-          const SizedBox(height: AppSpacing.s24),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: isLanguageStep
-                ? _languageStep(context)
-                : _emailStep(context),
-          ),
-          const SizedBox(height: AppSpacing.s16),
         ],
       ),
     );
   }
 
-  List<Widget> _languageStep(BuildContext context) {
-    final t = context.t.auth;
-    return [
-      AppTextField(
-        key: const Key('signIn.nativeLanguage'),
-        controller: _nativeLanguageController,
-        labelText: t.nativeLanguage,
-        hintText: t.nativeLanguageHint,
-        textInputAction: TextInputAction.done,
-        onChanged: (_) => setState(() => _error = null),
+  Widget _pageFrame(
+    BuildContext context, {
+    required String title,
+    required String intro,
+    required List<Widget> children,
+  }) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    const horizontal = AppSpacing.pageHorizontalPadding;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(
+        horizontal,
+        AppSpacing.s32,
+        horizontal,
+        AppSpacing.s32,
       ),
-      const SizedBox(height: AppSpacing.s24),
-      if (_error != null) _ErrorText(_error!),
-      AppButton(
-        key: const Key('signIn.continue'),
-        label: t.continueLabel,
-        onPressed: _continueFromLanguage,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: textTheme.displayMedium),
+          const SizedBox(height: AppSpacing.s12),
+          Text(
+            intro,
+            style: textTheme.bodyLarge?.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s32),
+          ...children,
+        ],
       ),
-      const SizedBox(height: AppSpacing.s8),
-      AppButton(
-        key: const Key('signIn.existingAccount'),
-        label: t.alreadyHaveAccount,
-        variant: AppButtonVariant.text,
-        onPressed: _useExistingAccount,
-      ),
-    ];
+    );
   }
 
-  List<Widget> _emailStep(BuildContext context) {
+  Widget _languagePage(BuildContext context) {
     final t = context.t.auth;
-    return [
-      AppTextField(
-        key: const Key('signIn.email'),
-        controller: _emailController,
-        labelText: t.email,
-        hintText: t.emailHint,
-        keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.next,
-        onChanged: (_) => setState(() => _error = null),
-      ),
-      const SizedBox(height: AppSpacing.s12),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SendCodeButton(
+    return _pageFrame(
+      context,
+      title: t.languageTitle,
+      intro: t.nativeLanguageIntro,
+      children: [
+        AppTextField(
+          key: const Key('signIn.nativeLanguage'),
+          controller: _nativeLanguageController,
+          labelText: t.nativeLanguage,
+          hintText: t.nativeLanguageHint,
+          textInputAction: TextInputAction.done,
+          onChanged: (_) => setState(() => _error = null),
+        ),
+        const SizedBox(height: AppSpacing.s24),
+        if (_error != null) _ErrorText(_error!),
+        AppButton(
+          key: const Key('signIn.continue'),
+          label: t.continueLabel,
+          onPressed: _continueFromLanguage,
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        AppButton(
+          key: const Key('signIn.existingAccount'),
+          label: t.alreadyHaveAccount,
+          variant: AppButtonVariant.text,
+          onPressed: _useExistingAccount,
+        ),
+      ],
+    );
+  }
+
+  Widget _emailPage(BuildContext context) {
+    final t = context.t.auth;
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    return _pageFrame(
+      context,
+      title: t.emailTitle,
+      intro: t.emailIntro,
+      children: [
+        AppTextField(
+          key: const Key('signIn.email'),
+          controller: _emailController,
+          labelText: t.email,
+          hintText: t.emailHint,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          onChanged: (_) => setState(() {
+            _error = null;
+            if (_codeSent) {
+              _codeSent = false;
+              _codeController.clear();
+            }
+          }),
+        ),
+        const SizedBox(height: AppSpacing.s12),
+        SizedBox(
+          width: double.infinity,
+          child: SendCodeButton(
             onSendCode: _sendCode,
             enabled: _emailLooksValid && !_isSendingCode,
           ),
+        ),
+        if (_codeSent) ...[
+          const SizedBox(height: AppSpacing.s16),
+          Text(
+            t.codeSentTo.replaceFirst('{email}', _emailController.text.trim()),
+            style: textTheme.bodySmall?.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s16),
+          Text(t.code, style: textTheme.labelLarge),
+          const SizedBox(height: AppSpacing.s12),
+          AppOtpField(
+            key: const Key('signIn.code'),
+            controller: _codeController,
+            onChanged: (_) => setState(() => _error = null),
+            onCompleted: (_) => _verify(),
+          ),
         ],
-      ),
-      if (_codeSent) ...[
+        if (_error != null) ...[
+          const SizedBox(height: AppSpacing.s16),
+          _ErrorText(_error!),
+        ],
         const SizedBox(height: AppSpacing.s24),
-        Text(t.code, style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: AppSpacing.s12),
-        AppOtpField(
-          key: const Key('signIn.code'),
-          controller: _codeController,
-          onChanged: (_) => setState(() => _error = null),
-          onCompleted: (_) => _verify(),
-        ),
+        if (_codeSent)
+          AppButton(
+            key: const Key('signIn.verify'),
+            label: t.verify,
+            isLoading: _isVerifying,
+            onPressed: _isVerifying ? null : _verify,
+          ),
       ],
-      if (_error != null) ...[
-        const SizedBox(height: AppSpacing.s16),
-        _ErrorText(_error!),
-      ],
-      const SizedBox(height: AppSpacing.s24),
-      if (_codeSent)
-        AppButton(
-          key: const Key('signIn.verify'),
-          label: t.verify,
-          isLoading: _isVerifying,
-          onPressed: _isVerifying ? null : _verify,
-        ),
-      const SizedBox(height: AppSpacing.s8),
-      AppButton(
-        key: const Key('signIn.backToLanguage'),
-        label: t.back,
-        variant: AppButtonVariant.text,
-        onPressed: () => setState(() {
-          _step = _SignInStep.nativeLanguage;
-          _error = null;
-        }),
-      ),
-    ];
+    );
   }
 }
 
@@ -356,25 +438,28 @@ class _ErrorText extends StatelessWidget {
   }
 }
 
-class _StepProgress extends StatelessWidget {
-  const _StepProgress({required this.current});
+class _StepIndicator extends StatelessWidget {
+  const _StepIndicator({required this.current, required this.count});
 
   final int current;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        for (var step = 1; step <= 2; step++) ...[
-          if (step > 1) const SizedBox(width: AppSpacing.s6),
-          Expanded(
-            child: Container(
-              height: 3,
-              decoration: BoxDecoration(
-                color: step <= current ? palette.primary : palette.line,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-              ),
+        for (var index = 0; index < count; index++) ...[
+          if (index > 0) const SizedBox(width: AppSpacing.s6),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            width: index == current ? 26 : 8,
+            height: 6,
+            decoration: BoxDecoration(
+              color: index <= current ? palette.primary : palette.line,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
           ),
         ],
