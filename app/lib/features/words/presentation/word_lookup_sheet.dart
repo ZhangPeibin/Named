@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../i18n/strings.g.dart';
 import '../../timeline/domain/timeline_item.dart';
@@ -85,16 +86,8 @@ TimelineWordItem wordShelfToTimelineItem(WordShelfItem item) {
 
 /// Opens the saved word details for an already-loaded [WordShelfItem].
 Future<void> showSavedWordSheet(BuildContext context, WordShelfItem item) {
-  final container = ProviderScope.containerOf(context, listen: false);
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: context.appPalette.canvas,
-    builder: (context) => UncontrolledProviderScope(
-      container: container,
-      child: SafeArea(
-        child: WordDetailsSheet(item: wordShelfToTimelineItem(item)),
-      ),
-    ),
+    builder: (context) => WordDetailsSheet(item: wordShelfToTimelineItem(item)),
   );
 }

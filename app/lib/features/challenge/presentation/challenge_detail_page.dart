@@ -9,13 +9,18 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../progress/providers/progress_providers.dart';
 import '../../talk/providers/talk_providers.dart';
+import '../../timeline/domain/timeline_item.dart';
+import '../../timeline/presentation/widgets/word_details_sheet.dart';
+import '../../timeline/providers/timeline_providers.dart';
 import '../../words/domain/word_shelf.dart';
 import '../../words/presentation/word_lookup_sheet.dart';
 import '../../words/providers/words_providers.dart';
@@ -62,6 +67,78 @@ class ChallengeDetailPage extends ConsumerWidget {
     Challenge challenge,
     ChallengeItem item,
   ) async {
+    final timeline = ref.read(timelineControllerProvider).value;
+    TimelineItem? source;
+    if (timeline != null) {
+      for (final candidate in timeline.items) {
+        final id = switch (candidate) {
+          TimelineWordItem(:final id) => id,
+          TimelineSceneItem(:final id) => id,
+          _ => null,
+        };
+        if (id == item.discoveryId) {
+          source = candidate;
+          break;
+        }
+      }
+    }
+
+    switch (source) {
+      case final TimelineWordItem wordItem:
+        await showAppBottomSheet<void>(
+          context: context,
+          builder: (context) => WordDetailsSheet(item: wordItem),
+        );
+      case final TimelineSceneItem sceneItem:
+        await _openSceneConversation(context, ref, sceneItem);
+      default:
+        await _openItemFallback(context, ref, item);
+    }
+    ref.invalidate(challengeProvider(challenge.id));
+    ref.invalidate(challengesProvider);
+  }
+
+  Future<void> _openSceneConversation(
+    BuildContext context,
+    WidgetRef ref,
+    TimelineSceneItem scene,
+  ) async {
+    try {
+      final controller = ref.read(timelineControllerProvider.notifier);
+      final conversationId = await controller.ensureSceneConversation(scene);
+      if (!context.mounted) {
+        return;
+      }
+      await context.pushNamed(
+        AppRouteNames.talk,
+        pathParameters: {'conversationId': conversationId},
+        queryParameters: {
+          if (scene.scene.naturalEnglish.trim().isNotEmpty)
+            'title': scene.scene.naturalEnglish,
+        },
+      );
+      if (!context.mounted) {
+        return;
+      }
+      await controller.afterTalk(
+        conversationId: conversationId,
+        title: scene.scene.naturalEnglish,
+      );
+      ref.invalidate(progressProvider);
+    } on ApiException catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    }
+  }
+
+  Future<void> _openItemFallback(
+    BuildContext context,
+    WidgetRef ref,
+    ChallengeItem item,
+  ) async {
     if (item.focusType == 'word') {
       WordShelfItem? saved;
       try {
@@ -83,31 +160,29 @@ class ChallengeDetailPage extends ConsumerWidget {
       } else {
         await showWordLookupSheet(context, item.title);
       }
-    } else {
-      try {
-        final conversation = await ref
-            .read(talkRepositoryProvider)
-            .createConversation(focusType: 'scene', focusId: item.focusId);
-        if (!context.mounted) {
-          return;
-        }
-        await context.pushNamed(
-          AppRouteNames.talk,
-          pathParameters: {'conversationId': conversation.id},
-          queryParameters: {
-            if (item.title.trim().isNotEmpty) 'title': item.title,
-          },
-        );
-      } on ApiException catch (error) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error.message)));
-        }
+      return;
+    }
+    try {
+      final conversation = await ref
+          .read(talkRepositoryProvider)
+          .createConversation(focusType: 'scene', focusId: item.focusId);
+      if (!context.mounted) {
+        return;
+      }
+      await context.pushNamed(
+        AppRouteNames.talk,
+        pathParameters: {'conversationId': conversation.id},
+        queryParameters: {
+          if (item.title.trim().isNotEmpty) 'title': item.title,
+        },
+      );
+    } on ApiException catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
       }
     }
-    ref.invalidate(challengeProvider(challenge.id));
-    ref.invalidate(challengesProvider);
   }
 
   Future<void> _practice(
