@@ -1221,6 +1221,15 @@ class Translations$challenge$en {
 	/// en: 'Your plan is due. Continue or end when you are ready.'
 	String get due => 'Your plan is due. Continue or end when you are ready.';
 
+	/// en: '{count} days left'
+	String get daysLeft => '{count} days left';
+
+	/// en: '{count} day left'
+	String get dayLeft => '{count} day left';
+
+	/// en: 'Due today'
+	String get dueToday => 'Due today';
+
 	/// en: 'This round'
 	String get content => 'This round';
 
@@ -1808,6 +1817,9 @@ extension on Translations {
 			'challenge.visitedOf' => '{visited} / {total} practiced',
 			'challenge.markPracticed' => 'Mark as practiced',
 			'challenge.due' => 'Your plan is due. Continue or end when you are ready.',
+			'challenge.daysLeft' => '{count} days left',
+			'challenge.dayLeft' => '{count} day left',
+			'challenge.dueToday' => 'Due today',
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',

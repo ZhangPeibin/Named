@@ -365,6 +365,10 @@
     "visitedOf": "已练过 {visited} / {total}",
     "markPracticed": "标记练过",
     "due": "计划时间到了，可以继续，也可以随时结束。",
+
+    "daysLeft": "还剩 {count} 天",
+    "dayLeft": "还剩 {count} 天",
+    "dueToday": "今天到期",
     "content": "本轮发现",
     "open": "打开",
     "word": "词语",

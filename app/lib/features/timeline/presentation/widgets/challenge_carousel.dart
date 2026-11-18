@@ -8,6 +8,7 @@ import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../challenge/domain/challenge.dart';
 import '../../../challenge/providers/challenge_providers.dart';
@@ -49,7 +50,7 @@ class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
-          height: 64,
+          height: 82,
           child: PageView.builder(
             controller: _controller,
             onPageChanged: (index) => setState(() => _index = index),
@@ -102,33 +103,81 @@ class _ChallengeMiniCard extends StatelessWidget {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
 
+    final today = DateUtils.dateOnly(DateTime.now());
+    final dueAt = DateUtils.dateOnly(
+      challenge.startedAt.add(Duration(days: challenge.plannedDays)),
+    );
+    final daysLeft = dueAt.difference(today).inDays;
+    final isDue = challenge.isDue || daysLeft <= 0;
+    final remaining = isDue
+        ? t.dueToday
+        : daysLeft == 1
+        ? t.dayLeft.replaceFirst('{count}', '1')
+        : t.daysLeft.replaceFirst('{count}', '$daysLeft');
+
+    final progress = challenge.totalCount == 0
+        ? 0.0
+        : (challenge.visitedCount / challenge.totalCount).clamp(0.0, 1.0);
+
     return AppCard(
       onTap: onTap,
       key: Key('timeline.challenge.${challenge.id}'),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.s16,
-        vertical: AppSpacing.s8,
+        vertical: AppSpacing.s10,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            challenge.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.titleLarge?.copyWith(
-              color: palette.ink,
-              fontWeight: FontWeight.w600,
+          Row(
+            children: [
+              AppLineIcon(AppLineGlyph.flag, size: 16, color: palette.accent),
+              const SizedBox(width: AppSpacing.s6),
+              Expanded(
+                child: Text(
+                  challenge.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleLarge?.copyWith(
+                    color: palette.ink,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 4,
+              backgroundColor: palette.surfaceMuted,
+              color: palette.primary,
             ),
           ),
-          const SizedBox(height: AppSpacing.s2),
-          Text(
-            '${challenge.plannedDays} ${t.days} · '
-            '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodySmall?.copyWith(color: palette.muted),
+          const SizedBox(height: AppSpacing.s6),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${challenge.plannedDays} ${t.days} · '
+                  '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s8),
+              Text(
+                remaining,
+                style: textTheme.bodySmall?.copyWith(
+                  color: isDue ? palette.accent : palette.muted,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ],
       ),

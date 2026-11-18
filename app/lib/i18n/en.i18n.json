@@ -365,6 +365,10 @@
     "visitedOf": "{visited} / {total} practiced",
     "markPracticed": "Mark as practiced",
     "due": "Your plan is due. Continue or end when you are ready.",
+
+    "daysLeft": "{count} days left",
+    "dayLeft": "{count} day left",
+    "dueToday": "Due today",
     "content": "This round",
     "open": "Open",
     "word": "Word",

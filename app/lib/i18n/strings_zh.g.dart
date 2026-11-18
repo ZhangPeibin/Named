@@ -565,6 +565,9 @@ class _Translations$challenge$zh implements Translations$challenge$en {
 	@override String get visitedOf => '已练过 {visited} / {total}';
 	@override String get markPracticed => '标记练过';
 	@override String get due => '计划时间到了，可以继续，也可以随时结束。';
+	@override String get daysLeft => '还剩 {count} 天';
+	@override String get dayLeft => '还剩 {count} 天';
+	@override String get dueToday => '今天到期';
 	@override String get content => '本轮发现';
 	@override String get open => '打开';
 	@override String get word => '词语';
@@ -997,6 +1000,9 @@ extension on TranslationsZh {
 			'challenge.visitedOf' => '已练过 {visited} / {total}',
 			'challenge.markPracticed' => '标记练过',
 			'challenge.due' => '计划时间到了，可以继续，也可以随时结束。',
+			'challenge.daysLeft' => '还剩 {count} 天',
+			'challenge.dayLeft' => '还剩 {count} 天',
+			'challenge.dueToday' => '今天到期',
 			'challenge.content' => '本轮发现',
 			'challenge.open' => '打开',
 			'challenge.word' => '词语',
