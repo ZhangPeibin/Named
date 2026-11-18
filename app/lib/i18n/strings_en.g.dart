@@ -270,6 +270,12 @@ class Translations$settings$en {
 	/// en: 'Distinctive and warm'
 	String get themePlumDescription => 'Distinctive and warm';
 
+	/// en: 'Ink & Linen'
+	String get themeSky => 'Ink & Linen';
+
+	/// en: 'Calm and bright'
+	String get themeSkyDescription => 'Calm and bright';
+
 	/// en: 'Default'
 	String get defaultLabel => 'Default';
 
@@ -344,6 +350,9 @@ class Translations$auth$en {
 
 	/// en: 'Verification code'
 	String get code => 'Verification code';
+
+	/// en: 'Code sent to {email}'
+	String get codeSentTo => 'Code sent to {email}';
 
 	/// en: 'Verify'
 	String get verify => 'Verify';
@@ -1179,6 +1188,18 @@ class Translations$challenge$en {
 	/// en: 'Discover a word or moment first.'
 	String get noContent => 'Discover a word or moment first.';
 
+	/// en: 'Add your own'
+	String get addManual => 'Add your own';
+
+	/// en: 'Type a word or a short sentence'
+	String get addManualHint => 'Type a word or a short sentence';
+
+	/// en: 'Add'
+	String get addManualAction => 'Add';
+
+	/// en: 'Could not add that. Try again.'
+	String get addFailed => 'Could not add that. Try again.';
+
 	/// en: 'Start this challenge'
 	String get create => 'Start this challenge';
 
@@ -1188,11 +1209,14 @@ class Translations$challenge$en {
 	/// en: 'Finish your current challenge first.'
 	String get activeExists => 'Finish your current challenge first.';
 
-	/// en: 'Opened'
-	String get progress => 'Opened';
+	/// en: 'Practiced'
+	String get progress => 'Practiced';
 
-	/// en: '{visited} / {total} opened'
-	String get visitedOf => '{visited} / {total} opened';
+	/// en: '{visited} / {total} practiced'
+	String get visitedOf => '{visited} / {total} practiced';
+
+	/// en: 'Mark as practiced'
+	String get markPracticed => 'Mark as practiced';
 
 	/// en: 'Your plan is due. Continue or end when you are ready.'
 	String get due => 'Your plan is due. Continue or end when you are ready.';
@@ -1509,6 +1533,8 @@ extension on Translations {
 			'settings.themeParchmentDescription' => 'Warm and editorial',
 			'settings.themePlum' => 'Plum & Sand',
 			'settings.themePlumDescription' => 'Distinctive and warm',
+			'settings.themeSky' => 'Ink & Linen',
+			'settings.themeSkyDescription' => 'Calm and bright',
 			'settings.defaultLabel' => 'Default',
 			'settings.signOut' => 'Sign out',
 			'settings.languageTitle' => 'Language',
@@ -1531,6 +1557,7 @@ extension on Translations {
 			'auth.email' => 'Email',
 			'auth.emailHint' => 'you@example.com',
 			'auth.code' => 'Verification code',
+			'auth.codeSentTo' => 'Code sent to {email}',
 			'auth.verify' => 'Verify',
 			'auth.verifying' => 'Verifying...',
 			'auth.back' => 'Back',
@@ -1770,11 +1797,16 @@ extension on Translations {
 			'challenge.chooseContent' => 'Choose your discoveries',
 			'challenge.selectedCount' => '{count} selected',
 			'challenge.noContent' => 'Discover a word or moment first.',
+			'challenge.addManual' => 'Add your own',
+			'challenge.addManualHint' => 'Type a word or a short sentence',
+			'challenge.addManualAction' => 'Add',
+			'challenge.addFailed' => 'Could not add that. Try again.',
 			'challenge.create' => 'Start this challenge',
 			'challenge.createFailed' => 'Could not start the challenge.',
 			'challenge.activeExists' => 'Finish your current challenge first.',
-			'challenge.progress' => 'Opened',
-			'challenge.visitedOf' => '{visited} / {total} opened',
+			'challenge.progress' => 'Practiced',
+			'challenge.visitedOf' => '{visited} / {total} practiced',
+			'challenge.markPracticed' => 'Mark as practiced',
 			'challenge.due' => 'Your plan is due. Continue or end when you are ready.',
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
