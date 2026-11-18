@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,9 +10,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
-import '../../../core/audio/audio_providers.dart';
+import '../../../core/audio/audio_playback_controller.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
 import '../../progress/providers/progress_providers.dart';
@@ -761,7 +761,9 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                                     key: const Key('daily.back10'),
                                     tooltip: t.back10,
                                     onPressed: () => _seekAudio(-10),
-                                    icon: const Icon(Icons.replay_10),
+                                    icon: const AppLineIcon(
+                                      AppLineGlyph.replay,
+                                    ),
                                   ),
                                   DailyAudioButton(
                                     key: _audioKey,
@@ -776,7 +778,9 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                                     key: const Key('daily.forward10'),
                                     tooltip: t.forward10,
                                     onPressed: () => _seekAudio(10),
-                                    icon: const Icon(Icons.forward_10),
+                                    icon: const AppLineIcon(
+                                      AppLineGlyph.forward,
+                                    ),
                                   ),
                                   ValueListenableBuilder<double>(
                                     valueListenable: _playbackRate,
@@ -806,7 +810,9 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                                             strokeWidth: 2,
                                           ),
                                         )
-                                      : const Icon(Icons.translate),
+                                      : const AppLineIcon(
+                                          AppLineGlyph.translate,
+                                        ),
                                 ),
                               ],
                             ),
@@ -864,8 +870,8 @@ class _DailyLoading extends StatelessWidget {
                 color: palette.warm,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(
-                Icons.auto_stories_rounded,
+              child: AppLineIcon(
+                AppLineGlyph.book,
                 size: 28,
                 color: palette.primary,
               ),
@@ -1102,8 +1108,8 @@ class _DailyCompletion extends StatelessWidget {
       child: Row(
         key: const Key('daily.completion'),
         children: [
-          Icon(
-            Icons.check_circle_outline,
+          AppLineIcon(
+            AppLineGlyph.checkCircle,
             color: palette.primary,
             size: AppSize.size18,
           ),
@@ -1191,7 +1197,7 @@ class _ReaderTopBar extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             visualDensity: VisualDensity.compact,
-            icon: Icon(Icons.arrow_back, color: palette.primary),
+            icon: AppLineIcon(AppLineGlyph.arrowLeft, color: palette.primary),
           ),
           const SizedBox(width: AppSpacing.s4),
           Expanded(
@@ -1208,10 +1214,7 @@ class _ReaderTopBar extends StatelessWidget {
               tooltip: context.t.ask.entryTooltip,
               visualDensity: VisualDensity.compact,
               onPressed: onAsk,
-              icon: Icon(
-                Icons.question_answer_outlined,
-                color: palette.primary,
-              ),
+              icon: AppLineIcon(AppLineGlyph.chat, color: palette.primary),
             ),
           IconButton(
             key: const Key('daily.theme'),
@@ -1220,8 +1223,8 @@ class _ReaderTopBar extends StatelessWidget {
                 : context.t.daily.darkReading,
             visualDensity: VisualDensity.compact,
             onPressed: onToggleTheme,
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            icon: AppLineIcon(
+              isDark ? AppLineGlyph.sun : AppLineGlyph.moon,
               color: palette.primary,
             ),
           ),
@@ -1593,96 +1596,72 @@ class DailyAudioButton extends ConsumerStatefulWidget {
 }
 
 class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
-  late final AudioPlayer _player;
-  late final StreamSubscription<PlayerState> _stateSub;
-  late final StreamSubscription<void> _completeSub;
-  late final StreamSubscription<Duration> _positionSub;
-  Uint8List? _bytes;
-  var _isPlaying = false;
-  var _loading = false;
+  static const _sourceId = 'daily.reading';
+
+  StreamSubscription<String>? _completionSub;
 
   @override
   void initState() {
     super.initState();
-    _player = AudioPlayer();
-    unawaited(_player.setReleaseMode(ReleaseMode.stop));
-    _stateSub = _player.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() => _isPlaying = state == PlayerState.playing);
-      }
-    });
-    _completeSub = _player.onPlayerComplete.listen((_) {
-      if (mounted) {
-        setState(() => _isPlaying = false);
-      }
-      widget.onComplete?.call();
-    });
-    _positionSub = _player.onPositionChanged.listen(widget.onPosition);
     widget.playbackRate.addListener(_applyPlaybackRate);
+    _completionSub = ref
+        .read(audioPlaybackControllerProvider.notifier)
+        .completions
+        .listen((id) {
+          if (id == _sourceId) {
+            widget.onComplete?.call();
+          }
+        });
   }
 
   @override
   void dispose() {
-    unawaited(_stateSub.cancel());
-    unawaited(_completeSub.cancel());
-    unawaited(_positionSub.cancel());
     widget.playbackRate.removeListener(_applyPlaybackRate);
-    unawaited(_player.dispose());
+    unawaited(_completionSub?.cancel());
     super.dispose();
   }
 
-  bool get isPlaying => _isPlaying;
+  bool get isPlaying =>
+      ref.read(audioPlaybackControllerProvider).isPlayingId(_sourceId);
 
   void _applyPlaybackRate() {
-    unawaited(_player.setPlaybackRate(widget.playbackRate.value));
+    final state = ref.read(audioPlaybackControllerProvider);
+    if (state.activeId == _sourceId) {
+      unawaited(
+        ref
+            .read(audioPlaybackControllerProvider.notifier)
+            .applyPlaybackRate(widget.playbackRate.value),
+      );
+    }
   }
 
   Future<void> setPlaybackRate(double rate) async {
-    await _player.setPlaybackRate(rate);
+    final state = ref.read(audioPlaybackControllerProvider);
+    if (state.activeId == _sourceId) {
+      await ref
+          .read(audioPlaybackControllerProvider.notifier)
+          .applyPlaybackRate(rate);
+    }
   }
 
   Future<void> seekBy(int seconds) async {
-    if (seconds == 0) {
-      return;
-    }
-    final current = await _player.getCurrentPosition() ?? Duration.zero;
-    final target = current + Duration(seconds: seconds);
-    await _player.seek(target < Duration.zero ? Duration.zero : target);
+    await ref.read(audioPlaybackControllerProvider.notifier).seekBy(seconds);
   }
 
   Future<void> _toggle() async {
-    if (_isPlaying) {
-      await _player.pause();
-      return;
-    }
-    if (_loading) {
-      return;
-    }
-    if (_player.state == PlayerState.paused) {
-      await _player.setPlaybackRate(widget.playbackRate.value);
-      await _player.resume();
-      return;
-    }
-    setState(() => _loading = true);
     try {
-      final bytes =
-          _bytes ??
-          Uint8List.fromList(
-            await ref.read(audioBytesApiProvider).fetch(widget.url),
+      await ref
+          .read(audioPlaybackControllerProvider.notifier)
+          .toggle(
+            _sourceId,
+            () async => widget.url,
+            speed: widget.playbackRate.value,
           );
-      _bytes = bytes;
-      await _player.stop();
-      await _player.setPlaybackRate(widget.playbackRate.value);
-      await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.t.daily.audioUnavailable)),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
       }
     }
   }
@@ -1690,10 +1669,18 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
   @override
   Widget build(BuildContext context) {
     final t = context.t.daily;
+    ref.listen(audioPlaybackControllerProvider, (previous, next) {
+      if (next.activeId == _sourceId && next.position != previous?.position) {
+        widget.onPosition(next.position);
+      }
+    });
+    final state = ref.watch(audioPlaybackControllerProvider);
+    final playing = state.isPlayingId(_sourceId);
+    final loading = state.isLoadingId(_sourceId);
 
     return IconButton(
       key: const Key('daily.audio'),
-      tooltip: _isPlaying ? t.pause : t.listen,
+      tooltip: playing ? t.pause : t.listen,
       onPressed: _toggle,
       style: IconButton.styleFrom(
         backgroundColor: Colors.transparent,
@@ -1702,14 +1689,15 @@ class _DailyAudioButtonState extends ConsumerState<DailyAudioButton> {
         fixedSize: const Size(38, 38),
         padding: EdgeInsets.zero,
       ),
-      icon: _loading
+      icon: loading
           ? const SizedBox.square(
               dimension: 16,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : Icon(
-              _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              size: 30,
+          : AppLineIcon(
+              playing ? AppLineGlyph.pause : AppLineGlyph.play,
+              size: 24,
+              color: context.appPalette.muted,
             ),
     );
   }

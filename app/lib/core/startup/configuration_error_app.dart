@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
+import '../widgets/app_line_icon.dart';
 
 class ConfigurationErrorApp extends StatelessWidget {
   const ConfigurationErrorApp({super.key});
@@ -19,7 +20,7 @@ class ConfigurationErrorApp extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.error_outline, size: 56),
+                  AppLineIcon(AppLineGlyph.error, size: 56),
                   SizedBox(height: 16),
                   Text(
                     'Unable to start the app',

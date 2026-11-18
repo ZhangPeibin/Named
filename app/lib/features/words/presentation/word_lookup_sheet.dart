@@ -63,22 +63,38 @@ class _WordLookupSheet extends ConsumerWidget {
                 onRetry: () => ref.invalidate(wordLookupProvider(text)),
               );
             }
-            return WordDetailsSheet(item: _asTimelineItem(item));
+            return WordDetailsSheet(item: wordShelfToTimelineItem(item));
           },
         ),
       ),
     );
   }
+}
 
-  TimelineWordItem _asTimelineItem(WordShelfItem item) {
-    return TimelineWordItem(
-      id: item.id,
-      createdAt: DateTime.now(),
-      inputText: null,
-      wordId: item.id,
-      word: item.word,
-      audio: item.audio,
-      conversationId: null,
-    );
-  }
+TimelineWordItem wordShelfToTimelineItem(WordShelfItem item) {
+  return TimelineWordItem(
+    id: item.id,
+    createdAt: DateTime.now(),
+    inputText: null,
+    wordId: item.id,
+    word: item.word,
+    audio: item.audio,
+    conversationId: null,
+  );
+}
+
+/// Opens the saved word details for an already-loaded [WordShelfItem].
+Future<void> showSavedWordSheet(BuildContext context, WordShelfItem item) {
+  final container = ProviderScope.containerOf(context, listen: false);
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: context.appPalette.canvas,
+    builder: (context) => UncontrolledProviderScope(
+      container: container,
+      child: SafeArea(
+        child: WordDetailsSheet(item: wordShelfToTimelineItem(item)),
+      ),
+    ),
+  );
 }

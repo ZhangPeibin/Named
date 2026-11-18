@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../domain/timeline_item.dart';
+import 'spot_mark.dart';
 
 class QuestionThreadCard extends StatelessWidget {
   const QuestionThreadCard({
@@ -29,20 +31,7 @@ class QuestionThreadCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: palette.surfaceMuted,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: palette.line),
-            ),
-            child: Icon(
-              Icons.chat_bubble_rounded,
-              color: palette.primary,
-              size: 18,
-            ),
-          ),
+          const AskMark(),
           const SizedBox(width: AppSpacing.s12),
           Expanded(
             child: Column(
@@ -67,7 +56,11 @@ class QuestionThreadCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.s4),
-          Icon(Icons.chevron_right, color: palette.muted, size: 16),
+          AppLineIcon(
+            AppLineGlyph.chevronRight,
+            color: palette.muted,
+            size: 16,
+          ),
         ],
       ),
     );

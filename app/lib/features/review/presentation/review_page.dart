@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../timeline/domain/timeline_item.dart';
@@ -179,7 +180,7 @@ class _ReviewContent extends StatelessWidget {
                         ],
                         if (item.audio?.hasAudio == true) ...[
                           const SizedBox(height: AppSpacing.s12),
-                          WordAudioButton(audio: item.audio, compact: true),
+                          WordAudioButton(audio: item.audio),
                         ],
                         if (revealed) ...[
                           const SizedBox(height: AppSpacing.s20),
@@ -263,7 +264,7 @@ class _EmptyReview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.eco_outlined, size: 44, color: palette.primary),
+            AppLineIcon(AppLineGlyph.leaf, size: 44, color: palette.primary),
             const SizedBox(height: AppSpacing.s16),
             Text(t.emptyTitle, style: textTheme.headlineLarge),
             const SizedBox(height: AppSpacing.s8),
@@ -303,7 +304,11 @@ class _CompleteReview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_circle_outline, size: 44, color: palette.primary),
+            AppLineIcon(
+              AppLineGlyph.checkCircle,
+              size: 44,
+              color: palette.primary,
+            ),
             const SizedBox(height: AppSpacing.s16),
             Text(t.completeTitle, style: textTheme.headlineLarge),
             const SizedBox(height: AppSpacing.s8),

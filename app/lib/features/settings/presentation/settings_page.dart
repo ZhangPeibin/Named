@@ -8,6 +8,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_theme_controller.dart';
 import '../../../app/theme/app_theme_family.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../auth/providers/auth_notifier.dart';
@@ -37,7 +38,7 @@ class SettingsPage extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.s16),
             child: Row(
               children: [
-                Icon(Icons.palette_outlined, color: palette.primary),
+                AppLineIcon(AppLineGlyph.palette, color: palette.primary),
                 const SizedBox(width: AppSpacing.s12),
                 Expanded(child: Text(t.theme)),
                 Text(
@@ -47,7 +48,7 @@ class SettingsPage extends ConsumerWidget {
                   ).textTheme.bodySmall?.copyWith(color: palette.muted),
                 ),
                 const SizedBox(width: AppSpacing.s4),
-                Icon(Icons.chevron_right, color: palette.muted),
+                AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
               ],
             ),
           ),
@@ -57,10 +58,10 @@ class SettingsPage extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.s16),
             child: Row(
               children: [
-                Icon(Icons.translate, color: palette.primary),
+                AppLineIcon(AppLineGlyph.translate, color: palette.primary),
                 const SizedBox(width: AppSpacing.s12),
                 Expanded(child: Text(t.language)),
-                Icon(Icons.chevron_right, color: palette.muted),
+                AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
               ],
             ),
           ),
@@ -72,7 +73,7 @@ class SettingsPage extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.notifications_outlined, color: palette.primary),
+                    AppLineIcon(AppLineGlyph.bell, color: palette.primary),
                     const SizedBox(width: AppSpacing.s12),
                     Expanded(
                       child: Column(
@@ -120,7 +121,10 @@ class SettingsPage extends ConsumerWidget {
                                 ?.copyWith(color: palette.muted),
                           ),
                           const SizedBox(width: AppSpacing.s4),
-                          Icon(Icons.chevron_right, color: palette.muted),
+                          AppLineIcon(
+                            AppLineGlyph.chevronRight,
+                            color: palette.muted,
+                          ),
                         ],
                       ),
                     ),
@@ -135,7 +139,7 @@ class SettingsPage extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.s16),
             child: Row(
               children: [
-                Icon(Icons.logout, color: palette.muted),
+                AppLineIcon(AppLineGlyph.logout, color: palette.muted),
                 const SizedBox(width: AppSpacing.s12),
                 Expanded(child: Text(t.signOut)),
               ],
@@ -184,5 +188,6 @@ String _themeTitle(Translations$settings$en t, AppThemeFamily family) {
     AppThemeFamily.cobalt => t.themeCobalt,
     AppThemeFamily.parchment => t.themeParchment,
     AppThemeFamily.plum => t.themePlum,
+    AppThemeFamily.sky => t.themeSky,
   };
 }

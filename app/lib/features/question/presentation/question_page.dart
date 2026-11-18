@@ -8,6 +8,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../timeline/providers/timeline_providers.dart';
@@ -356,14 +357,14 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
           key: const Key('ask.history'),
           tooltip: t.recent,
           onPressed: _openHistory,
-          icon: const Icon(Icons.forum_outlined),
+          icon: const AppLineIcon(AppLineGlyph.chat),
         ),
         if (thread != null)
           IconButton(
             key: const Key('ask.delete'),
             tooltip: t.delete,
             onPressed: _deleteThread,
-            icon: const Icon(Icons.delete_outline),
+            icon: const AppLineIcon(AppLineGlyph.trash),
           ),
       ],
       body: Column(
@@ -529,8 +530,8 @@ class _AskAgentAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: palette.line),
       ),
-      child: Icon(
-        Icons.chat_bubble_rounded,
+      child: AppLineIcon(
+        AppLineGlyph.chat,
         size: size * 0.5,
         color: palette.primary,
       ),
@@ -656,10 +657,10 @@ class _ThreadRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
+              AppLineIcon(
                 thread.contextType == null
-                    ? Icons.question_answer_outlined
-                    : Icons.bookmark_border_rounded,
+                    ? AppLineGlyph.chat
+                    : AppLineGlyph.bookmark,
                 color: palette.muted,
                 size: 18,
               ),
@@ -689,7 +690,11 @@ class _ThreadRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.s8),
-              Icon(Icons.chevron_right, color: palette.muted, size: 18),
+              AppLineIcon(
+                AppLineGlyph.chevronRight,
+                color: palette.muted,
+                size: 18,
+              ),
             ],
           ),
         ),
@@ -918,10 +923,10 @@ class _FeedbackButton extends StatelessWidget {
         minimumSize: const Size(0, 30),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
-      icon: Icon(
+      icon: AppLineIcon(
         up
-            ? (selected ? Icons.thumb_up : Icons.thumb_up_outlined)
-            : (selected ? Icons.thumb_down : Icons.thumb_down_outlined),
+            ? (selected ? AppLineGlyph.thumbUp : AppLineGlyph.thumbUp)
+            : (selected ? AppLineGlyph.thumbDown : AppLineGlyph.thumbDown),
         size: 15,
       ),
       label: Text(label),
@@ -968,7 +973,11 @@ class _ContextCard extends StatelessWidget {
           if (onRemove != null)
             IconButton(
               onPressed: onRemove,
-              icon: Icon(Icons.close_rounded, size: 18, color: palette.muted),
+              icon: AppLineIcon(
+                AppLineGlyph.close,
+                size: 18,
+                color: palette.muted,
+              ),
             ),
         ],
       ),
@@ -1105,7 +1114,11 @@ class _AskComposer extends StatelessWidget {
                           maximumSize: const Size.square(38),
                           padding: EdgeInsets.zero,
                         ),
-                        icon: const Icon(Icons.arrow_upward, size: 18),
+                        icon: AppLineIcon(
+                          AppLineGlyph.arrowUp,
+                          size: 18,
+                          color: canSend ? palette.onPrimary : palette.muted,
+                        ),
                       ),
                     );
                   },

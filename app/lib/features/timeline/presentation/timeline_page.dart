@@ -10,6 +10,7 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../assistant/domain/assistant_intent.dart';
@@ -37,7 +38,7 @@ class TimelinePage extends ConsumerStatefulWidget {
 }
 
 class _TimelinePageState extends ConsumerState<TimelinePage>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   String? _error;
@@ -51,6 +52,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   DateTime _currentDay = DateUtils.dateOnly(DateTime.now());
   ComposerHintCategory _hintCategory = ComposerHintCategory.discovery;
   bool _hintPaused = false;
+  late final AnimationController _trailVisibility;
+  Timer? _trailEnableTimer;
+  bool _trailVisibilityReady = false;
 
   static const _hintInterval = Duration(seconds: 6);
 
@@ -60,6 +64,14 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     _hintSelector = ref.read(composerHintSelectorProvider);
     _textController.addListener(_handleComposerTextChanged);
     _scrollController.addListener(_handleTimelineScroll);
+    _trailVisibility = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      value: 1,
+    );
+    _trailEnableTimer = Timer(const Duration(milliseconds: 500), () {
+      _trailVisibilityReady = true;
+    });
     _hintTimer = Timer.periodic(_hintInterval, (_) => _advanceHint());
     _dayTimer = Timer.periodic(
       const Duration(minutes: 1),
@@ -89,6 +101,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   void dispose() {
     _hintTimer?.cancel();
     _dayTimer?.cancel();
+    _trailEnableTimer?.cancel();
+    _trailVisibility.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _textController
       ..removeListener(_handleComposerTextChanged)
@@ -139,6 +153,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   }
 
   void _handleTimelineScroll() {
+    _updateTrailVisibility();
     if (!_didInitialScroll ||
         _isLoadingEarlier ||
         !_scrollController.hasClients ||
@@ -150,6 +165,41 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       return;
     }
     unawaited(_loadEarlier());
+  }
+
+  void _updateTrailVisibility() {
+    if (!_trailVisibilityReady || !_scrollController.hasClients) {
+      return;
+    }
+    final position = _scrollController.position;
+    final atBottom =
+        position.maxScrollExtent <= 0 ||
+        position.pixels >= position.maxScrollExtent - 8;
+    _setTrailVisible(atBottom);
+  }
+
+  void _setTrailVisible(bool visible) {
+    final target = visible ? 1.0 : 0.0;
+    if ((_trailVisibility.value - target).abs() < 0.01) {
+      return;
+    }
+    if (visible) {
+      unawaited(
+        _trailVisibility.animateTo(
+          1,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    } else {
+      unawaited(
+        _trailVisibility.animateTo(
+          0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    }
   }
 
   Future<void> _loadEarlier() async {
@@ -254,23 +304,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
             unawaited(context.pushNamed(AppRouteNames.challenges));
             break;
           case AssistantIntent.startChallenge:
-            final challenges = await ref.read(challengesProvider.future);
-            if (!mounted) {
-              break;
-            }
-            final active = challenges
-                .where((challenge) => challenge.isActive)
-                .firstOrNull;
-            if (active == null) {
-              unawaited(context.pushNamed(AppRouteNames.challengeNew));
-            } else {
-              unawaited(
-                context.pushNamed(
-                  AppRouteNames.challengeDetail,
-                  pathParameters: {'challengeId': active.id},
-                ),
-              );
-            }
+            unawaited(context.pushNamed(AppRouteNames.challengeNew));
             break;
           case AssistantIntent.none:
             break;
@@ -475,7 +509,16 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
             ),
           ),
           if (progress.hasValue)
-            TimelineProgressCard(progress: progress.value!),
+            ClipRect(
+              child: SizeTransition(
+                sizeFactor: _trailVisibility,
+                axisAlignment: 1,
+                child: FadeTransition(
+                  opacity: _trailVisibility,
+                  child: TimelineProgressCard(progress: progress.value!),
+                ),
+              ),
+            ),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -653,7 +696,11 @@ class _EmptyTimeline extends StatelessWidget {
                 color: palette.surfaceMuted,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
-              child: Icon(Icons.eco_outlined, color: palette.primary, size: 30),
+              child: AppLineIcon(
+                AppLineGlyph.leaf,
+                color: palette.primary,
+                size: 30,
+              ),
             ),
             const SizedBox(height: AppSpacing.s20),
             Text(

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_spacing.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 
@@ -26,7 +27,11 @@ class NotFoundPage extends StatelessWidget {
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.travel_explore, size: 72, color: colorScheme.primary),
+          AppLineIcon(
+            AppLineGlyph.compass,
+            size: 72,
+            color: colorScheme.primary,
+          ),
           const SizedBox(height: AppSpacing.s24),
           Text(
             t.title,

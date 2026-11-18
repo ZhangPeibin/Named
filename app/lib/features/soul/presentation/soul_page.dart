@@ -13,6 +13,7 @@ import '../../../core/widgets/app_async_view.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_tag.dart';
@@ -41,7 +42,7 @@ class SoulPage extends ConsumerWidget {
           key: const Key('me.settings'),
           tooltip: context.t.settings.title,
           onPressed: () => unawaited(context.pushNamed(AppRouteNames.settings)),
-          icon: const Icon(Icons.settings_outlined),
+          icon: const AppLineIcon(AppLineGlyph.settings),
         ),
       ],
       padding: const EdgeInsets.fromLTRB(
@@ -72,7 +73,7 @@ class SoulPage extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const _RoundIcon(icon: Icons.person_outline),
+                      const _RoundIcon(icon: AppLineGlyph.person),
                       const SizedBox(width: AppSpacing.s14),
                       Expanded(
                         child: Text(t.profile, style: textTheme.headlineMedium),
@@ -115,7 +116,7 @@ class SoulPage extends ConsumerWidget {
                   unawaited(context.pushNamed(AppRouteNames.challenges)),
               child: Row(
                 children: [
-                  const _RoundIcon(icon: Icons.flag_outlined),
+                  const _RoundIcon(icon: AppLineGlyph.flag),
                   const SizedBox(width: AppSpacing.s14),
                   Expanded(
                     child: Column(
@@ -137,7 +138,7 @@ class SoulPage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right, color: palette.muted),
+                  AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
                 ],
               ),
             ),
@@ -145,21 +146,21 @@ class SoulPage extends ConsumerWidget {
             AppSectionHeader(title: t.library),
             const SizedBox(height: AppSpacing.s12),
             _LibraryCard(
-              icon: Icons.headphones_outlined,
+              icon: AppLineGlyph.headphones,
               title: context.t.daily.title,
               body: context.t.daily.body,
               onTap: () => unawaited(context.pushNamed(AppRouteNames.daily)),
             ),
             const SizedBox(height: AppSpacing.s8),
             _LibraryCard(
-              icon: Icons.menu_book_outlined,
+              icon: AppLineGlyph.book,
               title: context.t.words.title,
               body: t.wordsBody,
               onTap: () => unawaited(context.pushNamed(AppRouteNames.words)),
             ),
             const SizedBox(height: AppSpacing.s8),
             _LibraryCard(
-              icon: Icons.auto_stories_outlined,
+              icon: AppLineGlyph.book,
               title: context.t.history.title,
               body: t.historyBody,
               onTap: () => unawaited(context.pushNamed(AppRouteNames.history)),
@@ -215,7 +216,7 @@ class _LibraryCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final AppLineGlyph icon;
   final String title;
   final String body;
   final VoidCallback onTap;
@@ -249,7 +250,7 @@ class _LibraryCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.chevron_right, color: palette.muted),
+          AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
         ],
       ),
     );
@@ -259,7 +260,7 @@ class _LibraryCard extends StatelessWidget {
 class _RoundIcon extends StatelessWidget {
   const _RoundIcon({required this.icon});
 
-  final IconData icon;
+  final AppLineGlyph icon;
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +273,7 @@ class _RoundIcon extends StatelessWidget {
         color: palette.surfaceMuted,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
-      child: Icon(icon, color: palette.primary, size: AppSize.size20),
+      child: AppLineIcon(icon, color: palette.primary, size: AppSize.size20),
     );
   }
 }

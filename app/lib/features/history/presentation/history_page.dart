@@ -12,6 +12,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/history_experience.dart';
@@ -241,9 +242,9 @@ class _ExperienceCard extends StatelessWidget {
             spacing: AppSpacing.s6,
             runSpacing: AppSpacing.s6,
             children: [
-              _MetaChip(icon: Icons.book_outlined, label: item.focusTitle),
+              _MetaChip(icon: AppLineGlyph.book, label: item.focusTitle),
               for (final expression in item.expressions.take(2))
-                _MetaChip(icon: Icons.translate, label: expression),
+                _MetaChip(icon: AppLineGlyph.translate, label: expression),
             ],
           ),
         ],
@@ -285,7 +286,7 @@ class _KindBadge extends StatelessWidget {
 class _MetaChip extends StatelessWidget {
   const _MetaChip({required this.icon, required this.label});
 
-  final IconData icon;
+  final AppLineGlyph icon;
   final String label;
 
   @override
@@ -303,7 +304,7 @@ class _MetaChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: palette.primary),
+          AppLineIcon(icon, size: 13, color: palette.primary),
           const SizedBox(width: AppSpacing.s4),
           Text(
             label,

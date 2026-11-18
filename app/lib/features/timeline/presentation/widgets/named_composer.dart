@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import 'spot_mark.dart';
 
 class NamedComposer extends StatelessWidget {
@@ -63,7 +64,11 @@ class NamedComposer extends StatelessWidget {
                         key: const Key('timeline.me'),
                         onTap: onOpenMe,
                         borderRadius: BorderRadius.circular(AppRadius.pill),
-                        child: const UserMark(size: 34),
+                        child: const SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Center(child: UserMark()),
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s6),
@@ -106,10 +111,7 @@ class NamedComposer extends StatelessWidget {
                           maximumSize: const Size.square(38),
                           padding: EdgeInsets.zero,
                         ),
-                        icon: const Icon(
-                          Icons.question_answer_outlined,
-                          size: 18,
-                        ),
+                        icon: const AppLineIcon(AppLineGlyph.chat, size: 18),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s2),
@@ -141,7 +143,13 @@ class NamedComposer extends StatelessWidget {
                                       color: palette.onPrimary,
                                     ),
                                   )
-                                : const Icon(Icons.arrow_upward, size: 18),
+                                : AppLineIcon(
+                                    AppLineGlyph.arrowUp,
+                                    size: 18,
+                                    color: enabled
+                                        ? palette.onPrimary
+                                        : palette.muted,
+                                  ),
                           ),
                         );
                       },

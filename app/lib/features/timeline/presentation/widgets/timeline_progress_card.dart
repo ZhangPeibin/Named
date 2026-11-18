@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
 import 'spot_mark.dart';
@@ -41,21 +42,21 @@ class TimelineProgressCard extends StatelessWidget {
           _ProgressStat(
             value: progress.words,
             label: t.progressWords,
-            icon: Icons.menu_book_outlined,
+            glyph: AppLineGlyph.book,
             color: ContentAccents.words(context),
           ),
           _divider(palette),
           _ProgressStat(
             value: progress.conversations,
             label: t.progressConversations,
-            icon: Icons.chat_bubble_outline,
+            glyph: AppLineGlyph.chat,
             color: ContentAccents.talks(context),
           ),
           _divider(palette),
           _ProgressStat(
             value: progress.readings,
             label: t.progressReads,
-            icon: Icons.headphones_outlined,
+            glyph: AppLineGlyph.headphones,
             color: ContentAccents.reads(context),
           ),
         ],
@@ -77,13 +78,13 @@ class _ProgressStat extends StatelessWidget {
   const _ProgressStat({
     required this.value,
     required this.label,
-    required this.icon,
+    required this.glyph,
     required this.color,
   });
 
   final int value;
   final String label;
-  final IconData icon;
+  final AppLineGlyph glyph;
   final Color color;
 
   @override
@@ -101,7 +102,7 @@ class _ProgressStat extends StatelessWidget {
           ),
           Row(
             children: [
-              Icon(icon, size: 12, color: color),
+              AppLineIcon(glyph, size: 13, color: color),
               const SizedBox(width: 3),
               Text(
                 label,

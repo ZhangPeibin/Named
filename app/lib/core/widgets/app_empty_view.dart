@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_spacing.dart';
+import 'app_line_icon.dart';
 
 class AppEmptyView extends StatelessWidget {
   const AppEmptyView({
     super.key,
     required this.title,
     this.message,
-    this.icon = Icons.inbox_outlined,
+    this.icon = AppLineGlyph.inbox,
   });
 
   final String title;
   final String? message;
-  final IconData icon;
+  final AppLineGlyph icon;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class AppEmptyView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 56, color: colorScheme.primary),
+        AppLineIcon(icon, size: 56, color: colorScheme.primary),
         const SizedBox(height: AppSpacing.s16),
         Text(
           title,

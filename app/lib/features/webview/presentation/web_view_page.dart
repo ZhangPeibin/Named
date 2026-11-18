@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/webview_host_policy.dart';
@@ -106,7 +107,7 @@ class _WebViewPageState extends State<WebViewPage> {
           }
           context.go('/');
         },
-        icon: const Icon(Icons.arrow_back),
+        icon: const AppLineIcon(AppLineGlyph.arrowLeft),
       ),
       body: switch ((_canLoadUrl, controller, _error)) {
         (false, _, _) => _InvalidUrlView(url: widget.url),

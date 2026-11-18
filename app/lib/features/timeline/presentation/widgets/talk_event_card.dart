@@ -4,6 +4,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../domain/timeline_item.dart';
 import 'spot_mark.dart';
 
@@ -32,7 +33,7 @@ class TalkEventCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const MiloMark(size: 36),
+          const MiloMark(),
           const SizedBox(width: AppSpacing.s12),
           Expanded(
             child: Column(
@@ -58,7 +59,11 @@ class TalkEventCard extends StatelessWidget {
             style: AppTextStyles.caption.copyWith(color: palette.muted),
           ),
           const SizedBox(width: AppSpacing.s4),
-          Icon(Icons.chevron_right, color: palette.muted, size: AppSize.size16),
+          AppLineIcon(
+            AppLineGlyph.chevronRight,
+            color: palette.muted,
+            size: AppSize.size16,
+          ),
         ],
       ),
     );

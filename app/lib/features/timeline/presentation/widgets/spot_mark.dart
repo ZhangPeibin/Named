@@ -1,34 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
-
-class ContentAccent {
-  const ContentAccent({required this.background, required this.foreground});
-
-  final Color background;
-  final Color foreground;
-}
+import '../../../../core/widgets/app_line_icon.dart';
 
 class ContentAccents {
   const ContentAccents._();
-
-  static ContentAccent daily(BuildContext context) {
-    final palette = context.appPalette;
-    return ContentAccent(
-      background: palette.surfaceMuted,
-      foreground: palette.primary,
-    );
-  }
-
-  static ContentAccent user(BuildContext context) {
-    final palette = context.appPalette;
-    return ContentAccent(
-      background: palette.surfaceMuted,
-      foreground: palette.primary,
-    );
-  }
-
-  static Color talk(BuildContext context) => context.appPalette.primary;
 
   static Color words(BuildContext context) => context.appPalette.muted;
 
@@ -37,8 +13,9 @@ class ContentAccents {
   static Color reads(BuildContext context) => context.appPalette.muted;
 }
 
+/// Read card mark: an ink line book. Dummied to `muted` once completed.
 class DailyMark extends StatelessWidget {
-  const DailyMark({super.key, this.size = 38, this.completed = false});
+  const DailyMark({super.key, this.size = 24, this.completed = false});
 
   final double size;
   final bool completed;
@@ -46,54 +23,39 @@ class DailyMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
-    final accent = ContentAccents.daily(context);
-
     return SizedBox.square(
       dimension: size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: accent.background,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: palette.line),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.menu_book_rounded,
-                size: size * 0.52,
-                color: accent.foreground,
-              ),
-            ),
-          ),
-          if (completed)
-            Positioned(
-              right: -2,
-              bottom: -2,
-              child: Container(
-                width: 15,
-                height: 15,
-                decoration: BoxDecoration(
-                  color: palette.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: palette.canvas, width: 1.5),
-                ),
-                child: const Icon(
-                  Icons.check_rounded,
-                  size: 10,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-        ],
+      child: AppLineIcon(
+        AppLineGlyph.book,
+        size: size,
+        color: completed ? palette.muted : palette.ink,
       ),
     );
   }
 }
 
+/// Ask card mark: an ink line speech bubble.
+class AskMark extends StatelessWidget {
+  const AskMark({super.key, this.size = 24});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: AppLineIcon(
+        AppLineGlyph.chat,
+        size: size,
+        color: context.appPalette.ink,
+      ),
+    );
+  }
+}
+
+/// Talk card mark: the companion photo, borderless.
 class MiloMark extends StatelessWidget {
-  const MiloMark({super.key, this.size = 38});
+  const MiloMark({super.key, this.size = 28});
 
   final double size;
 
@@ -102,74 +64,42 @@ class MiloMark extends StatelessWidget {
     final palette = context.appPalette;
     return SizedBox.square(
       dimension: size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: palette.line, width: 1.5),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Image.asset(
-              'assets/images/companion.jpg',
-              width: size,
-              height: size,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => ColoredBox(
-                color: palette.surfaceMuted,
-                child: Icon(
-                  Icons.person_rounded,
-                  size: size * 0.5,
-                  color: palette.primary,
-                ),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/companion.jpg',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => ColoredBox(
+            color: palette.surfaceMuted,
+            child: Center(
+              child: AppLineIcon(
+                AppLineGlyph.person,
+                size: size * 0.7,
+                color: palette.muted,
               ),
             ),
           ),
-          Positioned(
-            right: -2,
-            bottom: -2,
-            child: Container(
-              width: 15,
-              height: 15,
-              decoration: BoxDecoration(
-                color: palette.ink,
-                shape: BoxShape.circle,
-                border: Border.all(color: palette.canvas, width: 1.5),
-              ),
-              child: const Icon(
-                Icons.chat_bubble_rounded,
-                size: 9,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
+/// The "me" mark: an ink line person.
 class UserMark extends StatelessWidget {
-  const UserMark({super.key, this.size = 34});
+  const UserMark({super.key, this.size = 24});
 
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    final accent = ContentAccents.user(context);
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: accent.background,
-        shape: BoxShape.circle,
-        border: Border.all(color: context.appPalette.line),
-      ),
-      child: Icon(
-        Icons.person_rounded,
-        size: size * 0.55,
-        color: accent.foreground,
+    return SizedBox.square(
+      dimension: size,
+      child: AppLineIcon(
+        AppLineGlyph.person,
+        size: size,
+        color: context.appPalette.ink,
       ),
     );
   }

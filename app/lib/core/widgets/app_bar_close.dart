@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
+import 'app_line_icon.dart';
 
 class AppBarCloseButton extends StatelessWidget {
   const AppBarCloseButton({super.key, this.onPressed});
@@ -22,8 +23,8 @@ class AppBarCloseButton extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.05),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.close,
+          child: const AppLineIcon(
+            AppLineGlyph.close,
             size: AppSize.size18,
             color: AppColors.textPrimary,
           ),

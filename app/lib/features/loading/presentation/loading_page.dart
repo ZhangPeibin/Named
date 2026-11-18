@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../core/widgets/app_line_icon.dart';
 
 class LoadingPage extends StatelessWidget {
   const LoadingPage({super.key});
@@ -25,7 +26,11 @@ class LoadingPage extends StatelessWidget {
                   style: AppTextStyles.display.copyWith(fontSize: 34),
                 ),
                 const SizedBox(width: AppSpacing.s6),
-                Icon(Icons.eco_outlined, color: palette.primary, size: 18),
+                AppLineIcon(
+                  AppLineGlyph.leaf,
+                  color: palette.primary,
+                  size: 18,
+                ),
               ],
             ),
             const Spacer(flex: 3),

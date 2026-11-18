@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 
 class TalkAction extends StatelessWidget {
   const TalkAction({
@@ -44,8 +45,8 @@ class TalkAction extends StatelessWidget {
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.chat_bubble_outline_rounded,
+                    AppLineIcon(
+                      AppLineGlyph.chat,
                       size: 14,
                       color: palette.muted,
                     ),
@@ -55,8 +56,8 @@ class TalkAction extends StatelessWidget {
                       style: AppTextStyles.label.copyWith(color: palette.ink),
                     ),
                     const SizedBox(width: AppSpacing.s4),
-                    Icon(
-                      Icons.arrow_forward_rounded,
+                    AppLineIcon(
+                      AppLineGlyph.arrowRight,
                       size: 12,
                       color: palette.muted,
                     ),
