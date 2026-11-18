@@ -136,6 +136,40 @@ class AppPalette extends ThemeExtension<AppPalette> {
     error: Color(0xFFE6A09A),
   );
 
+  static const skyLight = AppPalette(
+    canvas: Color(0xFFFFFFFF),
+    surface: Color(0xFFFFFFFF),
+    surfaceMuted: Color(0xFFF3F1EC),
+    primary: Color(0xFF2B2A26),
+    primaryPressed: Color(0xFF1C1B18),
+    onPrimary: Color(0xFFFFFFFF),
+    ink: Color(0xFF232220),
+    muted: Color(0xFF6E6A62),
+    accent: Color(0xFF526B4B),
+    warm: Color(0xFFF2EADF),
+    line: Color(0xFFE6E3DD),
+    warningSurface: Color(0xFFF4E5D2),
+    warningText: Color(0xFF7A4C2A),
+    error: Color(0xFFA13D32),
+  );
+
+  static const skyDark = AppPalette(
+    canvas: Color(0xFF141312),
+    surface: Color(0xFF1D1B18),
+    surfaceMuted: Color(0xFF2A2723),
+    primary: Color(0xFFE7E2D8),
+    primaryPressed: Color(0xFFD5CFC4),
+    onPrimary: Color(0xFF1A1815),
+    ink: Color(0xFFEFEAE1),
+    muted: Color(0xFFABA396),
+    accent: Color(0xFFA7BC96),
+    warm: Color(0xFF2E2822),
+    line: Color(0xFF38332D),
+    warningSurface: Color(0xFF3A2C22),
+    warningText: Color(0xFFF0DCC8),
+    error: Color(0xFFE6A09A),
+  );
+
   static const readerLight = AppPalette(
     canvas: Color(0xFFFFFFFF),
     surface: Color(0xFFFFFFFF),
@@ -170,8 +204,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     error: Color(0xFFE6A09A),
   );
 
-  static const light = cobaltLight;
-  static const dark = cobaltDark;
+  static const light = skyLight;
+  static const dark = skyDark;
 
   @override
   AppPalette copyWith({

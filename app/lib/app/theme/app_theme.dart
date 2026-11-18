@@ -20,6 +20,7 @@ class AppTheme {
       AppThemeFamily.cobalt => AppPalette.cobaltLight,
       AppThemeFamily.parchment => AppPalette.parchmentLight,
       AppThemeFamily.plum => AppPalette.plumLight,
+      AppThemeFamily.sky => AppPalette.skyLight,
     };
   }
 
@@ -28,6 +29,7 @@ class AppTheme {
       AppThemeFamily.cobalt => AppPalette.cobaltDark,
       AppThemeFamily.parchment => AppPalette.parchmentDark,
       AppThemeFamily.plum => AppPalette.plumDark,
+      AppThemeFamily.sky => AppPalette.skyDark,
     };
   }
 

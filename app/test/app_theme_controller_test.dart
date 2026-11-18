@@ -31,9 +31,9 @@ void main() {
     );
   });
 
-  test('falls back to cobalt for an unknown saved value', () {
-    expect(AppThemeFamily.fromStorage('unknown'), AppThemeFamily.cobalt);
-    expect(AppThemeFamily.fromStorage(null), AppThemeFamily.cobalt);
+  test('falls back to the default family for an unknown saved value', () {
+    expect(AppThemeFamily.fromStorage('unknown'), AppThemeFamily.sky);
+    expect(AppThemeFamily.fromStorage(null), AppThemeFamily.sky);
     expect(AppThemeFamily.fromStorage('plum'), AppThemeFamily.plum);
   });
 }
