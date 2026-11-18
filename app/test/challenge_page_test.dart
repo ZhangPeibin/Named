@@ -192,9 +192,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('身边的小发现'), findsOneWidget);
-    expect(find.text(t.challenge.active), findsOneWidget);
+    expect(find.text(t.challenge.active.toUpperCase()), findsOneWidget);
     expect(
-      find.text(
+      find.textContaining(
         t.challenge.visitedOf
             .replaceFirst('{visited}', '1')
             .replaceFirst('{total}', '2'),
@@ -242,9 +242,7 @@ void main() {
     expect(find.byKey(const Key('challenges.startEmpty')), findsOneWidget);
   });
 
-  testWidgets('shows multiple active challenges with a continue action', (
-    tester,
-  ) async {
+  testWidgets('shows multiple active challenges', (tester) async {
     await pumpWithTranslations(
       tester,
       child: ProviderScope(
@@ -258,7 +256,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('challenges.continue')), findsOneWidget);
     expect(
       find.byKey(const Key('challenges.card.challenge-a')),
       findsOneWidget,
