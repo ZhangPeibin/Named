@@ -131,19 +131,6 @@ async def create_challenge(
     account_id: str,
     payload: ChallengeCreate,
 ) -> ChallengeOut:
-    active = await session.scalar(
-        select(Challenge).where(
-            Challenge.account_id == account_id,
-            Challenge.status == "active",
-        )
-    )
-    if active is not None:
-        raise ApiError(
-            "Finish the active challenge first.",
-            status_code=409,
-            code="active_challenge_exists",
-        )
-
     discovery_ids = list(dict.fromkeys(payload.discovery_ids))
     discoveries = list(
         await session.scalars(

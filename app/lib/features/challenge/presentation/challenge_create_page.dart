@@ -13,6 +13,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
@@ -31,16 +32,19 @@ class ChallengeCreatePage extends ConsumerStatefulWidget {
 class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
   final _nameController = TextEditingController();
   final _customDaysController = TextEditingController(text: '14');
+  final _manualController = TextEditingController();
   final _selected = <String>{};
   var _days = 2;
   var _customDays = false;
   var _isCreating = false;
+  var _isAdding = false;
   String? _error;
 
   @override
   void dispose() {
     _nameController.dispose();
     _customDaysController.dispose();
+    _manualController.dispose();
     super.dispose();
   }
 
@@ -86,6 +90,46 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
     } finally {
       if (mounted) {
         setState(() => _isCreating = false);
+      }
+    }
+  }
+
+  Future<void> _addManual() async {
+    final text = _manualController.text.trim();
+    if (text.isEmpty || _isAdding) {
+      return;
+    }
+    setState(() {
+      _isAdding = true;
+      _error = null;
+    });
+    try {
+      final item = await ref
+          .read(timelineControllerProvider.notifier)
+          .createNamed(text);
+      if (!mounted) {
+        return;
+      }
+      final newId = switch (item) {
+        timeline.TimelineWordItem(:final id) => id,
+        timeline.TimelineSceneItem(:final id) => id,
+        _ => null,
+      };
+      if (newId != null) {
+        setState(() => _selected.add(newId));
+      }
+      _manualController.clear();
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.t.challenge.addFailed);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isAdding = false);
       }
     }
   }
@@ -171,6 +215,40 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
                   onChanged: (_) => setState(() {}),
                 ),
               ],
+              const SizedBox(height: AppSpacing.s24),
+              Text(
+                t.addManual.toUpperCase(),
+                style: AppTextStyles.eyebrow.copyWith(
+                  color: context.appPalette.muted,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: AppTextField(
+                      key: const Key('challenge.manual'),
+                      controller: _manualController,
+                      hintText: t.addManualHint,
+                      textInputAction: TextInputAction.done,
+                      onChanged: (_) => setState(() => _error = null),
+                      onSubmitted: (_) => unawaited(_addManual()),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s8),
+                  AppButton(
+                    key: const Key('challenge.manualAdd'),
+                    label: t.addManualAction,
+                    variant: AppButtonVariant.secondary,
+                    isLoading: _isAdding,
+                    onPressed:
+                        _isAdding || _manualController.text.trim().isEmpty
+                        ? null
+                        : () => unawaited(_addManual()),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.s24),
               Row(
                 children: [
@@ -290,10 +368,8 @@ class _CandidateRow extends StatelessWidget {
         color: selected ? palette.warm : null,
         child: Row(
           children: [
-            Icon(
-              candidate.isWord
-                  ? Icons.menu_book_outlined
-                  : Icons.photo_outlined,
+            AppLineIcon(
+              candidate.isWord ? AppLineGlyph.book : AppLineGlyph.image,
               color: palette.primary,
               size: 18,
             ),
@@ -314,8 +390,8 @@ class _CandidateRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              selected ? Icons.check_circle : Icons.circle_outlined,
+            AppLineIcon(
+              selected ? AppLineGlyph.checkCircle : AppLineGlyph.circleOutline,
               color: selected ? palette.accent : palette.muted,
             ),
           ],

@@ -582,7 +582,7 @@ async def test_challenge_lifecycle(talk_env) -> None:
     challenge_id = challenge["id"]
     item_id = challenge["items"][0]["id"]
 
-    duplicate = await http.post(
+    second = await http.post(
         "/api/v1/challenges",
         headers=headers,
         json={
@@ -591,8 +591,16 @@ async def test_challenge_lifecycle(talk_env) -> None:
             "discovery_ids": [discovery_id],
         },
     )
-    assert duplicate.status_code == 409
-    assert duplicate.json()["code"] == "active_challenge_exists"
+    assert second.status_code == 201, second.text
+    assert second.json()["status"] == "active"
+    second_id = second.json()["id"]
+
+    listing = await http.get("/api/v1/challenges", headers=headers)
+    assert listing.status_code == 200
+    active_ids = {
+        c["id"] for c in listing.json()["items"] if c["status"] == "active"
+    }
+    assert {challenge_id, second_id}.issubset(active_ids)
 
     visited = await http.post(
         f"/api/v1/challenges/{challenge_id}/items/{item_id}/visited",
@@ -607,7 +615,9 @@ async def test_challenge_lifecycle(talk_env) -> None:
 
     response = await http.get("/api/v1/challenges", headers=headers)
     assert response.status_code == 200
-    assert response.json()["items"][0]["status"] == "ended"
+    by_id = {c["id"]: c for c in response.json()["items"]}
+    assert by_id[challenge_id]["status"] == "ended"
+    assert by_id[second_id]["status"] == "active"
 
     next_challenge = await http.post(
         "/api/v1/challenges",

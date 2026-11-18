@@ -41,7 +41,8 @@ class ChallengesPage extends ConsumerWidget {
           ),
         ),
         data: (challenges) {
-          final active = challenges.where((c) => c.isActive).toList();
+          final active = challenges.where((c) => c.isActive).toList()
+            ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
           final ended = challenges.where((c) => !c.isActive).toList();
           if (challenges.isEmpty) {
             return Center(
@@ -62,6 +63,14 @@ class ChallengesPage extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.only(bottom: AppSpacing.s24),
             children: [
+              if (active.isNotEmpty) ...[
+                AppButton(
+                  key: const Key('challenges.continue'),
+                  label: t.kContinue,
+                  onPressed: () => _openDetail(context, active.first.id),
+                ),
+                const SizedBox(height: AppSpacing.s16),
+              ],
               if (active.isNotEmpty) ...[
                 _SectionLabel(label: t.active),
                 for (final challenge in active)
