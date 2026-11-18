@@ -49,7 +49,7 @@ class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
-          height: 88,
+          height: 64,
           child: PageView.builder(
             controller: _controller,
             onPageChanged: (index) => setState(() => _index = index),
@@ -107,7 +107,7 @@ class _ChallengeMiniCard extends StatelessWidget {
       key: Key('timeline.challenge.${challenge.id}'),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.s16,
-        vertical: AppSpacing.s12,
+        vertical: AppSpacing.s8,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
