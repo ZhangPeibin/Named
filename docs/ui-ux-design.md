@@ -10,7 +10,7 @@ The reference PDF supplies visual and interaction guidance only. Its “Everyday
 
 ## 1. Visual direction
 
-**Ink & Cobalt (default).** A thoughtful lifestyle journal, personal memory and an efficient conversation companion. Settings also offers **Ink & Parchment** and **Plum & Sand**.
+**Ink & Linen (default).** A thoughtful lifestyle journal, personal memory and an efficient conversation companion. Settings also offers **Ink & Cobalt**, **Ink & Parchment** and **Plum & Sand**.
 
 - Real-life photography supplies the visual content. Local sample images stand in for learners' actual discoveries.
 - Soft paper is the light canvas; cool charcoal is the dark canvas. Cobalt carries primary actions and selected states; terracotta is a small warm accent.
@@ -41,7 +41,7 @@ Warning surfaces and borders have additional semantic tokens. Components consume
 ### Theme behavior
 
 - Default palette: Ink & Cobalt.
-- Palette overrides: Settings → Theme (Ink & Cobalt, Ink & Parchment, Plum & Sand).
+- Palette overrides: Settings → Theme (Ink & Cobalt, Ink & Parchment, Plum & Sand, Ink & Linen).
 - Light/dark follows the system color scheme.
 - The palette choice is retained locally; changing it preserves input and does not reset conversation state.
 - Photos retain their real colors. Text over a photo uses an opaque readable surface.
