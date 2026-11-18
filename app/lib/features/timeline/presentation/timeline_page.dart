@@ -22,6 +22,7 @@ import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
 import 'composer_hint.dart';
+import 'widgets/challenge_carousel.dart';
 import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
@@ -592,6 +593,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       _settleScrollToBottom();
     }
 
+    final hasActiveChallenge =
+        ref.watch(challengesProvider).value?.any((c) => c.isActive) ?? false;
+
     final widgets = <Widget>[
       if (_isLoadingEarlier)
         const Center(
@@ -644,6 +648,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
             ),
           );
       }
+    }
+    if (hasActiveChallenge) {
+      widgets.add(const ChallengeCarousel());
     }
     return ListView.separated(
       key: const Key('timeline.list'),
