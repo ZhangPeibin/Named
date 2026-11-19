@@ -239,23 +239,27 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
       const SizedBox(height: AppSpacing.s12),
       Row(
         children: [
-          AppButton(
-            key: const Key('practice.record'),
-            label: _isRecording ? t.practiceStop : t.practiceRecord,
-            icon: AppLineIcon(
-              _isRecording ? AppLineGlyph.stop : AppLineGlyph.mic,
-              size: 18,
-              color: palette.onPrimary,
+          Expanded(
+            child: AppButton(
+              key: const Key('practice.record'),
+              label: _isRecording ? t.practiceStop : t.practiceRecord,
+              icon: AppLineIcon(
+                _isRecording ? AppLineGlyph.stop : AppLineGlyph.mic,
+                size: 18,
+                color: palette.onPrimary,
+              ),
+              onPressed: _isTranscribing ? null : _toggleRecording,
             ),
-            onPressed: _isTranscribing ? null : _toggleRecording,
           ),
           if (_recordingPath != null && !_isRecording) ...[
             const SizedBox(width: AppSpacing.s12),
-            AppButton(
-              key: const Key('practice.playback'),
-              label: t.practicePlayback,
-              variant: AppButtonVariant.secondary,
-              onPressed: _playRecording,
+            Expanded(
+              child: AppButton(
+                key: const Key('practice.playback'),
+                label: t.practicePlayback,
+                variant: AppButtonVariant.secondary,
+                onPressed: _playRecording,
+              ),
             ),
           ],
         ],
