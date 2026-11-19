@@ -155,58 +155,37 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
     final item = _items[_index];
     final totalQuestions = item.questions.length;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontalPadding,
+        0,
+        AppSpacing.pageHorizontalPadding,
+        AppSpacing.s24,
+      ),
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.pageHorizontalPadding,
-            0,
-            AppSpacing.pageHorizontalPadding,
-            AppSpacing.s8,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _phase == _Phase.listenSay
-                      ? t.practiceListenSay
-                      : '${t.practiceExercise} ${_question + 1}/$totalQuestions',
-                  style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-                ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                _phase == _Phase.listenSay
+                    ? t.practiceListenSay
+                    : '${t.practiceExercise} ${_question + 1}/$totalQuestions',
+                style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
               ),
-              Text(
-                '${_index + 1} / ${_items.length}',
-                style: AppTextStyles.caption.copyWith(color: palette.muted),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.pageHorizontalPadding,
-              0,
-              AppSpacing.pageHorizontalPadding,
-              AppSpacing.s16,
             ),
-            children: [
-              if (_phase == _Phase.listenSay)
-                ..._listenSayBody(item)
-              else
-                ..._testBody(item),
-            ],
-          ),
+            Text(
+              '${_index + 1} / ${_items.length}',
+              style: AppTextStyles.caption.copyWith(color: palette.muted),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.pageHorizontalPadding,
-            AppSpacing.s8,
-            AppSpacing.pageHorizontalPadding,
-            AppSpacing.s16,
-          ),
-          child: _actions(item),
-        ),
+        const SizedBox(height: AppSpacing.s12),
+        if (_phase == _Phase.listenSay)
+          ..._listenSayBody(item)
+        else
+          ..._testBody(item),
+        const SizedBox(height: AppSpacing.s20),
+        _actions(item),
       ],
     );
   }
