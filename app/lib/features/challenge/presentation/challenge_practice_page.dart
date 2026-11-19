@@ -85,8 +85,6 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   var _transcript = '';
   bool? _sayOk;
 
-  var _ready = false;
-  var _fetching = false;
   List<_PracticeItem> _items = const [];
   var _index = 0;
   var _phase = _Phase.listenSay;
@@ -113,6 +111,8 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   Widget build(BuildContext context) {
     final t = context.t.challenge;
     final async = ref.watch(challengeProvider(widget.challengeId));
+    final shelfValue = ref.watch(wordShelfProvider).value;
+    final timelineValue = ref.watch(timelineControllerProvider).value;
     return AppScaffold(
       title: t.practiceTitle,
       centerBody: false,
@@ -127,13 +127,7 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
           ),
         ),
         data: (challenge) {
-          if (!_ready) {
-            if (!_fetching) {
-              _fetching = true;
-              unawaited(_fetchContent(challenge));
-            }
-            return const Center(child: CircularProgressIndicator());
-          }
+          _items = _resolveWith(challenge, timelineValue, shelfValue);
           if (_items.isEmpty) {
             return Center(
               child: Padding(
@@ -615,29 +609,6 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   }
 
   // --- content resolution ---
-  Future<void> _fetchContent(Challenge challenge) async {
-    WordShelf? shelf;
-    try {
-      shelf = await ref.read(wordShelfProvider.future);
-    } catch (_) {
-      shelf = null;
-    }
-    TimelineState? timeline;
-    try {
-      timeline = ref.read(timelineControllerProvider).value;
-    } catch (_) {
-      timeline = null;
-    }
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _items = _resolveWith(challenge, timeline, shelf);
-      _ready = true;
-      _fetching = false;
-    });
-  }
-
   List<_PracticeItem> _resolveWith(
     Challenge challenge,
     TimelineState? timeline,
