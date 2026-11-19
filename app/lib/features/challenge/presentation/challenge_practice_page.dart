@@ -85,7 +85,8 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   var _transcript = '';
   bool? _sayOk;
 
-  bool _ready = false;
+  var _ready = false;
+  var _fetching = false;
   List<_PracticeItem> _items = const [];
   var _index = 0;
   var _phase = _Phase.listenSay;
@@ -127,8 +128,11 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
         ),
         data: (challenge) {
           if (!_ready) {
-            _ready = true;
-            _items = _resolve(challenge);
+            if (!_fetching) {
+              _fetching = true;
+              unawaited(_fetchContent(challenge));
+            }
+            return const Center(child: CircularProgressIndicator());
           }
           if (_items.isEmpty) {
             return Center(
@@ -237,6 +241,14 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
             speedTooltip: context.t.timeline.speed,
             errorText: context.t.timeline.audioUnavailable,
           ),
+        ),
+      ] else ...[
+        const SizedBox(height: AppSpacing.s12),
+        Text(
+          context.t.timeline.audioUnavailable,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: palette.muted),
         ),
       ],
       const SizedBox(height: AppSpacing.s24),
@@ -603,7 +615,34 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   }
 
   // --- content resolution ---
-  List<_PracticeItem> _resolve(Challenge challenge) {
+  Future<void> _fetchContent(Challenge challenge) async {
+    WordShelf? shelf;
+    try {
+      shelf = await ref.read(wordShelfProvider.future);
+    } catch (_) {
+      shelf = null;
+    }
+    TimelineState? timeline;
+    try {
+      timeline = ref.read(timelineControllerProvider).value;
+    } catch (_) {
+      timeline = null;
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _items = _resolveWith(challenge, timeline, shelf);
+      _ready = true;
+      _fetching = false;
+    });
+  }
+
+  List<_PracticeItem> _resolveWith(
+    Challenge challenge,
+    TimelineState? timeline,
+    WordShelf? shelf,
+  ) {
     final selected = widget.itemId == null
         ? challenge.items.where((item) => !item.visited).take(3).toList()
         : challenge.items.where((item) => item.id == widget.itemId).toList();
@@ -611,9 +650,6 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
         ? challenge.items.take(3).toList()
         : selected;
     if (source.isEmpty) return const [];
-
-    final timeline = ref.read(timelineControllerProvider).value;
-    final shelf = ref.read(wordShelfProvider).value;
 
     final raws = <_Raw>[];
     for (final ci in source) {
