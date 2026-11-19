@@ -371,7 +371,15 @@
     "dueToday": "Due today",
 
     "practiceStart": "Start practice",
-    "practiceListen": "Listen",
+
+
+    "practiceTitle": "Practice",
+
+    "practiceListenSay": "Listen & say it",
+
+    "practiceSayOk": "Sounds right",
+
+    "practiceSayRetry": "Try saying it again",    "practiceListen": "Listen",
     "practiceSpeak": "Say it",
     "practiceExercise": "Practice",
     "practiceNext": "Next",    "practiceRecord": "Record",

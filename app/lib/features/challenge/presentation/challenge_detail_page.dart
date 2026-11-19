@@ -26,7 +26,6 @@ import '../../words/presentation/word_lookup_sheet.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/challenge.dart';
 import '../providers/challenge_providers.dart';
-import 'widgets/challenge_practice_sheet.dart';
 
 class ChallengeDetailPage extends ConsumerWidget {
   const ChallengeDetailPage({super.key, required this.challengeId});
@@ -55,11 +54,17 @@ class ChallengeDetailPage extends ConsumerWidget {
         data: (challenge) => _ChallengeDetail(
           challenge: challenge,
           onOpen: (item) => _openItem(context, ref, challenge, item),
-          onPractice: (items) => unawaited(
-            showChallengePracticeSheet(
-              context,
-              challenge: challenge,
-              items: items,
+          onStartPractice: () => unawaited(
+            context.pushNamed(
+              AppRouteNames.challengePractice,
+              pathParameters: {'challengeId': challenge.id},
+            ),
+          ),
+          onPracticeItem: (item) => unawaited(
+            context.pushNamed(
+              AppRouteNames.challengePractice,
+              pathParameters: {'challengeId': challenge.id},
+              queryParameters: {'item': item.id},
             ),
           ),
           onEnd: () => _end(context, ref, challenge),
@@ -237,13 +242,15 @@ class _ChallengeDetail extends StatelessWidget {
   const _ChallengeDetail({
     required this.challenge,
     required this.onOpen,
-    required this.onPractice,
+    required this.onStartPractice,
+    required this.onPracticeItem,
     required this.onEnd,
   });
 
   final Challenge challenge;
   final ValueChanged<ChallengeItem> onOpen;
-  final ValueChanged<List<ChallengeItem>> onPractice;
+  final VoidCallback onStartPractice;
+  final ValueChanged<ChallengeItem> onPracticeItem;
   final VoidCallback onEnd;
 
   @override
@@ -295,7 +302,7 @@ class _ChallengeDetail extends StatelessWidget {
           AppButton(
             key: const Key('challenge.practiceStart'),
             label: t.practiceStart,
-            onPressed: () => onPractice(focus),
+            onPressed: onStartPractice,
           ),
         ],
         const SizedBox(height: AppSpacing.s24),
@@ -319,7 +326,7 @@ class _ChallengeDetail extends StatelessWidget {
                     child: GestureDetector(
                       key: Key('challenge.practice.${item.id}'),
                       behavior: HitTestBehavior.opaque,
-                      onTap: () => onPractice([item]),
+                      onTap: () => onPracticeItem(item),
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.s8),
                         child: AppLineIcon(

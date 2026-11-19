@@ -7,6 +7,7 @@ import '../../features/auth/presentation/sign_in_page.dart';
 import '../../features/auth/providers/auth_notifier.dart';
 import '../../features/challenge/presentation/challenge_create_page.dart';
 import '../../features/challenge/presentation/challenge_detail_page.dart';
+import '../../features/challenge/presentation/challenge_practice_page.dart';
 import '../../features/challenge/presentation/challenges_page.dart';
 import '../../features/daily/presentation/daily_read_page.dart';
 import '../../features/history/presentation/experience_detail_page.dart';
@@ -38,6 +39,7 @@ class AppRoutePaths {
   static const challenges = '/challenges';
   static const challengeNew = '/challenges/new';
   static const challengeDetail = '/challenges/:challengeId';
+  static const challengePractice = '/challenges/:challengeId/practice';
   static const experience = '/history/:experienceId';
   static const words = '/words';
   static const daily = '/daily';
@@ -61,6 +63,7 @@ class AppRouteNames {
   static const challenges = 'challenges';
   static const challengeNew = 'challengeNew';
   static const challengeDetail = 'challengeDetail';
+  static const challengePractice = 'challengePractice';
   static const experience = 'experience';
   static const words = 'words';
   static const daily = 'daily';
@@ -151,6 +154,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRouteNames.challengeDetail,
         builder: (context, state) => ChallengeDetailPage(
           challengeId: state.pathParameters['challengeId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutePaths.challengePractice,
+        name: AppRouteNames.challengePractice,
+        builder: (context, state) => ChallengePracticePage(
+          challengeId: state.pathParameters['challengeId']!,
+          itemId: state.uri.queryParameters['item'],
         ),
       ),
       GoRoute(

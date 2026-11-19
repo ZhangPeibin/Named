@@ -1233,6 +1233,18 @@ class Translations$challenge$en {
 	/// en: 'Start practice'
 	String get practiceStart => 'Start practice';
 
+	/// en: 'Practice'
+	String get practiceTitle => 'Practice';
+
+	/// en: 'Listen & say it'
+	String get practiceListenSay => 'Listen & say it';
+
+	/// en: 'Sounds right'
+	String get practiceSayOk => 'Sounds right';
+
+	/// en: 'Try saying it again'
+	String get practiceSayRetry => 'Try saying it again';
+
 	/// en: 'Listen'
 	String get practiceListen => 'Listen';
 
@@ -1881,6 +1893,10 @@ extension on Translations {
 			'challenge.dayLeft' => '{count} day left',
 			'challenge.dueToday' => 'Due today',
 			'challenge.practiceStart' => 'Start practice',
+			'challenge.practiceTitle' => 'Practice',
+			'challenge.practiceListenSay' => 'Listen & say it',
+			'challenge.practiceSayOk' => 'Sounds right',
+			'challenge.practiceSayRetry' => 'Try saying it again',
 			'challenge.practiceListen' => 'Listen',
 			'challenge.practiceSpeak' => 'Say it',
 			'challenge.practiceExercise' => 'Practice',

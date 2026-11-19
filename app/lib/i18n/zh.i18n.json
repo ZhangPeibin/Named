@@ -371,7 +371,15 @@
     "dueToday": "今天到期",
 
     "practiceStart": "开始练习",
-    "practiceListen": "听",
+
+
+    "practiceTitle": "练习",
+
+    "practiceListenSay": "听并说一遍",
+
+    "practiceSayOk": "听起来对",
+
+    "practiceSayRetry": "再说一遍试试",    "practiceListen": "听",
     "practiceSpeak": "说",
     "practiceExercise": "练习",
     "practiceNext": "下一步",    "practiceRecord": "录音",

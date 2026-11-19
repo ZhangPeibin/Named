@@ -569,6 +569,10 @@ class _Translations$challenge$zh implements Translations$challenge$en {
 	@override String get dayLeft => '还剩 {count} 天';
 	@override String get dueToday => '今天到期';
 	@override String get practiceStart => '开始练习';
+	@override String get practiceTitle => '练习';
+	@override String get practiceListenSay => '听并说一遍';
+	@override String get practiceSayOk => '听起来对';
+	@override String get practiceSayRetry => '再说一遍试试';
 	@override String get practiceListen => '听';
 	@override String get practiceSpeak => '说';
 	@override String get practiceExercise => '练习';
@@ -1024,6 +1028,10 @@ extension on TranslationsZh {
 			'challenge.dayLeft' => '还剩 {count} 天',
 			'challenge.dueToday' => '今天到期',
 			'challenge.practiceStart' => '开始练习',
+			'challenge.practiceTitle' => '练习',
+			'challenge.practiceListenSay' => '听并说一遍',
+			'challenge.practiceSayOk' => '听起来对',
+			'challenge.practiceSayRetry' => '再说一遍试试',
 			'challenge.practiceListen' => '听',
 			'challenge.practiceSpeak' => '说',
 			'challenge.practiceExercise' => '练习',
