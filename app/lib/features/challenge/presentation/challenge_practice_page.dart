@@ -193,8 +193,13 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   List<Widget> _listenSayBody(_PracticeItem item) {
     final t = context.t.challenge;
     final palette = context.appPalette;
+    final title = item.title.trim().isNotEmpty
+        ? item.title
+        : (item.challengeItem.title.trim().isNotEmpty
+              ? item.challengeItem.title
+              : '—');
     return [
-      Text(item.title, style: Theme.of(context).textTheme.displayMedium),
+      Text(title, style: Theme.of(context).textTheme.displayMedium),
       const SizedBox(height: AppSpacing.s8),
       Text(
         t.practiceListenHint,
