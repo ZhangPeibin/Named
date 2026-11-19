@@ -1230,6 +1230,66 @@ class Translations$challenge$en {
 	/// en: 'Due today'
 	String get dueToday => 'Due today';
 
+	/// en: 'Start practice'
+	String get practiceStart => 'Start practice';
+
+	/// en: 'Listen'
+	String get practiceListen => 'Listen';
+
+	/// en: 'Say it'
+	String get practiceSpeak => 'Say it';
+
+	/// en: 'Practice'
+	String get practiceExercise => 'Practice';
+
+	/// en: 'Next'
+	String get practiceNext => 'Next';
+
+	/// en: 'Record'
+	String get practiceRecord => 'Record';
+
+	/// en: 'Stop'
+	String get practiceStop => 'Stop';
+
+	/// en: 'Play back'
+	String get practicePlayback => 'Play back';
+
+	/// en: 'Skip'
+	String get practiceSkip => 'Skip';
+
+	/// en: 'Check'
+	String get practiceCheck => 'Check';
+
+	/// en: 'Correct'
+	String get practiceCorrect => 'Correct';
+
+	/// en: 'Not quite'
+	String get practiceIncorrect => 'Not quite';
+
+	/// en: 'Answer: {answer}'
+	String get practiceAnswer => 'Answer: {answer}';
+
+	/// en: 'You practiced {count} today'
+	String get practiceRecap => 'You practiced {count} today';
+
+	/// en: 'Done'
+	String get practiceDone => 'Done';
+
+	/// en: 'Type your answer'
+	String get practicePlaceholder => 'Type your answer';
+
+	/// en: 'Listen, then say it.'
+	String get practiceListenHint => 'Listen, then say it.';
+
+	/// en: 'Say it out loud, then play it back.'
+	String get practiceSpeakHint => 'Say it out loud, then play it back.';
+
+	/// en: 'Finish this to mark it practiced.'
+	String get practiceExerciseHint => 'Finish this to mark it practiced.';
+
+	/// en: 'Microphone unavailable; you can skip.'
+	String get practiceMicDenied => 'Microphone unavailable; you can skip.';
+
 	/// en: 'This round'
 	String get content => 'This round';
 
@@ -1820,6 +1880,26 @@ extension on Translations {
 			'challenge.daysLeft' => '{count} days left',
 			'challenge.dayLeft' => '{count} day left',
 			'challenge.dueToday' => 'Due today',
+			'challenge.practiceStart' => 'Start practice',
+			'challenge.practiceListen' => 'Listen',
+			'challenge.practiceSpeak' => 'Say it',
+			'challenge.practiceExercise' => 'Practice',
+			'challenge.practiceNext' => 'Next',
+			'challenge.practiceRecord' => 'Record',
+			'challenge.practiceStop' => 'Stop',
+			'challenge.practicePlayback' => 'Play back',
+			'challenge.practiceSkip' => 'Skip',
+			'challenge.practiceCheck' => 'Check',
+			'challenge.practiceCorrect' => 'Correct',
+			'challenge.practiceIncorrect' => 'Not quite',
+			'challenge.practiceAnswer' => 'Answer: {answer}',
+			'challenge.practiceRecap' => 'You practiced {count} today',
+			'challenge.practiceDone' => 'Done',
+			'challenge.practicePlaceholder' => 'Type your answer',
+			'challenge.practiceListenHint' => 'Listen, then say it.',
+			'challenge.practiceSpeakHint' => 'Say it out loud, then play it back.',
+			'challenge.practiceExerciseHint' => 'Finish this to mark it practiced.',
+			'challenge.practiceMicDenied' => 'Microphone unavailable; you can skip.',
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',

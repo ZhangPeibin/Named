@@ -266,7 +266,9 @@ void main() {
     );
   });
 
-  testWidgets('practicing an item updates progress', (tester) async {
+  testWidgets('offers practice entry points for unpracticed items', (
+    tester,
+  ) async {
     await pumpWithTranslations(
       tester,
       child: ProviderScope(
@@ -280,25 +282,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.textContaining(
-        t.challenge.visitedOf
-            .replaceFirst('{visited}', '1')
-            .replaceFirst('{total}', '2'),
-      ),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.byKey(const Key('challenge.practice.item-2')));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.textContaining(
-        t.challenge.visitedOf
-            .replaceFirst('{visited}', '2')
-            .replaceFirst('{total}', '2'),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('challenge.practiceStart')), findsOneWidget);
+    expect(find.byKey(const Key('challenge.practice.item-2')), findsOneWidget);
   });
 }

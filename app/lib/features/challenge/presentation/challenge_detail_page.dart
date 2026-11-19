@@ -26,6 +26,7 @@ import '../../words/presentation/word_lookup_sheet.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/challenge.dart';
 import '../providers/challenge_providers.dart';
+import 'widgets/challenge_practice_sheet.dart';
 
 class ChallengeDetailPage extends ConsumerWidget {
   const ChallengeDetailPage({super.key, required this.challengeId});
@@ -54,7 +55,13 @@ class ChallengeDetailPage extends ConsumerWidget {
         data: (challenge) => _ChallengeDetail(
           challenge: challenge,
           onOpen: (item) => _openItem(context, ref, challenge, item),
-          onPractice: (item) => _practice(context, ref, challenge, item),
+          onPractice: (items) => unawaited(
+            showChallengePracticeSheet(
+              context,
+              challenge: challenge,
+              items: items,
+            ),
+          ),
           onEnd: () => _end(context, ref, challenge),
         ),
       ),
@@ -185,36 +192,6 @@ class ChallengeDetailPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _practice(
-    BuildContext context,
-    WidgetRef ref,
-    Challenge challenge,
-    ChallengeItem item,
-  ) async {
-    if (item.visited) {
-      return;
-    }
-    try {
-      await ref
-          .read(challengeActionsProvider)
-          .markVisited(challenge.id, item.id);
-    } on ApiException catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.message)));
-      }
-      return;
-    }
-    if (item.focusType == 'word') {
-      try {
-        await ref.read(wordsRepositoryProvider).markReviewed(item.focusId);
-      } catch (_) {
-        // Best-effort: challenge progress already recorded.
-      }
-    }
-  }
-
   Future<void> _end(
     BuildContext context,
     WidgetRef ref,
@@ -266,7 +243,7 @@ class _ChallengeDetail extends StatelessWidget {
 
   final Challenge challenge;
   final ValueChanged<ChallengeItem> onOpen;
-  final ValueChanged<ChallengeItem> onPractice;
+  final ValueChanged<List<ChallengeItem>> onPractice;
   final VoidCallback onEnd;
 
   @override
@@ -274,6 +251,10 @@ class _ChallengeDetail extends StatelessWidget {
     final t = context.t.challenge;
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
+    final focus = challenge.items
+        .where((item) => !item.visited)
+        .take(3)
+        .toList();
     return ListView(
       padding: const EdgeInsets.only(bottom: AppSpacing.s24),
       children: [
@@ -309,6 +290,14 @@ class _ChallengeDetail extends StatelessWidget {
             color: palette.primary,
           ),
         ),
+        if (challenge.isActive && focus.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s16),
+          AppButton(
+            key: const Key('challenge.practiceStart'),
+            label: t.practiceStart,
+            onPressed: () => onPractice(focus),
+          ),
+        ],
         const SizedBox(height: AppSpacing.s24),
         Text(
           t.content.toUpperCase(),
@@ -325,12 +314,12 @@ class _ChallengeDetail extends StatelessWidget {
               child: Row(
                 children: [
                   Semantics(
-                    button: !item.visited,
-                    label: item.visited ? null : t.markPracticed,
+                    button: true,
+                    label: t.practiceStart,
                     child: GestureDetector(
                       key: Key('challenge.practice.${item.id}'),
                       behavior: HitTestBehavior.opaque,
-                      onTap: item.visited ? null : () => onPractice(item),
+                      onTap: () => onPractice([item]),
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.s8),
                         child: AppLineIcon(
