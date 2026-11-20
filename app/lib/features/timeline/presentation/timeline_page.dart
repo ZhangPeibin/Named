@@ -17,7 +17,7 @@ import '../../assistant/domain/assistant_intent.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
 import '../../progress/providers/progress_providers.dart';
-import '../../words/domain/word_shelf.dart';
+import '../../review/providers/review_providers.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
@@ -27,6 +27,7 @@ import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
 import 'widgets/question_thread_card.dart';
+import 'widgets/review_reminder_card.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/timeline_progress_card.dart';
 import 'widgets/word_naming_card.dart';
@@ -131,21 +132,12 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       return;
     }
     final challenges = ref.read(challengesProvider);
-    final shelf = ref.read(wordShelfProvider);
     final hasActiveChallenge = challenges.hasValue
         ? challenges.value!.any((challenge) => challenge.isActive)
         : null;
-    final reviewCount =
-        shelf.value?.words
-            .where((word) => word.status == WordShelfStatus.needsReview)
-            .length ??
-        0;
     final next = _hintSelector.next(
       options: _composerHintOptions(context.t.timeline),
-      weights: composerHintWeights(
-        hasActiveChallenge: hasActiveChallenge,
-        reviewCount: reviewCount,
-      ),
+      weights: composerHintWeights(hasActiveChallenge: hasActiveChallenge),
       previous: _hintCategory,
     );
     if (next.category != _hintCategory) {
@@ -475,6 +467,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
     final progress = ref.watch(progressProvider);
+    final dueReviewCount = ref.watch(dueReviewCountProvider);
     ref
       ..listen(challengesProvider, (previous, next) {
         if (next.hasValue) {
@@ -494,6 +487,19 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       padding: EdgeInsets.zero,
       body: Column(
         children: [
+          if (dueReviewCount > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.s16,
+                AppSpacing.s8,
+                AppSpacing.s16,
+                0,
+              ),
+              child: ReviewReminderCard(
+                count: dueReviewCount,
+                onTap: () => unawaited(_openReview()),
+              ),
+            ),
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -564,6 +570,13 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     if (mounted) {
       ref.invalidate(timelineControllerProvider);
       ref.invalidate(progressProvider);
+    }
+  }
+
+  Future<void> _openReview() async {
+    await context.pushNamed(AppRouteNames.review);
+    if (mounted) {
+      ref.invalidate(wordShelfProvider);
     }
   }
 
