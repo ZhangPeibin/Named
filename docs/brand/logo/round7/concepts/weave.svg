@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="t"><title id="t">Named woven N</title>
+  <g id="symbol">
+    <g transform="translate(128 128) scale(1.06) translate(-128 -128)">
+    <rect x="65" y="52" width="34" height="152" rx="17" fill="#232A31"/>
+    <path fill="#B05230" d="M69.27 87.25 L161.27 191.25 A17 17 0 0 0 186.73 168.75 L94.73 64.75 A17 17 0 0 0 69.27 87.25 Z"/>
+    <rect x="157" y="52" width="34" height="152" rx="17" fill="#232A31"/>
+      </g>
+  </g>
+</svg>

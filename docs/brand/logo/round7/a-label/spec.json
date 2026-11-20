@@ -1,0 +1,42 @@
+{
+  "brand": "Named",
+  "tagline": "A personal English world",
+  "brief": "Named is an English-learning app that starts from real life: you see something, name it, talk about it with AI, and keep the words connected to the moments and memories around them. The identity should feel warm, editorial and personal, not like a school product or an AI tool.",
+  "adjectives": ["warm", "personal", "editorial", "calm"],
+  "criteria": "Distinct from edtech clichés, recognisable at 16 px, works in one colour, and feels like a real personal object rather than a platform.",
+  "industry": "consumer-app",
+  "mockups": ["app-icon", "website", "social", "sticker", "business-card", "favicon-tab"],
+  "nav": ["Explore", "Words", "History", "Me"],
+  "brand_color": "#2F4A6B",
+  "greyscale": false,
+  "final": true,
+  "round": 7,
+  "designer": "Named design",
+  "concepts": [
+    {
+      "name": "The Label",
+      "symbol": "a-symbol.svg",
+      "lockup": "a-lockup-horizontal.svg",
+      "stacked": "a-lockup-stacked.svg",
+      "avatar": "a-app-icon.svg",
+      "symbol_on_tile": "a-symbol-on-dark.svg",
+      "lockup_on_tile": "a-lockup-horizontal-on-dark.svg",
+      "stacked_on_tile": "a-lockup-stacked-on-dark.svg",
+      "symbol_on_dark": "a-symbol-on-dark.svg",
+      "lockup_on_dark": "a-lockup-horizontal-on-dark.svg",
+      "stacked_on_dark": "a-lockup-stacked-on-dark.svg",
+      "idea": "Every thing you name gets a label: a found moment becomes yours.",
+      "rationale": [
+        "A name tag is the product's core act, not a category cliché.",
+        "The grommet and 60° point give the tag a crafted, warm silhouette.",
+        "Reads at 16 px and survives one-colour and reversed use."
+      ]
+    }
+  ],
+  "recommendation": "A warm, direct candidate: the label makes the act of naming visible without explaining it.",
+  "next_steps": [
+    "Compare the three kits",
+    "Choose a direction",
+    "Wire the chosen icon and splash into the app"
+  ]
+}
