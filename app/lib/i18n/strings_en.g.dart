@@ -566,6 +566,45 @@ class Translations$soul$en {
 
 	/// en: 'Experiences worth looking back on.'
 	String get historyBody => 'Experiences worth looking back on.';
+
+	/// en: 'Add to your Soul'
+	String get addItem => 'Add to your Soul';
+
+	/// en: 'What should I remember?'
+	String get itemText => 'What should I remember?';
+
+	/// en: 'Enter something first.'
+	String get itemRequired => 'Enter something first.';
+
+	/// en: 'Edit this'
+	String get editItemTitle => 'Edit this';
+
+	/// en: 'Remove'
+	String get deleteItem => 'Remove';
+
+	/// en: 'Remove this?'
+	String get deleteConfirmTitle => 'Remove this?';
+
+	/// en: 'It will no longer shape conversations.'
+	String get deleteConfirmBody => 'It will no longer shape conversations.';
+
+	/// en: 'Removed.'
+	String get deleted => 'Removed.';
+
+	/// en: 'From onboarding'
+	String get sourceOnboarding => 'From onboarding';
+
+	/// en: 'You wrote this'
+	String get sourceUser => 'You wrote this';
+
+	/// en: 'Learned from talks'
+	String get sourceAi => 'Learned from talks';
+
+	/// en: 'Use my Soul'
+	String get memoryLabel => 'Use my Soul';
+
+	/// en: 'Turn off to talk without your saved background.'
+	String get memoryHint => 'Turn off to talk without your saved background.';
 }
 
 // Path: navigation
@@ -857,6 +896,12 @@ class Translations$talk$en {
 
 	/// en: 'Copy English'
 	String get copyEnglish => 'Copy English';
+
+	/// en: 'Use my Soul'
+	String get memoryLabel => 'Use my Soul';
+
+	/// en: 'Turn off to talk without your saved background.'
+	String get memoryHint => 'Turn off to talk without your saved background.';
 }
 
 // Path: timeline
@@ -968,6 +1013,15 @@ class Translations$timeline$en {
 
 	/// en: 'Reads'
 	String get progressReads => 'Reads';
+
+	/// en: 'Words to see today'
+	String get reviewReminderTitle => 'Words to see today';
+
+	/// en: '{count} words ready'
+	String get reviewReminderCount => '{count} words ready';
+
+	/// en: 'Review'
+	String get reviewReminderAction => 'Review';
 }
 
 // Path: words
@@ -1070,6 +1124,48 @@ class Translations$review$en {
 
 	/// en: 'Could not load your review.'
 	String get loadFailed => 'Could not load your review.';
+
+	/// en: 'Say it in English'
+	String get attemptPrompt => 'Say it in English';
+
+	/// en: 'Try it first. Hints come after your attempt.'
+	String get attemptHint => 'Try it first. Hints come after your attempt.';
+
+	/// en: 'Type what you would say'
+	String get attemptPlaceholder => 'Type what you would say';
+
+	/// en: 'Check'
+	String get checkAttempt => 'Check';
+
+	/// en: 'Your answer'
+	String get yourAttempt => 'Your answer';
+
+	/// en: 'First letter'
+	String get hintFirst => 'First letter';
+
+	/// en: 'Pronunciation'
+	String get hintIpa => 'Pronunciation';
+
+	/// en: 'Show a hint'
+	String get showHint => 'Show a hint';
+
+	/// en: 'Show answer'
+	String get showAnswer => 'Show answer';
+
+	/// en: 'The word'
+	String get answerLabel => 'The word';
+
+	/// en: 'I said it'
+	String get saidIt => 'I said it';
+
+	/// en: 'Not yet'
+	String get notYet => 'Not yet';
+
+	/// en: 'Could not save your attempt. Try again.'
+	String get attemptFailed => 'Could not save your attempt. Try again.';
+
+	/// en: 'Try to say this in English.'
+	String get cueMissing => 'Try to say this in English.';
 }
 
 // Path: history
@@ -1698,6 +1794,19 @@ extension on Translations {
 			'soul.library' => 'Your library',
 			'soul.wordsBody' => 'Words you kept from moments.',
 			'soul.historyBody' => 'Experiences worth looking back on.',
+			'soul.addItem' => 'Add to your Soul',
+			'soul.itemText' => 'What should I remember?',
+			'soul.itemRequired' => 'Enter something first.',
+			'soul.editItemTitle' => 'Edit this',
+			'soul.deleteItem' => 'Remove',
+			'soul.deleteConfirmTitle' => 'Remove this?',
+			'soul.deleteConfirmBody' => 'It will no longer shape conversations.',
+			'soul.deleted' => 'Removed.',
+			'soul.sourceOnboarding' => 'From onboarding',
+			'soul.sourceUser' => 'You wrote this',
+			'soul.sourceAi' => 'Learned from talks',
+			'soul.memoryLabel' => 'Use my Soul',
+			'soul.memoryHint' => 'Turn off to talk without your saved background.',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -1783,6 +1892,8 @@ extension on Translations {
 			'talk.chunks' => 'Chunks',
 			'talk.keyWords' => 'Key words',
 			'talk.copyEnglish' => 'Copy English',
+			'talk.memoryLabel' => 'Use my Soul',
+			'talk.memoryHint' => 'Turn off to talk without your saved background.',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
 			'timeline.emptyTitle' => 'What did you see today?',
@@ -1817,6 +1928,9 @@ extension on Translations {
 			'timeline.progressWords' => 'Words',
 			'timeline.progressConversations' => 'Talks',
 			'timeline.progressReads' => 'Reads',
+			'timeline.reviewReminderTitle' => 'Words to see today',
+			'timeline.reviewReminderCount' => '{count} words ready',
+			'timeline.reviewReminderAction' => 'Review',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',
@@ -1845,6 +1959,20 @@ extension on Translations {
 			'review.emptyTitle' => 'Nothing to review yet',
 			'review.emptyCopy' => 'Name something first. Your words will appear here for review.',
 			'review.loadFailed' => 'Could not load your review.',
+			'review.attemptPrompt' => 'Say it in English',
+			'review.attemptHint' => 'Try it first. Hints come after your attempt.',
+			'review.attemptPlaceholder' => 'Type what you would say',
+			'review.checkAttempt' => 'Check',
+			'review.yourAttempt' => 'Your answer',
+			'review.hintFirst' => 'First letter',
+			'review.hintIpa' => 'Pronunciation',
+			'review.showHint' => 'Show a hint',
+			'review.showAnswer' => 'Show answer',
+			'review.answerLabel' => 'The word',
+			'review.saidIt' => 'I said it',
+			'review.notYet' => 'Not yet',
+			'review.attemptFailed' => 'Could not save your attempt. Try again.',
+			'review.cueMissing' => 'Try to say this in English.',
 			'history.title' => 'History',
 			'history.empty' => 'No experiences yet.',
 			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',

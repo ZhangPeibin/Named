@@ -22,6 +22,10 @@ class WordsRepository {
     return _api.markReviewed(wordId);
   }
 
+  Future<void> markAttempt({required String wordId, required String text}) {
+    return _api.markAttempt(wordId: wordId, text: text);
+  }
+
   Future<void> saveFromTalk({
     required String label,
     required String meaningZh,

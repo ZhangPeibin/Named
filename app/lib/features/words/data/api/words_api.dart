@@ -14,6 +14,8 @@ abstract class WordsApi {
 
   Future<void> markReviewed(String wordId);
 
+  Future<void> markAttempt({required String wordId, required String text});
+
   Future<void> saveFromTalk({
     required String label,
     required String meaningZh,
@@ -102,6 +104,19 @@ class RemoteWordsApi implements WordsApi {
   Future<void> markReviewed(String wordId) async {
     await _request(
       () => _dio.post<Map<String, dynamic>>('/api/v1/words/$wordId/reviewed'),
+    );
+  }
+
+  @override
+  Future<void> markAttempt({
+    required String wordId,
+    required String text,
+  }) async {
+    await _request(
+      () => _dio.post<Map<String, dynamic>>(
+        '/api/v1/words/$wordId/attempt',
+        data: {'attempted_text': text},
+      ),
     );
   }
 
@@ -204,6 +219,12 @@ class MockWordsApi implements WordsApi {
 
   @override
   Future<void> markReviewed(String wordId) async {}
+
+  @override
+  Future<void> markAttempt({
+    required String wordId,
+    required String text,
+  }) async {}
 
   @override
   Future<void> saveFromTalk({
