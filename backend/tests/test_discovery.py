@@ -668,3 +668,62 @@ async def test_words_are_deduplicated_and_progress_is_tracked(discovery_env) -> 
     assert word["status"] == "known"
     assert word["review_count"] == 1
     assert response.json()["stats"]["reviewed_this_week"] == 1
+
+
+@pytest.mark.asyncio
+async def test_word_attempt_is_tracked_and_moves_status(discovery_env) -> None:
+    http, sender, _, agent, _ = discovery_env
+    verified = await request_and_verify(http, sender, "attempt@example.com")
+    headers = bearer(verified["session_token"])
+    agent.output = word_output("tree")
+
+    created = await http.post("/api/v1/discoveries", headers=headers, data={"text": "树"})
+    assert created.status_code == 201
+    word_id = created.json()["word_id"]
+
+    attempt = await http.post(
+        f"/api/v1/words/{word_id}/attempt",
+        headers=headers,
+        json={"attempted_text": "tre"},
+    )
+    assert attempt.status_code == 200, attempt.text
+    assert attempt.json()["status"] == "attempted"
+    assert attempt.json()["attempt_count"] == 1
+    assert attempt.json()["last_attempt_at"]
+
+    words = (await http.get("/api/v1/words", headers=headers)).json()["words"]
+    assert words[0]["status"] == "attempted"
+    assert words[0]["attempt_count"] == 1
+
+    reviewed = await http.post(f"/api/v1/words/{word_id}/reviewed", headers=headers)
+    assert reviewed.status_code == 200
+    assert reviewed.json()["status"] == "growing"
+
+    empty = await http.post(
+        f"/api/v1/words/{word_id}/attempt",
+        headers=headers,
+        json={"attempted_text": ""},
+    )
+    assert empty.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_word_attempt_rejects_another_account(discovery_env) -> None:
+    http, sender, _, agent, _ = discovery_env
+    owner = await request_and_verify(http, sender, "attempt-owner@example.com")
+    other = await request_and_verify(http, sender, "attempt-other@example.com")
+    agent.output = word_output("tree")
+
+    created = await http.post(
+        "/api/v1/discoveries",
+        headers=bearer(owner["session_token"]),
+        data={"text": "树"},
+    )
+    word_id = created.json()["word_id"]
+
+    response = await http.post(
+        f"/api/v1/words/{word_id}/attempt",
+        headers=bearer(other["session_token"]),
+        json={"attempted_text": "tree"},
+    )
+    assert response.status_code == 404

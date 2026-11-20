@@ -10,6 +10,7 @@ from discovery.schemas import (
     DiscoveryOut,
     FocusRequest,
     TalkWordSave,
+    WordAttemptCreate,
     WordOut,
     WordProgressOut,
     WordProgressUpdate,
@@ -24,6 +25,7 @@ from discovery.service import (
     get_word,
     get_words,
     lookup_word,
+    mark_word_attempted,
     mark_word_reviewed,
     save_talk_word,
     set_word_known,
@@ -183,6 +185,21 @@ async def review_word(
     session: SessionDep,
 ) -> WordProgressOut:
     return await mark_word_reviewed(session, current.account.id, word_id)
+
+
+@word_router.post("/{word_id}/attempt", response_model=WordProgressOut)
+async def attempt_word(
+    word_id: str,
+    payload: WordAttemptCreate,
+    current: CurrentAuthDep,
+    session: SessionDep,
+) -> WordProgressOut:
+    return await mark_word_attempted(
+        session,
+        current.account.id,
+        word_id,
+        payload.attempted_text,
+    )
 
 
 @word_router.get("/lookup", response_model=WordOut)

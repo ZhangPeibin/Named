@@ -36,6 +36,7 @@ from models import (
     DiscoveryCandidate,
     SoulProfile,
     Word,
+    WordAttempt,
     WordContent,
     WordProgress,
 )
@@ -511,7 +512,26 @@ def _word_status(progress: WordProgress | None, now) -> str:
         and progress.last_reviewed_at >= now - timedelta(days=7)
     ):
         return "growing"
+    if (
+        progress is not None
+        and progress.last_attempt_at is not None
+        and progress.last_attempt_at >= now - timedelta(days=7)
+    ):
+        return "attempted"
     return "needs_review"
+
+
+def _progress_out(word_id: str, progress: WordProgress, now) -> WordProgressOut:
+    return WordProgressOut(
+        word_id=word_id,
+        status=_word_status(progress, now),
+        review_count=progress.review_count,
+        last_reviewed_at=progress.last_reviewed_at,
+        attempt_count=progress.attempt_count,
+        last_attempt_at=progress.last_attempt_at,
+        used_count=progress.used_count,
+        last_used_at=progress.last_used_at,
+    )
 
 
 async def _owned_word(session: AsyncSession, account_id: str, word_id: str) -> Word:
@@ -627,10 +647,14 @@ async def get_words(
                 status=_word_status(progress, now),
                 review_count=progress.review_count if progress is not None else 0,
                 last_reviewed_at=(progress.last_reviewed_at if progress is not None else None),
+                attempt_count=progress.attempt_count if progress is not None else 0,
+                last_attempt_at=(progress.last_attempt_at if progress is not None else None),
+                used_count=progress.used_count if progress is not None else 0,
+                last_used_at=(progress.last_used_at if progress is not None else None),
             )
         )
 
-    status_rank = {"needs_review": 0, "growing": 1, "known": 2}
+    status_rank = {"needs_review": 0, "attempted": 1, "growing": 2, "known": 3}
     items.sort(key=lambda item: (status_rank[item.status], -item.last_seen_at.timestamp()))
     new_this_week = sum(1 for item in items if item.first_seen_at >= week_start)
     reviewed_this_week = sum(
@@ -660,13 +684,28 @@ async def set_word_known(
     progress = await _get_or_create_progress(session, account_id, word_id)
     progress.self_known_at = utcnow() if known else None
     await session.commit()
-    now = utcnow()
-    return WordProgressOut(
-        word_id=word_id,
-        status=_word_status(progress, now),
-        review_count=progress.review_count,
-        last_reviewed_at=progress.last_reviewed_at,
+    return _progress_out(word_id, progress, utcnow())
+
+
+async def mark_word_attempted(
+    session: AsyncSession,
+    account_id: str,
+    word_id: str,
+    attempted_text: str,
+) -> WordProgressOut:
+    await _owned_word(session, account_id, word_id)
+    progress = await _get_or_create_progress(session, account_id, word_id)
+    progress.attempt_count += 1
+    progress.last_attempt_at = utcnow()
+    session.add(
+        WordAttempt(
+            account_id=account_id,
+            word_id=word_id,
+            text=attempted_text,
+        )
     )
+    await session.commit()
+    return _progress_out(word_id, progress, utcnow())
 
 
 async def mark_word_reviewed(
@@ -679,13 +718,7 @@ async def mark_word_reviewed(
     progress.review_count += 1
     progress.last_reviewed_at = utcnow()
     await session.commit()
-    now = utcnow()
-    return WordProgressOut(
-        word_id=word_id,
-        status=_word_status(progress, now),
-        review_count=progress.review_count,
-        last_reviewed_at=progress.last_reviewed_at,
-    )
+    return _progress_out(word_id, progress, utcnow())
 
 
 async def save_talk_word(

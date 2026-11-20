@@ -183,7 +183,7 @@ class WordOut(BaseModel):
     audio: AudioOut | None = None
 
 
-WordStatus = Literal["needs_review", "growing", "known"]
+WordStatus = Literal["needs_review", "attempted", "growing", "known"]
 
 
 class WordListItem(BaseModel):
@@ -197,6 +197,10 @@ class WordListItem(BaseModel):
     status: WordStatus = "needs_review"
     review_count: int = 0
     last_reviewed_at: datetime | None = None
+    attempt_count: int = 0
+    last_attempt_at: datetime | None = None
+    used_count: int = 0
+    last_used_at: datetime | None = None
 
 
 class WordsStats(BaseModel):
@@ -215,11 +219,19 @@ class WordProgressUpdate(BaseModel):
     known: bool
 
 
+class WordAttemptCreate(BaseModel):
+    attempted_text: str = Field(min_length=1, max_length=2000)
+
+
 class WordProgressOut(BaseModel):
     word_id: str
     status: WordStatus
     review_count: int
     last_reviewed_at: datetime | None = None
+    attempt_count: int = 0
+    last_attempt_at: datetime | None = None
+    used_count: int = 0
+    last_used_at: datetime | None = None
 
 
 class TalkWordSave(BaseModel):
