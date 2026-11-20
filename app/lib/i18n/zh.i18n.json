@@ -155,7 +155,20 @@
     "rhythmBody": "挑战会出现在这里。",
     "library": "你的收藏",
     "wordsBody": "从经历里留下的词语。",
-    "historyBody": "值得回看的经历。"
+    "historyBody": "值得回看的经历。",
+    "addItem": "添加一条",
+    "itemText": "想让我记住什么？",
+    "itemRequired": "请先填写内容。",
+    "editItemTitle": "编辑这一条",
+    "deleteItem": "删除",
+    "deleteConfirmTitle": "删除这一条？",
+    "deleteConfirmBody": "它不再影响之后的交流。",
+    "deleted": "已删除。",
+    "sourceOnboarding": "初始引导",
+    "sourceUser": "你填写的",
+    "sourceAi": "AI 提炼",
+    "memoryLabel": "使用我的 Soul",
+    "memoryHint": "关闭后，这次对话不使用已保存的背景。"
   },
   "navigation": {
     "explore": "探索",
@@ -248,7 +261,9 @@
     "grammarNotes": "结构",
     "chunks": "表达片段",
     "keyWords": "关键词",
-    "copyEnglish": "复制英文"
+    "copyEnglish": "复制英文",
+    "memoryLabel": "使用我的记忆",
+    "memoryHint": "关闭后，这次对话不使用已保存的背景。"
   },
   "timeline": {
     "today": "今天",
@@ -284,7 +299,10 @@
     "progressTitle": "足迹",
     "progressWords": "单词",
     "progressConversations": "对话",
-    "progressReads": "阅读"
+    "progressReads": "阅读",
+    "reviewReminderTitle": "今天要见的词",
+    "reviewReminderCount": "{count} 个词待见",
+    "reviewReminderAction": "去复习"
   },
   "words": {
     "title": "词语",
@@ -316,7 +334,21 @@
     "backToTimeline": "回到时间线",
     "emptyTitle": "还没有可复习的词",
     "emptyCopy": "先命名一个东西，之后它会出现在这里。",
-    "loadFailed": "复习内容加载失败。"
+    "loadFailed": "复习内容加载失败。",
+    "attemptPrompt": "用英语说出它",
+    "attemptHint": "先自己试一次，之后再给提示。",
+    "attemptPlaceholder": "写下你会怎么说",
+    "checkAttempt": "检查",
+    "yourAttempt": "你的答案",
+    "hintFirst": "首字母",
+    "hintIpa": "音标",
+    "showHint": "看提示",
+    "showAnswer": "看答案",
+    "answerLabel": "这个词",
+    "saidIt": "说出来了",
+    "notYet": "还不行",
+    "attemptFailed": "没能保存这次尝试，请再试一次。",
+    "cueMissing": "试着用英语说出它。"
   },
   "history": {
     "title": "回忆",

@@ -26,33 +26,76 @@ class ReviewPage extends ConsumerStatefulWidget {
 }
 
 class _ReviewPageState extends ConsumerState<ReviewPage> {
-  var _index = 0;
-  var _revealed = false;
-  var _completed = false;
+  final _attemptController = TextEditingController();
 
-  void _showMeaning() {
+  var _index = 0;
+  var _completed = false;
+  var _attempted = false;
+  var _hintLevel = 0;
+  var _revealed = false;
+  var _saving = false;
+  var _attemptSaveFailed = false;
+
+  @override
+  void dispose() {
+    _attemptController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitAttempt(String? wordId) async {
+    final text = _attemptController.text.trim();
+    if (text.isEmpty || wordId == null) {
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _attemptSaveFailed = false;
+    });
+    try {
+      await ref
+          .read(wordsRepositoryProvider)
+          .markAttempt(wordId: wordId, text: text);
+    } catch (_) {
+      _attemptSaveFailed = true;
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _saving = false;
+      _attempted = true;
+    });
+  }
+
+  void _showHint() {
+    setState(() => _hintLevel = (_hintLevel + 1).clamp(0, 2));
+  }
+
+  void _showAnswer() {
     setState(() => _revealed = true);
   }
 
-  void _next(int total, String? wordId) {
-    unawaited(_markReviewed(wordId));
+  Future<void> _next(int total, String? wordId, {required bool saidIt}) async {
+    if (saidIt && wordId != null) {
+      try {
+        await ref.read(wordsRepositoryProvider).markReviewed(wordId);
+      } catch (_) {}
+    }
+    if (!mounted) {
+      return;
+    }
     setState(() {
       if (_index + 1 >= total) {
         _completed = true;
         return;
       }
       _index++;
+      _attempted = false;
+      _hintLevel = 0;
       _revealed = false;
+      _attemptSaveFailed = false;
+      _attemptController.clear();
     });
-  }
-
-  Future<void> _markReviewed(String? wordId) async {
-    if (wordId == null) {
-      return;
-    }
-    try {
-      await ref.read(wordsRepositoryProvider).markReviewed(wordId);
-    } catch (_) {}
   }
 
   void _back() {
@@ -88,14 +131,23 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
           }
 
           final item = items[_index.clamp(0, items.length - 1)];
+          final index = _index.clamp(0, items.length - 1);
           return _ReviewContent(
             t: t,
             item: item,
-            index: _index.clamp(0, items.length - 1),
+            index: index,
             total: items.length,
+            attemptController: _attemptController,
+            attempted: _attempted,
+            hintLevel: _hintLevel,
             revealed: _revealed,
-            onShowMeaning: _showMeaning,
-            onNext: () => _next(items.length, item.wordId),
+            saving: _saving,
+            attemptSaveFailed: _attemptSaveFailed,
+            onSubmit: () => _submitAttempt(item.wordId),
+            onShowHint: _showHint,
+            onShowAnswer: _showAnswer,
+            onSaidIt: () => _next(items.length, item.wordId, saidIt: true),
+            onNotYet: () => _next(items.length, item.wordId, saidIt: false),
           );
         },
       ),
@@ -109,18 +161,34 @@ class _ReviewContent extends StatelessWidget {
     required this.item,
     required this.index,
     required this.total,
+    required this.attemptController,
+    required this.attempted,
+    required this.hintLevel,
     required this.revealed,
-    required this.onShowMeaning,
-    required this.onNext,
+    required this.saving,
+    required this.attemptSaveFailed,
+    required this.onSubmit,
+    required this.onShowHint,
+    required this.onShowAnswer,
+    required this.onSaidIt,
+    required this.onNotYet,
   });
 
   final Translations$review$en t;
   final TimelineWordItem item;
   final int index;
   final int total;
+  final TextEditingController attemptController;
+  final bool attempted;
+  final int hintLevel;
   final bool revealed;
-  final VoidCallback onShowMeaning;
-  final VoidCallback onNext;
+  final bool saving;
+  final bool attemptSaveFailed;
+  final VoidCallback onSubmit;
+  final VoidCallback onShowHint;
+  final VoidCallback onShowAnswer;
+  final VoidCallback onSaidIt;
+  final VoidCallback onNotYet;
 
   @override
   Widget build(BuildContext context) {
@@ -135,10 +203,13 @@ class _ReviewContent extends StatelessWidget {
         .where((value) => value.isNotEmpty)
         .toSet()
         .join(' · ');
-    final metaParts = <String>[if (ipa.isNotEmpty) ipa, ...word.pos];
     final definition = word.primarySense?.definitionZh;
     final chunk = word.chunks.isEmpty ? null : word.chunks.first;
-    final isLast = index + 1 >= total;
+    final cue = (definition != null && definition.isNotEmpty)
+        ? definition
+        : (chunk != null && chunk.meaningZh.isNotEmpty)
+        ? chunk.meaningZh
+        : t.cueMissing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,44 +230,109 @@ class _ReviewContent extends StatelessWidget {
                   style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
                 ),
                 const SizedBox(height: AppSpacing.s16),
-                Text(t.prompt, style: textTheme.headlineMedium),
-                const SizedBox(height: AppSpacing.s16),
-                SizedBox(
-                  width: double.infinity,
-                  child: AppCard(
-                    padding: const EdgeInsets.all(AppSpacing.s20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                Text(t.attemptPrompt, style: textTheme.headlineMedium),
+                const SizedBox(height: AppSpacing.s8),
+                Text(
+                  cue,
+                  style: textTheme.bodyLarge?.copyWith(color: palette.muted),
+                ),
+                if (!attempted) ...[
+                  const SizedBox(height: AppSpacing.s20),
+                  TextField(
+                    controller: attemptController,
+                    autofocus: false,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => onSubmit(),
+                    decoration: InputDecoration(
+                      hintText: t.attemptPlaceholder,
+                      helperText: t.attemptHint,
+                    ),
+                  ),
+                ],
+                if (attempted) ...[
+                  const SizedBox(height: AppSpacing.s20),
+                  _AttemptSummary(
+                    label: t.yourAttempt,
+                    text: attemptController.text.trim(),
+                  ),
+                  if (attemptSaveFailed) ...[
+                    const SizedBox(height: AppSpacing.s8),
+                    Text(
+                      t.attemptFailed,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: palette.error,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.s16),
+                  if (!revealed) ...[
+                    Wrap(
+                      spacing: AppSpacing.s8,
+                      runSpacing: AppSpacing.s8,
                       children: [
-                        Text(word.spelling, style: textTheme.displayMedium),
-                        if (metaParts.isNotEmpty) ...[
-                          const SizedBox(height: AppSpacing.s4),
+                        if (hintLevel < 2)
+                          AppButton(
+                            label: t.showHint,
+                            variant: AppButtonVariant.secondary,
+                            onPressed: onShowHint,
+                          ),
+                        if (hintLevel > 0)
+                          _WordHint(
+                            label: t.hintFirst,
+                            value: _firstLetter(word.spelling),
+                          ),
+                        if (hintLevel > 1 && ipa.isNotEmpty)
+                          _WordHint(label: t.hintIpa, value: ipa),
+                        if (item.audio?.hasAudio == true && hintLevel > 1)
+                          WordAudioButton(audio: item.audio),
+                        AppButton(
+                          label: t.showAnswer,
+                          variant: AppButtonVariant.secondary,
+                          onPressed: onShowAnswer,
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (revealed) ...[
+                    AppCard(
+                      padding: const EdgeInsets.all(AppSpacing.s20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            metaParts.join(' · '),
-                            style: textTheme.bodySmall?.copyWith(
+                            t.answerLabel,
+                            style: AppTextStyles.eyebrow.copyWith(
                               color: palette.muted,
                             ),
                           ),
-                        ],
-                        if (item.audio?.hasAudio == true) ...[
-                          const SizedBox(height: AppSpacing.s12),
-                          WordAudioButton(audio: item.audio),
-                        ],
-                        if (revealed) ...[
-                          const SizedBox(height: AppSpacing.s20),
-                          Divider(height: 1, color: palette.line),
-                          const SizedBox(height: AppSpacing.s16),
+                          const SizedBox(height: AppSpacing.s4),
+                          Text(word.spelling, style: textTheme.displayMedium),
+                          if (ipa.isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.s4),
+                            Text(
+                              ipa,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: palette.muted,
+                              ),
+                            ),
+                          ],
+                          if (item.audio?.hasAudio == true) ...[
+                            const SizedBox(height: AppSpacing.s12),
+                            WordAudioButton(audio: item.audio),
+                          ],
                           if (definition != null && definition.isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.s16),
+                            Divider(height: 1, color: palette.line),
+                            const SizedBox(height: AppSpacing.s16),
                             Text(
                               definition,
                               style: textTheme.bodyLarge?.copyWith(
                                 color: palette.muted,
                               ),
                             ),
-                            if (chunk != null)
-                              const SizedBox(height: AppSpacing.s14),
                           ],
                           if (chunk != null) ...[
+                            const SizedBox(height: AppSpacing.s14),
                             Text(
                               chunk.phrase,
                               style: textTheme.labelLarge?.copyWith(
@@ -214,10 +350,10 @@ class _ReviewContent extends StatelessWidget {
                             ],
                           ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                ),
+                  ],
+                ],
               ],
             ),
           ),
@@ -231,16 +367,138 @@ class _ReviewContent extends StatelessWidget {
               AppSpacing.pageHorizontalPadding,
               AppSpacing.s16,
             ),
-            child: SizedBox(
-              width: double.infinity,
-              child: AppButton(
-                label: revealed ? (isLast ? t.finish : t.next) : t.showMeaning,
-                onPressed: revealed ? onNext : onShowMeaning,
-              ),
+            child: _BottomActions(
+              attempted: attempted,
+              saving: saving,
+              revealed: revealed,
+              t: t,
+              onSubmit: onSubmit,
+              onSaidIt: onSaidIt,
+              onNotYet: onNotYet,
             ),
           ),
         ),
       ],
+    );
+  }
+
+  String _firstLetter(String spelling) {
+    if (spelling.isEmpty) {
+      return spelling;
+    }
+    return '${spelling[0]}${'·' * (spelling.length - 1)}';
+  }
+}
+
+class _BottomActions extends StatelessWidget {
+  const _BottomActions({
+    required this.attempted,
+    required this.saving,
+    required this.revealed,
+    required this.t,
+    required this.onSubmit,
+    required this.onSaidIt,
+    required this.onNotYet,
+  });
+
+  final bool attempted;
+  final bool saving;
+  final bool revealed;
+  final Translations$review$en t;
+  final VoidCallback onSubmit;
+  final VoidCallback onSaidIt;
+  final VoidCallback onNotYet;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!attempted) {
+      return SizedBox(
+        width: double.infinity,
+        child: AppButton(
+          label: t.checkAttempt,
+          isLoading: saving,
+          onPressed: onSubmit,
+        ),
+      );
+    }
+    if (!revealed) {
+      return const SizedBox.shrink();
+    }
+    return Row(
+      children: [
+        Expanded(
+          child: AppButton(
+            label: t.notYet,
+            variant: AppButtonVariant.secondary,
+            onPressed: onNotYet,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.s12),
+        Expanded(
+          child: AppButton(label: t.saidIt, onPressed: onSaidIt),
+        ),
+      ],
+    );
+  }
+}
+
+class _AttemptSummary extends StatelessWidget {
+  const _AttemptSummary({required this.label, required this.text});
+
+  final String label;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+        ),
+        const SizedBox(height: AppSpacing.s4),
+        Text(text, style: textTheme.bodyLarge),
+      ],
+    );
+  }
+}
+
+class _WordHint extends StatelessWidget {
+  const _WordHint({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s12,
+        vertical: AppSpacing.s8,
+      ),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: palette.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: textTheme.labelSmall?.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s2),
+          Text(value, style: textTheme.bodyMedium),
+        ],
+      ),
     );
   }
 }

@@ -17,14 +17,15 @@ class ComposerHintOption {
   final String text;
 }
 
+/// Hints for the composer. Review is intentionally not boosted: the timeline
+/// review card is the single entry point for today's words.
 Map<ComposerHintCategory, double> composerHintWeights({
   required bool? hasActiveChallenge,
-  required int reviewCount,
 }) {
   return {
     ComposerHintCategory.discovery: 3,
     ComposerHintCategory.openWords: 3,
-    ComposerHintCategory.review: reviewCount > 0 ? 6 : 1,
+    ComposerHintCategory.review: 1,
     ComposerHintCategory.startChallenge: hasActiveChallenge == null
         ? 3.5
         : hasActiveChallenge

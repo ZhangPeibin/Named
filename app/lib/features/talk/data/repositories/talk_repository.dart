@@ -23,6 +23,16 @@ class TalkRepository {
     return (await _api.fetch(conversationId)).toDomain();
   }
 
+  Future<Conversation> setUseMemory({
+    required String conversationId,
+    required bool useMemory,
+  }) async {
+    return (await _api.updateConversation(
+      conversationId: conversationId,
+      useMemory: useMemory,
+    )).toDomain();
+  }
+
   Future<PronunciationAudio> synthesizePronunciation(String text) async {
     return (await _api.synthesizePronunciation(text)).toDomain();
   }

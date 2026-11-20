@@ -28,28 +28,22 @@ const _options = [
 ];
 
 void main() {
-  test('weights review and challenge hints by current state', () {
-    final idle = composerHintWeights(hasActiveChallenge: null, reviewCount: 0);
+  test('weights challenge hints by state without boosting review', () {
+    final idle = composerHintWeights(hasActiveChallenge: null);
     expect(idle[ComposerHintCategory.discovery], 3);
     expect(idle[ComposerHintCategory.openWords], 3);
     expect(idle[ComposerHintCategory.review], 1);
     expect(idle[ComposerHintCategory.startChallenge], 3.5);
     expect(idle[ComposerHintCategory.viewChallenges], 3.5);
 
-    final review = composerHintWeights(
-      hasActiveChallenge: false,
-      reviewCount: 3,
-    );
-    expect(review[ComposerHintCategory.review], 6);
+    final noChallenge = composerHintWeights(hasActiveChallenge: false);
+    expect(noChallenge[ComposerHintCategory.review], 1);
     expect(
-      review[ComposerHintCategory.startChallenge]!,
-      greaterThan(review[ComposerHintCategory.viewChallenges]!),
+      noChallenge[ComposerHintCategory.startChallenge]!,
+      greaterThan(noChallenge[ComposerHintCategory.viewChallenges]!),
     );
 
-    final active = composerHintWeights(
-      hasActiveChallenge: true,
-      reviewCount: 0,
-    );
+    final active = composerHintWeights(hasActiveChallenge: true);
     expect(
       active[ComposerHintCategory.viewChallenges]!,
       greaterThan(active[ComposerHintCategory.startChallenge]!),
@@ -63,7 +57,7 @@ void main() {
     for (var index = 0; index < 50; index++) {
       final next = selector.next(
         options: _options,
-        weights: composerHintWeights(hasActiveChallenge: false, reviewCount: 0),
+        weights: composerHintWeights(hasActiveChallenge: false),
         previous: previous,
       );
       expect(next.category, isNot(previous));

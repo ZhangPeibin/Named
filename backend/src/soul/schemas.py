@@ -16,6 +16,7 @@ class SoulProfileOut(BaseModel):
     native_language: str
     age: int | None
     gender: str | None
+    auto_extract: bool
     updated_at: datetime
 
 
@@ -39,6 +40,7 @@ class SoulUpdate(BaseModel):
     native_language: str | None = Field(default=None, min_length=2, max_length=32)
     age: int | None = Field(default=None, ge=0, le=120)
     gender: str | None = Field(default=None, max_length=32)
+    auto_extract: bool | None = None
 
 
 class SoulItemCreate(BaseModel):

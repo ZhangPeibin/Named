@@ -212,6 +212,7 @@ class ConversationDto {
     required this.focusId,
     required this.status,
     required this.messages,
+    this.useMemory = true,
   });
 
   factory ConversationDto.fromJson(Map<String, dynamic> json) {
@@ -221,6 +222,7 @@ class ConversationDto {
       focusType: json['focus_type'] as String? ?? 'word',
       focusId: json['focus_id'] as String? ?? '',
       status: json['status'] as String? ?? 'active',
+      useMemory: json['use_memory'] as bool? ?? true,
       messages: (json['messages'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(TalkMessageDto.fromJson)
@@ -233,6 +235,7 @@ class ConversationDto {
   final String focusType;
   final String focusId;
   final String status;
+  final bool useMemory;
   final List<TalkMessageDto> messages;
 
   Conversation toDomain() {
@@ -242,6 +245,7 @@ class ConversationDto {
       focusType: focusType,
       focusId: focusId,
       status: status,
+      useMemory: useMemory,
       messages: messages.map((message) => message.toDomain()).toList(),
     );
   }

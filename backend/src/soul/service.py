@@ -74,6 +74,8 @@ async def update_soul(
         profile.age = payload.age
     if "gender" in fields:
         profile.gender = payload.gender
+    if "auto_extract" in fields and payload.auto_extract is not None:
+        profile.auto_extract = payload.auto_extract
 
     profile.updated_at = utcnow()
     await session.commit()

@@ -155,7 +155,20 @@
     "rhythmBody": "Challenges will appear here.",
     "library": "Your library",
     "wordsBody": "Words you kept from moments.",
-    "historyBody": "Experiences worth looking back on."
+    "historyBody": "Experiences worth looking back on.",
+    "addItem": "Add to your Soul",
+    "itemText": "What should I remember?",
+    "itemRequired": "Enter something first.",
+    "editItemTitle": "Edit this",
+    "deleteItem": "Remove",
+    "deleteConfirmTitle": "Remove this?",
+    "deleteConfirmBody": "It will no longer shape conversations.",
+    "deleted": "Removed.",
+    "sourceOnboarding": "From onboarding",
+    "sourceUser": "You wrote this",
+    "sourceAi": "Learned from talks",
+    "memoryLabel": "Use my Soul",
+    "memoryHint": "Turn off to talk without your saved background."
   },
   "navigation": {
     "explore": "Explore",
@@ -248,7 +261,9 @@
     "grammarNotes": "Structure",
     "chunks": "Chunks",
     "keyWords": "Key words",
-    "copyEnglish": "Copy English"
+    "copyEnglish": "Copy English",
+    "memoryLabel": "Use my Soul",
+    "memoryHint": "Turn off to talk without your saved background."
   },
   "timeline": {
     "today": "Today",
@@ -284,7 +299,10 @@
     "progressTitle": "Trail",
     "progressWords": "Words",
     "progressConversations": "Talks",
-    "progressReads": "Reads"
+    "progressReads": "Reads",
+    "reviewReminderTitle": "Words to see today",
+    "reviewReminderCount": "{count} words ready",
+    "reviewReminderAction": "Review"
   },
   "words": {
     "title": "Words",
@@ -316,7 +334,21 @@
     "backToTimeline": "Back to timeline",
     "emptyTitle": "Nothing to review yet",
     "emptyCopy": "Name something first. Your words will appear here for review.",
-    "loadFailed": "Could not load your review."
+    "loadFailed": "Could not load your review.",
+    "attemptPrompt": "Say it in English",
+    "attemptHint": "Try it first. Hints come after your attempt.",
+    "attemptPlaceholder": "Type what you would say",
+    "checkAttempt": "Check",
+    "yourAttempt": "Your answer",
+    "hintFirst": "First letter",
+    "hintIpa": "Pronunciation",
+    "showHint": "Show a hint",
+    "showAnswer": "Show answer",
+    "answerLabel": "The word",
+    "saidIt": "I said it",
+    "notYet": "Not yet",
+    "attemptFailed": "Could not save your attempt. Try again.",
+    "cueMissing": "Try to say this in English."
   },
   "history": {
     "title": "History",

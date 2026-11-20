@@ -37,6 +37,7 @@ from models import (
     ExperienceJob,
     ExperienceSource,
     MemoryItem,
+    WordProgress,
 )
 from sentence.agent import get_sentence_agent
 from sentence.schemas import SentenceAgentOutput, SentenceChunk, SentenceKeyWord
@@ -358,6 +359,150 @@ async def test_create_conversation_and_send_message(talk_env) -> None:
 
 
 @pytest.mark.asyncio
+async def test_used_word_is_recorded_in_progress(talk_env) -> None:
+    http, sender, sessions, _, _, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "usage@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={
+            "client_message_id": "usage-1",
+            "text": "We rested under a tree yesterday.",
+        },
+    )
+    assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        progress = await session.scalar(select(WordProgress).where(WordProgress.word_id == word_id))
+    assert progress is not None
+    assert progress.used_count == 1
+    assert progress.last_used_at is not None
+
+    words = (await http.get("/api/v1/words", headers=headers)).json()["words"]
+    assert words[0]["used_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_word_usage_requires_a_whole_word(talk_env) -> None:
+    http, sender, sessions, _, _, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "usage-boundary@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    for index, text in enumerate(
+        ["The treehouse is big.", "Two trees stand there.", "I like this podcast."]
+    ):
+        response = await http.post(
+            f"/api/v1/conversations/{conversation_id}/messages",
+            headers=headers,
+            json={"client_message_id": f"boundary-{index}", "text": text},
+        )
+        assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        progress = await session.scalar(select(WordProgress).where(WordProgress.word_id == word_id))
+    assert progress is None or progress.used_count == 0
+
+
+@pytest.mark.asyncio
+async def test_scene_conversation_does_not_record_word_usage(talk_env) -> None:
+    http, sender, sessions, discovery_agent, _, _ = talk_env
+    discovery_agent.output = scene_output()
+    verified = await request_and_verify(http, sender, "usage-scene@example.com")
+    headers = bearer(verified["session_token"])
+
+    created = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "今天在公园里和女儿休息了一会儿"},
+    )
+    discovery_id = created.json()["id"]
+    await http.post(
+        f"/api/v1/discoveries/{discovery_id}/focus",
+        headers=headers,
+        json={"whole_scene": True},
+    )
+    conversation = await http.post(
+        "/api/v1/conversations",
+        headers=headers,
+        json={"focus_type": "scene", "focus_id": discovery_id},
+    )
+    conversation_id = conversation.json()["id"]
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "scene-usage", "text": "I sat under the tree."},
+    )
+    assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        used = list(await session.scalars(select(WordProgress).where(WordProgress.used_count > 0)))
+    assert used == []
+
+
+@pytest.mark.asyncio
+async def test_conversation_can_disable_memory(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-toggle@example.com")
+    headers = bearer(verified["session_token"])
+    item = await http.post(
+        "/api/v1/soul/items",
+        headers=headers,
+        json={"kind": "interest", "text": "gardening"},
+    )
+    assert item.status_code == 201
+
+    created = await http.post("/api/v1/discoveries", headers=headers, data={"text": "树"})
+    word_id = created.json()["word_id"]
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    first = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "memory-1", "text": "Look at this tree."},
+    )
+    assert first.status_code == 200, first.text
+    assert "gardening" in agent.calls[-1]["soul_context"]
+
+    patched = await http.patch(
+        f"/api/v1/conversations/{conversation_id}",
+        headers=headers,
+        json={"use_memory": False},
+    )
+    assert patched.status_code == 200, patched.text
+    assert patched.json()["use_memory"] is False
+
+    second = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "memory-2", "text": "The leaves are green."},
+    )
+    assert second.status_code == 200, second.text
+    assert agent.calls[-1]["soul_context"] == ""
+
+
+@pytest.mark.asyncio
+async def test_soul_auto_extract_can_be_disabled(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "auto-extract@example.com")
+    headers = bearer(verified["session_token"])
+
+    soul = await http.get("/api/v1/soul", headers=headers)
+    assert soul.status_code == 200
+    assert soul.json()["profile"]["auto_extract"] is True
+
+    patched = await http.patch(
+        "/api/v1/soul",
+        headers=headers,
+        json={"auto_extract": False},
+    )
+    assert patched.status_code == 200, patched.text
+    assert patched.json()["profile"]["auto_extract"] is False
+
+
+@pytest.mark.asyncio
 async def test_message_idempotency(talk_env) -> None:
     http, sender, _, _, _, _ = talk_env
     _, headers, word_id = await create_word(http, sender, "idempotent@example.com")
@@ -597,9 +742,7 @@ async def test_challenge_lifecycle(talk_env) -> None:
 
     listing = await http.get("/api/v1/challenges", headers=headers)
     assert listing.status_code == 200
-    active_ids = {
-        c["id"] for c in listing.json()["items"] if c["status"] == "active"
-    }
+    active_ids = {c["id"] for c in listing.json()["items"] if c["status"] == "active"}
     assert {challenge_id, second_id}.issubset(active_ids)
 
     visited = await http.post(

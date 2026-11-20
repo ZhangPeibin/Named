@@ -8,6 +8,7 @@ from talk.agent import HelpAgent, TalkAgent, get_help_agent, get_talk_agent
 from talk.schemas import (
     ConversationCreate,
     ConversationOut,
+    ConversationUpdate,
     EndConversationOut,
     HelpRequest,
     HelpResponse,
@@ -20,6 +21,7 @@ from talk.service import (
     get_conversation,
     help_expression,
     send_message,
+    update_conversation,
 )
 from tts.deps import SpeechAudioServiceDep
 
@@ -47,6 +49,23 @@ async def read(
     settings: SettingsDep,
 ) -> ConversationOut:
     return await get_conversation(session, current.account.id, conversation_id, settings)
+
+
+@router.patch("/{conversation_id}", response_model=ConversationOut)
+async def update(
+    conversation_id: str,
+    payload: ConversationUpdate,
+    current: CurrentAuthDep,
+    session: SessionDep,
+    settings: SettingsDep,
+) -> ConversationOut:
+    return await update_conversation(
+        session,
+        current.account.id,
+        conversation_id,
+        payload,
+        settings,
+    )
 
 
 @router.post("/{conversation_id}/messages", response_model=TurnOut)

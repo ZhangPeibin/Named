@@ -1,11 +1,12 @@
 import '../../discover/domain/discover.dart';
 
-enum WordShelfStatus { needsReview, growing, known }
+enum WordShelfStatus { needsReview, attempted, growing, known }
 
 WordShelfStatus wordShelfStatusFromJson(String? value) {
   return switch (value) {
     'known' => WordShelfStatus.known,
     'growing' => WordShelfStatus.growing,
+    'attempted' => WordShelfStatus.attempted,
     _ => WordShelfStatus.needsReview,
   };
 }

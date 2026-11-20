@@ -293,6 +293,19 @@ class _Translations$soul$zh implements Translations$soul$en {
 	@override String get library => '你的收藏';
 	@override String get wordsBody => '从经历里留下的词语。';
 	@override String get historyBody => '值得回看的经历。';
+	@override String get addItem => '添加一条';
+	@override String get itemText => '想让我记住什么？';
+	@override String get itemRequired => '请先填写内容。';
+	@override String get editItemTitle => '编辑这一条';
+	@override String get deleteItem => '删除';
+	@override String get deleteConfirmTitle => '删除这一条？';
+	@override String get deleteConfirmBody => '它不再影响之后的交流。';
+	@override String get deleted => '已删除。';
+	@override String get sourceOnboarding => '初始引导';
+	@override String get sourceUser => '你填写的';
+	@override String get sourceAi => 'AI 提炼';
+	@override String get memoryLabel => '使用我的 Soul';
+	@override String get memoryHint => '关闭后，这次对话不使用已保存的背景。';
 }
 
 // Path: navigation
@@ -414,6 +427,8 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get chunks => '表达片段';
 	@override String get keyWords => '关键词';
 	@override String get copyEnglish => '复制英文';
+	@override String get memoryLabel => '使用我的记忆';
+	@override String get memoryHint => '关闭后，这次对话不使用已保存的背景。';
 }
 
 // Path: timeline
@@ -457,6 +472,9 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get progressWords => '单词';
 	@override String get progressConversations => '对话';
 	@override String get progressReads => '阅读';
+	@override String get reviewReminderTitle => '今天要见的词';
+	@override String get reviewReminderCount => '{count} 个词待见';
+	@override String get reviewReminderAction => '去复习';
 }
 
 // Path: words
@@ -503,6 +521,20 @@ class _Translations$review$zh implements Translations$review$en {
 	@override String get emptyTitle => '还没有可复习的词';
 	@override String get emptyCopy => '先命名一个东西，之后它会出现在这里。';
 	@override String get loadFailed => '复习内容加载失败。';
+	@override String get attemptPrompt => '用英语说出它';
+	@override String get attemptHint => '先自己试一次，之后再给提示。';
+	@override String get attemptPlaceholder => '写下你会怎么说';
+	@override String get checkAttempt => '检查';
+	@override String get yourAttempt => '你的答案';
+	@override String get hintFirst => '首字母';
+	@override String get hintIpa => '音标';
+	@override String get showHint => '看提示';
+	@override String get showAnswer => '看答案';
+	@override String get answerLabel => '这个词';
+	@override String get saidIt => '说出来了';
+	@override String get notYet => '还不行';
+	@override String get attemptFailed => '没能保存这次尝试，请再试一次。';
+	@override String get cueMissing => '试着用英语说出它。';
 }
 
 // Path: history
@@ -833,6 +865,19 @@ extension on TranslationsZh {
 			'soul.library' => '你的收藏',
 			'soul.wordsBody' => '从经历里留下的词语。',
 			'soul.historyBody' => '值得回看的经历。',
+			'soul.addItem' => '添加一条',
+			'soul.itemText' => '想让我记住什么？',
+			'soul.itemRequired' => '请先填写内容。',
+			'soul.editItemTitle' => '编辑这一条',
+			'soul.deleteItem' => '删除',
+			'soul.deleteConfirmTitle' => '删除这一条？',
+			'soul.deleteConfirmBody' => '它不再影响之后的交流。',
+			'soul.deleted' => '已删除。',
+			'soul.sourceOnboarding' => '初始引导',
+			'soul.sourceUser' => '你填写的',
+			'soul.sourceAi' => 'AI 提炼',
+			'soul.memoryLabel' => '使用我的 Soul',
+			'soul.memoryHint' => '关闭后，这次对话不使用已保存的背景。',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -918,6 +963,8 @@ extension on TranslationsZh {
 			'talk.chunks' => '表达片段',
 			'talk.keyWords' => '关键词',
 			'talk.copyEnglish' => '复制英文',
+			'talk.memoryLabel' => '使用我的记忆',
+			'talk.memoryHint' => '关闭后，这次对话不使用已保存的背景。',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
 			'timeline.emptyTitle' => '今天看到了什么？',
@@ -952,6 +999,9 @@ extension on TranslationsZh {
 			'timeline.progressWords' => '单词',
 			'timeline.progressConversations' => '对话',
 			'timeline.progressReads' => '阅读',
+			'timeline.reviewReminderTitle' => '今天要见的词',
+			'timeline.reviewReminderCount' => '{count} 个词待见',
+			'timeline.reviewReminderAction' => '去复习',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',
@@ -980,6 +1030,20 @@ extension on TranslationsZh {
 			'review.emptyTitle' => '还没有可复习的词',
 			'review.emptyCopy' => '先命名一个东西，之后它会出现在这里。',
 			'review.loadFailed' => '复习内容加载失败。',
+			'review.attemptPrompt' => '用英语说出它',
+			'review.attemptHint' => '先自己试一次，之后再给提示。',
+			'review.attemptPlaceholder' => '写下你会怎么说',
+			'review.checkAttempt' => '检查',
+			'review.yourAttempt' => '你的答案',
+			'review.hintFirst' => '首字母',
+			'review.hintIpa' => '音标',
+			'review.showHint' => '看提示',
+			'review.showAnswer' => '看答案',
+			'review.answerLabel' => '这个词',
+			'review.saidIt' => '说出来了',
+			'review.notYet' => '还不行',
+			'review.attemptFailed' => '没能保存这次尝试，请再试一次。',
+			'review.cueMissing' => '试着用英语说出它。',
 			'history.title' => '回忆',
 			'history.empty' => '还没有可回看的经历。',
 			'history.emptyHint' => '一段有意义的对话会在 Milo 整理后出现在这里。',

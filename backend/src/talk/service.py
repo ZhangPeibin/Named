@@ -1,4 +1,5 @@
 import logging
+import re
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,6 +23,7 @@ from models import (
     SoulProfile,
     Word,
     WordContent,
+    WordProgress,
 )
 from talk.agent import HELP_SPEC, HelpAgent, TalkAgent
 from talk.agent import SPEC as TALK_SPEC
@@ -30,6 +32,7 @@ from talk.schemas import (
     AnnotationOut,
     ConversationCreate,
     ConversationOut,
+    ConversationUpdate,
     CorrectionOut,
     EndConversationOut,
     HelpRequest,
@@ -65,6 +68,66 @@ async def _native_language(session: AsyncSession, account_id: str) -> str:
     if profile is None:
         raise ApiError("Soul not found.", status_code=404, code="soul_not_found")
     return profile.native_language
+
+
+def _normalize_text(value: str) -> str:
+    return " ".join(value.split()).lower()
+
+
+def contains_term(text: str, term: str) -> bool:
+    """Match a whole word or phrase, ignoring case and extra whitespace."""
+    normalized_term = _normalize_text(term)
+    if not normalized_term:
+        return False
+    pattern = rf"(?<![a-z]){re.escape(normalized_term)}(?![a-z])"
+    return re.search(pattern, _normalize_text(text)) is not None
+
+
+async def _word_terms(
+    session: AsyncSession,
+    account_id: str,
+    word: Word,
+) -> list[str]:
+    terms = [word.label_en]
+    content = await session.scalar(
+        select(WordContent)
+        .where(
+            WordContent.word_id == word.id,
+            WordContent.native_language == await _native_language(session, account_id),
+        )
+        .order_by(WordContent.created_at.desc())
+    )
+    if content is not None:
+        payload = WordPayload.model_validate(content.payload_json)
+        terms.extend(chunk.phrase for chunk in payload.chunks if chunk.phrase)
+    return terms
+
+
+async def _record_word_usage(
+    session: AsyncSession,
+    account_id: str,
+    conversation: Conversation,
+    text: str,
+) -> None:
+    if conversation.focus_type != "word" or not conversation.focus_id:
+        return
+    word = await session.get(Word, conversation.focus_id)
+    if word is None:
+        return
+    if not any(contains_term(text, term) for term in await _word_terms(session, account_id, word)):
+        return
+    progress = await session.scalar(
+        select(WordProgress).where(
+            WordProgress.account_id == account_id,
+            WordProgress.word_id == word.id,
+        )
+    )
+    if progress is None:
+        progress = WordProgress(account_id=account_id, word_id=word.id)
+        session.add(progress)
+    progress.used_count = (progress.used_count or 0) + 1
+    progress.last_used_at = utcnow()
+    await session.flush()
 
 
 async def _validate_focus(
@@ -150,7 +213,9 @@ async def _focus_context(
     return "\n".join(parts)
 
 
-async def _soul_context(session: AsyncSession, account_id: str) -> str:
+async def _soul_context(session: AsyncSession, account_id: str, use_memory: bool = True) -> str:
+    if not use_memory:
+        return ""
     profile = await session.get(SoulProfile, account_id)
     if profile is None:
         return ""
@@ -260,6 +325,7 @@ async def _conversation_out(
         focus_type=conversation.focus_type,
         focus_id=conversation.focus_id,
         status=conversation.status,
+        use_memory=conversation.use_memory,
         started_at=conversation.started_at,
         ended_at=conversation.ended_at,
         messages=[await _message_out(session, row, settings) for row in messages],
@@ -278,6 +344,7 @@ async def create_conversation(
         focus_type=payload.focus_type,
         focus_id=payload.focus_id,
         status="active",
+        use_memory=payload.use_memory,
     )
     session.add(conversation)
     await session.commit()
@@ -292,6 +359,20 @@ async def get_conversation(
     settings: Settings,
 ) -> ConversationOut:
     conversation = await _get_conversation(session, account_id, conversation_id)
+    return await _conversation_out(session, conversation, settings)
+
+
+async def update_conversation(
+    session: AsyncSession,
+    account_id: str,
+    conversation_id: str,
+    payload: ConversationUpdate,
+    settings: Settings,
+) -> ConversationOut:
+    conversation = await _get_conversation(session, account_id, conversation_id)
+    conversation.use_memory = payload.use_memory
+    await session.commit()
+    await session.refresh(conversation)
     return await _conversation_out(session, conversation, settings)
 
 
@@ -343,6 +424,11 @@ async def send_message(
         session.add(user_message)
         await session.commit()
         await session.refresh(user_message)
+        try:
+            async with session.begin_nested():
+                await _record_word_usage(session, account_id, conversation, payload.text)
+        except Exception:
+            logger.warning("Word usage update failed")
     else:
         assistant = await session.scalar(
             select(ConversationMessage).where(
@@ -359,7 +445,7 @@ async def send_message(
 
     native_language = await _native_language(session, account_id)
     focus_context = await _focus_context(session, conversation, native_language, settings)
-    soul_context = await _soul_context(session, account_id)
+    soul_context = await _soul_context(session, account_id, conversation.use_memory)
     memory_context = await get_memory_context(
         session,
         account_id,
@@ -516,7 +602,7 @@ async def help_expression(
     conversation = await _get_conversation(session, account_id, conversation_id)
     native_language = await _native_language(session, account_id)
     focus_context = await _focus_context(session, conversation, native_language, settings)
-    soul_context = await _soul_context(session, account_id)
+    soul_context = await _soul_context(session, account_id, conversation.use_memory)
     memory_context = await get_memory_context(
         session,
         account_id,
