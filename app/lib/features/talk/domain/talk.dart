@@ -95,6 +95,7 @@ class Conversation {
     required this.focusId,
     required this.status,
     required this.messages,
+    this.useMemory = true,
   });
 
   final String id;
@@ -102,6 +103,7 @@ class Conversation {
   final String focusType;
   final String focusId;
   final String status;
+  final bool useMemory;
   final List<TalkMessage> messages;
 }
 

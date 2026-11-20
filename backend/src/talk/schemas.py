@@ -76,6 +76,11 @@ class HelpResponse(BaseModel):
 class ConversationCreate(BaseModel):
     focus_type: Literal["word", "scene"]
     focus_id: str = Field(min_length=1, max_length=36)
+    use_memory: bool = True
+
+
+class ConversationUpdate(BaseModel):
+    use_memory: bool
 
 
 class MessageCreate(BaseModel):
@@ -132,6 +137,7 @@ class ConversationOut(BaseModel):
     focus_type: str
     focus_id: str
     status: str
+    use_memory: bool = True
     started_at: datetime
     ended_at: datetime | None
     messages: list[MessageOut]

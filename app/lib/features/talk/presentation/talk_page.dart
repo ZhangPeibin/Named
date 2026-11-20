@@ -46,6 +46,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   List<TalkMessage> _messages = const [];
   String? _title;
   String? _focusType;
+  bool _useMemory = true;
   String? _error;
   bool _isLoading = true;
   bool _isSending = false;
@@ -95,6 +96,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
         setState(() {
           _title = conversation.title;
           _focusType = conversation.focusType;
+          _useMemory = conversation.useMemory;
           _messages = conversation.messages;
           _unlockedNativeMessageIds.addAll(
             conversation.messages.map((message) => message.id),
@@ -109,6 +111,26 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           _error = error.message;
           _isLoading = false;
         });
+      }
+    }
+  }
+
+  Future<void> _toggleMemory() async {
+    final next = !_useMemory;
+    setState(() => _useMemory = next);
+    try {
+      final conversation = await ref
+          .read(talkRepositoryProvider)
+          .setUseMemory(conversationId: widget.conversationId, useMemory: next);
+      if (mounted) {
+        setState(() => _useMemory = conversation.useMemory);
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _useMemory = !next);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
       }
     }
   }
@@ -445,6 +467,8 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           _TalkHeader(
             title: title,
             isTyping: showTyping,
+            useMemory: _useMemory,
+            onToggleMemory: () => unawaited(_toggleMemory()),
             onBack: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
@@ -1048,11 +1072,15 @@ class _TalkHeader extends StatelessWidget {
   const _TalkHeader({
     required this.title,
     required this.isTyping,
+    required this.useMemory,
+    required this.onToggleMemory,
     required this.onBack,
   });
 
   final String title;
   final bool isTyping;
+  final bool useMemory;
+  final VoidCallback onToggleMemory;
   final VoidCallback onBack;
 
   @override
@@ -1112,6 +1140,23 @@ class _TalkHeader extends StatelessWidget {
                   style: textTheme.bodySmall?.copyWith(color: palette.muted),
                 ),
               ],
+            ),
+          ),
+          IconButton(
+            key: const Key('talk.memory'),
+            onPressed: onToggleMemory,
+            tooltip: useMemory
+                ? '${t.memoryLabel}\n${t.memoryHint}'
+                : t.memoryLabel,
+            style: IconButton.styleFrom(
+              minimumSize: const Size.square(40),
+              maximumSize: const Size.square(40),
+              padding: EdgeInsets.zero,
+            ),
+            icon: AppLineIcon(
+              AppLineGlyph.person,
+              size: 20,
+              color: useMemory ? palette.primary : palette.muted,
             ),
           ),
         ],
