@@ -72,7 +72,7 @@ class WordNamingCard extends StatelessWidget {
               ),
               AppLineIcon(
                 AppLineGlyph.chevronRight,
-                size: 18,
+                size: 22,
                 color: palette.muted,
               ),
             ],

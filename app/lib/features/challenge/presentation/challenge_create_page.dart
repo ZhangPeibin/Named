@@ -21,6 +21,8 @@ import '../../timeline/domain/timeline_item.dart' as timeline;
 import '../../timeline/providers/timeline_providers.dart';
 import '../providers/challenge_providers.dart';
 
+enum _ContentFilter { all, words, moments }
+
 class ChallengeCreatePage extends ConsumerStatefulWidget {
   const ChallengeCreatePage({super.key});
 
@@ -31,11 +33,15 @@ class ChallengeCreatePage extends ConsumerStatefulWidget {
 
 class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
   final _nameController = TextEditingController();
+  final _themeController = TextEditingController();
   final _customDaysController = TextEditingController(text: '14');
   final _manualController = TextEditingController();
+  final _searchController = TextEditingController();
   final _selected = <String>{};
   var _days = 2;
   var _customDays = false;
+  var _filter = _ContentFilter.all;
+  var _query = '';
   var _isCreating = false;
   var _isAdding = false;
   String? _error;
@@ -43,8 +49,10 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
   @override
   void dispose() {
     _nameController.dispose();
+    _themeController.dispose();
     _customDaysController.dispose();
     _manualController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -66,10 +74,12 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
       _error = null;
     });
     try {
+      final theme = _themeController.text.trim();
       final challenge = await ref
           .read(challengeActionsProvider)
           .create(
             name: name,
+            theme: theme.isEmpty ? null : theme,
             plannedDays: days,
             discoveryIds: _selected.toList(),
           );
@@ -166,6 +176,22 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
           if (candidates.isEmpty) {
             return Center(child: AppEmptyView(title: t.noContent));
           }
+          final query = _query.trim().toLowerCase();
+          final visible = candidates.where((candidate) {
+            final matchesType = switch (_filter) {
+              _ContentFilter.all => true,
+              _ContentFilter.words => candidate.isWord,
+              _ContentFilter.moments => !candidate.isWord,
+            };
+            if (!matchesType) {
+              return false;
+            }
+            if (query.isEmpty) {
+              return true;
+            }
+            return candidate.title.toLowerCase().contains(query) ||
+                (candidate.subtitle ?? '').toLowerCase().contains(query);
+          }).toList();
           return ListView(
             padding: const EdgeInsets.only(bottom: AppSpacing.s24),
             children: [
@@ -174,6 +200,15 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
                 controller: _nameController,
                 labelText: t.name,
                 hintText: t.nameHint,
+                textInputAction: TextInputAction.next,
+                onChanged: (_) => setState(() => _error = null),
+              ),
+              const SizedBox(height: AppSpacing.s12),
+              AppTextField(
+                key: const Key('challenge.theme'),
+                controller: _themeController,
+                labelText: t.theme,
+                hintText: t.themeHint,
                 textInputAction: TextInputAction.next,
                 onChanged: (_) => setState(() => _error = null),
               ),
@@ -188,17 +223,17 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
               Wrap(
                 spacing: AppSpacing.s8,
                 children: [
-                  _DurationChip(
+                  _SelectChip(
                     label: t.twoDays,
                     selected: !_customDays && _days == 2,
                     onTap: () => setState(() => _days = 2),
                   ),
-                  _DurationChip(
+                  _SelectChip(
                     label: t.oneWeek,
                     selected: !_customDays && _days == 7,
                     onTap: () => setState(() => _days = 7),
                   ),
-                  _DurationChip(
+                  _SelectChip(
                     label: t.custom,
                     selected: _customDays,
                     onTap: () => setState(() => _customDays = true),
@@ -215,6 +250,8 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
                   onChanged: (_) => setState(() {}),
                 ),
               ],
+              const SizedBox(height: AppSpacing.s20),
+              _PlanPreview(count: _selected.length, days: _plannedDays),
               const SizedBox(height: AppSpacing.s24),
               Text(
                 t.addManual.toUpperCase(),
@@ -237,15 +274,18 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.s8),
-                  AppButton(
-                    key: const Key('challenge.manualAdd'),
-                    label: t.addManualAction,
-                    variant: AppButtonVariant.secondary,
-                    isLoading: _isAdding,
-                    onPressed:
-                        _isAdding || _manualController.text.trim().isEmpty
-                        ? null
-                        : () => unawaited(_addManual()),
+                  SizedBox(
+                    width: 88,
+                    child: AppButton(
+                      key: const Key('challenge.manualAdd'),
+                      label: t.addManualAction,
+                      variant: AppButtonVariant.secondary,
+                      isLoading: _isAdding,
+                      onPressed:
+                          _isAdding || _manualController.text.trim().isEmpty
+                          ? null
+                          : () => unawaited(_addManual()),
+                    ),
                   ),
                 ],
               ),
@@ -272,7 +312,45 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
                 ],
               ),
               const SizedBox(height: AppSpacing.s8),
-              for (final candidate in candidates)
+              AppTextField(
+                key: const Key('challenge.search'),
+                controller: _searchController,
+                hintText: t.searchHint,
+                onChanged: (value) => setState(() => _query = value),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              Wrap(
+                spacing: AppSpacing.s8,
+                children: [
+                  _SelectChip(
+                    label: t.filterAll,
+                    selected: _filter == _ContentFilter.all,
+                    onTap: () => setState(() => _filter = _ContentFilter.all),
+                  ),
+                  _SelectChip(
+                    label: t.filterWords,
+                    selected: _filter == _ContentFilter.words,
+                    onTap: () => setState(() => _filter = _ContentFilter.words),
+                  ),
+                  _SelectChip(
+                    label: t.filterMoments,
+                    selected: _filter == _ContentFilter.moments,
+                    onTap: () =>
+                        setState(() => _filter = _ContentFilter.moments),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.s6),
+                child: Text(
+                  t.chooseHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: context.appPalette.muted,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              for (final candidate in visible)
                 _CandidateRow(
                   candidate: candidate,
                   selected: _selected.contains(candidate.id),
@@ -284,6 +362,16 @@ class _ChallengeCreatePageState extends ConsumerState<ChallengeCreatePage> {
                       _error = null;
                     });
                   },
+                ),
+              if (visible.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s12),
+                  child: Text(
+                    t.noMatches,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.appPalette.muted,
+                    ),
+                  ),
                 ),
               if (_error != null) ...[
                 const SizedBox(height: AppSpacing.s12),
@@ -401,8 +489,43 @@ class _CandidateRow extends StatelessWidget {
   }
 }
 
-class _DurationChip extends StatelessWidget {
-  const _DurationChip({
+class _PlanPreview extends StatelessWidget {
+  const _PlanPreview({required this.count, required this.days});
+
+  final int count;
+  final int days;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.challenge;
+    final palette = context.appPalette;
+    final text = count < 1 || days < 1
+        ? t.planPreviewHint
+        : t.planPreview
+              .replaceFirst('{count}', '$count')
+              .replaceFirst('{days}', '$days');
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.s12),
+      child: Row(
+        children: [
+          AppLineIcon(AppLineGlyph.flag, size: 16, color: palette.accent),
+          const SizedBox(width: AppSpacing.s8),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: palette.muted),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SelectChip extends StatelessWidget {
+  const _SelectChip({
     required this.label,
     required this.selected,
     required this.onTap,

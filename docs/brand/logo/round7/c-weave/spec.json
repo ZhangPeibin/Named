@@ -1,0 +1,42 @@
+{
+  "brand": "Named",
+  "tagline": "A personal English world",
+  "brief": "Named is an English-learning app that starts from real life: you see something, name it, talk about it with AI, and keep the words connected to the moments and memories around them. The identity should feel warm, editorial and personal, not like a school product or an AI tool.",
+  "adjectives": ["warm", "personal", "editorial", "calm"],
+  "criteria": "Distinct from edtech clichés, recognisable at 16 px, works in one colour, and feels like a real personal object rather than a platform.",
+  "industry": "consumer-app",
+  "mockups": ["app-icon", "website", "social", "sticker", "tshirt", "favicon-tab"],
+  "nav": ["Explore", "Words", "History", "Me"],
+  "brand_color": "#2F4A6B",
+  "greyscale": false,
+  "final": true,
+  "round": 7,
+  "designer": "Named design",
+  "concepts": [
+    {
+      "name": "The Weave",
+      "symbol": "c-symbol.svg",
+      "lockup": "c-lockup-horizontal.svg",
+      "stacked": "c-lockup-stacked.svg",
+      "avatar": "c-app-icon.svg",
+      "symbol_on_tile": "c-symbol-on-dark.svg",
+      "lockup_on_tile": "c-lockup-horizontal-on-dark.svg",
+      "stacked_on_tile": "c-lockup-stacked-on-dark.svg",
+      "symbol_on_dark": "c-symbol-on-dark.svg",
+      "lockup_on_dark": "c-lockup-horizontal-on-dark.svg",
+      "stacked_on_dark": "c-lockup-stacked-on-dark.svg",
+      "idea": "One thread over and under: the new word tied to what you already know.",
+      "rationale": [
+        "Expresses the relationship between words, experiences and memory.",
+        "The woven N is both the brand initial and the app icon.",
+        "The thread starts thin, widens and tapers under the right stem, so the N reads as a drawn thread rather than a bold letter."
+      ]
+    }
+  ],
+  "recommendation": "The selected identity: the Thread N says relationship, not just naming, and carries the identity at every size.",
+  "next_steps": [
+    "The Thread N is selected",
+    "App icon and splash are wired in Flutter",
+    "Use the exports for web and PWA"
+  ]
+}

@@ -8,6 +8,7 @@ abstract class ChallengeApi {
   Future<List<ChallengeDto>> fetch();
   Future<ChallengeDto> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   });
@@ -50,6 +51,7 @@ class RemoteChallengeApi implements ChallengeApi {
   @override
   Future<ChallengeDto> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async {
@@ -58,6 +60,7 @@ class RemoteChallengeApi implements ChallengeApi {
         '/api/v1/challenges',
         data: {
           'name': name,
+          if (theme != null && theme.trim().isNotEmpty) 'theme': theme.trim(),
           'planned_days': plannedDays,
           'discovery_ids': discoveryIds,
         },
@@ -120,6 +123,7 @@ class MockChallengeApi implements ChallengeApi {
   @override
   Future<ChallengeDto> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async {
@@ -127,6 +131,7 @@ class MockChallengeApi implements ChallengeApi {
     final challenge = ChallengeDto(
       id: 'mock-challenge-${now.microsecondsSinceEpoch}',
       name: name,
+      theme: theme,
       plannedDays: plannedDays,
       status: ChallengeStatus.active,
       startedAt: now,
@@ -203,6 +208,7 @@ class MockChallengeApi implements ChallengeApi {
     return ChallengeDto(
       id: source.id,
       name: source.name,
+      theme: source.theme,
       plannedDays: source.plannedDays,
       status: status ?? source.status,
       startedAt: source.startedAt,

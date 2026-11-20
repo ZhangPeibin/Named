@@ -39,26 +39,36 @@ class TodoDemoPage extends ConsumerWidget {
             spacing: AppSpacing.s8,
             runSpacing: AppSpacing.s8,
             children: [
-              AppButton(
-                label: t.scenarioSuccess,
-                variant: scenarioId == TodoDemoScenario.successId
-                    ? AppButtonVariant.primary
-                    : AppButtonVariant.secondary,
-                onPressed: () => _setScenario(ref, TodoDemoScenario.successId),
+              SizedBox(
+                width: 132,
+                child: AppButton(
+                  label: t.scenarioSuccess,
+                  variant: scenarioId == TodoDemoScenario.successId
+                      ? AppButtonVariant.primary
+                      : AppButtonVariant.secondary,
+                  onPressed: () =>
+                      _setScenario(ref, TodoDemoScenario.successId),
+                ),
               ),
-              AppButton(
-                label: t.scenarioEmpty,
-                variant: scenarioId == TodoDemoScenario.emptyId
-                    ? AppButtonVariant.primary
-                    : AppButtonVariant.secondary,
-                onPressed: () => _setScenario(ref, TodoDemoScenario.emptyId),
+              SizedBox(
+                width: 132,
+                child: AppButton(
+                  label: t.scenarioEmpty,
+                  variant: scenarioId == TodoDemoScenario.emptyId
+                      ? AppButtonVariant.primary
+                      : AppButtonVariant.secondary,
+                  onPressed: () => _setScenario(ref, TodoDemoScenario.emptyId),
+                ),
               ),
-              AppButton(
-                label: t.scenarioError,
-                variant: scenarioId == TodoDemoScenario.errorId
-                    ? AppButtonVariant.primary
-                    : AppButtonVariant.secondary,
-                onPressed: () => _setScenario(ref, TodoDemoScenario.errorId),
+              SizedBox(
+                width: 132,
+                child: AppButton(
+                  label: t.scenarioError,
+                  variant: scenarioId == TodoDemoScenario.errorId
+                      ? AppButtonVariant.primary
+                      : AppButtonVariant.secondary,
+                  onPressed: () => _setScenario(ref, TodoDemoScenario.errorId),
+                ),
               ),
             ],
           ),

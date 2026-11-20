@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="t"><title id="t">Named name tag</title>
+  <g id="symbol">
+    <path fill="#232A31" fill-rule="evenodd" d="M94 50 L162 50 A20 20 0 0 1 182 70 L182 162 L138 206 L94 206 A20 20 0 0 1 74 186 L74 70 A20 20 0 0 1 94 50 Z M146 96 A18 18 0 1 0 110 96 A18 18 0 1 0 146 96 Z"/>
+    <path fill="#B05230" fill-rule="evenodd" d="M152 96 A24 24 0 1 0 104 96 A24 24 0 1 0 152 96 Z M146 96 A18 18 0 1 0 110 96 A18 18 0 1 0 146 96 Z"/>
+  </g>
+</svg>

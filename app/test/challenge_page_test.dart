@@ -59,6 +59,7 @@ class _FakeChallengeApi implements ChallengeApi {
   @override
   Future<ChallengeDto> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async => _challenge;
@@ -121,6 +122,7 @@ class _PracticeChallengeApi implements ChallengeApi {
   @override
   Future<ChallengeDto> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async => _current;
@@ -164,6 +166,7 @@ class _MultiActiveChallengeApi implements ChallengeApi {
   @override
   Future<ChallengeDto> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async => _challenge('challenge-new', name);
@@ -219,8 +222,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('tree'), findsOneWidget);
-    expect(find.text('A moment in the park'), findsOneWidget);
+    expect(find.text('A moment in the park'), findsWidgets);
     expect(find.byKey(const Key('challenge.item.item-1')), findsOneWidget);
+    expect(find.byKey(const Key('challenge.today.item-2')), findsOneWidget);
     expect(find.byKey(const Key('challenge.end')), findsOneWidget);
   });
 

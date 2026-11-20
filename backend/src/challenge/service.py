@@ -98,6 +98,7 @@ async def _challenge_out(
     return ChallengeOut(
         id=challenge.id,
         name=challenge.name,
+        theme=challenge.theme,
         planned_days=challenge.planned_days,
         status=challenge.status,
         started_at=challenge.started_at,
@@ -150,9 +151,11 @@ async def create_challenge(
             code="invalid_challenge_content",
         )
 
+    theme = " ".join(payload.theme.split()) if payload.theme else ""
     challenge = Challenge(
         account_id=account_id,
         name=" ".join(payload.name.split()),
+        theme=theme or None,
         planned_days=payload.planned_days,
         status="active",
     )

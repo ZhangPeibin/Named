@@ -7,15 +7,15 @@ import 'package:named/features/timeline/presentation/widgets/challenge_carousel.
 
 import 'support/i18n_test_helpers.dart';
 
-Challenge _challenge(String id, String name) {
+Challenge _challenge(String id, String name, DateTime startedAt) {
   return Challenge(
     id: id,
     name: name,
     plannedDays: 2,
     status: ChallengeStatus.active,
-    startedAt: DateTime(2026, 11, 12),
+    startedAt: startedAt,
     endedAt: null,
-    createdAt: DateTime(2026, 11, 12),
+    createdAt: startedAt,
     totalCount: 2,
     visitedCount: 1,
     isDue: false,
@@ -24,7 +24,7 @@ Challenge _challenge(String id, String name) {
 }
 
 void main() {
-  testWidgets('shows active challenges and swipes between them', (
+  testWidgets('shows the current challenge and a see-all link for others', (
     tester,
   ) async {
     await pumpWithTranslations(
@@ -32,7 +32,10 @@ void main() {
       child: ProviderScope(
         overrides: [
           challengesProvider.overrideWith(
-            (ref) async => [_challenge('a', 'Alpha'), _challenge('b', 'Beta')],
+            (ref) async => [
+              _challenge('a', 'Alpha', DateTime(2026, 11, 12)),
+              _challenge('b', 'Beta', DateTime(2026, 11, 13)),
+            ],
           ),
         ],
         child: const ChallengeCarousel(),
@@ -40,11 +43,24 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('timeline.challenge.a')), findsOneWidget);
+    expect(find.byKey(const Key('timeline.challenge.b')), findsOneWidget);
+    expect(find.byKey(const Key('timeline.challenge.a')), findsNothing);
+    expect(find.byKey(const Key('timeline.challenge.seeAll')), findsOneWidget);
+    expect(find.text('Beta'), findsOneWidget);
+  });
 
-    await tester.fling(find.byType(PageView), const Offset(-600, 0), 1200);
+  testWidgets('hides when there is no active challenge', (tester) async {
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          challengesProvider.overrideWith((ref) async => const <Challenge>[]),
+        ],
+        child: const ChallengeCarousel(),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('timeline.challenge.b')), findsOneWidget);
+    expect(find.byKey(const Key('timeline.challenge.seeAll')), findsNothing);
   });
 }

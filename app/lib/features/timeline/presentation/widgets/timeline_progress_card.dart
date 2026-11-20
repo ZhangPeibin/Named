@@ -102,8 +102,8 @@ class _ProgressStat extends StatelessWidget {
           ),
           Row(
             children: [
-              AppLineIcon(glyph, size: 13, color: color),
-              const SizedBox(width: 3),
+              AppLineIcon(glyph, size: 16, color: color),
+              const SizedBox(width: 4),
               Text(
                 label,
                 style: AppTextStyles.caption.copyWith(color: palette.muted),

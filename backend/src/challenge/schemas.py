@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class ChallengeCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
+    theme: str | None = Field(default=None, max_length=120)
     planned_days: int = Field(ge=1, le=365)
     discovery_ids: list[str] = Field(min_length=1, max_length=50)
 
@@ -24,6 +25,7 @@ class ChallengeItemOut(BaseModel):
 class ChallengeOut(BaseModel):
     id: str
     name: str
+    theme: str | None = None
     planned_days: int
     status: Literal["active", "ended"]
     started_at: datetime

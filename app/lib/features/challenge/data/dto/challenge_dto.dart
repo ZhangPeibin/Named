@@ -52,6 +52,7 @@ class ChallengeDto {
   const ChallengeDto({
     required this.id,
     required this.name,
+    this.theme,
     required this.plannedDays,
     required this.status,
     required this.startedAt,
@@ -67,6 +68,7 @@ class ChallengeDto {
     return ChallengeDto(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
+      theme: json['theme'] as String?,
       plannedDays: (json['planned_days'] as num?)?.toInt() ?? 0,
       status: json['status'] == 'ended'
           ? ChallengeStatus.ended
@@ -86,6 +88,7 @@ class ChallengeDto {
 
   final String id;
   final String name;
+  final String? theme;
   final int plannedDays;
   final ChallengeStatus status;
   final DateTime startedAt;
@@ -100,6 +103,7 @@ class ChallengeDto {
     return Challenge(
       id: id,
       name: name,
+      theme: theme,
       plannedDays: plannedDays,
       status: status,
       startedAt: startedAt,

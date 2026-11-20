@@ -13,28 +13,13 @@ import '../../../../i18n/strings.g.dart';
 import '../../../challenge/domain/challenge.dart';
 import '../../../challenge/providers/challenge_providers.dart';
 
-/// A horizontally swipeable row of the learner's in-progress challenges, shown
-/// in the timeline so they can continue a round on entry. Cards are full width
-/// so they line up with the rest of the timeline.
-class ChallengeCarousel extends ConsumerStatefulWidget {
+/// A single "today's practice" strip for the learner's current challenge,
+/// shown in the timeline. Multiple active challenges stay secondary.
+class ChallengeCarousel extends ConsumerWidget {
   const ChallengeCarousel({super.key});
 
   @override
-  ConsumerState<ChallengeCarousel> createState() => _ChallengeCarouselState();
-}
-
-class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
-  final _controller = PageController();
-  var _index = 0;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final active =
         (ref.watch(challengesProvider).value ?? const <Challenge>[])
             .where((challenge) => challenge.isActive)
@@ -44,143 +29,107 @@ class _ChallengeCarouselState extends ConsumerState<ChallengeCarousel> {
       return const SizedBox.shrink();
     }
 
+    final t = context.t.challenge;
     final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    final focus = active.first;
+    final count = focus.todayFocus.length;
+    final status = focus.isComplete
+        ? t.allPracticed
+        : count == 0
+        ? t.todayDone
+        : t.toPractice.replaceFirst('{count}', '$count');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
-          height: 82,
-          child: PageView.builder(
-            controller: _controller,
-            onPageChanged: (index) => setState(() => _index = index),
-            itemCount: active.length,
-            itemBuilder: (context, index) => _ChallengeMiniCard(
-              challenge: active[index],
-              onTap: () => unawaited(
-                context.pushNamed(
-                  AppRouteNames.challengeDetail,
-                  pathParameters: {'challengeId': active[index].id},
+        AppCard(
+          key: Key('timeline.challenge.${focus.id}'),
+          onTap: () => unawaited(
+            focus.isComplete
+                ? _openDetail(context, focus.id)
+                : _openPractice(context, focus.id),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s16,
+            vertical: AppSpacing.s12,
+          ),
+          semanticLabel: focus.name,
+          child: Row(
+            children: [
+              AppLineIcon(AppLineGlyph.flag, size: 24, color: palette.accent),
+              const SizedBox(width: AppSpacing.s10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      focus.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleLarge?.copyWith(
+                        color: palette.ink,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s4),
+                    Text(
+                      status,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: focus.isComplete
+                            ? palette.accent
+                            : palette.muted,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
+              const SizedBox(width: AppSpacing.s8),
+              AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
+            ],
           ),
         ),
         if (active.length > 1) ...[
           const SizedBox(height: AppSpacing.s8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              for (var index = 0; index < active.length; index++) ...[
-                if (index > 0) const SizedBox(width: AppSpacing.s6),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: index == _index ? 16 : 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: index == _index ? palette.primary : palette.line,
-                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _ChallengeMiniCard extends StatelessWidget {
-  const _ChallengeMiniCard({required this.challenge, required this.onTap});
-
-  final Challenge challenge;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.t.challenge;
-    final palette = context.appPalette;
-    final textTheme = Theme.of(context).textTheme;
-
-    final today = DateUtils.dateOnly(DateTime.now());
-    final dueAt = DateUtils.dateOnly(
-      challenge.startedAt.add(Duration(days: challenge.plannedDays)),
-    );
-    final daysLeft = dueAt.difference(today).inDays;
-    final isDue = challenge.isDue || daysLeft <= 0;
-    final remaining = isDue
-        ? t.dueToday
-        : daysLeft == 1
-        ? t.dayLeft.replaceFirst('{count}', '1')
-        : t.daysLeft.replaceFirst('{count}', '$daysLeft');
-
-    final progress = challenge.totalCount == 0
-        ? 0.0
-        : (challenge.visitedCount / challenge.totalCount).clamp(0.0, 1.0);
-
-    return AppCard(
-      onTap: onTap,
-      key: Key('timeline.challenge.${challenge.id}'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s16,
-        vertical: AppSpacing.s10,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              AppLineIcon(AppLineGlyph.flag, size: 16, color: palette.accent),
-              const SizedBox(width: AppSpacing.s6),
               Expanded(
                 child: Text(
-                  challenge.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleLarge?.copyWith(
-                    color: palette.ink,
+                  t.plansCount.replaceFirst('{count}', '${active.length}'),
+                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ),
+              GestureDetector(
+                key: const Key('timeline.challenge.seeAll'),
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    unawaited(context.pushNamed(AppRouteNames.challenges)),
+                child: Text(
+                  t.seeAll,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: palette.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 4,
-              backgroundColor: palette.surfaceMuted,
-              color: palette.primary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${challenge.plannedDays} ${t.days} · '
-                  '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.s8),
-              Text(
-                remaining,
-                style: textTheme.bodySmall?.copyWith(
-                  color: isDue ? palette.accent : palette.muted,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ],
-      ),
+      ],
+    );
+  }
+
+  Future<void> _openPractice(BuildContext context, String id) {
+    return context.pushNamed(
+      AppRouteNames.challengePractice,
+      pathParameters: {'challengeId': id},
+    );
+  }
+
+  Future<void> _openDetail(BuildContext context, String id) {
+    return context.pushNamed(
+      AppRouteNames.challengeDetail,
+      pathParameters: {'challengeId': id},
     );
   }
 }

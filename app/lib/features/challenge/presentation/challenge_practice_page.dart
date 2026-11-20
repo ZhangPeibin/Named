@@ -27,20 +27,24 @@ import '../providers/challenge_providers.dart';
 
 enum _Phase { listenSay, test }
 
+enum _QuestionKind { cloze, translation, dictation, freeProduction }
+
 class _Question {
   const _Question({
     required this.prompt,
-    required this.isMcq,
-    this.options = const [],
-    this.correctIndex,
+    required this.kind,
     this.textAnswer,
+    this.modelAnswer,
+    this.audioText,
+    this.audioUrl,
   });
 
   final String prompt;
-  final bool isMcq;
-  final List<String> options;
-  final int? correctIndex;
+  final _QuestionKind kind;
   final String? textAnswer;
+  final String? modelAnswer;
+  final String? audioText;
+  final String? audioUrl;
 }
 
 class _PracticeItem {
@@ -49,6 +53,7 @@ class _PracticeItem {
     required this.isWord,
     required this.title,
     this.audioUrl,
+    this.sentenceEn,
     required this.questions,
   });
 
@@ -56,7 +61,13 @@ class _PracticeItem {
   final bool isWord;
   final String title;
   final String? audioUrl;
+  final String? sentenceEn;
   final List<_Question> questions;
+
+  String get sayTarget {
+    final sentence = sentenceEn?.trim() ?? '';
+    return sentence.isNotEmpty ? sentence : title;
+  }
 }
 
 class ChallengePracticePage extends ConsumerStatefulWidget {
@@ -84,14 +95,15 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   var _micDenied = false;
   var _transcript = '';
   bool? _sayOk;
+  final _sentenceAudioCache = <String, String>{};
 
   List<_PracticeItem> _items = const [];
+  List<String>? _practiceItemIds;
   var _index = 0;
   var _phase = _Phase.listenSay;
   var _question = 0;
   var _checked = false;
   var _correct = false;
-  var _selected = -1;
   var _correctAnswers = 0;
   var _done = false;
 
@@ -127,7 +139,11 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
           ),
         ),
         data: (challenge) {
-          _items = _resolveWith(challenge, timelineValue, shelfValue);
+          _items = _resolveWith(
+            _chooseItems(challenge),
+            timelineValue,
+            shelfValue,
+          );
           if (_items.isEmpty) {
             return Center(
               child: Padding(
@@ -156,12 +172,7 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
     final totalQuestions = item.questions.length;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontalPadding,
-        0,
-        AppSpacing.pageHorizontalPadding,
-        AppSpacing.s24,
-      ),
+      padding: const EdgeInsets.only(bottom: AppSpacing.s24),
       children: [
         Row(
           children: [
@@ -224,6 +235,32 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
         const SizedBox(height: AppSpacing.s12),
         Text(
           context.t.timeline.audioUnavailable,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: palette.muted),
+        ),
+      ],
+      if (item.isWord && (item.sentenceEn?.trim().isNotEmpty ?? false)) ...[
+        const SizedBox(height: AppSpacing.s20),
+        Text(
+          item.sentenceEn!.trim(),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: AudioControl(
+            sourceId: 'practice.sentence.${item.challengeItem.id}',
+            resolveUrl: () => _resolveSentenceAudio(item.sentenceEn!.trim()),
+            playTooltip: context.t.timeline.play,
+            pauseTooltip: context.t.timeline.pause,
+            speedTooltip: context.t.timeline.speed,
+            errorText: context.t.timeline.audioUnavailable,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        Text(
+          t.practiceSentenceHint,
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: palette.muted),
@@ -303,56 +340,89 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   List<Widget> _testBody(_PracticeItem item) {
     final t = context.t.challenge;
     final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
     final question = item.questions[_question];
-    return [
-      Text(question.prompt, style: Theme.of(context).textTheme.headlineMedium),
-      const SizedBox(height: AppSpacing.s16),
-      if (question.isMcq)
-        for (var i = 0; i < question.options.length; i++)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.s8),
-            child: _OptionButton(
-              label: question.options[i],
-              correct: _checked && question.correctIndex == i,
-              selected: _checked && _selected == i,
-              onTap: _checked
-                  ? null
-                  : () {
-                      setState(() {
-                        _selected = i;
-                        _checked = true;
-                        _correct = question.correctIndex == i;
-                        if (_correct) _correctAnswers++;
-                      });
-                    },
+
+    final body = <Widget>[];
+    switch (question.kind) {
+      case _QuestionKind.dictation:
+        body.add(Text(t.practiceDictation, style: textTheme.headlineMedium));
+        body.add(const SizedBox(height: AppSpacing.s12));
+        body.add(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AudioControl(
+              sourceId:
+                  'practice.dictation.${item.challengeItem.id}.$_question',
+              resolveUrl: () => _resolveQuestionAudio(question),
+              playTooltip: context.t.timeline.play,
+              pauseTooltip: context.t.timeline.pause,
+              speedTooltip: context.t.timeline.speed,
+              errorText: context.t.timeline.audioUnavailable,
             ),
-          )
-      else
-        TextField(
-          key: const Key('practice.answer'),
-          controller: _answerController,
-          enabled: !_checked,
-          textInputAction: TextInputAction.done,
-          decoration: const InputDecoration(),
-          onSubmitted: (_) => _checkText(question),
-        ),
-      if (_checked) ...[
-        const SizedBox(height: AppSpacing.s12),
-        Text(
-          _correct ? t.practiceCorrect : t.practiceIncorrect,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: _correct ? palette.accent : palette.error,
           ),
-        ),
-        const SizedBox(height: AppSpacing.s4),
-        Text(
-          t.practiceAnswer.replaceFirst('{answer}', _answerOf(question)),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: palette.muted),
-        ),
-      ],
-    ];
+        );
+      case _QuestionKind.freeProduction:
+        body.add(Text(question.prompt, style: textTheme.headlineMedium));
+      case _QuestionKind.translation:
+      case _QuestionKind.cloze:
+        body.add(
+          Text(
+            (question.kind == _QuestionKind.translation
+                    ? t.practiceTranslate
+                    : t.practiceCloze)
+                .toUpperCase(),
+            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+          ),
+        );
+        body.add(const SizedBox(height: AppSpacing.s8));
+        body.add(Text(question.prompt, style: textTheme.headlineMedium));
+    }
+    body.add(const SizedBox(height: AppSpacing.s16));
+    body.add(
+      TextField(
+        key: const Key('practice.answer'),
+        controller: _answerController,
+        enabled: !_checked,
+        textInputAction: question.kind == _QuestionKind.freeProduction
+            ? TextInputAction.newline
+            : TextInputAction.done,
+        maxLines: question.kind == _QuestionKind.freeProduction ? 3 : 1,
+        decoration: InputDecoration(hintText: t.practicePlaceholder),
+        onSubmitted: (_) => _check(item),
+      ),
+    );
+    if (_checked) {
+      body.add(const SizedBox(height: AppSpacing.s12));
+      if (question.kind == _QuestionKind.freeProduction) {
+        body.add(
+          Text(
+            t.practiceModel.replaceFirst(
+              '{answer}',
+              question.modelAnswer ?? '',
+            ),
+            style: textTheme.bodySmall?.copyWith(color: palette.muted),
+          ),
+        );
+      } else {
+        body.add(
+          Text(
+            _correct ? t.practiceCorrect : t.practiceIncorrect,
+            style: textTheme.labelLarge?.copyWith(
+              color: _correct ? palette.accent : palette.error,
+            ),
+          ),
+        );
+        body.add(const SizedBox(height: AppSpacing.s4));
+        body.add(
+          Text(
+            t.practiceAnswer.replaceFirst('{answer}', _answerOf(question)),
+            style: textTheme.bodySmall?.copyWith(color: palette.muted),
+          ),
+        );
+      }
+    }
+    return body;
   }
 
   Widget _actions(_PracticeItem item) {
@@ -361,6 +431,7 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
       return AppButton(
         key: const Key('practice.next'),
         label: t.practiceNext,
+        variant: AppButtonVariant.secondary,
         onPressed: () => setState(() {
           _phase = _Phase.test;
           _question = 0;
@@ -413,36 +484,44 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   void _resetAnswer() {
     _checked = false;
     _correct = false;
-    _selected = -1;
     _answerController.clear();
   }
 
   void _check(_PracticeItem item) {
     final question = item.questions[_question];
-    if (question.isMcq) {
+    if (question.kind != _QuestionKind.freeProduction &&
+        _normalize(_answerController.text).isEmpty) {
       return;
     }
-    _checkText(question);
-  }
-
-  void _checkText(_Question question) {
     setState(() {
       _checked = true;
-      _correct =
-          _normalize(_answerController.text) ==
-          _normalize(question.textAnswer ?? '');
+      _correct = _answerMatches(question, _answerController.text);
       if (_correct) {
         _correctAnswers++;
       }
     });
   }
 
-  String _answerOf(_Question question) {
-    if (question.isMcq) {
-      final index = question.correctIndex ?? 0;
-      return index < question.options.length ? question.options[index] : '';
+  bool _answerMatches(_Question question, String answer) {
+    if (question.kind == _QuestionKind.freeProduction) {
+      return true;
     }
-    return question.textAnswer ?? '';
+    final expected = question.textAnswer ?? '';
+    if (question.kind == _QuestionKind.cloze) {
+      return _normalize(answer) == _normalize(expected);
+    }
+    return _sentenceMatches(expected, answer);
+  }
+
+  String _answerOf(_Question question) {
+    switch (question.kind) {
+      case _QuestionKind.freeProduction:
+        return question.modelAnswer ?? '';
+      case _QuestionKind.cloze:
+      case _QuestionKind.translation:
+      case _QuestionKind.dictation:
+        return question.textAnswer ?? '';
+    }
   }
 
   Future<void> _markPracticed(_PracticeItem item) async {
@@ -467,33 +546,29 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
   Widget _summaryView() {
     final t = context.t.challenge;
     final palette = context.appPalette;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppLineIcon(AppLineGlyph.sparkle, size: 40, color: palette.accent),
-            const SizedBox(height: AppSpacing.s16),
-            Text(
-              t.practiceRecap.replaceFirst('{count}', '${_items.length}'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: AppSpacing.s8),
-            Text(
-              '$_correctAnswers / ${_totalQuestions()}',
-              style: AppTextStyles.caption.copyWith(color: palette.muted),
-            ),
-            const SizedBox(height: AppSpacing.s24),
-            AppButton(
-              key: const Key('practice.finish'),
-              label: t.practiceDone,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
+    final textTheme = Theme.of(context).textTheme;
+    return ListView(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s24),
+      children: [
+        const SizedBox(height: AppSpacing.s8),
+        AppLineIcon(AppLineGlyph.sparkle, size: 40, color: palette.accent),
+        const SizedBox(height: AppSpacing.s16),
+        Text(
+          t.practiceRecap.replaceFirst('{count}', '${_items.length}'),
+          style: textTheme.headlineMedium,
         ),
-      ),
+        const SizedBox(height: AppSpacing.s8),
+        Text(
+          '$_correctAnswers / ${_totalQuestions()}',
+          style: AppTextStyles.caption.copyWith(color: palette.muted),
+        ),
+        const SizedBox(height: AppSpacing.s24),
+        AppButton(
+          key: const Key('practice.finish'),
+          label: t.practiceDone,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
     );
   }
 
@@ -557,7 +632,7 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
         if (!mounted) return;
         setState(() {
           _transcript = text.trim();
-          _sayOk = _sayMatches(item.title, text);
+          _sayOk = _sayMatches(item.sayTarget, text);
           _isTranscribing = false;
         });
       } else {
@@ -596,18 +671,55 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
     }
   }
 
+  Future<String?> _resolveSentenceAudio(String text) async {
+    final cached = _sentenceAudioCache[text];
+    if (cached != null) {
+      return cached;
+    }
+    final audio = await ref.read(talkRepositoryProvider).synthesizeSpeech(text);
+    if (!audio.isReady || audio.url == null) {
+      return null;
+    }
+    _sentenceAudioCache[text] = audio.url!;
+    return audio.url;
+  }
+
+  Future<String?> _resolveQuestionAudio(_Question question) async {
+    if (question.audioUrl != null) {
+      return question.audioUrl;
+    }
+    final text = question.audioText;
+    if (text == null || text.isEmpty) {
+      return null;
+    }
+    return _resolveSentenceAudio(text);
+  }
+
   // --- content resolution ---
+  List<ChallengeItem> _chooseItems(Challenge challenge) {
+    final frozen = _practiceItemIds;
+    if (frozen == null) {
+      final selected = widget.itemId == null
+          ? challenge.items.where((item) => !item.visited).take(3).toList()
+          : challenge.items.where((item) => item.id == widget.itemId).toList();
+      final source = selected.isEmpty
+          ? challenge.items.take(3).toList()
+          : selected;
+      _practiceItemIds = source.map((item) => item.id).toList();
+      return source;
+    }
+    final byId = {for (final item in challenge.items) item.id: item};
+    return frozen
+        .map((id) => byId[id])
+        .whereType<ChallengeItem>()
+        .toList(growable: false);
+  }
+
   List<_PracticeItem> _resolveWith(
-    Challenge challenge,
+    List<ChallengeItem> source,
     TimelineState? timeline,
     WordShelf? shelf,
   ) {
-    final selected = widget.itemId == null
-        ? challenge.items.where((item) => !item.visited).take(3).toList()
-        : challenge.items.where((item) => item.id == widget.itemId).toList();
-    final source = selected.isEmpty
-        ? challenge.items.take(3).toList()
-        : selected;
     if (source.isEmpty) return const [];
 
     final raws = <_Raw>[];
@@ -644,13 +756,16 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
           TimelineWordItem(:final audio) => audio,
           _ => shelfWord?.audio,
         };
+        final sense = word?.primarySense;
         raws.add(
           _Raw(
             ci: ci,
             isWord: true,
             title: word?.spelling ?? ci.title,
-            meaningZh: word?.primarySense?.definitionZh,
-            audioUrl: audio?.urlFor(WordAudioAccent.us),
+            meaningZh: sense?.definitionZh,
+            exampleEn: sense?.exampleEn ?? '',
+            exampleZh: sense?.exampleZh ?? '',
+            audioUrl: audio?.urlFor(defaultWordAudioAccent),
             textAnswer: word?.spelling ?? ci.title,
           ),
         );
@@ -679,6 +794,9 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
             }
           }
         }
+        final chunk = (scene?.keyChunks.isNotEmpty ?? false)
+            ? scene!.keyChunks.first
+            : null;
         raws.add(
           _Raw(
             ci: ci,
@@ -687,6 +805,8 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
             audioUrl: audio?.isReady == true ? audio!.url : null,
             textAnswer: fillAnswer ?? natural,
             fillSentence: fill,
+            chunkPhrase: chunk?.phrase,
+            chunkExampleEn: chunk?.exampleEn,
             chunkMeanings: scene == null
                 ? const []
                 : scene.keyChunks.map((c) => c.meaningNative).toList(),
@@ -695,78 +815,93 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
       }
     }
 
-    final wordMeanings = raws
-        .where((r) => r.isWord && (r.meaningZh ?? '').trim().isNotEmpty)
-        .map((r) => r.meaningZh!.trim())
-        .toSet()
-        .toList();
-    final sceneMeanings = raws
-        .expand((r) => r.chunkMeanings)
-        .map((m) => m.trim())
-        .where((m) => m.isNotEmpty)
-        .toSet()
-        .toList();
-
+    final t = context.t.challenge;
     final items = <_PracticeItem>[];
     for (final r in raws) {
       final questions = <_Question>[];
       if (r.isWord) {
-        questions.add(
-          _Question(
-            prompt: (r.meaningZh ?? '').trim().isNotEmpty
-                ? r.meaningZh!
-                : r.title,
-            isMcq: false,
-            textAnswer: r.textAnswer,
-          ),
-        );
-        final correct = (r.meaningZh ?? '').trim();
-        final distractors = wordMeanings
-            .where((m) => m != correct)
-            .take(3)
-            .toList();
-        if (correct.isNotEmpty && distractors.length >= 2) {
-          final options = [correct, ...distractors]..sort();
+        final target = r.title.trim();
+        final exampleEn = r.exampleEn.trim();
+        final exampleZh = r.exampleZh.trim();
+        if (exampleEn.isNotEmpty) {
+          final cloze = _clozeOf(exampleEn, target);
+          if (cloze != null) {
+            questions.add(
+              _Question(
+                prompt: cloze,
+                kind: _QuestionKind.cloze,
+                textAnswer: target,
+              ),
+            );
+          }
+          if (exampleZh.isNotEmpty) {
+            questions.add(
+              _Question(
+                prompt: exampleZh,
+                kind: _QuestionKind.translation,
+                textAnswer: exampleEn,
+              ),
+            );
+          }
           questions.add(
             _Question(
-              prompt: r.title,
-              isMcq: true,
-              options: options,
-              correctIndex: options.indexOf(correct),
+              prompt: t.practiceFreePrompt.replaceFirst('{word}', target),
+              kind: _QuestionKind.freeProduction,
+              modelAnswer: exampleEn,
+            ),
+          );
+        }
+        if (questions.isEmpty) {
+          final prompt = (r.meaningZh ?? '').trim().isNotEmpty
+              ? r.meaningZh!.trim()
+              : target;
+          questions.add(
+            _Question(
+              prompt: prompt,
+              kind: _QuestionKind.cloze,
+              textAnswer: target,
             ),
           );
         }
       } else {
-        if (r.fillSentence != null) {
+        final natural = r.title.trim();
+        if (natural.isNotEmpty) {
+          questions.add(
+            _Question(
+              prompt: t.practiceDictation,
+              kind: _QuestionKind.dictation,
+              textAnswer: natural,
+              audioUrl: r.audioUrl,
+              audioText: r.audioUrl == null ? natural : null,
+            ),
+          );
+        }
+        if (r.fillSentence != null && r.textAnswer.isNotEmpty) {
           questions.add(
             _Question(
               prompt: r.fillSentence!,
-              isMcq: false,
+              kind: _QuestionKind.cloze,
               textAnswer: r.textAnswer,
             ),
           );
         }
-        final correct = r.chunkMeanings.isNotEmpty
-            ? r.chunkMeanings.first.trim()
-            : '';
-        final distractors = sceneMeanings
-            .where((m) => m != correct)
-            .take(3)
-            .toList();
-        if (correct.isNotEmpty && distractors.length >= 2) {
-          final options = [correct, ...distractors]..sort();
+        final chunk = r.chunkPhrase?.trim() ?? '';
+        if (chunk.isNotEmpty) {
           questions.add(
             _Question(
-              prompt: r.title,
-              isMcq: true,
-              options: options,
-              correctIndex: options.indexOf(correct),
+              prompt: t.practiceFreePrompt.replaceFirst('{word}', chunk),
+              kind: _QuestionKind.freeProduction,
+              modelAnswer: r.chunkExampleEn ?? '',
             ),
           );
         }
         if (questions.isEmpty) {
           questions.add(
-            _Question(prompt: r.title, isMcq: false, textAnswer: r.textAnswer),
+            _Question(
+              prompt: natural,
+              kind: _QuestionKind.cloze,
+              textAnswer: natural,
+            ),
           );
         }
       }
@@ -776,6 +911,9 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
           isWord: r.isWord,
           title: r.title,
           audioUrl: r.audioUrl,
+          sentenceEn: r.isWord
+              ? (r.exampleEn.trim().isEmpty ? null : r.exampleEn.trim())
+              : r.title,
           questions: questions,
         ),
       );
@@ -801,6 +939,25 @@ class _ChallengePracticePageState extends ConsumerState<ChallengePracticePage> {
     if (aw.isEmpty) return false;
     return aw.intersection(bw).length / aw.length >= 0.6;
   }
+
+  static bool _sentenceMatches(String target, String answer) {
+    final a = _normalize(target);
+    final b = _normalize(answer);
+    if (a.isEmpty || b.isEmpty) return false;
+    if (a == b || b.contains(a)) return true;
+    final aw = a.split(' ').where((w) => w.isNotEmpty).toList();
+    final bw = b.split(' ').where((w) => w.isNotEmpty).toSet();
+    if (aw.isEmpty) return false;
+    final hit = aw.where(bw.contains).length;
+    return hit / aw.length >= 0.8;
+  }
+
+  static String? _clozeOf(String sentence, String word) {
+    if (word.isEmpty) return null;
+    final pattern = RegExp(RegExp.escape(word), caseSensitive: false);
+    if (!pattern.hasMatch(sentence)) return null;
+    return sentence.replaceFirst(pattern, '____');
+  }
 }
 
 class _Raw {
@@ -809,9 +966,13 @@ class _Raw {
     required this.isWord,
     required this.title,
     this.meaningZh,
+    this.exampleEn = '',
+    this.exampleZh = '',
     this.audioUrl,
     required this.textAnswer,
     this.fillSentence,
+    this.chunkPhrase,
+    this.chunkExampleEn,
     this.chunkMeanings = const [],
   });
 
@@ -819,46 +980,12 @@ class _Raw {
   final bool isWord;
   final String title;
   final String? meaningZh;
+  final String exampleEn;
+  final String exampleZh;
   final String? audioUrl;
   final String textAnswer;
   final String? fillSentence;
+  final String? chunkPhrase;
+  final String? chunkExampleEn;
   final List<String> chunkMeanings;
-}
-
-class _OptionButton extends StatelessWidget {
-  const _OptionButton({
-    required this.label,
-    required this.selected,
-    required this.correct,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final bool correct;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-    final borderColor = correct
-        ? palette.accent
-        : selected
-        ? palette.error
-        : palette.line;
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.s16),
-      borderColor: borderColor,
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          if (correct)
-            AppLineIcon(AppLineGlyph.checkCircle, color: palette.accent),
-          if (selected && !correct)
-            AppLineIcon(AppLineGlyph.close, color: palette.error),
-        ],
-      ),
-    );
-  }
 }

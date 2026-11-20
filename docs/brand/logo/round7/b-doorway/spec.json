@@ -1,0 +1,42 @@
+{
+  "brand": "Named",
+  "tagline": "A personal English world",
+  "brief": "Named is an English-learning app that starts from real life: you see something, name it, talk about it with AI, and keep the words connected to the moments and memories around them. The identity should feel warm, editorial and personal, not like a school product or an AI tool.",
+  "adjectives": ["warm", "personal", "editorial", "calm"],
+  "criteria": "Distinct from edtech clichés, recognisable at 16 px, works in one colour, and feels like a real personal object rather than a platform.",
+  "industry": "consumer-app",
+  "mockups": ["app-icon", "website", "signage", "social", "badge", "business-card"],
+  "nav": ["Explore", "Words", "History", "Me"],
+  "brand_color": "#2F4A6B",
+  "greyscale": false,
+  "final": true,
+  "round": 7,
+  "designer": "Named design",
+  "concepts": [
+    {
+      "name": "The Doorway",
+      "symbol": "b-symbol.svg",
+      "lockup": "b-lockup-horizontal.svg",
+      "stacked": "b-lockup-stacked.svg",
+      "avatar": "b-app-icon.svg",
+      "symbol_on_tile": "b-symbol-on-dark.svg",
+      "lockup_on_tile": "b-lockup-horizontal-on-dark.svg",
+      "stacked_on_tile": "b-lockup-stacked-on-dark.svg",
+      "symbol_on_dark": "b-symbol-on-dark.svg",
+      "lockup_on_dark": "b-lockup-horizontal-on-dark.svg",
+      "stacked_on_dark": "b-lockup-stacked-on-dark.svg",
+      "idea": "Every name opens a world; the dot is the word waiting inside.",
+      "rationale": [
+        "Ties directly to Personal English World and the act of discovery.",
+        "The threshold makes it a doorway, not a generic portal or keyhole.",
+        "The terracotta dot gives a clear focal point and a warm brand accent."
+      ]
+    }
+  ],
+  "recommendation": "A quiet, editorial candidate: the doorway frames a word without turning learning into a metaphor about school.",
+  "next_steps": [
+    "Compare the three kits",
+    "Choose a direction",
+    "Wire the chosen icon and splash into the app"
+  ]
+}

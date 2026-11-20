@@ -109,6 +109,8 @@ class Conversation {
 
 enum PronunciationAccent { us, uk }
 
+const defaultPronunciationAccent = PronunciationAccent.uk;
+
 class PronunciationAudio {
   const PronunciationAudio({required this.usUrl, required this.ukUrl});
 
@@ -122,5 +124,5 @@ class PronunciationAudio {
     };
   }
 
-  bool get hasAudio => urlFor(PronunciationAccent.us) != null;
+  bool get hasAudio => urlFor(defaultPronunciationAccent) != null;
 }

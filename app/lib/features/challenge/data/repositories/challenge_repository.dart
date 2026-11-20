@@ -12,11 +12,13 @@ class ChallengeRepository {
 
   Future<Challenge> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async {
     return (await _api.create(
       name: name,
+      theme: theme,
       plannedDays: plannedDays,
       discoveryIds: discoveryIds,
     )).toDomain();
