@@ -10,7 +10,7 @@ The reference PDF supplies visual and interaction guidance only. Its “Everyday
 
 ## 1. Visual direction
 
-**Ink & Cobalt (default).** A thoughtful lifestyle journal, personal memory and an efficient conversation companion. Settings also offers **Ink & Parchment** and **Plum & Sand**.
+**Ink & Linen (default).** A thoughtful lifestyle journal, personal memory and an efficient conversation companion. Settings also offers **Ink & Cobalt**, **Ink & Parchment** and **Plum & Sand**.
 
 - Real-life photography supplies the visual content. Local sample images stand in for learners' actual discoveries.
 - Soft paper is the light canvas; cool charcoal is the dark canvas. Cobalt carries primary actions and selected states; terracotta is a small warm accent.
@@ -41,7 +41,7 @@ Warning surfaces and borders have additional semantic tokens. Components consume
 ### Theme behavior
 
 - Default palette: Ink & Cobalt.
-- Palette overrides: Settings → Theme (Ink & Cobalt, Ink & Parchment, Plum & Sand).
+- Palette overrides: Settings → Theme (Ink & Cobalt, Ink & Parchment, Plum & Sand, Ink & Linen).
 - Light/dark follows the system color scheme.
 - The palette choice is retained locally; changing it preserves input and does not reset conversation state.
 - Photos retain their real colors. Text over a photo uses an opaque readable surface.
@@ -86,9 +86,9 @@ The composer is the product entry point: the learner sees something, names it, o
 
 ### Revisit words
 
-`+` → Review 3 → word prompt → Show meaning → Next / Finish → Back to timeline.
+Timeline → **Words to see today** → say it → hint ladder → answer → I said it / Not yet → Back to timeline.
 
-Review is a short active-recall loop over the learner's own words. It is not a scored quiz, does not claim mastery, and does not add a dashboard or tab.
+The timeline card is the single review entry point. Review is a production loop over the learner's own words: the answer stays hidden until the learner attempts it, then hints reveal progressively (first letter, IPA, audio, answer). Self-assessment decides whether the word counts as reviewed. It is not a scored quiz, does not claim mastery, and does not add a dashboard or tab.
 
 ### Return to a conversation
 
@@ -102,6 +102,10 @@ The talk event shows the last message snippet. Returning to the timeline refresh
 
 Words is a filtered view of the same timeline; it does not keep a second copy of the data.
 
+### Soul control
+
+Me → Soul items → edit, remove, or add. Each item shows its source (onboarding, the learner, or AI-extracted). In Talk, the header memory control turns the Soul off for that conversation only.
+
 ### Challenge
 
 Me → Challenges → Name, duration, explicit content selection → Continue selected discoveries → End the round → Revisit later.
@@ -110,7 +114,7 @@ Duration is a plan; reaching a date does not delete content or imply mastery. Vi
 
 ## 5. Conversation and history
 
-- The upper region contains a restrained virtual-person reference, topic and status.
+- The upper region contains a restrained virtual-person reference, topic, status and a per-conversation memory control.
 - The lower region contains synchronized-text presentation and fixed text/voice controls.
 - The composer's `Aa` action opens `Help me say it`; the helper returns one natural English expression, optional note, audio, and `Use this`, and never creates a conversation message.
 - Users can pause, retry unclear speech, replay, choose slower playback and continue an old exchange.

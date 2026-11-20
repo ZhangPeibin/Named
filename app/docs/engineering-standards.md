@@ -133,3 +133,9 @@ make check TEST_ARGS=--coverage
 
 See [flavors.md](flavors.md), [release.md](release.md), and
 [template-usage.md](template-usage.md) for operational workflows.
+
+iOS toolchain note (Xcode 27): the FVM Flutter SDK needs a `lipo`
+compatibility patch after `fvm install` or `flutter upgrade`. If an iOS build
+fails with `does not contain architectures`, run `make ios-lipo-compat` first;
+it patches the local SDK cache and rebuilds the flutter tool snapshot. The
+patch lives outside the repository.

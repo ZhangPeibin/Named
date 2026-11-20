@@ -41,7 +41,8 @@ class ChallengesPage extends ConsumerWidget {
           ),
         ),
         data: (challenges) {
-          final active = challenges.where((c) => c.isActive).toList();
+          final active = challenges.where((c) => c.isActive).toList()
+            ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
           final ended = challenges.where((c) => !c.isActive).toList();
           if (challenges.isEmpty) {
             return Center(
@@ -124,41 +125,11 @@ class _ChallengeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s8,
-                  vertical: 3,
-                ),
-                decoration: BoxDecoration(
-                  color: challenge.isActive
-                      ? palette.warm
-                      : palette.surfaceMuted,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: Text(
-                  challenge.isActive ? t.active : t.ended,
-                  style: AppTextStyles.caption.copyWith(
-                    color: challenge.isActive ? palette.accent : palette.muted,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${challenge.plannedDays} ${t.days}',
-                style: textTheme.bodySmall?.copyWith(color: palette.muted),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s8),
           Text(challenge.name, style: textTheme.headlineMedium),
           const SizedBox(height: AppSpacing.s6),
           Text(
-            t.visitedOf
-                .replaceFirst('{visited}', '${challenge.visitedCount}')
-                .replaceFirst('{total}', '${challenge.totalCount}'),
+            '${challenge.plannedDays} ${t.days} · '
+            '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
             style: textTheme.bodySmall?.copyWith(color: palette.muted),
           ),
           if (challenge.isActive && challenge.isDue) ...[

@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:typed_data';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import '../../../../core/audio/audio_providers.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../../core/widgets/audio_speed_control.dart';
+import '../../../../core/widgets/audio_control.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/talk.dart';
 import '../../providers/talk_providers.dart';
@@ -198,116 +195,31 @@ class _HelpSheetState extends ConsumerState<HelpSheet> {
   }
 }
 
-class _HelpAudioButton extends ConsumerStatefulWidget {
+class _HelpAudioButton extends ConsumerWidget {
   const _HelpAudioButton({required this.audio});
 
   final TalkAudio? audio;
 
   @override
-  ConsumerState<_HelpAudioButton> createState() => _HelpAudioButtonState();
-}
-
-class _HelpAudioButtonState extends ConsumerState<_HelpAudioButton> {
-  late final AudioPlayer _player;
-  late final StreamSubscription<PlayerState> _stateSub;
-  late final StreamSubscription<void> _completeSub;
-  var _isPlaying = false;
-  var _speed = 1.0;
-  String? _cachedUrl;
-  Uint8List? _cachedBytes;
-
-  @override
-  void initState() {
-    super.initState();
-    _player = AudioPlayer();
-    unawaited(_player.setReleaseMode(ReleaseMode.stop));
-    _stateSub = _player.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() => _isPlaying = state == PlayerState.playing);
-      }
-    });
-    _completeSub = _player.onPlayerComplete.listen((_) {
-      if (mounted) {
-        setState(() => _isPlaying = false);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    unawaited(_stateSub.cancel());
-    unawaited(_completeSub.cancel());
-    unawaited(_player.dispose());
-    super.dispose();
-  }
-
-  Future<void> _toggle() async {
-    if (_isPlaying) {
-      await _player.pause();
-      return;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final url = audio?.url;
+    if (audio?.isReady != true || url == null) {
+      return const SizedBox.shrink();
     }
-
-    final url = widget.audio?.url;
-    if (widget.audio?.isReady != true || url == null) {
-      return;
-    }
-
-    try {
-      final bytes = await _loadBytes(url);
-      if (!mounted) {
-        return;
-      }
-      await _player.setPlaybackRate(_speed);
-      if (_player.state == PlayerState.paused) {
-        await _player.resume();
-      } else {
-        await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t.talk.audioUnavailable)),
-        );
-      }
-    }
-  }
-
-  Future<void> _setSpeed(double speed) async {
-    setState(() => _speed = speed);
-    if (_isPlaying || _player.state == PlayerState.paused) {
-      await _player.setPlaybackRate(speed);
-    }
-  }
-
-  Future<Uint8List> _loadBytes(String url) async {
-    if (_cachedUrl == url && _cachedBytes != null) {
-      return _cachedBytes!;
-    }
-    final data = await ref.read(audioBytesApiProvider).fetch(url);
-    _cachedUrl = url;
-    _cachedBytes = Uint8List.fromList(data);
-    return _cachedBytes!;
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final t = context.t.talk;
-
     return Semantics(
       container: true,
-      label: _isPlaying ? t.pauseReply : t.playReply,
+      label: t.playReply,
       excludeSemantics: true,
-      child: AudioSpeedControl(
-        playKey: const Key('talk.helpAudio'),
-        speedKey: const Key('talk.helpAudio.speed'),
-        isPlaying: _isPlaying,
-        isLoading: false,
-        speed: _speed,
-        onToggle: _toggle,
-        onSpeedChanged: (speed) => unawaited(_setSpeed(speed)),
-        speedTooltip: t.speed,
+      child: AudioControl(
+        sourceId: 'help.$url',
+        resolveUrl: () async => url,
         playTooltip: t.playReply,
         pauseTooltip: t.pauseReply,
+        speedTooltip: t.speed,
+        errorText: t.audioUnavailable,
+        playKey: const Key('talk.helpAudio'),
+        speedKey: const Key('talk.helpAudio.speed'),
       ),
     );
   }

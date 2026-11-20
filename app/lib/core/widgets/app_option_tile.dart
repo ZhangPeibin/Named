@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
+import 'app_line_icon.dart';
 
 /// A tappable card row with leading, title/subtitle, and trailing chevron.
 class AppOptionTile extends StatefulWidget {
@@ -130,8 +131,8 @@ class _AppOptionTileState extends State<AppOptionTile> {
               ),
               const SizedBox(width: AppSpacing.s8),
               widget.trailing ??
-                  const Icon(
-                    Icons.chevron_right,
+                  const AppLineIcon(
+                    AppLineGlyph.chevronRight,
                     size: AppSize.size17,
                     color: AppColors.tileChevron,
                   ),

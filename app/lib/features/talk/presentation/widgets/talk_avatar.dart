@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
 
 class TalkAvatar extends StatelessWidget {
@@ -58,8 +59,8 @@ class _FallbackAvatar extends StatelessWidget {
     final palette = context.appPalette;
 
     if (isUser) {
-      return Icon(
-        Icons.person_outline,
+      return AppLineIcon(
+        AppLineGlyph.person,
         size: size * 0.52,
         color: palette.primary,
       );
@@ -68,8 +69,11 @@ class _FallbackAvatar extends StatelessWidget {
     return Image.asset(
       'assets/images/companion.jpg',
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) =>
-          Icon(Icons.face_outlined, size: size * 0.52, color: palette.primary),
+      errorBuilder: (context, error, stackTrace) => AppLineIcon(
+        AppLineGlyph.person,
+        size: size * 0.52,
+        color: palette.primary,
+      ),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,13 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
-import '../../../core/audio/audio_providers.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_error_view.dart';
-import '../../../core/widgets/audio_speed_control.dart';
+import '../../../core/widgets/app_line_icon.dart';
+import '../../../core/widgets/audio_control.dart';
 import '../../../i18n/strings.g.dart';
-import '../../talk/domain/talk.dart';
+import '../../question/presentation/ask_launcher.dart';
 import '../../talk/providers/talk_providers.dart';
 import '../domain/sentence_detail.dart';
 import '../providers/sentence_providers.dart';
@@ -148,7 +147,25 @@ class _SentenceDetailView extends StatelessWidget {
             ],
           ),
         ],
-        const SizedBox(height: AppSpacing.s20),
+        const SizedBox(height: AppSpacing.s12),
+        TextButton.icon(
+          key: const Key('sentence.ask'),
+          onPressed: () {
+            final navigator = Navigator.of(context);
+            navigator.pop();
+            unawaited(
+              openAsk(
+                navigator.context,
+                type: 'sentence',
+                quote: detail.original,
+                suggestedQuestion: 'Explain this sentence simply.',
+              ),
+            );
+          },
+          icon: const AppLineIcon(AppLineGlyph.chat, size: 18),
+          label: Text(context.t.ask.title),
+        ),
+        const SizedBox(height: AppSpacing.s8),
         AppButton(
           key: const Key('sentence.copyEnglish'),
           label: t.copyEnglish,
@@ -199,133 +216,39 @@ class _ChunkRow extends StatelessWidget {
   }
 }
 
-class _SentenceAudioButton extends ConsumerStatefulWidget {
+final _sentenceAudioUrlCache = <String, String>{};
+
+class _SentenceAudioButton extends ConsumerWidget {
   const _SentenceAudioButton({required this.text});
 
   final String text;
 
   @override
-  ConsumerState<_SentenceAudioButton> createState() =>
-      _SentenceAudioButtonState();
-}
-
-class _SentenceAudioButtonState extends ConsumerState<_SentenceAudioButton> {
-  late final AudioPlayer _player;
-  late final StreamSubscription<PlayerState> _stateSub;
-  late final StreamSubscription<void> _completeSub;
-  TalkAudio? _audio;
-  Uint8List? _cachedBytes;
-  var _speed = 1.0;
-  var _isPlaying = false;
-  var _loading = false;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _player = AudioPlayer();
-    unawaited(_player.setReleaseMode(ReleaseMode.stop));
-    _stateSub = _player.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() => _isPlaying = state == PlayerState.playing);
-      }
-    });
-    _completeSub = _player.onPlayerComplete.listen((_) {
-      if (mounted) {
-        setState(() => _isPlaying = false);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    unawaited(_stateSub.cancel());
-    unawaited(_completeSub.cancel());
-    unawaited(_player.stop());
-    unawaited(_player.dispose());
-    super.dispose();
-  }
-
-  Future<void> _toggle() async {
-    if (_isPlaying) {
-      await _player.pause();
-      return;
-    }
-    if (_loading) {
-      return;
-    }
-    if (_player.state == PlayerState.paused) {
-      await _player.resume();
-      return;
-    }
-
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final audio =
-          _audio ??
-          await ref.read(talkRepositoryProvider).synthesizeSpeech(widget.text);
-      final url = audio.url;
-      if (!audio.isReady || url == null) {
-        throw StateError('Speech audio unavailable');
-      }
-      _audio = audio;
-      final bytes =
-          _cachedBytes ??
-          Uint8List.fromList(await ref.read(audioBytesApiProvider).fetch(url));
-      _cachedBytes = bytes;
-      await _player.stop();
-      await _player.setPlaybackRate(_speed);
-      await _player.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
-    } catch (_) {
-      if (mounted) {
-        setState(() => _error = context.t.talk.audioUnavailable);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
-    }
-  }
-
-  Future<void> _setSpeed(double speed) async {
-    setState(() => _speed = speed);
-    if (_isPlaying || _player.state == PlayerState.paused) {
-      await _player.setPlaybackRate(speed);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t.talk;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AudioSpeedControl(
-          playKey: const Key('sentence.audio'),
-          speedKey: const Key('sentence.audio.speed'),
-          isPlaying: _isPlaying,
-          isLoading: _loading,
-          speed: _speed,
-          onToggle: _toggle,
-          onSpeedChanged: (speed) => unawaited(_setSpeed(speed)),
-          speedTooltip: t.speed,
-          playTooltip: t.playReply,
-          pauseTooltip: t.pauseReply,
-        ),
-        if (_error != null) ...[
-          const SizedBox(height: AppSpacing.s4),
-          Text(
-            _error!,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: context.appPalette.error),
-          ),
-        ],
-      ],
+    return AudioControl(
+      sourceId: 'sentence.$text',
+      resolveUrl: () => _resolveUrl(ref),
+      playTooltip: t.playReply,
+      pauseTooltip: t.pauseReply,
+      speedTooltip: t.speed,
+      errorText: t.audioUnavailable,
+      playKey: const Key('sentence.audio'),
+      speedKey: const Key('sentence.audio.speed'),
     );
+  }
+
+  Future<String?> _resolveUrl(WidgetRef ref) async {
+    final cached = _sentenceAudioUrlCache[text];
+    if (cached != null) {
+      return cached;
+    }
+    final audio = await ref.read(talkRepositoryProvider).synthesizeSpeech(text);
+    if (!audio.isReady || audio.url == null) {
+      return null;
+    }
+    _sentenceAudioUrlCache[text] = audio.url!;
+    return audio.url;
   }
 }
 

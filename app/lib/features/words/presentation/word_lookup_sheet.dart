@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../i18n/strings.g.dart';
 import '../../timeline/domain/timeline_item.dart';
@@ -63,22 +64,30 @@ class _WordLookupSheet extends ConsumerWidget {
                 onRetry: () => ref.invalidate(wordLookupProvider(text)),
               );
             }
-            return WordDetailsSheet(item: _asTimelineItem(item));
+            return WordDetailsSheet(item: wordShelfToTimelineItem(item));
           },
         ),
       ),
     );
   }
+}
 
-  TimelineWordItem _asTimelineItem(WordShelfItem item) {
-    return TimelineWordItem(
-      id: item.id,
-      createdAt: DateTime.now(),
-      inputText: null,
-      wordId: item.id,
-      word: item.word,
-      audio: item.audio,
-      conversationId: null,
-    );
-  }
+TimelineWordItem wordShelfToTimelineItem(WordShelfItem item) {
+  return TimelineWordItem(
+    id: item.id,
+    createdAt: DateTime.now(),
+    inputText: null,
+    wordId: item.id,
+    word: item.word,
+    audio: item.audio,
+    conversationId: null,
+  );
+}
+
+/// Opens the saved word details for an already-loaded [WordShelfItem].
+Future<void> showSavedWordSheet(BuildContext context, WordShelfItem item) {
+  return showAppBottomSheet<void>(
+    context: context,
+    builder: (context) => WordDetailsSheet(item: wordShelfToTimelineItem(item)),
+  );
 }

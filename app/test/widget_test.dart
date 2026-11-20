@@ -13,6 +13,7 @@ import 'package:named/features/challenge/presentation/challenge_create_page.dart
 import 'package:named/features/challenge/presentation/challenges_page.dart';
 import 'package:named/features/soul/domain/soul.dart';
 import 'package:named/features/soul/providers/soul_providers.dart';
+import 'package:named/features/words/presentation/words_page.dart';
 import 'package:named/i18n/strings.g.dart';
 
 import 'support/i18n_test_helpers.dart';
@@ -57,7 +58,79 @@ void main() {
     expect(find.byKey(const Key('me.page')), findsOneWidget);
   });
 
+  testWidgets('rotates command hints while empty and pauses while typing', (
+    tester,
+  ) async {
+    await _pumpTimeline(tester);
+
+    final hints = {
+      t.timeline.composerHint,
+      t.timeline.composerHintWords,
+      t.timeline.composerHintReview,
+      t.timeline.composerHintStartChallenge,
+      t.timeline.composerHintViewChallenges,
+    };
+    final first = _composerHint(tester);
+    expect(hints, contains(first));
+
+    await tester.pump(const Duration(seconds: 7));
+    final second = _composerHint(tester);
+    expect(hints, contains(second));
+    expect(second, isNot(first));
+
+    await tester.enterText(find.byKey(const Key('timeline.composer')), 'hello');
+    await tester.pump();
+    final paused = _composerHint(tester);
+    await tester.pump(const Duration(seconds: 7));
+    expect(_composerHint(tester), paused);
+
+    await tester.enterText(find.byKey(const Key('timeline.composer')), '');
+    await tester.pump();
+    expect(_composerHint(tester), isNot(paused));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   _navigationTests();
+}
+
+Future<void> _pumpTimeline(
+  WidgetTester tester, {
+  AppLocale locale = AppLocale.en,
+}) async {
+  tester.view.physicalSize = const Size(390, 844);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  const config = AppConfig(
+    appName: 'Test App',
+    environment: AppEnvironment.dev,
+    apiBaseUrl: 'https://api.test',
+    useMockApi: true,
+  );
+  await pumpTemplateApp(
+    tester,
+    locale: locale,
+    app: ProviderScope(
+      overrides: [
+        appConfigProvider.overrideWithValue(config),
+        authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
+        soulProvider.overrideWith(
+          (ref) async => const Soul(nativeLanguage: 'en'),
+        ),
+      ],
+      child: const TemplateApp(),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+String _composerHint(WidgetTester tester) {
+  final field = tester.widget<TextField>(
+    find.byKey(const Key('timeline.composer')),
+  );
+  return field.decoration?.hintText ?? '';
 }
 
 class _SignedInAuthNotifier extends AuthNotifier {
@@ -120,6 +193,12 @@ Future<_FakeAssistantRepository> _pumpTimelineWithIntent(
 }
 
 void _navigationTests() {
+  testWidgets('open words command opens Words', (tester) async {
+    await _pumpTimelineWithIntent(tester, AssistantIntent.openWords);
+
+    expect(find.byType(WordsPage), findsOneWidget);
+  });
+
   testWidgets('review command opens Review', (tester) async {
     final assistant = await _pumpTimelineWithIntent(
       tester,

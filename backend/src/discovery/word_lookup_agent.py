@@ -2,11 +2,9 @@ from functools import lru_cache
 from typing import Protocol
 
 from pydantic import BaseModel, Field
-from pydantic_ai import Agent
 
-from ai import AINotConfigured, build_model, build_model_settings
-from config import Settings, get_settings
-from errors import ApiError
+from agents import AgentFailed as AgentFailed
+from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
 
 
 class WordLookupOutput(BaseModel):
@@ -15,10 +13,6 @@ class WordLookupOutput(BaseModel):
 
 class WordLookupAgent(Protocol):
     async def resolve(self, *, text: str, native_language: str) -> str: ...
-
-
-class AgentFailed(Exception):
-    pass
 
 
 SYSTEM_PROMPT = """
@@ -33,34 +27,30 @@ should look up.
 - Preserve names only when they are the thing being learned.
 """.strip()
 
+SPEC = register(
+    AgentSpec(
+        name="word_lookup",
+        prompt_version="word-lookup-v1",
+        system_prompt=SYSTEM_PROMPT,
+        output_type=WordLookupOutput,
+        error_code="word_lookup_failed",
+        error_message="The word lookup agent failed.",
+    )
+)
+
 
 class PydanticAIWordLookupAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=WordLookupOutput,
-            system_prompt=SYSTEM_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def resolve(self, *, text: str, native_language: str) -> str:
-        try:
-            result = await self._agent.run(
-                f"Learner native language: {native_language}\nSelected text: {text}"
-            )
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output.english_word.strip()
+        output = await self._runtime.run(
+            SPEC,
+            f"Learner native language: {native_language}\nSelected text: {text}",
+        )
+        return output.english_word.strip()
 
 
 @lru_cache
 def get_word_lookup_agent() -> WordLookupAgent:
-    settings = get_settings()
-    try:
-        return PydanticAIWordLookupAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAIWordLookupAgent(get_agent_runtime())

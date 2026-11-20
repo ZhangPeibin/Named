@@ -9,13 +9,21 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../progress/providers/progress_providers.dart';
 import '../../talk/providers/talk_providers.dart';
+import '../../timeline/domain/timeline_item.dart';
+import '../../timeline/presentation/widgets/word_details_sheet.dart';
+import '../../timeline/providers/timeline_providers.dart';
+import '../../words/domain/word_shelf.dart';
 import '../../words/presentation/word_lookup_sheet.dart';
+import '../../words/providers/words_providers.dart';
 import '../domain/challenge.dart';
 import '../providers/challenge_providers.dart';
 
@@ -46,6 +54,19 @@ class ChallengeDetailPage extends ConsumerWidget {
         data: (challenge) => _ChallengeDetail(
           challenge: challenge,
           onOpen: (item) => _openItem(context, ref, challenge, item),
+          onStartPractice: () => unawaited(
+            context.pushNamed(
+              AppRouteNames.challengePractice,
+              pathParameters: {'challengeId': challenge.id},
+            ),
+          ),
+          onPracticeItem: (item) => unawaited(
+            context.pushNamed(
+              AppRouteNames.challengePractice,
+              pathParameters: {'challengeId': challenge.id},
+              queryParameters: {'item': item.id},
+            ),
+          ),
           onEnd: () => _end(context, ref, challenge),
         ),
       ),
@@ -58,49 +79,122 @@ class ChallengeDetailPage extends ConsumerWidget {
     Challenge challenge,
     ChallengeItem item,
   ) async {
+    final timeline = ref.read(timelineControllerProvider).value;
+    TimelineItem? source;
+    if (timeline != null) {
+      for (final candidate in timeline.items) {
+        final id = switch (candidate) {
+          TimelineWordItem(:final id) => id,
+          TimelineSceneItem(:final id) => id,
+          _ => null,
+        };
+        if (id == item.discoveryId) {
+          source = candidate;
+          break;
+        }
+      }
+    }
+
+    switch (source) {
+      case final TimelineWordItem wordItem:
+        await showAppBottomSheet<void>(
+          context: context,
+          builder: (context) => WordDetailsSheet(item: wordItem),
+        );
+      case final TimelineSceneItem sceneItem:
+        await _openSceneConversation(context, ref, sceneItem);
+      default:
+        await _openItemFallback(context, ref, item);
+    }
+    ref.invalidate(challengeProvider(challenge.id));
+    ref.invalidate(challengesProvider);
+  }
+
+  Future<void> _openSceneConversation(
+    BuildContext context,
+    WidgetRef ref,
+    TimelineSceneItem scene,
+  ) async {
     try {
-      await ref
-          .read(challengeActionsProvider)
-          .markVisited(challenge.id, item.id);
+      final controller = ref.read(timelineControllerProvider.notifier);
+      final conversationId = await controller.ensureSceneConversation(scene);
+      if (!context.mounted) {
+        return;
+      }
+      await context.pushNamed(
+        AppRouteNames.talk,
+        pathParameters: {'conversationId': conversationId},
+        queryParameters: {
+          if (scene.scene.naturalEnglish.trim().isNotEmpty)
+            'title': scene.scene.naturalEnglish,
+        },
+      );
+      if (!context.mounted) {
+        return;
+      }
+      await controller.afterTalk(
+        conversationId: conversationId,
+        title: scene.scene.naturalEnglish,
+      );
+      ref.invalidate(progressProvider);
     } on ApiException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(error.message)));
       }
-      return;
     }
-    if (!context.mounted) {
-      return;
-    }
+  }
 
+  Future<void> _openItemFallback(
+    BuildContext context,
+    WidgetRef ref,
+    ChallengeItem item,
+  ) async {
     if (item.focusType == 'word') {
-      await showWordLookupSheet(context, item.title);
-    } else {
+      WordShelfItem? saved;
       try {
-        final conversation = await ref
-            .read(talkRepositoryProvider)
-            .createConversation(focusType: 'scene', focusId: item.focusId);
-        if (!context.mounted) {
-          return;
+        final shelf = await ref.read(wordShelfProvider.future);
+        for (final word in shelf.words) {
+          if (word.id == item.focusId) {
+            saved = word;
+            break;
+          }
         }
-        await context.pushNamed(
-          AppRouteNames.talk,
-          pathParameters: {'conversationId': conversation.id},
-          queryParameters: {
-            if (item.title.trim().isNotEmpty) 'title': item.title,
-          },
-        );
-      } on ApiException catch (error) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error.message)));
-        }
+      } catch (_) {
+        saved = null;
+      }
+      if (!context.mounted) {
+        return;
+      }
+      if (saved != null) {
+        await showSavedWordSheet(context, saved);
+      } else {
+        await showWordLookupSheet(context, item.title);
+      }
+      return;
+    }
+    try {
+      final conversation = await ref
+          .read(talkRepositoryProvider)
+          .createConversation(focusType: 'scene', focusId: item.focusId);
+      if (!context.mounted) {
+        return;
+      }
+      await context.pushNamed(
+        AppRouteNames.talk,
+        pathParameters: {'conversationId': conversation.id},
+        queryParameters: {
+          if (item.title.trim().isNotEmpty) 'title': item.title,
+        },
+      );
+    } on ApiException catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
       }
     }
-    ref.invalidate(challengeProvider(challenge.id));
-    ref.invalidate(challengesProvider);
   }
 
   Future<void> _end(
@@ -148,11 +242,15 @@ class _ChallengeDetail extends StatelessWidget {
   const _ChallengeDetail({
     required this.challenge,
     required this.onOpen,
+    required this.onStartPractice,
+    required this.onPracticeItem,
     required this.onEnd,
   });
 
   final Challenge challenge;
   final ValueChanged<ChallengeItem> onOpen;
+  final VoidCallback onStartPractice;
+  final ValueChanged<ChallengeItem> onPracticeItem;
   final VoidCallback onEnd;
 
   @override
@@ -160,6 +258,10 @@ class _ChallengeDetail extends StatelessWidget {
     final t = context.t.challenge;
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
+    final focus = challenge.items
+        .where((item) => !item.visited)
+        .take(3)
+        .toList();
     return ListView(
       padding: const EdgeInsets.only(bottom: AppSpacing.s24),
       children: [
@@ -195,6 +297,14 @@ class _ChallengeDetail extends StatelessWidget {
             color: palette.primary,
           ),
         ),
+        if (challenge.isActive && focus.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s16),
+          AppButton(
+            key: const Key('challenge.practiceStart'),
+            label: t.practiceStart,
+            onPressed: onStartPractice,
+          ),
+        ],
         const SizedBox(height: AppSpacing.s24),
         Text(
           t.content.toUpperCase(),
@@ -210,10 +320,24 @@ class _ChallengeDetail extends StatelessWidget {
               padding: const EdgeInsets.all(AppSpacing.s12),
               child: Row(
                 children: [
-                  Icon(
-                    item.visited ? Icons.check_circle : Icons.circle_outlined,
-                    color: item.visited ? palette.accent : palette.muted,
-                    size: 20,
+                  Semantics(
+                    button: true,
+                    label: t.practiceStart,
+                    child: GestureDetector(
+                      key: Key('challenge.practice.${item.id}'),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => onPracticeItem(item),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.s8),
+                        child: AppLineIcon(
+                          item.visited
+                              ? AppLineGlyph.checkCircle
+                              : AppLineGlyph.circleOutline,
+                          color: item.visited ? palette.accent : palette.muted,
+                          size: 20,
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.s10),
                   Expanded(
@@ -237,7 +361,7 @@ class _ChallengeDetail extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right, color: palette.muted),
+                  AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
                 ],
               ),
             ),

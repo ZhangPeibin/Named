@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/i18n/app_locale_controller.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 
@@ -85,7 +86,11 @@ class _LanguageOption extends StatelessWidget {
                 ),
               ),
               if (selected)
-                Icon(Icons.check, size: 20, color: colorScheme.primary),
+                AppLineIcon(
+                  AppLineGlyph.check,
+                  size: 20,
+                  color: colorScheme.primary,
+                ),
             ],
           ),
         ),

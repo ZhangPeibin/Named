@@ -12,6 +12,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/history_experience.dart';
@@ -25,7 +26,36 @@ class HistoryPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryPageState extends ConsumerState<HistoryPage> {
+  final _scrollController = ScrollController();
   var _loadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (_loadingMore ||
+        !_scrollController.hasClients ||
+        _scrollController.position.pixels <
+            _scrollController.position.maxScrollExtent - 200) {
+      return;
+    }
+    final state = ref.read(historyControllerProvider).value;
+    if (state?.nextCursor == null) {
+      return;
+    }
+    unawaited(_loadMore());
+  }
 
   Future<void> _loadMore() async {
     if (_loadingMore) {
@@ -74,8 +104,8 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
             onRefresh: _refresh,
             child: _HistoryList(
               state: state,
+              controller: _scrollController,
               loadingMore: _loadingMore,
-              onLoadMore: _loadMore,
               onOpen: (item) {
                 unawaited(
                   context.pushNamed(
@@ -95,14 +125,14 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 class _HistoryList extends StatelessWidget {
   const _HistoryList({
     required this.state,
+    required this.controller,
     required this.loadingMore,
-    required this.onLoadMore,
     required this.onOpen,
   });
 
   final HistoryState state;
+  final ScrollController controller;
   final bool loadingMore;
-  final Future<void> Function() onLoadMore;
   final ValueChanged<HistoryExperience> onOpen;
 
   @override
@@ -117,18 +147,15 @@ class _HistoryList extends StatelessWidget {
       }
       widgets.add(_ExperienceCard(item: item, onTap: () => onOpen(item)));
     }
-    if (state.nextCursor != null) {
+    if (loadingMore) {
       widgets.add(
-        Center(
-          child: TextButton(
-            key: const Key('history.loadEarlier'),
-            onPressed: loadingMore ? null : () => unawaited(onLoadMore()),
-            child: loadingMore
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(context.t.history.loadEarlier),
+        const Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: AppSpacing.s8),
+            child: SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           ),
         ),
       );
@@ -136,6 +163,7 @@ class _HistoryList extends StatelessWidget {
 
     return ListView.separated(
       key: const Key('history.list'),
+      controller: controller,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.s20,
         AppSpacing.s16,
@@ -214,9 +242,9 @@ class _ExperienceCard extends StatelessWidget {
             spacing: AppSpacing.s6,
             runSpacing: AppSpacing.s6,
             children: [
-              _MetaChip(icon: Icons.book_outlined, label: item.focusTitle),
+              _MetaChip(icon: AppLineGlyph.book, label: item.focusTitle),
               for (final expression in item.expressions.take(2))
-                _MetaChip(icon: Icons.translate, label: expression),
+                _MetaChip(icon: AppLineGlyph.translate, label: expression),
             ],
           ),
         ],
@@ -258,7 +286,7 @@ class _KindBadge extends StatelessWidget {
 class _MetaChip extends StatelessWidget {
   const _MetaChip({required this.icon, required this.label});
 
-  final IconData icon;
+  final AppLineGlyph icon;
   final String label;
 
   @override
@@ -276,7 +304,7 @@ class _MetaChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: palette.primary),
+          AppLineIcon(icon, size: 13, color: palette.primary),
           const SizedBox(width: AppSpacing.s4),
           Text(
             label,

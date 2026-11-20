@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_spacing.dart';
 import 'app_button.dart';
+import 'app_line_icon.dart';
 
 class AppErrorView extends StatelessWidget {
   const AppErrorView({
@@ -23,7 +24,7 @@ class AppErrorView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.error_outline, size: 56, color: colorScheme.error),
+        AppLineIcon(AppLineGlyph.error, size: 56, color: colorScheme.error),
         const SizedBox(height: AppSpacing.s16),
         Text(
           title,

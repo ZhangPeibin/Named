@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
+import 'app_line_icon.dart';
 
 class AppFilterData {
   const AppFilterData({
@@ -152,8 +153,8 @@ class _FilterOptionTile extends StatelessWidget {
                 ),
               ),
               if (selected)
-                const Icon(
-                  Icons.check,
+                const AppLineIcon(
+                  AppLineGlyph.check,
                   size: AppSize.size18,
                   color: AppColors.brand,
                 ),

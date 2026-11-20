@@ -10,16 +10,26 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../assistant/domain/assistant_intent.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
+import '../../progress/providers/progress_providers.dart';
+import '../../review/providers/review_providers.dart';
+import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
+import 'composer_hint.dart';
+import 'widgets/challenge_carousel.dart';
+import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
+import 'widgets/question_thread_card.dart';
+import 'widgets/review_reminder_card.dart';
 import 'widgets/talk_event_card.dart';
+import 'widgets/timeline_progress_card.dart';
 import 'widgets/word_naming_card.dart';
 
 class TimelinePage extends ConsumerStatefulWidget {
@@ -29,7 +39,8 @@ class TimelinePage extends ConsumerStatefulWidget {
   ConsumerState<TimelinePage> createState() => _TimelinePageState();
 }
 
-class _TimelinePageState extends ConsumerState<TimelinePage> {
+class _TimelinePageState extends ConsumerState<TimelinePage>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   String? _error;
@@ -37,12 +48,225 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   bool _isSubmitting = false;
   bool _isLoadingEarlier = false;
   bool _didInitialScroll = false;
+  late final ComposerHintSelector _hintSelector;
+  Timer? _hintTimer;
+  Timer? _dayTimer;
+  DateTime _currentDay = DateUtils.dateOnly(DateTime.now());
+  ComposerHintCategory _hintCategory = ComposerHintCategory.discovery;
+  bool _hintPaused = false;
+  late final AnimationController _trailVisibility;
+  Timer? _trailEnableTimer;
+  bool _trailVisibilityReady = false;
+
+  static const _hintInterval = Duration(seconds: 6);
+
+  @override
+  void initState() {
+    super.initState();
+    _hintSelector = ref.read(composerHintSelectorProvider);
+    _textController.addListener(_handleComposerTextChanged);
+    _scrollController.addListener(_handleTimelineScroll);
+    _trailVisibility = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      value: 1,
+    );
+    _trailEnableTimer = Timer(const Duration(milliseconds: 500), () {
+      _trailVisibilityReady = true;
+    });
+    _hintTimer = Timer.periodic(_hintInterval, (_) => _advanceHint());
+    _dayTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _refreshIfDayChanged(),
+    );
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshIfDayChanged();
+    }
+  }
+
+  void _refreshIfDayChanged() {
+    final today = DateUtils.dateOnly(DateTime.now());
+    if (DateUtils.isSameDay(today, _currentDay)) {
+      return;
+    }
+    _currentDay = today;
+    ref.invalidate(timelineControllerProvider);
+    ref.invalidate(progressProvider);
+  }
 
   @override
   void dispose() {
-    _textController.dispose();
-    _scrollController.dispose();
+    _hintTimer?.cancel();
+    _dayTimer?.cancel();
+    _trailEnableTimer?.cancel();
+    _trailVisibility.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _textController
+      ..removeListener(_handleComposerTextChanged)
+      ..dispose();
+    _scrollController
+      ..removeListener(_handleTimelineScroll)
+      ..dispose();
     super.dispose();
+  }
+
+  void _handleComposerTextChanged() {
+    final hasText = _textController.text.trim().isNotEmpty;
+    if (hasText) {
+      _hintPaused = true;
+      return;
+    }
+    if (_hintPaused) {
+      _hintPaused = false;
+      _advanceHint();
+    }
+  }
+
+  void _advanceHint() {
+    if (!mounted || _isSubmitting || _textController.text.trim().isNotEmpty) {
+      return;
+    }
+    final challenges = ref.read(challengesProvider);
+    final hasActiveChallenge = challenges.hasValue
+        ? challenges.value!.any((challenge) => challenge.isActive)
+        : null;
+    final next = _hintSelector.next(
+      options: _composerHintOptions(context.t.timeline),
+      weights: composerHintWeights(hasActiveChallenge: hasActiveChallenge),
+      previous: _hintCategory,
+    );
+    if (next.category != _hintCategory) {
+      setState(() => _hintCategory = next.category);
+    }
+  }
+
+  void _handleTimelineScroll() {
+    _updateTrailVisibility();
+    if (!_didInitialScroll ||
+        _isLoadingEarlier ||
+        !_scrollController.hasClients ||
+        _scrollController.position.pixels > 160) {
+      return;
+    }
+    final state = ref.read(timelineControllerProvider).value;
+    if (state?.nextCursor == null) {
+      return;
+    }
+    unawaited(_loadEarlier());
+  }
+
+  void _updateTrailVisibility() {
+    if (!_trailVisibilityReady || !_scrollController.hasClients) {
+      return;
+    }
+    final position = _scrollController.position;
+    final atBottom =
+        position.maxScrollExtent <= 0 ||
+        position.pixels >= position.maxScrollExtent - 8;
+    _setTrailVisible(atBottom);
+  }
+
+  void _setTrailVisible(bool visible) {
+    final target = visible ? 1.0 : 0.0;
+    if ((_trailVisibility.value - target).abs() < 0.01) {
+      return;
+    }
+    if (visible) {
+      unawaited(
+        _trailVisibility.animateTo(
+          1,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    } else {
+      unawaited(
+        _trailVisibility.animateTo(
+          0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    }
+  }
+
+  Future<void> _loadEarlier() async {
+    if (_isLoadingEarlier) {
+      return;
+    }
+    final state = ref.read(timelineControllerProvider).value;
+    if (state?.nextCursor == null) {
+      return;
+    }
+    final beforeMax = _scrollController.hasClients
+        ? _scrollController.position.maxScrollExtent
+        : 0.0;
+    final beforeOffset = _scrollController.hasClients
+        ? _scrollController.position.pixels
+        : 0.0;
+    setState(() => _isLoadingEarlier = true);
+    try {
+      await ref.read(timelineControllerProvider.notifier).loadEarlier();
+      if (!mounted) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_scrollController.hasClients) {
+          return;
+        }
+        final position = _scrollController.position;
+        final target = beforeOffset + position.maxScrollExtent - beforeMax;
+        position.jumpTo(target.clamp(0.0, position.maxScrollExtent));
+      });
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingEarlier = false);
+      }
+    }
+  }
+
+  List<ComposerHintOption> _composerHintOptions(Translations$timeline$en t) {
+    return [
+      ComposerHintOption(
+        category: ComposerHintCategory.discovery,
+        text: t.composerHint,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.openWords,
+        text: t.composerHintWords,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.review,
+        text: t.composerHintReview,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.startChallenge,
+        text: t.composerHintStartChallenge,
+      ),
+      ComposerHintOption(
+        category: ComposerHintCategory.viewChallenges,
+        text: t.composerHintViewChallenges,
+      ),
+    ];
+  }
+
+  String _hintText(Translations$timeline$en t) {
+    return switch (_hintCategory) {
+      ComposerHintCategory.discovery => t.composerHint,
+      ComposerHintCategory.openWords => t.composerHintWords,
+      ComposerHintCategory.review => t.composerHintReview,
+      ComposerHintCategory.startChallenge => t.composerHintStartChallenge,
+      ComposerHintCategory.viewChallenges => t.composerHintViewChallenges,
+    };
   }
 
   Future<void> _send() async {
@@ -63,6 +287,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         _textController.clear();
         FocusScope.of(context).unfocus();
         switch (intent.intent) {
+          case AssistantIntent.openWords:
+            unawaited(context.pushNamed(AppRouteNames.words));
+            break;
           case AssistantIntent.reviewWords:
             unawaited(context.pushNamed(AppRouteNames.review));
             break;
@@ -70,23 +297,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
             unawaited(context.pushNamed(AppRouteNames.challenges));
             break;
           case AssistantIntent.startChallenge:
-            final challenges = await ref.read(challengesProvider.future);
-            if (!mounted) {
-              break;
-            }
-            final active = challenges
-                .where((challenge) => challenge.isActive)
-                .firstOrNull;
-            if (active == null) {
-              unawaited(context.pushNamed(AppRouteNames.challengeNew));
-            } else {
-              unawaited(
-                context.pushNamed(
-                  AppRouteNames.challengeDetail,
-                  pathParameters: {'challengeId': active.id},
-                ),
-              );
-            }
+            unawaited(context.pushNamed(AppRouteNames.challengeNew));
             break;
           case AssistantIntent.none:
             break;
@@ -97,6 +308,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       if (!mounted) {
         return;
       }
+      ref.invalidate(wordShelfProvider);
+      ref.invalidate(progressProvider);
       _textController.clear();
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
@@ -106,24 +319,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);
-      }
-    }
-  }
-
-  Future<void> _loadEarlier() async {
-    if (_isLoadingEarlier) {
-      return;
-    }
-    setState(() => _isLoadingEarlier = true);
-    try {
-      await ref.read(timelineControllerProvider.notifier).loadEarlier();
-    } on ApiException catch (error) {
-      if (mounted) {
-        setState(() => _error = error.message);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoadingEarlier = false);
+        if (_textController.text.trim().isEmpty) {
+          _advanceHint();
+        }
       }
     }
   }
@@ -157,6 +355,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         conversationId: conversationId,
         title: item.word?.spelling ?? item.inputText ?? 'Talk',
       );
+      ref.invalidate(progressProvider);
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
       if (mounted) {
@@ -198,6 +397,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
         conversationId: conversationId,
         title: item.scene.naturalEnglish,
       );
+      ref.invalidate(progressProvider);
       _scheduleScrollToBottom(animate: true);
     } on ApiException catch (error) {
       if (mounted) {
@@ -266,6 +466,19 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
   Widget build(BuildContext context) {
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
+    final progress = ref.watch(progressProvider);
+    final dueReviewCount = ref.watch(dueReviewCountProvider);
+    ref
+      ..listen(challengesProvider, (previous, next) {
+        if (next.hasValue) {
+          _advanceHint();
+        }
+      })
+      ..listen(wordShelfProvider, (previous, next) {
+        if (next.hasValue) {
+          _advanceHint();
+        }
+      });
 
     return AppScaffold(
       title: '',
@@ -274,7 +487,19 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       padding: EdgeInsets.zero,
       body: Column(
         children: [
-          const _TimelineHeader(),
+          if (dueReviewCount > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.s16,
+                AppSpacing.s8,
+                AppSpacing.s16,
+                0,
+              ),
+              child: ReviewReminderCard(
+                count: dueReviewCount,
+                onTap: () => unawaited(_openReview()),
+              ),
+            ),
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -290,6 +515,17 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
               data: (state) => _buildTimeline(context, state, t),
             ),
           ),
+          if (progress.hasValue)
+            ClipRect(
+              child: SizeTransition(
+                sizeFactor: _trailVisibility,
+                axisAlignment: 1,
+                child: FadeTransition(
+                  opacity: _trailVisibility,
+                  child: TimelineProgressCard(progress: progress.value!),
+                ),
+              ),
+            ),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -307,15 +543,53 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
             ),
           NamedComposer(
             controller: _textController,
-            hintText: t.composerHint,
+            hintText: _hintText(t),
             sendTooltip: t.send,
+            meTooltip: context.t.navigation.me,
+            askTooltip: context.t.ask.entryTooltip,
             isSubmitting: _isSubmitting,
             onSend: _send,
+            onOpenMe: () => unawaited(context.pushNamed(AppRouteNames.me)),
+            onOpenAsk: () => unawaited(_openAsk()),
             onChanged: (_) => setState(() => _error = null),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openAsk({String? threadId}) async {
+    final queryParameters = <String, String>{};
+    if (threadId != null) {
+      queryParameters['threadId'] = threadId;
+    }
+    await context.pushNamed(
+      AppRouteNames.ask,
+      queryParameters: queryParameters,
+    );
+    if (mounted) {
+      ref.invalidate(timelineControllerProvider);
+      ref.invalidate(progressProvider);
+    }
+  }
+
+  Future<void> _openReview() async {
+    await context.pushNamed(AppRouteNames.review);
+    if (mounted) {
+      ref.invalidate(wordShelfProvider);
+    }
+  }
+
+  Future<void> _openDaily(TimelineDailyItem item) async {
+    final date = item.readingDate.toIso8601String().split('T').first;
+    await context.pushNamed(
+      AppRouteNames.daily,
+      queryParameters: {'date': date},
+    );
+    if (mounted) {
+      ref.invalidate(progressProvider);
+      ref.invalidate(timelineControllerProvider);
+    }
   }
 
   Widget _buildTimeline(
@@ -332,23 +606,21 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       _settleScrollToBottom();
     }
 
-    final widgets = <Widget>[];
-    if (state.nextCursor != null) {
-      widgets.add(
-        Center(
-          child: TextButton(
-            onPressed: _isLoadingEarlier ? null : _loadEarlier,
-            child: _isLoadingEarlier
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.loadEarlier),
+    final hasActiveChallenge =
+        ref.watch(challengesProvider).value?.any((c) => c.isActive) ?? false;
+
+    final widgets = <Widget>[
+      if (_isLoadingEarlier)
+        const Center(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.s8),
+            child: SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           ),
         ),
-      );
-    }
-
+    ];
     DateTime? currentDay;
     for (final item in state.items) {
       final day = DateUtils.dateOnly(item.createdAt.toLocal());
@@ -377,15 +649,29 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
           widgets.add(
             TalkEventCard(item: item, onTap: () => _openTalkEvent(item)),
           );
+        case TimelineDailyItem():
+          widgets.add(
+            DailyTaskCard(item: item, onTap: () => unawaited(_openDaily(item))),
+          );
+        case TimelineQuestionItem():
+          widgets.add(
+            QuestionThreadCard(
+              item: item,
+              onTap: () => unawaited(_openAsk(threadId: item.id)),
+            ),
+          );
       }
+    }
+    if (hasActiveChallenge) {
+      widgets.add(const ChallengeCarousel());
     }
     return ListView.separated(
       key: const Key('timeline.list'),
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
         AppSpacing.s16,
-        AppSpacing.s20,
+        AppSpacing.s12,
+        AppSpacing.s16,
         AppSpacing.s24,
       ),
       itemCount: widgets.length,
@@ -405,39 +691,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage> {
       return t.yesterday;
     }
     return MaterialLocalizations.of(context).formatMediumDate(day);
-  }
-}
-
-class _TimelineHeader extends StatelessWidget {
-  const _TimelineHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.appPalette;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
-        AppSpacing.s8,
-        AppSpacing.s12,
-        0,
-      ),
-      child: Row(
-        children: [
-          Text('Named', style: Theme.of(context).textTheme.headlineMedium),
-          const Spacer(),
-          IconButton.filledTonal(
-            key: const Key('timeline.me'),
-            tooltip: context.t.navigation.me,
-            onPressed: () => unawaited(context.pushNamed(AppRouteNames.me)),
-            style: IconButton.styleFrom(
-              backgroundColor: palette.surfaceMuted,
-              foregroundColor: palette.primary,
-            ),
-            icon: const Icon(Icons.person_outline, size: 20),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -463,7 +716,11 @@ class _EmptyTimeline extends StatelessWidget {
                 color: palette.surfaceMuted,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
-              child: Icon(Icons.eco_outlined, color: palette.primary, size: 30),
+              child: AppLineIcon(
+                AppLineGlyph.leaf,
+                color: palette.primary,
+                size: 30,
+              ),
             ),
             const SizedBox(height: AppSpacing.s20),
             Text(

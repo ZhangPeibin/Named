@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_text_styles.dart';
+import 'app_line_icon.dart';
 
 const audioPlaybackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5];
 
@@ -25,7 +26,10 @@ class AudioSpeedControl extends StatelessWidget {
     required this.speedTooltip,
     required this.playTooltip,
     required this.pauseTooltip,
-    this.dimension = 34,
+    this.dimension = 28,
+    this.label,
+    this.color,
+    this.iconSize = 12,
   });
 
   final Key playKey;
@@ -39,10 +43,14 @@ class AudioSpeedControl extends StatelessWidget {
   final String playTooltip;
   final String pauseTooltip;
   final double dimension;
+  final String? label;
+  final Color? color;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
+    final accent = color ?? palette.muted;
 
     return Material(
       color: palette.surfaceMuted,
@@ -56,23 +64,13 @@ class AudioSpeedControl extends StatelessWidget {
             child: InkWell(
               key: playKey,
               onTap: isLoading ? null : onToggle,
-              child: SizedBox.square(
+              child: _PlayIcon(
                 dimension: dimension,
-                child: isLoading
-                    ? Center(
-                        child: SizedBox.square(
-                          dimension: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: palette.primary,
-                          ),
-                        ),
-                      )
-                    : Icon(
-                        isPlaying ? Icons.pause : Icons.volume_up_outlined,
-                        size: 16,
-                        color: palette.primary,
-                      ),
+                label: label,
+                isLoading: isLoading,
+                isPlaying: isPlaying,
+                color: accent,
+                iconSize: iconSize,
               ),
             ),
           ),
@@ -101,13 +99,79 @@ class AudioSpeedControl extends StatelessWidget {
                   Text(
                     audioRateLabel(speed),
                     style: AppTextStyles.caption.copyWith(
-                      color: palette.primary,
+                      color: accent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Icon(Icons.arrow_drop_down, size: 14, color: palette.primary),
+                  AppLineIcon(
+                    AppLineGlyph.chevronDown,
+                    size: 14,
+                    color: accent,
+                  ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlayIcon extends StatelessWidget {
+  const _PlayIcon({
+    required this.dimension,
+    required this.label,
+    required this.isLoading,
+    required this.isPlaying,
+    required this.color,
+    required this.iconSize,
+  });
+
+  final double dimension;
+  final String? label;
+  final bool isLoading;
+  final bool isPlaying;
+  final Color color;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final glyph = isLoading
+        ? Center(
+            child: SizedBox.square(
+              dimension: 14,
+              child: CircularProgressIndicator(strokeWidth: 2, color: color),
+            ),
+          )
+        : AppLineIcon(
+            isPlaying ? AppLineGlyph.pause : AppLineGlyph.play,
+            size: iconSize,
+            color: color,
+          );
+
+    if (label == null) {
+      return SizedBox.square(
+        dimension: dimension,
+        child: Center(child: glyph),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s10,
+        vertical: AppSpacing.s6,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          glyph,
+          const SizedBox(width: AppSpacing.s6),
+          Text(
+            label!,
+            style: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

@@ -13,6 +13,7 @@ import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../timeline/domain/timeline_item.dart';
@@ -110,8 +111,10 @@ class _WordsPageState extends ConsumerState<WordsPage> {
                 _SectionHeader(
                   label: t.known,
                   count: known.length,
-                  trailing: Icon(
-                    _showKnown ? Icons.expand_less : Icons.expand_more,
+                  trailing: AppLineIcon(
+                    _showKnown
+                        ? AppLineGlyph.chevronUp
+                        : AppLineGlyph.chevronDown,
                     color: context.appPalette.muted,
                   ),
                   onTap: () => setState(() => _showKnown = !_showKnown),
@@ -256,7 +259,7 @@ class _WordsHeader extends StatelessWidget {
         TextButton.icon(
           key: const Key('words.review'),
           onPressed: onReview,
-          icon: const Icon(Icons.refresh, size: 18),
+          icon: const AppLineIcon(AppLineGlyph.refresh, size: 18),
           label: Text(t.review3),
         ),
       ],
@@ -420,14 +423,14 @@ class _WordRow extends StatelessWidget {
               key: Key('words.talk.${item.id}'),
               onPressed: onTalk,
               tooltip: context.t.timeline.talkAboutIt,
-              icon: Icon(
-                Icons.chat_bubble_outline,
+              icon: AppLineIcon(
+                AppLineGlyph.chat,
                 size: AppSize.size18,
                 color: palette.primary,
               ),
             ),
-            Icon(
-              Icons.chevron_right,
+            AppLineIcon(
+              AppLineGlyph.chevronRight,
               color: palette.muted,
               size: AppSize.size18,
             ),

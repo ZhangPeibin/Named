@@ -121,6 +121,23 @@ async def test_route_returns_ai_intent(assistant_env) -> None:
 
 
 @pytest.mark.asyncio
+async def test_route_can_open_words(assistant_env) -> None:
+    http, sender, agent = assistant_env
+    agent.intent = "open_words"
+    verified = await request_and_verify(http, sender, "words@example.com")
+
+    response = await http.post(
+        "/api/v1/assistant/route",
+        headers=bearer(verified["session_token"]),
+        json={"text": "看看我的单词"},
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["intent"] == "open_words"
+    assert agent.calls == ["看看我的单词"]
+
+
+@pytest.mark.asyncio
 async def test_route_passes_normal_content_through(assistant_env) -> None:
     http, sender, agent = assistant_env
     agent.intent = "none"

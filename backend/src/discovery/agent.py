@@ -1,12 +1,11 @@
 from functools import lru_cache
 from typing import Protocol
 
-from pydantic_ai import Agent, BinaryContent
+from pydantic_ai import BinaryContent
 
-from ai import AINotConfigured, build_model, build_model_settings
-from config import Settings, get_settings
+from agents import AgentFailed as AgentFailed
+from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
 from discovery.schemas import DiscoveryAgentOutput
-from errors import ApiError
 
 
 class DiscoveryAgent(Protocol):
@@ -19,10 +18,6 @@ class DiscoveryAgent(Protocol):
         image: bytes | None = None,
         image_media_type: str | None = None,
     ) -> DiscoveryAgentOutput: ...
-
-
-class AgentFailed(Exception):
-    pass
 
 
 SYSTEM_PROMPT = """
@@ -124,15 +119,20 @@ QUALITY
   spelling, and return content for it.
 """.strip()
 
+SPEC = register(
+    AgentSpec(
+        name="discovery",
+        system_prompt=SYSTEM_PROMPT,
+        output_type=DiscoveryAgentOutput,
+        error_code="agent_failed",
+        error_message="The discovery agent failed.",
+    )
+)
+
 
 class PydanticAIDiscoveryAgent:
-    def __init__(self, settings: Settings) -> None:
-        self._agent = Agent(
-            build_model(settings),
-            output_type=DiscoveryAgentOutput,
-            system_prompt=SYSTEM_PROMPT,
-            model_settings=build_model_settings(settings),
-        )
+    def __init__(self, runtime: AgentRuntime) -> None:
+        self._runtime = runtime
 
     async def analyze(
         self,
@@ -153,21 +153,9 @@ class PydanticAIDiscoveryAgent:
         if image is not None:
             content.append(BinaryContent(data=image, media_type=image_media_type or "image/jpeg"))
         content.append(prompt)
-        try:
-            result = await self._agent.run(content)
-        except Exception as exc:
-            raise AgentFailed(str(exc)) from exc
-        return result.output
+        return await self._runtime.run(SPEC, content)
 
 
 @lru_cache
 def get_discovery_agent() -> DiscoveryAgent:
-    settings = get_settings()
-    try:
-        return PydanticAIDiscoveryAgent(settings)
-    except AINotConfigured as exc:
-        raise ApiError(
-            "AI provider is not configured.",
-            status_code=503,
-            code="ai_not_configured",
-        ) from exc
+    return PydanticAIDiscoveryAgent(get_agent_runtime())

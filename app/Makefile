@@ -3,7 +3,7 @@
         preflight-prod preflight-android preflight-ios \
         check fix format-check generated-check architecture-check \
         analyze test integration-test coverage doctor doctor-ci \
-        gen clean get hooks icons splash new-feature
+        gen clean get hooks icons splash new-feature ios-lipo-compat
 
 # ── Environment bootstrap ─────────────────────────────────────────────────────
 
@@ -14,6 +14,14 @@ bootstrap:
 	else \
 		echo "config/prod.json already exists, skipping"; \
 	fi
+
+# ── Toolchain ─────────────────────────────────────────────────────────────────
+
+# Re-apply the Xcode 27 `lipo` compatibility patch to the FVM Flutter SDK.
+# Run after `fvm install` / `flutter upgrade` if iOS builds fail with
+# "does not contain architectures".
+ios-lipo-compat:
+	bash tool/ios_lipo_compat.sh
 
 # ── Run ───────────────────────────────────────────────────────────────────────
 

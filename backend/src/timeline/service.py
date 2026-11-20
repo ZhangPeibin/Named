@@ -1,19 +1,26 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from clock import utcnow
+from daily.service import current_streak, ensure_daily_task
 from discovery.schemas import ScenePayload, WordPayload
 from errors import ApiError
 from models import (
     Conversation,
     ConversationMessage,
+    DailyReading,
     Discovery,
+    QuestionMessage,
+    QuestionThread,
     SoulProfile,
     Word,
     WordContent,
 )
 from timeline.schemas import (
+    TimelineDailyItem,
+    TimelineQuestionItem,
     TimelineResponse,
     TimelineSceneItem,
     TimelineTalkItem,
@@ -290,6 +297,82 @@ async def _talk_items(
     return items
 
 
+async def _daily_items(
+    session: AsyncSession,
+    account_id: str,
+    *,
+    limit: int,
+    before: datetime | None,
+) -> list[TimelineDailyItem]:
+    today = utcnow().date()
+    query = select(DailyReading).where(
+        DailyReading.account_id == account_id,
+        or_(
+            DailyReading.reading_date == today,
+            DailyReading.completed_at.is_not(None),
+        ),
+    )
+    if before is not None:
+        query = query.where(DailyReading.created_at < before)
+    rows = list(await session.scalars(query.order_by(DailyReading.created_at.desc()).limit(limit)))
+    if not rows:
+        return []
+    streak = await current_streak(session, account_id)
+    return [
+        TimelineDailyItem(
+            id=row.id,
+            created_at=row.created_at,
+            reading_date=row.reading_date,
+            title=row.title or None,
+            completed=row.completed_at is not None,
+            word_count=len(row.passage.split()) if row.passage else 0,
+            streak=streak,
+        )
+        for row in rows
+    ]
+
+
+async def _question_items(
+    session: AsyncSession,
+    account_id: str,
+    *,
+    limit: int,
+    before: datetime | None,
+) -> list[TimelineQuestionItem]:
+    query = select(QuestionThread).where(
+        QuestionThread.account_id == account_id,
+        QuestionThread.deleted_at.is_(None),
+    )
+    if before is not None:
+        query = query.where(QuestionThread.created_at < before)
+    threads = list(
+        await session.scalars(query.order_by(QuestionThread.created_at.desc()).limit(limit))
+    )
+    if not threads:
+        return []
+    messages = list(
+        await session.scalars(
+            select(QuestionMessage)
+            .where(QuestionMessage.thread_id.in_([thread.id for thread in threads]))
+            .order_by(QuestionMessage.sequence.desc())
+        )
+    )
+    last_answer: dict[str, str] = {}
+    for message in messages:
+        if message.role == "assistant":
+            last_answer.setdefault(message.thread_id, message.text)
+    return [
+        TimelineQuestionItem(
+            id=thread.id,
+            created_at=thread.created_at,
+            title=thread.title,
+            last_text=last_answer.get(thread.id, ""),
+            context_type=thread.context_type,
+        )
+        for thread in threads
+    ]
+
+
 async def get_timeline(
     session: AsyncSession,
     account_id: str,
@@ -303,7 +386,24 @@ async def get_timeline(
     word_items: list[TimelineWordItem] = []
     scene_items: list[TimelineSceneItem] = []
     talk_items: list[TimelineTalkItem] = []
+    daily_items: list[TimelineDailyItem] = []
+    question_items: list[TimelineQuestionItem] = []
 
+    if item_type in {"all", "daily"}:
+        await ensure_daily_task(session, account_id=account_id)
+        daily_items = await _daily_items(
+            session,
+            account_id,
+            limit=limit,
+            before=before_at,
+        )
+    if item_type in {"all", "question"}:
+        question_items = await _question_items(
+            session,
+            account_id,
+            limit=limit,
+            before=before_at,
+        )
     if item_type in {"all", "word"}:
         word_items = await _word_items(
             session,
@@ -329,7 +429,7 @@ async def get_timeline(
         )
 
     items = sorted(
-        [*word_items, *scene_items, *talk_items],
+        [*word_items, *scene_items, *talk_items, *daily_items, *question_items],
         key=lambda item: item.created_at,
         reverse=True,
     )[:limit]

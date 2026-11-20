@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
+import 'app_line_icon.dart';
 
 /// A circular badge with a [symbol] letter or [icon].
 class AppIconBadge extends StatelessWidget {
@@ -18,7 +19,7 @@ class AppIconBadge extends StatelessWidget {
   final String symbol;
   final Color color;
   final double size;
-  final IconData? icon;
+  final AppLineGlyph? icon;
   final Color? iconColor;
   final Color? borderColor;
 
@@ -43,8 +44,8 @@ class AppIconBadge extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             )
-          : Icon(
-              icon,
+          : AppLineIcon(
+              icon!,
               color: iconColor ?? AppColors.lightSurface,
               size: size * 0.54,
             ),

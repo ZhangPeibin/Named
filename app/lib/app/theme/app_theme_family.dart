@@ -1,4 +1,5 @@
 enum AppThemeFamily {
+  sky,
   cobalt,
   parchment,
   plum;
@@ -7,9 +8,10 @@ enum AppThemeFamily {
     return switch (value) {
       'parchment' => AppThemeFamily.parchment,
       'plum' => AppThemeFamily.plum,
-      _ => AppThemeFamily.cobalt,
+      'sky' => AppThemeFamily.sky,
+      _ => AppThemeFamily.sky,
     };
   }
 }
 
-const defaultAppThemeFamily = AppThemeFamily.cobalt;
+const defaultAppThemeFamily = AppThemeFamily.sky;

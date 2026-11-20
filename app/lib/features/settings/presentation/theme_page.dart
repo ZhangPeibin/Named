@@ -7,6 +7,7 @@ import '../../../app/theme/app_theme.dart';
 import '../../../app/theme/app_theme_controller.dart';
 import '../../../app/theme/app_theme_family.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 
@@ -133,8 +134,8 @@ class _ThemeOption extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.s12),
-          Icon(
-            selected ? Icons.check_circle : Icons.circle_outlined,
+          AppLineIcon(
+            selected ? AppLineGlyph.checkCircle : AppLineGlyph.circleOutline,
             color: selected ? palette.primary : palette.muted,
           ),
         ],
@@ -167,6 +168,7 @@ String _themeTitle(Translations$settings$en t, AppThemeFamily family) {
     AppThemeFamily.cobalt => t.themeCobalt,
     AppThemeFamily.parchment => t.themeParchment,
     AppThemeFamily.plum => t.themePlum,
+    AppThemeFamily.sky => t.themeSky,
   };
 }
 
@@ -175,5 +177,6 @@ String _themeDescription(Translations$settings$en t, AppThemeFamily family) {
     AppThemeFamily.cobalt => t.themeCobaltDescription,
     AppThemeFamily.parchment => t.themeParchmentDescription,
     AppThemeFamily.plum => t.themePlumDescription,
+    AppThemeFamily.sky => t.themeSkyDescription,
   };
 }

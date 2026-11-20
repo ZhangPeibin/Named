@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 from uuid import uuid4
 
 from sqlalchemy import (
     JSON,
     Boolean,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -44,6 +45,7 @@ class SoulProfile(Base):
     native_language: Mapped[str] = mapped_column(String(32), nullable=False)
     age: Mapped[int | None] = mapped_column(Integer, nullable=True)
     gender: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    auto_extract: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False
@@ -152,10 +154,28 @@ class WordProgress(Base):
     self_known_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     review_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    used_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
+
+
+class WordAttempt(Base):
+    __tablename__ = "word_attempts"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    word_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("words.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
 
 class Discovery(Base):
@@ -199,6 +219,96 @@ class DiscoveryCandidate(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
 
+class DailyReading(Base):
+    __tablename__ = "daily_readings"
+    __table_args__ = (
+        UniqueConstraint(
+            "account_id",
+            "reading_date",
+            name="uq_daily_readings_account_date",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    reading_date: Mapped[date] = mapped_column(Date, nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    passage: Mapped[str] = mapped_column(Text, nullable=False)
+    target_words_json: Mapped[list] = mapped_column(JSON, nullable=False)
+    question: Mapped[str | None] = mapped_column(Text, nullable=True)
+    translation_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    translation_language: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    theme: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    completed_duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class QuestionThread(Base):
+    __tablename__ = "question_threads"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    context_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    context_ref: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    context_quote: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class QuestionMessage(Base):
+    __tablename__ = "question_messages"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    thread_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("question_threads.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    sequence: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    example: Mapped[str | None] = mapped_column(Text, nullable=True)
+    native_explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    confidence: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    suggestions_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    feedback: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class QuestionExchange(Base):
+    __tablename__ = "question_exchanges"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    question: Mapped[str] = mapped_column(Text, nullable=False)
+    answer: Mapped[str] = mapped_column(Text, nullable=False)
+    native_explanation: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class TimedSpeechAudio(Base):
+    __tablename__ = "timed_speech_audio"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    cache_key: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    object_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    format: Mapped[str] = mapped_column(String(16), nullable=False)
+    words_json: Mapped[list] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
 class TTSAudio(Base):
     __tablename__ = "tts_audio"
 
@@ -222,6 +332,7 @@ class Conversation(Base):
     focus_id: Mapped[str] = mapped_column(String(36), nullable=False)
     resume_from_conversation_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
+    use_memory: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     ended_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)

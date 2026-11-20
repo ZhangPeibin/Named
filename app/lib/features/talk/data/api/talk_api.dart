@@ -13,6 +13,11 @@ abstract class TalkApi {
 
   Future<ConversationDto> fetch(String conversationId);
 
+  Future<ConversationDto> updateConversation({
+    required String conversationId,
+    required bool useMemory,
+  });
+
   Future<TurnDto> sendMessage({
     required String conversationId,
     required String text,
@@ -54,6 +59,19 @@ class RemoteTalkApi implements TalkApi {
     return _guard(
       () => _dio.get<Map<String, dynamic>>(
         '/api/v1/conversations/$conversationId',
+      ),
+    );
+  }
+
+  @override
+  Future<ConversationDto> updateConversation({
+    required String conversationId,
+    required bool useMemory,
+  }) async {
+    return _guard(
+      () => _dio.patch<Map<String, dynamic>>(
+        '/api/v1/conversations/$conversationId',
+        data: {'use_memory': useMemory},
       ),
     );
   }
@@ -258,6 +276,19 @@ class MockTalkApi implements TalkApi {
   }
 
   @override
+  Future<ConversationDto> updateConversation({
+    required String conversationId,
+    required bool useMemory,
+  }) async {
+    return _conversation(
+      conversationId,
+      'word',
+      'mock-word',
+      useMemory: useMemory,
+    );
+  }
+
+  @override
   Future<TurnDto> sendMessage({
     required String conversationId,
     required String text,
@@ -322,13 +353,19 @@ class MockTalkApi implements TalkApi {
     );
   }
 
-  ConversationDto _conversation(String id, String focusType, String focusId) {
+  ConversationDto _conversation(
+    String id,
+    String focusType,
+    String focusId, {
+    bool useMemory = true,
+  }) {
     return ConversationDto(
       id: id,
       title: focusType == 'scene' ? 'A moment from my day' : 'tree',
       focusType: focusType,
       focusId: focusId,
       status: 'active',
+      useMemory: useMemory,
       messages: List<TalkMessageDto>.unmodifiable(_messages[id] ?? const []),
     );
   }

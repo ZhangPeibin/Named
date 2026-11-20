@@ -57,6 +57,8 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$review$zh review = _Translations$review$zh._(_root);
 	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
 	@override late final _Translations$challenge$zh challenge = _Translations$challenge$zh._(_root);
+	@override late final _Translations$daily$zh daily = _Translations$daily$zh._(_root);
+	@override late final _Translations$ask$zh ask = _Translations$ask$zh._(_root);
 }
 
 // Path: app
@@ -162,11 +164,17 @@ class _Translations$settings$zh implements Translations$settings$en {
 	@override String get themeParchmentDescription => '温暖、编辑感';
 	@override String get themePlum => '梅子与沙';
 	@override String get themePlumDescription => '有个性、温暖';
+	@override String get themeSky => '墨与亚麻';
+	@override String get themeSkyDescription => '素净、明亮';
 	@override String get defaultLabel => '默认';
 	@override String get signOut => '退出登录';
 	@override String get languageTitle => '语言';
 	@override String get english => 'English';
 	@override String get chinese => '中文';
+	@override String get reminder => '每日提醒';
+	@override String get reminderHint => '故事准备好时，轻轻提醒你。';
+	@override String get reminderTime => '提醒时间';
+	@override String get notificationsDenied => '通知权限未开启，请在系统设置中允许通知。';
 }
 
 // Path: auth
@@ -189,6 +197,7 @@ class _Translations$auth$zh implements Translations$auth$en {
 	@override String get email => '邮箱';
 	@override String get emailHint => 'you@example.com';
 	@override String get code => '验证码';
+	@override String get codeSentTo => '验证码已发送至 {email}';
 	@override String get verify => '验证';
 	@override String get verifying => '验证中...';
 	@override String get back => '返回';
@@ -284,6 +293,19 @@ class _Translations$soul$zh implements Translations$soul$en {
 	@override String get library => '你的收藏';
 	@override String get wordsBody => '从经历里留下的词语。';
 	@override String get historyBody => '值得回看的经历。';
+	@override String get addItem => '添加一条';
+	@override String get itemText => '想让我记住什么？';
+	@override String get itemRequired => '请先填写内容。';
+	@override String get editItemTitle => '编辑这一条';
+	@override String get deleteItem => '删除';
+	@override String get deleteConfirmTitle => '删除这一条？';
+	@override String get deleteConfirmBody => '它不再影响之后的交流。';
+	@override String get deleted => '已删除。';
+	@override String get sourceOnboarding => '初始引导';
+	@override String get sourceUser => '你填写的';
+	@override String get sourceAi => 'AI 提炼';
+	@override String get memoryLabel => '使用我的 Soul';
+	@override String get memoryHint => '关闭后，这次对话不使用已保存的背景。';
 }
 
 // Path: navigation
@@ -405,6 +427,8 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get chunks => '表达片段';
 	@override String get keyWords => '关键词';
 	@override String get copyEnglish => '复制英文';
+	@override String get memoryLabel => '使用我的记忆';
+	@override String get memoryHint => '关闭后，这次对话不使用已保存的背景。';
 }
 
 // Path: timeline
@@ -416,7 +440,6 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	// Translations
 	@override String get today => '今天';
 	@override String get yesterday => '昨天';
-	@override String get loadEarlier => '加载更早';
 	@override String get emptyTitle => '今天看到了什么？';
 	@override String get emptyCopy => '在下面命名一个东西，它会成为你时间线里的第一张卡片。';
 	@override String get emptyHint => '一个词或一句话就够了。';
@@ -441,6 +464,17 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get speed => '播放速度';
 	@override String get audioUnavailable => '音频暂时不可用。';
 	@override String get commandHint => '试试说“复习单词”或“开始一个挑战”。';
+	@override String get composerHintReview => '试试“复习单词”';
+	@override String get composerHintStartChallenge => '试试“开始一个挑战”';
+	@override String get composerHintViewChallenges => '试试“看看我的挑战”';
+	@override String get composerHintWords => '试试“我的单词”';
+	@override String get progressTitle => '足迹';
+	@override String get progressWords => '单词';
+	@override String get progressConversations => '对话';
+	@override String get progressReads => '阅读';
+	@override String get reviewReminderTitle => '今天要见的词';
+	@override String get reviewReminderCount => '{count} 个词待见';
+	@override String get reviewReminderAction => '去复习';
 }
 
 // Path: words
@@ -487,6 +521,20 @@ class _Translations$review$zh implements Translations$review$en {
 	@override String get emptyTitle => '还没有可复习的词';
 	@override String get emptyCopy => '先命名一个东西，之后它会出现在这里。';
 	@override String get loadFailed => '复习内容加载失败。';
+	@override String get attemptPrompt => '用英语说出它';
+	@override String get attemptHint => '先自己试一次，之后再给提示。';
+	@override String get attemptPlaceholder => '写下你会怎么说';
+	@override String get checkAttempt => '检查';
+	@override String get yourAttempt => '你的答案';
+	@override String get hintFirst => '首字母';
+	@override String get hintIpa => '音标';
+	@override String get showHint => '看提示';
+	@override String get showAnswer => '看答案';
+	@override String get answerLabel => '这个词';
+	@override String get saidIt => '说出来了';
+	@override String get notYet => '还不行';
+	@override String get attemptFailed => '没能保存这次尝试，请再试一次。';
+	@override String get cueMissing => '试着用英语说出它。';
 }
 
 // Path: history
@@ -508,7 +556,6 @@ class _Translations$history$zh implements Translations$history$en {
 	@override String get evidence => '来源';
 	@override String get expressions => '表达';
 	@override String get detailTitle => '经历';
-	@override String get loadEarlier => '加载更早';
 	@override String get openFocus => '打开来源';
 }
 
@@ -539,12 +586,44 @@ class _Translations$challenge$zh implements Translations$challenge$en {
 	@override String get chooseContent => '选择你的发现';
 	@override String get selectedCount => '已选 {count} 项';
 	@override String get noContent => '先去发现一个词语或场景。';
+	@override String get addManual => '手动添加';
+	@override String get addManualHint => '输入一个词或一句短句';
+	@override String get addManualAction => '添加';
+	@override String get addFailed => '添加失败，请重试。';
 	@override String get create => '开始这轮挑战';
 	@override String get createFailed => '暂时无法开始挑战。';
 	@override String get activeExists => '请先结束当前挑战。';
-	@override String get progress => '已打开';
-	@override String get visitedOf => '已打开 {visited} / {total}';
+	@override String get progress => '已练过';
+	@override String get visitedOf => '已练过 {visited} / {total}';
+	@override String get markPracticed => '标记练过';
 	@override String get due => '计划时间到了，可以继续，也可以随时结束。';
+	@override String get daysLeft => '还剩 {count} 天';
+	@override String get dayLeft => '还剩 {count} 天';
+	@override String get dueToday => '今天到期';
+	@override String get practiceStart => '开始练习';
+	@override String get practiceTitle => '练习';
+	@override String get practiceListenSay => '听并说一遍';
+	@override String get practiceSayOk => '听起来对';
+	@override String get practiceSayRetry => '再说一遍试试';
+	@override String get practiceListen => '听';
+	@override String get practiceSpeak => '说';
+	@override String get practiceExercise => '练习';
+	@override String get practiceNext => '下一步';
+	@override String get practiceRecord => '录音';
+	@override String get practiceStop => '停止';
+	@override String get practicePlayback => '回放';
+	@override String get practiceSkip => '跳过';
+	@override String get practiceCheck => '检查';
+	@override String get practiceCorrect => '对了';
+	@override String get practiceIncorrect => '再想想';
+	@override String get practiceAnswer => '答案：{answer}';
+	@override String get practiceRecap => '今天练了 {count} 个';
+	@override String get practiceDone => '完成';
+	@override String get practicePlaceholder => '输入你的答案';
+	@override String get practiceListenHint => '先听，再说一遍。';
+	@override String get practiceSpeakHint => '大声说一遍，再回放听听。';
+	@override String get practiceExerciseHint => '完成这题才算练过。';
+	@override String get practiceMicDenied => '麦克风不可用，可跳过。';
 	@override String get content => '本轮发现';
 	@override String get open => '打开';
 	@override String get word => '词语';
@@ -554,6 +633,93 @@ class _Translations$challenge$zh implements Translations$challenge$en {
 	@override String get complete => '完成';
 	@override String get challengeStart => '开始一轮挑战';
 	@override String get challengeContinue => '继续你的挑战';
+}
+
+// Path: daily
+class _Translations$daily$zh implements Translations$daily$en {
+	_Translations$daily$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '每日听读';
+	@override String get body => '用你的词语生成的短篇阅读。';
+	@override String get today => '今日阅读';
+	@override String get listen => '听读';
+	@override String get pause => '暂停';
+	@override String get audioUnavailable => '音频暂不可用';
+	@override String get question => '想一想';
+	@override String get targetWords => '这篇阅读里的词';
+	@override String get back10 => '后退 10 秒';
+	@override String get forward10 => '前进 10 秒';
+	@override String get translate => '显示翻译';
+	@override String get hideTranslation => '隐藏翻译';
+	@override String get translationUnavailable => '翻译暂不可用';
+	@override String get taskToday => '今日阅读';
+	@override String get taskPast => '每日阅读';
+	@override String get taskUnread => '2–3 分钟 · 用你的词写成';
+	@override String get taskDone => '今日已读 · 连续 {streak} 天';
+	@override String get read => '阅读';
+	@override String get readAgain => '再读一次';
+	@override String get finish => '我读完了';
+	@override String get completeTitle => '今日阅读完成';
+	@override String get completeStats => '{minutes} 分钟 · {words} 个词 · {targets} 个目标词';
+	@override String get streakDays => '连续 {count} 天';
+	@override String get newStoryTomorrow => '明天有新的故事。';
+	@override String get madeWith => '用你保存的词写成';
+	@override String get madeWithBody => '用你最近保存的词写成的短篇。';
+	@override String get completeUnavailable => '暂时无法记录阅读完成。';
+	@override String get completeTitlePast => '阅读完成';
+	@override String get reminderTitle => '今天的阅读准备好了';
+	@override String get reminderBody => '用你的词写成的一篇短读，2–3 分钟。';
+	@override String get darkReading => '深色阅读';
+	@override String get lightReading => '浅色阅读';
+	@override String get completeSummary => '{minutes} 分钟 · {words} 个词';
+	@override String get speed => '播放速度';
+	@override String get preparing => '正在准备今天的阅读…';
+	@override String get preparingBody => '正在写作并生成语音。';
+}
+
+// Path: ask
+class _Translations$ask$zh implements Translations$ask$en {
+	_Translations$ask$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '提问';
+	@override String get entryTooltip => '问一个问题';
+	@override String get placeholder => '想问什么？';
+	@override String get emptyTitle => '你对什么感到好奇？';
+	@override String get emptyBody => '可以问一个词、一句话，或任何你想弄明白的事。';
+	@override String get thinking => '正在想…';
+	@override String get error => '暂时无法回答，再试一次。';
+	@override String get loadFailed => '暂时无法加载这个问题。';
+	@override String get retry => '重试';
+	@override String get named => 'Named';
+	@override String get native => '中文解释';
+	@override String get send => '发送问题';
+	@override String get recent => '最近提问';
+	@override String get thread => '问答';
+	@override String get context => '来自这里';
+	@override String get followUpHint => '继续追问…';
+	@override String get followUp => '继续问';
+	@override String get delete => '删除问答';
+	@override String get deleteConfirm => '删除这个问答？';
+	@override String get cancel => '取消';
+	@override String get deleteAction => '删除';
+	@override String get suggestions => '可以试试';
+	@override String get suggestion1 => '这里是什么意思？';
+	@override String get suggestion2 => '这里为什么用这个语法？';
+	@override String get suggestion3 => '这句话怎么说更自然？';
+	@override String get emptyHistory => '你的提问会出现在这里。';
+	@override String get confidenceHigh => '确定';
+	@override String get confidenceMedium => '比较确定';
+	@override String get confidenceLow => '不太确定';
+	@override String get helpful => '有帮助';
+	@override String get notHelpful => '没帮助';
+	@override String get feedbackError => '暂时无法保存反馈。';
+	@override String get agentGreeting => '关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -615,11 +781,17 @@ extension on TranslationsZh {
 			'settings.themeParchmentDescription' => '温暖、编辑感',
 			'settings.themePlum' => '梅子与沙',
 			'settings.themePlumDescription' => '有个性、温暖',
+			'settings.themeSky' => '墨与亚麻',
+			'settings.themeSkyDescription' => '素净、明亮',
 			'settings.defaultLabel' => '默认',
 			'settings.signOut' => '退出登录',
 			'settings.languageTitle' => '语言',
 			'settings.english' => 'English',
 			'settings.chinese' => '中文',
+			'settings.reminder' => '每日提醒',
+			'settings.reminderHint' => '故事准备好时，轻轻提醒你。',
+			'settings.reminderTime' => '提醒时间',
+			'settings.notificationsDenied' => '通知权限未开启，请在系统设置中允许通知。',
 			'auth.signInTitle' => '登录',
 			'auth.devSignIn' => '开发登录',
 			'auth.devSignInHint' => '写入假 token，用于本地验证登录态骨架。',
@@ -633,6 +805,7 @@ extension on TranslationsZh {
 			'auth.email' => '邮箱',
 			'auth.emailHint' => 'you@example.com',
 			'auth.code' => '验证码',
+			'auth.codeSentTo' => '验证码已发送至 {email}',
 			'auth.verify' => '验证',
 			'auth.verifying' => '验证中...',
 			'auth.back' => '返回',
@@ -692,6 +865,19 @@ extension on TranslationsZh {
 			'soul.library' => '你的收藏',
 			'soul.wordsBody' => '从经历里留下的词语。',
 			'soul.historyBody' => '值得回看的经历。',
+			'soul.addItem' => '添加一条',
+			'soul.itemText' => '想让我记住什么？',
+			'soul.itemRequired' => '请先填写内容。',
+			'soul.editItemTitle' => '编辑这一条',
+			'soul.deleteItem' => '删除',
+			'soul.deleteConfirmTitle' => '删除这一条？',
+			'soul.deleteConfirmBody' => '它不再影响之后的交流。',
+			'soul.deleted' => '已删除。',
+			'soul.sourceOnboarding' => '初始引导',
+			'soul.sourceUser' => '你填写的',
+			'soul.sourceAi' => 'AI 提炼',
+			'soul.memoryLabel' => '使用我的 Soul',
+			'soul.memoryHint' => '关闭后，这次对话不使用已保存的背景。',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -777,9 +963,10 @@ extension on TranslationsZh {
 			'talk.chunks' => '表达片段',
 			'talk.keyWords' => '关键词',
 			'talk.copyEnglish' => '复制英文',
+			'talk.memoryLabel' => '使用我的记忆',
+			'talk.memoryHint' => '关闭后，这次对话不使用已保存的背景。',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
-			'timeline.loadEarlier' => '加载更早',
 			'timeline.emptyTitle' => '今天看到了什么？',
 			'timeline.emptyCopy' => '在下面命名一个东西，它会成为你时间线里的第一张卡片。',
 			'timeline.emptyHint' => '一个词或一句话就够了。',
@@ -804,6 +991,17 @@ extension on TranslationsZh {
 			'timeline.speed' => '播放速度',
 			'timeline.audioUnavailable' => '音频暂时不可用。',
 			'timeline.commandHint' => '试试说“复习单词”或“开始一个挑战”。',
+			'timeline.composerHintReview' => '试试“复习单词”',
+			'timeline.composerHintStartChallenge' => '试试“开始一个挑战”',
+			'timeline.composerHintViewChallenges' => '试试“看看我的挑战”',
+			'timeline.composerHintWords' => '试试“我的单词”',
+			'timeline.progressTitle' => '足迹',
+			'timeline.progressWords' => '单词',
+			'timeline.progressConversations' => '对话',
+			'timeline.progressReads' => '阅读',
+			'timeline.reviewReminderTitle' => '今天要见的词',
+			'timeline.reviewReminderCount' => '{count} 个词待见',
+			'timeline.reviewReminderAction' => '去复习',
 			'words.title' => '词语',
 			'words.yourWords' => '你的词汇',
 			'words.totalWords' => ({required Object count}) => '${count} 个词',
@@ -832,6 +1030,20 @@ extension on TranslationsZh {
 			'review.emptyTitle' => '还没有可复习的词',
 			'review.emptyCopy' => '先命名一个东西，之后它会出现在这里。',
 			'review.loadFailed' => '复习内容加载失败。',
+			'review.attemptPrompt' => '用英语说出它',
+			'review.attemptHint' => '先自己试一次，之后再给提示。',
+			'review.attemptPlaceholder' => '写下你会怎么说',
+			'review.checkAttempt' => '检查',
+			'review.yourAttempt' => '你的答案',
+			'review.hintFirst' => '首字母',
+			'review.hintIpa' => '音标',
+			'review.showHint' => '看提示',
+			'review.showAnswer' => '看答案',
+			'review.answerLabel' => '这个词',
+			'review.saidIt' => '说出来了',
+			'review.notYet' => '还不行',
+			'review.attemptFailed' => '没能保存这次尝试，请再试一次。',
+			'review.cueMissing' => '试着用英语说出它。',
 			'history.title' => '回忆',
 			'history.empty' => '还没有可回看的经历。',
 			'history.emptyHint' => '一段有意义的对话会在 Milo 整理后出现在这里。',
@@ -844,7 +1056,6 @@ extension on TranslationsZh {
 			'history.evidence' => '来源',
 			'history.expressions' => '表达',
 			'history.detailTitle' => '经历',
-			'history.loadEarlier' => '加载更早',
 			'history.openFocus' => '打开来源',
 			'challenge.title' => '挑战',
 			'challenge.eyebrow' => '你的节奏',
@@ -866,12 +1077,44 @@ extension on TranslationsZh {
 			'challenge.chooseContent' => '选择你的发现',
 			'challenge.selectedCount' => '已选 {count} 项',
 			'challenge.noContent' => '先去发现一个词语或场景。',
+			'challenge.addManual' => '手动添加',
+			'challenge.addManualHint' => '输入一个词或一句短句',
+			'challenge.addManualAction' => '添加',
+			'challenge.addFailed' => '添加失败，请重试。',
 			'challenge.create' => '开始这轮挑战',
 			'challenge.createFailed' => '暂时无法开始挑战。',
 			'challenge.activeExists' => '请先结束当前挑战。',
-			'challenge.progress' => '已打开',
-			'challenge.visitedOf' => '已打开 {visited} / {total}',
+			'challenge.progress' => '已练过',
+			'challenge.visitedOf' => '已练过 {visited} / {total}',
+			'challenge.markPracticed' => '标记练过',
 			'challenge.due' => '计划时间到了，可以继续，也可以随时结束。',
+			'challenge.daysLeft' => '还剩 {count} 天',
+			'challenge.dayLeft' => '还剩 {count} 天',
+			'challenge.dueToday' => '今天到期',
+			'challenge.practiceStart' => '开始练习',
+			'challenge.practiceTitle' => '练习',
+			'challenge.practiceListenSay' => '听并说一遍',
+			'challenge.practiceSayOk' => '听起来对',
+			'challenge.practiceSayRetry' => '再说一遍试试',
+			'challenge.practiceListen' => '听',
+			'challenge.practiceSpeak' => '说',
+			'challenge.practiceExercise' => '练习',
+			'challenge.practiceNext' => '下一步',
+			'challenge.practiceRecord' => '录音',
+			'challenge.practiceStop' => '停止',
+			'challenge.practicePlayback' => '回放',
+			'challenge.practiceSkip' => '跳过',
+			'challenge.practiceCheck' => '检查',
+			'challenge.practiceCorrect' => '对了',
+			'challenge.practiceIncorrect' => '再想想',
+			'challenge.practiceAnswer' => '答案：{answer}',
+			'challenge.practiceRecap' => '今天练了 {count} 个',
+			'challenge.practiceDone' => '完成',
+			'challenge.practicePlaceholder' => '输入你的答案',
+			'challenge.practiceListenHint' => '先听，再说一遍。',
+			'challenge.practiceSpeakHint' => '大声说一遍，再回放听听。',
+			'challenge.practiceExerciseHint' => '完成这题才算练过。',
+			'challenge.practiceMicDenied' => '麦克风不可用，可跳过。',
 			'challenge.content' => '本轮发现',
 			'challenge.open' => '打开',
 			'challenge.word' => '词语',
@@ -881,6 +1124,75 @@ extension on TranslationsZh {
 			'challenge.complete' => '完成',
 			'challenge.challengeStart' => '开始一轮挑战',
 			'challenge.challengeContinue' => '继续你的挑战',
+			'daily.title' => '每日听读',
+			'daily.body' => '用你的词语生成的短篇阅读。',
+			'daily.today' => '今日阅读',
+			'daily.listen' => '听读',
+			'daily.pause' => '暂停',
+			'daily.audioUnavailable' => '音频暂不可用',
+			'daily.question' => '想一想',
+			'daily.targetWords' => '这篇阅读里的词',
+			'daily.back10' => '后退 10 秒',
+			'daily.forward10' => '前进 10 秒',
+			'daily.translate' => '显示翻译',
+			'daily.hideTranslation' => '隐藏翻译',
+			'daily.translationUnavailable' => '翻译暂不可用',
+			'daily.taskToday' => '今日阅读',
+			'daily.taskPast' => '每日阅读',
+			'daily.taskUnread' => '2–3 分钟 · 用你的词写成',
+			'daily.taskDone' => '今日已读 · 连续 {streak} 天',
+			'daily.read' => '阅读',
+			'daily.readAgain' => '再读一次',
+			'daily.finish' => '我读完了',
+			'daily.completeTitle' => '今日阅读完成',
+			'daily.completeStats' => '{minutes} 分钟 · {words} 个词 · {targets} 个目标词',
+			'daily.streakDays' => '连续 {count} 天',
+			'daily.newStoryTomorrow' => '明天有新的故事。',
+			'daily.madeWith' => '用你保存的词写成',
+			'daily.madeWithBody' => '用你最近保存的词写成的短篇。',
+			'daily.completeUnavailable' => '暂时无法记录阅读完成。',
+			'daily.completeTitlePast' => '阅读完成',
+			'daily.reminderTitle' => '今天的阅读准备好了',
+			'daily.reminderBody' => '用你的词写成的一篇短读，2–3 分钟。',
+			'daily.darkReading' => '深色阅读',
+			'daily.lightReading' => '浅色阅读',
+			'daily.completeSummary' => '{minutes} 分钟 · {words} 个词',
+			'daily.speed' => '播放速度',
+			'daily.preparing' => '正在准备今天的阅读…',
+			'daily.preparingBody' => '正在写作并生成语音。',
+			'ask.title' => '提问',
+			'ask.entryTooltip' => '问一个问题',
+			'ask.placeholder' => '想问什么？',
+			'ask.emptyTitle' => '你对什么感到好奇？',
+			'ask.emptyBody' => '可以问一个词、一句话，或任何你想弄明白的事。',
+			'ask.thinking' => '正在想…',
+			'ask.error' => '暂时无法回答，再试一次。',
+			'ask.loadFailed' => '暂时无法加载这个问题。',
+			'ask.retry' => '重试',
+			'ask.named' => 'Named',
+			'ask.native' => '中文解释',
+			'ask.send' => '发送问题',
+			'ask.recent' => '最近提问',
+			'ask.thread' => '问答',
+			'ask.context' => '来自这里',
+			'ask.followUpHint' => '继续追问…',
+			'ask.followUp' => '继续问',
+			'ask.delete' => '删除问答',
+			'ask.deleteConfirm' => '删除这个问答？',
+			'ask.cancel' => '取消',
+			'ask.deleteAction' => '删除',
+			'ask.suggestions' => '可以试试',
+			'ask.suggestion1' => '这里是什么意思？',
+			'ask.suggestion2' => '这里为什么用这个语法？',
+			'ask.suggestion3' => '这句话怎么说更自然？',
+			'ask.emptyHistory' => '你的提问会出现在这里。',
+			'ask.confidenceHigh' => '确定',
+			'ask.confidenceMedium' => '比较确定',
+			'ask.confidenceLow' => '不太确定',
+			'ask.helpful' => '有帮助',
+			'ask.notHelpful' => '没帮助',
+			'ask.feedbackError' => '暂时无法保存反馈。',
+			'ask.agentGreeting' => '关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。',
 			_ => null,
 		};
 	}

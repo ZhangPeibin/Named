@@ -7,11 +7,15 @@ import '../../features/auth/presentation/sign_in_page.dart';
 import '../../features/auth/providers/auth_notifier.dart';
 import '../../features/challenge/presentation/challenge_create_page.dart';
 import '../../features/challenge/presentation/challenge_detail_page.dart';
+import '../../features/challenge/presentation/challenge_practice_page.dart';
 import '../../features/challenge/presentation/challenges_page.dart';
+import '../../features/daily/presentation/daily_read_page.dart';
 import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
+import '../../features/question/domain/question.dart';
+import '../../features/question/presentation/question_page.dart';
 import '../../features/review/presentation/review_page.dart';
 import '../../features/settings/presentation/language_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
@@ -35,8 +39,11 @@ class AppRoutePaths {
   static const challenges = '/challenges';
   static const challengeNew = '/challenges/new';
   static const challengeDetail = '/challenges/:challengeId';
+  static const challengePractice = '/challenges/:challengeId/practice';
   static const experience = '/history/:experienceId';
   static const words = '/words';
+  static const daily = '/daily';
+  static const ask = '/ask';
   static const me = '/me';
   static const settings = '/settings';
   static const theme = '/settings/theme';
@@ -56,8 +63,11 @@ class AppRouteNames {
   static const challenges = 'challenges';
   static const challengeNew = 'challengeNew';
   static const challengeDetail = 'challengeDetail';
+  static const challengePractice = 'challengePractice';
   static const experience = 'experience';
   static const words = 'words';
+  static const daily = 'daily';
+  static const ask = 'ask';
   static const me = 'me';
   static const settings = 'settings';
   static const theme = 'theme';
@@ -147,6 +157,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: AppRoutePaths.challengePractice,
+        name: AppRouteNames.challengePractice,
+        builder: (context, state) => ChallengePracticePage(
+          challengeId: state.pathParameters['challengeId']!,
+          itemId: state.uri.queryParameters['item'],
+        ),
+      ),
+      GoRoute(
         path: AppRoutePaths.experience,
         name: AppRouteNames.experience,
         builder: (context, state) => ExperienceDetailPage(
@@ -158,6 +176,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRouteNames.words,
         builder: (context, state) =>
             WordsPage(initialWordId: state.uri.queryParameters['wordId']),
+      ),
+      GoRoute(
+        path: AppRoutePaths.daily,
+        name: AppRouteNames.daily,
+        builder: (context, state) => DailyReadPage(
+          date: DateTime.tryParse(state.uri.queryParameters['date'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutePaths.ask,
+        name: AppRouteNames.ask,
+        builder: (context, state) {
+          final type = state.uri.queryParameters['contextType'];
+          final quote = state.uri.queryParameters['contextQuote'];
+          return QuestionPage(
+            threadId: state.uri.queryParameters['threadId'],
+            context: type == null
+                ? null
+                : QuestionContext(
+                    type: type,
+                    ref: state.uri.queryParameters['contextRef'],
+                    quote: quote,
+                  ),
+            suggestedQuestion: state.uri.queryParameters['suggested'],
+          );
+        },
       ),
       GoRoute(
         path: AppRoutePaths.me,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_spacing.dart';
 
@@ -73,6 +74,16 @@ Future<T?> showAppBottomSheet<T>({
   bool isDismissible = true,
   bool isScrollControlled = true,
 }) {
+  // Keep the sheet inside the same provider scope as the caller so widgets
+  // that read providers (e.g. the audio control) work when the modal overlay
+  // is not itself under a ProviderScope.
+  ProviderContainer? container;
+  try {
+    container = ProviderScope.containerOf(context, listen: false);
+  } catch (_) {
+    container = null;
+  }
+
   return showModalBottomSheet<T>(
     context: context,
     isDismissible: isDismissible,
@@ -81,13 +92,25 @@ Future<T?> showAppBottomSheet<T>({
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.r16)),
     ),
-    builder: (context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: SafeArea(
-        top: false,
-        minimum: const EdgeInsets.only(bottom: AppSpacing.s20),
-        child: AppBottomSheet(child: builder(context)),
-      ),
-    ),
+    builder: (sheetContext) {
+      final content = Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: SafeArea(
+          top: false,
+          minimum: const EdgeInsets.only(bottom: AppSpacing.s20),
+          child: AppBottomSheet(child: builder(sheetContext)),
+        ),
+      );
+      final scopedContainer = container;
+      if (scopedContainer == null) {
+        return content;
+      }
+      return UncontrolledProviderScope(
+        container: scopedContainer,
+        child: content,
+      );
+    },
   );
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_text_styles.dart';
+import 'app_line_icon.dart';
 
 class AppActivityCard extends StatelessWidget {
   const AppActivityCard({
@@ -12,7 +13,7 @@ class AppActivityCard extends StatelessWidget {
     required this.description,
     required this.meta,
     required this.onTap,
-    this.icon = Icons.flag_outlined,
+    this.icon = AppLineGlyph.flag,
   });
 
   final String eyebrow;
@@ -20,7 +21,7 @@ class AppActivityCard extends StatelessWidget {
   final String description;
   final String meta;
   final VoidCallback onTap;
-  final IconData icon;
+  final AppLineGlyph icon;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class AppActivityCard extends StatelessWidget {
                       color: palette.surface.withValues(alpha: 0.55),
                       borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
-                    child: Icon(
+                    child: AppLineIcon(
                       icon,
                       color: palette.primary,
                       size: AppSize.size20,
@@ -65,8 +66,8 @@ class AppActivityCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_forward,
+                  AppLineIcon(
+                    AppLineGlyph.arrowRight,
                     color: palette.warningText,
                     size: AppSize.size18,
                   ),

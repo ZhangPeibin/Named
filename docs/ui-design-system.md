@@ -1,7 +1,7 @@
 # Named · Mobile UI Design System
 
 **Status:** v2.0 implementation baseline
-**Visual direction:** Ink & Cobalt (default), with Ink & Parchment and Plum & Sand selectable
+**Visual direction:** Ink & Linen (default), with Ink & Cobalt, Ink & Parchment and Plum & Sand selectable
 **Product authority:** [PRD V1.0](prd-v1.0.md)
 **Experience direction:** [UI/UX design](ui-ux-design.md)
 **Reference build:** [HTML prototype](prototypes/named.html)
@@ -62,13 +62,14 @@ Use semantic tokens, never raw hex values in feature code. Feature widgets read 
 
 ### Theme families
 
-The app defaults to **Ink & Cobalt**. Settings → Theme also exposes **Ink & Parchment** and **Plum & Sand**. All families use the same semantic tokens and component rules; only the token values change.
+The app defaults to **Ink & Linen**. Settings → Theme also exposes **Ink & Cobalt**, **Ink & Parchment** and **Plum & Sand**. All families use the same semantic tokens and component rules; only the token values change.
 
 | Family | Light canvas | Light primary | Dark canvas | Dark primary |
 | --- | --- | --- | --- | --- |
 | Ink & Cobalt (default) | `#F7F6F2` | `#2F4A6B` | `#171A1D` | `#A9C2DC` |
 | Ink & Parchment | `#F8F4EC` | `#2B2924` | `#1A1917` | `#EADCC7` |
 | Plum & Sand | `#F6F1E9` | `#5B3A43` | `#1A1718` | `#E3C4C7` |
+| Ink & Linen (default) | `#FFFFFF` | `#2B2A26` | `#141312` | `#E7E2D8` |
 
 ### Color rules
 
@@ -134,6 +135,13 @@ The app defaults to **Ink & Cobalt**. Settings → Theme also exposes **Ink & Pa
 - Default cards: `surface` + 1 px `line` border, no shadow.
 - Floating / temporary only: soft shadow `0 14 38 rgba(48,55,47,0.06)`.
 - Do not stack shadows. Do not use Material elevation tints.
+
+### Iconography
+
+- Interface icons are **brand line icons**: a 24×24 grid, 1.6 px stroke, round caps and round joins, drawn with `AppLineIcon` (`lib/core/widgets/app_line_icon.dart`). Do not add new filled Material glyphs to product surfaces.
+- Default icon color is `ink`. Use `muted` for quiet or completed states. Use `primary` (the accent) only for selected, interactive, or high-emphasis icon actions — not for every icon.
+- Inline content marks are **glyph-only**: no rounded-square tile, fill, or 1 px border around them. Timeline marks: read = book, ask = chat, me = person. The talk mark uses the companion photo, borderless.
+- Keep icon weight closest to its adjacent text weight; never mix filled and line icons in the same group.
 
 ## 5. Core components
 
@@ -215,7 +223,7 @@ The app defaults to **Ink & Cobalt**. Settings → Theme also exposes **Ink & Pa
 
 ### Sign in / onboarding
 
-1. Brand wordmark `Named` in Lora + small leaf mark.
+1. Brand mark: the woven `N` symbol (Ink stems + Terracotta thread) + `Named` wordmark in Manrope 800. See [Brand identity](brand-identity.md).
 2. Eyebrow: `YOUR EVERYDAY, IN ENGLISH`.
 3. Editorial title: short, human, one idea.
 4. One sentence of context.

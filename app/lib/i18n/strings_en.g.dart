@@ -60,6 +60,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$review$en review = Translations$review$en._(_root);
 	late final Translations$history$en history = Translations$history$en._(_root);
 	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
+	late final Translations$daily$en daily = Translations$daily$en._(_root);
+	late final Translations$ask$en ask = Translations$ask$en._(_root);
 }
 
 // Path: app
@@ -268,6 +270,12 @@ class Translations$settings$en {
 	/// en: 'Distinctive and warm'
 	String get themePlumDescription => 'Distinctive and warm';
 
+	/// en: 'Ink & Linen'
+	String get themeSky => 'Ink & Linen';
+
+	/// en: 'Calm and bright'
+	String get themeSkyDescription => 'Calm and bright';
+
 	/// en: 'Default'
 	String get defaultLabel => 'Default';
 
@@ -282,6 +290,18 @@ class Translations$settings$en {
 
 	/// en: 'Chinese'
 	String get chinese => 'Chinese';
+
+	/// en: 'Daily reminder'
+	String get reminder => 'Daily reminder';
+
+	/// en: 'A quiet nudge when your story is ready.'
+	String get reminderHint => 'A quiet nudge when your story is ready.';
+
+	/// en: 'Reminder time'
+	String get reminderTime => 'Reminder time';
+
+	/// en: 'Notifications are disabled. Allow them in system settings.'
+	String get notificationsDenied => 'Notifications are disabled. Allow them in system settings.';
 }
 
 // Path: auth
@@ -330,6 +350,9 @@ class Translations$auth$en {
 
 	/// en: 'Verification code'
 	String get code => 'Verification code';
+
+	/// en: 'Code sent to {email}'
+	String get codeSentTo => 'Code sent to {email}';
 
 	/// en: 'Verify'
 	String get verify => 'Verify';
@@ -543,6 +566,45 @@ class Translations$soul$en {
 
 	/// en: 'Experiences worth looking back on.'
 	String get historyBody => 'Experiences worth looking back on.';
+
+	/// en: 'Add to your Soul'
+	String get addItem => 'Add to your Soul';
+
+	/// en: 'What should I remember?'
+	String get itemText => 'What should I remember?';
+
+	/// en: 'Enter something first.'
+	String get itemRequired => 'Enter something first.';
+
+	/// en: 'Edit this'
+	String get editItemTitle => 'Edit this';
+
+	/// en: 'Remove'
+	String get deleteItem => 'Remove';
+
+	/// en: 'Remove this?'
+	String get deleteConfirmTitle => 'Remove this?';
+
+	/// en: 'It will no longer shape conversations.'
+	String get deleteConfirmBody => 'It will no longer shape conversations.';
+
+	/// en: 'Removed.'
+	String get deleted => 'Removed.';
+
+	/// en: 'From onboarding'
+	String get sourceOnboarding => 'From onboarding';
+
+	/// en: 'You wrote this'
+	String get sourceUser => 'You wrote this';
+
+	/// en: 'Learned from talks'
+	String get sourceAi => 'Learned from talks';
+
+	/// en: 'Use my Soul'
+	String get memoryLabel => 'Use my Soul';
+
+	/// en: 'Turn off to talk without your saved background.'
+	String get memoryHint => 'Turn off to talk without your saved background.';
 }
 
 // Path: navigation
@@ -834,6 +896,12 @@ class Translations$talk$en {
 
 	/// en: 'Copy English'
 	String get copyEnglish => 'Copy English';
+
+	/// en: 'Use my Soul'
+	String get memoryLabel => 'Use my Soul';
+
+	/// en: 'Turn off to talk without your saved background.'
+	String get memoryHint => 'Turn off to talk without your saved background.';
 }
 
 // Path: timeline
@@ -849,9 +917,6 @@ class Translations$timeline$en {
 
 	/// en: 'Yesterday'
 	String get yesterday => 'Yesterday';
-
-	/// en: 'Load earlier'
-	String get loadEarlier => 'Load earlier';
 
 	/// en: 'What did you see today?'
 	String get emptyTitle => 'What did you see today?';
@@ -924,6 +989,39 @@ class Translations$timeline$en {
 
 	/// en: 'Try “review words” or “start a challenge”.'
 	String get commandHint => 'Try “review words” or “start a challenge”.';
+
+	/// en: 'Try “review words”'
+	String get composerHintReview => 'Try “review words”';
+
+	/// en: 'Try “start a challenge”'
+	String get composerHintStartChallenge => 'Try “start a challenge”';
+
+	/// en: 'Try “show my challenge”'
+	String get composerHintViewChallenges => 'Try “show my challenge”';
+
+	/// en: 'Try “my words”'
+	String get composerHintWords => 'Try “my words”';
+
+	/// en: 'Trail'
+	String get progressTitle => 'Trail';
+
+	/// en: 'Words'
+	String get progressWords => 'Words';
+
+	/// en: 'Talks'
+	String get progressConversations => 'Talks';
+
+	/// en: 'Reads'
+	String get progressReads => 'Reads';
+
+	/// en: 'Words to see today'
+	String get reviewReminderTitle => 'Words to see today';
+
+	/// en: '{count} words ready'
+	String get reviewReminderCount => '{count} words ready';
+
+	/// en: 'Review'
+	String get reviewReminderAction => 'Review';
 }
 
 // Path: words
@@ -1026,6 +1124,48 @@ class Translations$review$en {
 
 	/// en: 'Could not load your review.'
 	String get loadFailed => 'Could not load your review.';
+
+	/// en: 'Say it in English'
+	String get attemptPrompt => 'Say it in English';
+
+	/// en: 'Try it first. Hints come after your attempt.'
+	String get attemptHint => 'Try it first. Hints come after your attempt.';
+
+	/// en: 'Type what you would say'
+	String get attemptPlaceholder => 'Type what you would say';
+
+	/// en: 'Check'
+	String get checkAttempt => 'Check';
+
+	/// en: 'Your answer'
+	String get yourAttempt => 'Your answer';
+
+	/// en: 'First letter'
+	String get hintFirst => 'First letter';
+
+	/// en: 'Pronunciation'
+	String get hintIpa => 'Pronunciation';
+
+	/// en: 'Show a hint'
+	String get showHint => 'Show a hint';
+
+	/// en: 'Show answer'
+	String get showAnswer => 'Show answer';
+
+	/// en: 'The word'
+	String get answerLabel => 'The word';
+
+	/// en: 'I said it'
+	String get saidIt => 'I said it';
+
+	/// en: 'Not yet'
+	String get notYet => 'Not yet';
+
+	/// en: 'Could not save your attempt. Try again.'
+	String get attemptFailed => 'Could not save your attempt. Try again.';
+
+	/// en: 'Try to say this in English.'
+	String get cueMissing => 'Try to say this in English.';
 }
 
 // Path: history
@@ -1071,9 +1211,6 @@ class Translations$history$en {
 
 	/// en: 'Experience'
 	String get detailTitle => 'Experience';
-
-	/// en: 'Load earlier'
-	String get loadEarlier => 'Load earlier';
 
 	/// en: 'Open source'
 	String get openFocus => 'Open source';
@@ -1147,6 +1284,18 @@ class Translations$challenge$en {
 	/// en: 'Discover a word or moment first.'
 	String get noContent => 'Discover a word or moment first.';
 
+	/// en: 'Add your own'
+	String get addManual => 'Add your own';
+
+	/// en: 'Type a word or a short sentence'
+	String get addManualHint => 'Type a word or a short sentence';
+
+	/// en: 'Add'
+	String get addManualAction => 'Add';
+
+	/// en: 'Could not add that. Try again.'
+	String get addFailed => 'Could not add that. Try again.';
+
 	/// en: 'Start this challenge'
 	String get create => 'Start this challenge';
 
@@ -1156,14 +1305,98 @@ class Translations$challenge$en {
 	/// en: 'Finish your current challenge first.'
 	String get activeExists => 'Finish your current challenge first.';
 
-	/// en: 'Opened'
-	String get progress => 'Opened';
+	/// en: 'Practiced'
+	String get progress => 'Practiced';
 
-	/// en: '{visited} / {total} opened'
-	String get visitedOf => '{visited} / {total} opened';
+	/// en: '{visited} / {total} practiced'
+	String get visitedOf => '{visited} / {total} practiced';
+
+	/// en: 'Mark as practiced'
+	String get markPracticed => 'Mark as practiced';
 
 	/// en: 'Your plan is due. Continue or end when you are ready.'
 	String get due => 'Your plan is due. Continue or end when you are ready.';
+
+	/// en: '{count} days left'
+	String get daysLeft => '{count} days left';
+
+	/// en: '{count} day left'
+	String get dayLeft => '{count} day left';
+
+	/// en: 'Due today'
+	String get dueToday => 'Due today';
+
+	/// en: 'Start practice'
+	String get practiceStart => 'Start practice';
+
+	/// en: 'Practice'
+	String get practiceTitle => 'Practice';
+
+	/// en: 'Listen & say it'
+	String get practiceListenSay => 'Listen & say it';
+
+	/// en: 'Sounds right'
+	String get practiceSayOk => 'Sounds right';
+
+	/// en: 'Try saying it again'
+	String get practiceSayRetry => 'Try saying it again';
+
+	/// en: 'Listen'
+	String get practiceListen => 'Listen';
+
+	/// en: 'Say it'
+	String get practiceSpeak => 'Say it';
+
+	/// en: 'Practice'
+	String get practiceExercise => 'Practice';
+
+	/// en: 'Next'
+	String get practiceNext => 'Next';
+
+	/// en: 'Record'
+	String get practiceRecord => 'Record';
+
+	/// en: 'Stop'
+	String get practiceStop => 'Stop';
+
+	/// en: 'Play back'
+	String get practicePlayback => 'Play back';
+
+	/// en: 'Skip'
+	String get practiceSkip => 'Skip';
+
+	/// en: 'Check'
+	String get practiceCheck => 'Check';
+
+	/// en: 'Correct'
+	String get practiceCorrect => 'Correct';
+
+	/// en: 'Not quite'
+	String get practiceIncorrect => 'Not quite';
+
+	/// en: 'Answer: {answer}'
+	String get practiceAnswer => 'Answer: {answer}';
+
+	/// en: 'You practiced {count} today'
+	String get practiceRecap => 'You practiced {count} today';
+
+	/// en: 'Done'
+	String get practiceDone => 'Done';
+
+	/// en: 'Type your answer'
+	String get practicePlaceholder => 'Type your answer';
+
+	/// en: 'Listen, then say it.'
+	String get practiceListenHint => 'Listen, then say it.';
+
+	/// en: 'Say it out loud, then play it back.'
+	String get practiceSpeakHint => 'Say it out loud, then play it back.';
+
+	/// en: 'Finish this to mark it practiced.'
+	String get practiceExerciseHint => 'Finish this to mark it practiced.';
+
+	/// en: 'Microphone unavailable; you can skip.'
+	String get practiceMicDenied => 'Microphone unavailable; you can skip.';
 
 	/// en: 'This round'
 	String get content => 'This round';
@@ -1191,6 +1424,231 @@ class Translations$challenge$en {
 
 	/// en: 'Continue your challenge'
 	String get challengeContinue => 'Continue your challenge';
+}
+
+// Path: daily
+class Translations$daily$en {
+	Translations$daily$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Daily listen/read'
+	String get title => 'Daily listen/read';
+
+	/// en: 'A short reading made from your words.'
+	String get body => 'A short reading made from your words.';
+
+	/// en: 'Today's reading'
+	String get today => 'Today\'s reading';
+
+	/// en: 'Listen'
+	String get listen => 'Listen';
+
+	/// en: 'Pause'
+	String get pause => 'Pause';
+
+	/// en: 'Audio unavailable'
+	String get audioUnavailable => 'Audio unavailable';
+
+	/// en: 'Think about it'
+	String get question => 'Think about it';
+
+	/// en: 'Words in this reading'
+	String get targetWords => 'Words in this reading';
+
+	/// en: 'Back 10 seconds'
+	String get back10 => 'Back 10 seconds';
+
+	/// en: 'Forward 10 seconds'
+	String get forward10 => 'Forward 10 seconds';
+
+	/// en: 'Show translation'
+	String get translate => 'Show translation';
+
+	/// en: 'Hide translation'
+	String get hideTranslation => 'Hide translation';
+
+	/// en: 'Translation unavailable'
+	String get translationUnavailable => 'Translation unavailable';
+
+	/// en: 'Today's story'
+	String get taskToday => 'Today\'s story';
+
+	/// en: 'Daily story'
+	String get taskPast => 'Daily story';
+
+	/// en: '2–3 min · Made with your words'
+	String get taskUnread => '2–3 min · Made with your words';
+
+	/// en: 'Read today · {streak}-day streak'
+	String get taskDone => 'Read today · {streak}-day streak';
+
+	/// en: 'Read'
+	String get read => 'Read';
+
+	/// en: 'Read again'
+	String get readAgain => 'Read again';
+
+	/// en: 'I finished'
+	String get finish => 'I finished';
+
+	/// en: 'Today's reading complete'
+	String get completeTitle => 'Today\'s reading complete';
+
+	/// en: '{minutes} min · {words} words · {targets} target words'
+	String get completeStats => '{minutes} min · {words} words · {targets} target words';
+
+	/// en: '{count}-day streak'
+	String get streakDays => '{count}-day streak';
+
+	/// en: 'A new story tomorrow.'
+	String get newStoryTomorrow => 'A new story tomorrow.';
+
+	/// en: 'MADE WITH YOUR WORDS'
+	String get madeWith => 'MADE WITH YOUR WORDS';
+
+	/// en: 'A short story built from words you saved recently.'
+	String get madeWithBody => 'A short story built from words you saved recently.';
+
+	/// en: 'Could not save your reading.'
+	String get completeUnavailable => 'Could not save your reading.';
+
+	/// en: 'Reading complete'
+	String get completeTitlePast => 'Reading complete';
+
+	/// en: 'Your daily story is ready'
+	String get reminderTitle => 'Your daily story is ready';
+
+	/// en: 'A short reading made from your words. 2–3 min.'
+	String get reminderBody => 'A short reading made from your words. 2–3 min.';
+
+	/// en: 'Dark reading'
+	String get darkReading => 'Dark reading';
+
+	/// en: 'Light reading'
+	String get lightReading => 'Light reading';
+
+	/// en: '{minutes} min · {words} words'
+	String get completeSummary => '{minutes} min · {words} words';
+
+	/// en: 'Playback speed'
+	String get speed => 'Playback speed';
+
+	/// en: 'Preparing today's story…'
+	String get preparing => 'Preparing today\'s story…';
+
+	/// en: 'Writing and recording your reading.'
+	String get preparingBody => 'Writing and recording your reading.';
+}
+
+// Path: ask
+class Translations$ask$en {
+	Translations$ask$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Ask'
+	String get title => 'Ask';
+
+	/// en: 'Ask a question'
+	String get entryTooltip => 'Ask a question';
+
+	/// en: 'Ask anything...'
+	String get placeholder => 'Ask anything...';
+
+	/// en: 'What are you curious about?'
+	String get emptyTitle => 'What are you curious about?';
+
+	/// en: 'Ask about a word, a sentence, or anything you want to understand.'
+	String get emptyBody => 'Ask about a word, a sentence, or anything you want to understand.';
+
+	/// en: 'Thinking...'
+	String get thinking => 'Thinking...';
+
+	/// en: 'Could not answer that. Try again.'
+	String get error => 'Could not answer that. Try again.';
+
+	/// en: 'Could not load this question.'
+	String get loadFailed => 'Could not load this question.';
+
+	/// en: 'Try again'
+	String get retry => 'Try again';
+
+	/// en: 'Named'
+	String get named => 'Named';
+
+	/// en: 'In your language'
+	String get native => 'In your language';
+
+	/// en: 'Send question'
+	String get send => 'Send question';
+
+	/// en: 'Recent questions'
+	String get recent => 'Recent questions';
+
+	/// en: 'Question thread'
+	String get thread => 'Question thread';
+
+	/// en: 'From this context'
+	String get context => 'From this context';
+
+	/// en: 'Ask a follow-up...'
+	String get followUpHint => 'Ask a follow-up...';
+
+	/// en: 'Ask follow-up'
+	String get followUp => 'Ask follow-up';
+
+	/// en: 'Delete thread'
+	String get delete => 'Delete thread';
+
+	/// en: 'Delete this question thread?'
+	String get deleteConfirm => 'Delete this question thread?';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Delete'
+	String get deleteAction => 'Delete';
+
+	/// en: 'Try asking'
+	String get suggestions => 'Try asking';
+
+	/// en: 'What does this mean here?'
+	String get suggestion1 => 'What does this mean here?';
+
+	/// en: 'Why is this grammar used?'
+	String get suggestion2 => 'Why is this grammar used?';
+
+	/// en: 'Make this sentence more natural.'
+	String get suggestion3 => 'Make this sentence more natural.';
+
+	/// en: 'Your questions will appear here.'
+	String get emptyHistory => 'Your questions will appear here.';
+
+	/// en: 'Confident'
+	String get confidenceHigh => 'Confident';
+
+	/// en: 'Fairly confident'
+	String get confidenceMedium => 'Fairly confident';
+
+	/// en: 'Not fully sure'
+	String get confidenceLow => 'Not fully sure';
+
+	/// en: 'Helpful'
+	String get helpful => 'Helpful';
+
+	/// en: 'Not helpful'
+	String get notHelpful => 'Not helpful';
+
+	/// en: 'Could not save feedback.'
+	String get feedbackError => 'Could not save feedback.';
+
+	/// en: 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.'
+	String get agentGreeting => 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -1252,11 +1710,17 @@ extension on Translations {
 			'settings.themeParchmentDescription' => 'Warm and editorial',
 			'settings.themePlum' => 'Plum & Sand',
 			'settings.themePlumDescription' => 'Distinctive and warm',
+			'settings.themeSky' => 'Ink & Linen',
+			'settings.themeSkyDescription' => 'Calm and bright',
 			'settings.defaultLabel' => 'Default',
 			'settings.signOut' => 'Sign out',
 			'settings.languageTitle' => 'Language',
 			'settings.english' => 'English',
 			'settings.chinese' => 'Chinese',
+			'settings.reminder' => 'Daily reminder',
+			'settings.reminderHint' => 'A quiet nudge when your story is ready.',
+			'settings.reminderTime' => 'Reminder time',
+			'settings.notificationsDenied' => 'Notifications are disabled. Allow them in system settings.',
 			'auth.signInTitle' => 'Sign in',
 			'auth.devSignIn' => 'Dev Sign In',
 			'auth.devSignInHint' => 'Writes a fake token so you can verify the auth session skeleton locally.',
@@ -1270,6 +1734,7 @@ extension on Translations {
 			'auth.email' => 'Email',
 			'auth.emailHint' => 'you@example.com',
 			'auth.code' => 'Verification code',
+			'auth.codeSentTo' => 'Code sent to {email}',
 			'auth.verify' => 'Verify',
 			'auth.verifying' => 'Verifying...',
 			'auth.back' => 'Back',
@@ -1329,6 +1794,19 @@ extension on Translations {
 			'soul.library' => 'Your library',
 			'soul.wordsBody' => 'Words you kept from moments.',
 			'soul.historyBody' => 'Experiences worth looking back on.',
+			'soul.addItem' => 'Add to your Soul',
+			'soul.itemText' => 'What should I remember?',
+			'soul.itemRequired' => 'Enter something first.',
+			'soul.editItemTitle' => 'Edit this',
+			'soul.deleteItem' => 'Remove',
+			'soul.deleteConfirmTitle' => 'Remove this?',
+			'soul.deleteConfirmBody' => 'It will no longer shape conversations.',
+			'soul.deleted' => 'Removed.',
+			'soul.sourceOnboarding' => 'From onboarding',
+			'soul.sourceUser' => 'You wrote this',
+			'soul.sourceAi' => 'Learned from talks',
+			'soul.memoryLabel' => 'Use my Soul',
+			'soul.memoryHint' => 'Turn off to talk without your saved background.',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -1414,9 +1892,10 @@ extension on Translations {
 			'talk.chunks' => 'Chunks',
 			'talk.keyWords' => 'Key words',
 			'talk.copyEnglish' => 'Copy English',
+			'talk.memoryLabel' => 'Use my Soul',
+			'talk.memoryHint' => 'Turn off to talk without your saved background.',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
-			'timeline.loadEarlier' => 'Load earlier',
 			'timeline.emptyTitle' => 'What did you see today?',
 			'timeline.emptyCopy' => 'Name one thing below. It becomes the first card in your timeline.',
 			'timeline.emptyHint' => 'A word or a short sentence is enough.',
@@ -1441,6 +1920,17 @@ extension on Translations {
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
 			'timeline.commandHint' => 'Try “review words” or “start a challenge”.',
+			'timeline.composerHintReview' => 'Try “review words”',
+			'timeline.composerHintStartChallenge' => 'Try “start a challenge”',
+			'timeline.composerHintViewChallenges' => 'Try “show my challenge”',
+			'timeline.composerHintWords' => 'Try “my words”',
+			'timeline.progressTitle' => 'Trail',
+			'timeline.progressWords' => 'Words',
+			'timeline.progressConversations' => 'Talks',
+			'timeline.progressReads' => 'Reads',
+			'timeline.reviewReminderTitle' => 'Words to see today',
+			'timeline.reviewReminderCount' => '{count} words ready',
+			'timeline.reviewReminderAction' => 'Review',
 			'words.title' => 'Words',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',
@@ -1469,6 +1959,20 @@ extension on Translations {
 			'review.emptyTitle' => 'Nothing to review yet',
 			'review.emptyCopy' => 'Name something first. Your words will appear here for review.',
 			'review.loadFailed' => 'Could not load your review.',
+			'review.attemptPrompt' => 'Say it in English',
+			'review.attemptHint' => 'Try it first. Hints come after your attempt.',
+			'review.attemptPlaceholder' => 'Type what you would say',
+			'review.checkAttempt' => 'Check',
+			'review.yourAttempt' => 'Your answer',
+			'review.hintFirst' => 'First letter',
+			'review.hintIpa' => 'Pronunciation',
+			'review.showHint' => 'Show a hint',
+			'review.showAnswer' => 'Show answer',
+			'review.answerLabel' => 'The word',
+			'review.saidIt' => 'I said it',
+			'review.notYet' => 'Not yet',
+			'review.attemptFailed' => 'Could not save your attempt. Try again.',
+			'review.cueMissing' => 'Try to say this in English.',
 			'history.title' => 'History',
 			'history.empty' => 'No experiences yet.',
 			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',
@@ -1481,7 +1985,6 @@ extension on Translations {
 			'history.evidence' => 'Evidence',
 			'history.expressions' => 'Expressions',
 			'history.detailTitle' => 'Experience',
-			'history.loadEarlier' => 'Load earlier',
 			'history.openFocus' => 'Open source',
 			'challenge.title' => 'Challenges',
 			'challenge.eyebrow' => 'YOUR RHYTHM',
@@ -1503,12 +2006,44 @@ extension on Translations {
 			'challenge.chooseContent' => 'Choose your discoveries',
 			'challenge.selectedCount' => '{count} selected',
 			'challenge.noContent' => 'Discover a word or moment first.',
+			'challenge.addManual' => 'Add your own',
+			'challenge.addManualHint' => 'Type a word or a short sentence',
+			'challenge.addManualAction' => 'Add',
+			'challenge.addFailed' => 'Could not add that. Try again.',
 			'challenge.create' => 'Start this challenge',
 			'challenge.createFailed' => 'Could not start the challenge.',
 			'challenge.activeExists' => 'Finish your current challenge first.',
-			'challenge.progress' => 'Opened',
-			'challenge.visitedOf' => '{visited} / {total} opened',
+			'challenge.progress' => 'Practiced',
+			'challenge.visitedOf' => '{visited} / {total} practiced',
+			'challenge.markPracticed' => 'Mark as practiced',
 			'challenge.due' => 'Your plan is due. Continue or end when you are ready.',
+			'challenge.daysLeft' => '{count} days left',
+			'challenge.dayLeft' => '{count} day left',
+			'challenge.dueToday' => 'Due today',
+			'challenge.practiceStart' => 'Start practice',
+			'challenge.practiceTitle' => 'Practice',
+			'challenge.practiceListenSay' => 'Listen & say it',
+			'challenge.practiceSayOk' => 'Sounds right',
+			'challenge.practiceSayRetry' => 'Try saying it again',
+			'challenge.practiceListen' => 'Listen',
+			'challenge.practiceSpeak' => 'Say it',
+			'challenge.practiceExercise' => 'Practice',
+			'challenge.practiceNext' => 'Next',
+			'challenge.practiceRecord' => 'Record',
+			'challenge.practiceStop' => 'Stop',
+			'challenge.practicePlayback' => 'Play back',
+			'challenge.practiceSkip' => 'Skip',
+			'challenge.practiceCheck' => 'Check',
+			'challenge.practiceCorrect' => 'Correct',
+			'challenge.practiceIncorrect' => 'Not quite',
+			'challenge.practiceAnswer' => 'Answer: {answer}',
+			'challenge.practiceRecap' => 'You practiced {count} today',
+			'challenge.practiceDone' => 'Done',
+			'challenge.practicePlaceholder' => 'Type your answer',
+			'challenge.practiceListenHint' => 'Listen, then say it.',
+			'challenge.practiceSpeakHint' => 'Say it out loud, then play it back.',
+			'challenge.practiceExerciseHint' => 'Finish this to mark it practiced.',
+			'challenge.practiceMicDenied' => 'Microphone unavailable; you can skip.',
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',
@@ -1518,6 +2053,75 @@ extension on Translations {
 			'challenge.complete' => 'Done',
 			'challenge.challengeStart' => 'Start a challenge',
 			'challenge.challengeContinue' => 'Continue your challenge',
+			'daily.title' => 'Daily listen/read',
+			'daily.body' => 'A short reading made from your words.',
+			'daily.today' => 'Today\'s reading',
+			'daily.listen' => 'Listen',
+			'daily.pause' => 'Pause',
+			'daily.audioUnavailable' => 'Audio unavailable',
+			'daily.question' => 'Think about it',
+			'daily.targetWords' => 'Words in this reading',
+			'daily.back10' => 'Back 10 seconds',
+			'daily.forward10' => 'Forward 10 seconds',
+			'daily.translate' => 'Show translation',
+			'daily.hideTranslation' => 'Hide translation',
+			'daily.translationUnavailable' => 'Translation unavailable',
+			'daily.taskToday' => 'Today\'s story',
+			'daily.taskPast' => 'Daily story',
+			'daily.taskUnread' => '2–3 min · Made with your words',
+			'daily.taskDone' => 'Read today · {streak}-day streak',
+			'daily.read' => 'Read',
+			'daily.readAgain' => 'Read again',
+			'daily.finish' => 'I finished',
+			'daily.completeTitle' => 'Today\'s reading complete',
+			'daily.completeStats' => '{minutes} min · {words} words · {targets} target words',
+			'daily.streakDays' => '{count}-day streak',
+			'daily.newStoryTomorrow' => 'A new story tomorrow.',
+			'daily.madeWith' => 'MADE WITH YOUR WORDS',
+			'daily.madeWithBody' => 'A short story built from words you saved recently.',
+			'daily.completeUnavailable' => 'Could not save your reading.',
+			'daily.completeTitlePast' => 'Reading complete',
+			'daily.reminderTitle' => 'Your daily story is ready',
+			'daily.reminderBody' => 'A short reading made from your words. 2–3 min.',
+			'daily.darkReading' => 'Dark reading',
+			'daily.lightReading' => 'Light reading',
+			'daily.completeSummary' => '{minutes} min · {words} words',
+			'daily.speed' => 'Playback speed',
+			'daily.preparing' => 'Preparing today\'s story…',
+			'daily.preparingBody' => 'Writing and recording your reading.',
+			'ask.title' => 'Ask',
+			'ask.entryTooltip' => 'Ask a question',
+			'ask.placeholder' => 'Ask anything...',
+			'ask.emptyTitle' => 'What are you curious about?',
+			'ask.emptyBody' => 'Ask about a word, a sentence, or anything you want to understand.',
+			'ask.thinking' => 'Thinking...',
+			'ask.error' => 'Could not answer that. Try again.',
+			'ask.loadFailed' => 'Could not load this question.',
+			'ask.retry' => 'Try again',
+			'ask.named' => 'Named',
+			'ask.native' => 'In your language',
+			'ask.send' => 'Send question',
+			'ask.recent' => 'Recent questions',
+			'ask.thread' => 'Question thread',
+			'ask.context' => 'From this context',
+			'ask.followUpHint' => 'Ask a follow-up...',
+			'ask.followUp' => 'Ask follow-up',
+			'ask.delete' => 'Delete thread',
+			'ask.deleteConfirm' => 'Delete this question thread?',
+			'ask.cancel' => 'Cancel',
+			'ask.deleteAction' => 'Delete',
+			'ask.suggestions' => 'Try asking',
+			'ask.suggestion1' => 'What does this mean here?',
+			'ask.suggestion2' => 'Why is this grammar used?',
+			'ask.suggestion3' => 'Make this sentence more natural.',
+			'ask.emptyHistory' => 'Your questions will appear here.',
+			'ask.confidenceHigh' => 'Confident',
+			'ask.confidenceMedium' => 'Fairly confident',
+			'ask.confidenceLow' => 'Not fully sure',
+			'ask.helpful' => 'Helpful',
+			'ask.notHelpful' => 'Not helpful',
+			'ask.feedbackError' => 'Could not save feedback.',
+			'ask.agentGreeting' => 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.',
 			_ => null,
 		};
 	}

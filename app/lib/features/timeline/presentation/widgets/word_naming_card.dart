@@ -4,6 +4,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/timeline_item.dart';
 import 'talk_action.dart';
@@ -69,7 +70,11 @@ class WordNamingCard extends StatelessWidget {
                       )
                     : const SizedBox.shrink(),
               ),
-              Icon(Icons.chevron_right, size: 18, color: palette.muted),
+              AppLineIcon(
+                AppLineGlyph.chevronRight,
+                size: 18,
+                color: palette.muted,
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.s2),
@@ -86,7 +91,7 @@ class WordNamingCard extends StatelessWidget {
               ),
               if (item.audio?.hasAudio == true) ...[
                 const SizedBox(width: AppSpacing.s8),
-                WordAudioButton(audio: item.audio, compact: true),
+                WordAudioButton(audio: item.audio),
               ],
             ],
           ),
