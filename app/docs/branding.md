@@ -1,7 +1,11 @@
 # 图标与启动页
 
-品牌源文件统一放在 `assets/branding/`。默认图标是中性占位资源，新项目初始化后应先
-替换 `assets/branding/app_icon.png`，建议使用 1024x1024 的无透明边距 PNG。
+品牌源文件统一放在 `assets/branding/`。当前使用 The Weave（Thread 精修）的 N 符号，采用**纸底墨色**呈现：
+
+- `app_icon.png`：纸色底 `#FBF8F2` + 墨色 N `#232A31` + 陶土线 `#B05230`（1024×1024，无透明边距）。
+- `splash_mark.png`：透明底，墨色 N + 陶土线（用于浅色启动页背景 `#FBF8F2`）。
+- `splash_mark_dark.png`：透明底，纸色 N + 陶土线（用于深色启动页背景 `#171A1D`）。
+- 修改品牌源后，先更新对应 PNG，再运行 `make icons` / `make splash`；图标保持 1024×1024、无透明边距。
 
 生成 Android/iOS 图标：
 

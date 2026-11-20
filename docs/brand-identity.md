@@ -44,7 +44,7 @@
 
 | 名称 | HEX | 用途 |
 | --- | --- | --- |
-| Cobalt 钴蓝 | `#2F4A6B` | App 图标底色、UI 主色 |
+| Cobalt 钴蓝 | `#2F4A6B` | UI 主色（深色备选图标底） |
 | Terracotta 陶土 | `#B05230` | 那根「系住词的线」 |
 | Ink 墨 | `#232A31` | N 竖笔、标准字 |
 | Paper 纸 | `#FBF8F2` | 反白竖笔、浅色底 |
@@ -116,8 +116,8 @@
 
 | 版本 | 底色 | N 竖笔 | 线 | 文件 |
 | --- | --- | --- | --- | --- |
-| **主图标** | Cobalt `#2F4A6B` | Paper `#FBF8F2` | Terracotta `#B05230` | `c-app-icon.svg` / `c-app-icon-square.svg` |
-| 浅色备选 | Paper `#FBF8F2` | Ink `#232A31` | Terracotta `#B05230` | `c-app-icon-paper.svg` |
+| **主图标** | Paper `#FBF8F2` | Ink `#232A31` | Terracotta `#B05230` | `app_icon.png` |
+| 深色备选 | Cobalt `#2F4A6B` | Paper `#FBF8F2` | Terracotta `#B05230` | `c-app-icon.svg` / `c-app-icon-square.svg` |
 
 - 圆角底：`rx = 54`（256 画布）。iOS / 商店用**全出血方版** `c-app-icon-square.svg`，遮罩由系统处理。
 - 符号居中，组缩放 `1.06 × 1.1`（相对 256 画布中心）。
@@ -156,7 +156,7 @@
 
 ### 6.4 主题适配
 
-App 图标与启动屏是**品牌常数**，不随 Ink & Cobalt / Ink & Parchment / Plum & Sand 三套主题或浅色/深色模式切换。标识永远是钴蓝底 + Paper N（主图标）。
+App 图标与启动屏是**品牌常数**，不随 Ink & Cobalt / Ink & Parchment / Plum & Sand 三套主题或浅色/深色模式切换。标识永远是纸底 + 墨色 N（主图标）。
 
 ---
 
