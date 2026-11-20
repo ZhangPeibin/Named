@@ -16,7 +16,6 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_section_header.dart';
-import '../../../core/widgets/app_tag.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
 import '../../auth/providers/auth_notifier.dart';
@@ -100,13 +99,25 @@ class SoulPage extends ConsumerWidget {
                 ),
               )
             else
-              Wrap(
-                spacing: AppSpacing.s8,
-                runSpacing: AppSpacing.s8,
+              Column(
                 children: [
-                  for (final item in value.items) AppTag(label: item.text),
+                  for (final item in value.items) ...[
+                    _SoulItemTile(
+                      item: item,
+                      onEdit: () => _editItem(context, ref, item),
+                      onDelete: () => _deleteItem(context, ref, item),
+                    ),
+                    const SizedBox(height: AppSpacing.s8),
+                  ],
                 ],
               ),
+            const SizedBox(height: AppSpacing.s12),
+            AppButton(
+              key: const Key('soul.addItem'),
+              label: t.addItem,
+              variant: AppButtonVariant.secondary,
+              onPressed: () => _addItem(context, ref),
+            ),
             const SizedBox(height: AppSpacing.s32),
             AppSectionHeader(title: t.rhythm),
             const SizedBox(height: AppSpacing.s12),
@@ -194,6 +205,81 @@ class SoulPage extends ConsumerWidget {
     return parts.join(' · ');
   }
 
+  Future<void> _addItem(BuildContext context, WidgetRef ref) async {
+    final created = await showAppBottomSheet<SoulItem>(
+      context: context,
+      builder: (context) => const _SoulItemSheet(),
+    );
+    if (created == null || !context.mounted) {
+      return;
+    }
+    ref.invalidate(soulProvider);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.t.soul.saved)));
+  }
+
+  Future<void> _editItem(
+    BuildContext context,
+    WidgetRef ref,
+    SoulItem item,
+  ) async {
+    final updated = await showAppBottomSheet<SoulItem>(
+      context: context,
+      builder: (context) => _SoulItemSheet(initial: item),
+    );
+    if (updated == null || !context.mounted) {
+      return;
+    }
+    ref.invalidate(soulProvider);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.t.soul.saved)));
+  }
+
+  Future<void> _deleteItem(
+    BuildContext context,
+    WidgetRef ref,
+    SoulItem item,
+  ) async {
+    final t = context.t.soul;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.deleteConfirmTitle),
+        content: Text(t.deleteConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.deleteItem),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+    try {
+      await ref.read(soulRepositoryProvider).deleteItem(item.id);
+      ref.invalidate(soulProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.deleted)));
+      }
+    } on ApiException catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.message)));
+      }
+    }
+  }
+
   Future<void> _edit(BuildContext context, WidgetRef ref, Soul soul) async {
     final updated = await showAppBottomSheet<bool>(
       context: context,
@@ -251,6 +337,169 @@ class _LibraryCard extends StatelessWidget {
             ),
           ),
           AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
+        ],
+      ),
+    );
+  }
+}
+
+class _SoulItemTile extends StatelessWidget {
+  const _SoulItemTile({
+    required this.item,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final SoulItem item;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    final t = context.t.soul;
+
+    return AppCard(
+      key: Key('soul.item.${item.id}'),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s16,
+        AppSpacing.s12,
+        AppSpacing.s8,
+        AppSpacing.s12,
+      ),
+      onTap: onEdit,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.text, style: textTheme.bodyLarge),
+                const SizedBox(height: AppSpacing.s2),
+                Text(
+                  _sourceLabel(t, item.source),
+                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            key: Key('soul.delete.${item.id}'),
+            tooltip: t.deleteItem,
+            onPressed: onDelete,
+            icon: AppLineIcon(
+              AppLineGlyph.trash,
+              size: AppSize.size20,
+              color: palette.muted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _sourceLabel(Translations$soul$en t, String source) {
+    return switch (source) {
+      'onboarding' => t.sourceOnboarding,
+      'user_edit' => t.sourceUser,
+      'ai_extracted' || 'extracted' => t.sourceAi,
+      _ => t.sourceAi,
+    };
+  }
+}
+
+class _SoulItemSheet extends ConsumerStatefulWidget {
+  const _SoulItemSheet({this.initial});
+
+  final SoulItem? initial;
+
+  @override
+  ConsumerState<_SoulItemSheet> createState() => _SoulItemSheetState();
+}
+
+class _SoulItemSheetState extends ConsumerState<_SoulItemSheet> {
+  late final TextEditingController _textController;
+  String? _error;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController(text: widget.initial?.text ?? '');
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final t = context.t.soul;
+    final text = _textController.text.trim();
+    if (text.isEmpty) {
+      setState(() => _error = t.itemRequired);
+      return;
+    }
+    setState(() {
+      _error = null;
+      _isSaving = true;
+    });
+    try {
+      final repository = ref.read(soulRepositoryProvider);
+      final initial = widget.initial;
+      final item = initial == null
+          ? await repository.createItem(kind: 'note', text: text)
+          : await repository.updateItem(
+              id: initial.id,
+              kind: initial.kind,
+              text: text,
+            );
+      if (mounted) {
+        Navigator.of(context).pop(item);
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.soul;
+    final textTheme = Theme.of(context).textTheme;
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.initial == null ? t.addItem : t.editItemTitle,
+            style: textTheme.headlineMedium,
+          ),
+          const SizedBox(height: AppSpacing.s16),
+          AppTextField(
+            key: const Key('soul.itemText'),
+            controller: _textController,
+            labelText: t.itemText,
+            errorText: _error,
+            maxLines: 3,
+            minLines: 1,
+          ),
+          const SizedBox(height: AppSpacing.s20),
+          AppButton(
+            key: const Key('soul.itemSave'),
+            label: _isSaving ? t.saving : t.save,
+            isLoading: _isSaving,
+            onPressed: _save,
+          ),
         ],
       ),
     );
