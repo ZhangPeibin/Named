@@ -769,7 +769,7 @@ class _AnnotationSheet extends ConsumerStatefulWidget {
 class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
   var _saving = false;
   String? _error;
-  PronunciationAccent _accent = PronunciationAccent.us;
+  PronunciationAccent _accent = defaultPronunciationAccent;
   final Map<PronunciationAccent, String> _pronunciationUrls = {};
 
   Future<String?> _resolvePronunciationUrl() async {

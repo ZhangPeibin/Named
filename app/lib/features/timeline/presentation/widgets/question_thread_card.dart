@@ -59,7 +59,7 @@ class QuestionThreadCard extends StatelessWidget {
           AppLineIcon(
             AppLineGlyph.chevronRight,
             color: palette.muted,
-            size: 16,
+            size: 22,
           ),
         ],
       ),

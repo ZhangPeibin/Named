@@ -448,6 +448,7 @@ class Challenge(Base):
         String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
     )
     name: Mapped[str] = mapped_column(String(120), nullable=False)
+    theme: Mapped[str | None] = mapped_column(String(120), nullable=True)
     planned_days: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)

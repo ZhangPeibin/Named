@@ -12,7 +12,7 @@ class WordAudioButton extends ConsumerWidget {
   const WordAudioButton({
     super.key,
     required this.audio,
-    this.accent = WordAudioAccent.us,
+    this.accent = defaultWordAudioAccent,
   });
 
   final WordAudio? audio;

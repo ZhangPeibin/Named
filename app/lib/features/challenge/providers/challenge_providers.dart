@@ -36,6 +36,7 @@ class ChallengeActions {
 
   Future<Challenge> create({
     required String name,
+    String? theme,
     required int plannedDays,
     required List<String> discoveryIds,
   }) async {
@@ -43,6 +44,7 @@ class ChallengeActions {
         .read(challengeRepositoryProvider)
         .create(
           name: name,
+          theme: theme,
           plannedDays: plannedDays,
           discoveryIds: discoveryIds,
         );

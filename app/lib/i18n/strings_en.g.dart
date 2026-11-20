@@ -1260,6 +1260,12 @@ class Translations$challenge$en {
 	/// en: 'e.g. Small discoveries around me'
 	String get nameHint => 'e.g. Small discoveries around me';
 
+	/// en: 'Intention (optional)'
+	String get theme => 'Intention (optional)';
+
+	/// en: 'e.g. Use these words at work'
+	String get themeHint => 'e.g. Use these words at work';
+
 	/// en: 'Plan'
 	String get duration => 'Plan';
 
@@ -1280,6 +1286,30 @@ class Translations$challenge$en {
 
 	/// en: '{count} selected'
 	String get selectedCount => '{count} selected';
+
+	/// en: 'Search discoveries'
+	String get searchHint => 'Search discoveries';
+
+	/// en: 'All'
+	String get filterAll => 'All';
+
+	/// en: 'Words'
+	String get filterWords => 'Words';
+
+	/// en: 'Moments'
+	String get filterMoments => 'Moments';
+
+	/// en: '3–7 works well'
+	String get chooseHint => '3–7 works well';
+
+	/// en: 'No matches.'
+	String get noMatches => 'No matches.';
+
+	/// en: '{count} items · {days} days'
+	String get planPreview => '{count} items · {days} days';
+
+	/// en: 'Your plan'
+	String get planPreviewHint => 'Your plan';
 
 	/// en: 'Discover a word or moment first.'
 	String get noContent => 'Discover a word or moment first.';
@@ -1328,6 +1358,42 @@ class Translations$challenge$en {
 
 	/// en: 'Start practice'
 	String get practiceStart => 'Start practice';
+
+	/// en: 'Practice today'
+	String get practiceToday => 'Practice today';
+
+	/// en: 'Day {day} of {total}'
+	String get journey => 'Day {day} of {total}';
+
+	/// en: '{count} to practice today'
+	String get toPractice => '{count} to practice today';
+
+	/// en: 'Today done'
+	String get todayDone => 'Today done';
+
+	/// en: 'All practiced'
+	String get allPracticed => 'All practiced';
+
+	/// en: 'Today'
+	String get today => 'Today';
+
+	/// en: 'Other plans'
+	String get otherPlans => 'Other plans';
+
+	/// en: 'Finish round'
+	String get finishRound => 'Finish round';
+
+	/// en: 'You practiced {visited} of {total} in this round.'
+	String get roundRecap => 'You practiced {visited} of {total} in this round.';
+
+	/// en: 'See all'
+	String get seeAll => 'See all';
+
+	/// en: '{count} plans'
+	String get plansCount => '{count} plans';
+
+	/// en: 'Details'
+	String get details => 'Details';
 
 	/// en: 'Practice'
 	String get practiceTitle => 'Practice';
@@ -1397,6 +1463,24 @@ class Translations$challenge$en {
 
 	/// en: 'Microphone unavailable; you can skip.'
 	String get practiceMicDenied => 'Microphone unavailable; you can skip.';
+
+	/// en: 'Listen, then say the whole sentence.'
+	String get practiceSentenceHint => 'Listen, then say the whole sentence.';
+
+	/// en: 'Listen and type the sentence.'
+	String get practiceDictation => 'Listen and type the sentence.';
+
+	/// en: 'Fill in the blank.'
+	String get practiceCloze => 'Fill in the blank.';
+
+	/// en: 'Translate into English.'
+	String get practiceTranslate => 'Translate into English.';
+
+	/// en: 'Write your own sentence using “{word}”.'
+	String get practiceFreePrompt => 'Write your own sentence using “{word}”.';
+
+	/// en: 'Sample: {answer}'
+	String get practiceModel => 'Sample: {answer}';
 
 	/// en: 'This round'
 	String get content => 'This round';
@@ -1998,6 +2082,8 @@ extension on Translations {
 			'challenge.endConfirm' => 'End this round? Your words, moments, and conversations stay available.',
 			'challenge.name' => 'Name',
 			'challenge.nameHint' => 'e.g. Small discoveries around me',
+			'challenge.theme' => 'Intention (optional)',
+			'challenge.themeHint' => 'e.g. Use these words at work',
 			'challenge.duration' => 'Plan',
 			'challenge.twoDays' => '2 days',
 			'challenge.oneWeek' => 'One week',
@@ -2005,6 +2091,14 @@ extension on Translations {
 			'challenge.days' => 'days',
 			'challenge.chooseContent' => 'Choose your discoveries',
 			'challenge.selectedCount' => '{count} selected',
+			'challenge.searchHint' => 'Search discoveries',
+			'challenge.filterAll' => 'All',
+			'challenge.filterWords' => 'Words',
+			'challenge.filterMoments' => 'Moments',
+			'challenge.chooseHint' => '3–7 works well',
+			'challenge.noMatches' => 'No matches.',
+			'challenge.planPreview' => '{count} items · {days} days',
+			'challenge.planPreviewHint' => 'Your plan',
 			'challenge.noContent' => 'Discover a word or moment first.',
 			'challenge.addManual' => 'Add your own',
 			'challenge.addManualHint' => 'Type a word or a short sentence',
@@ -2021,6 +2115,18 @@ extension on Translations {
 			'challenge.dayLeft' => '{count} day left',
 			'challenge.dueToday' => 'Due today',
 			'challenge.practiceStart' => 'Start practice',
+			'challenge.practiceToday' => 'Practice today',
+			'challenge.journey' => 'Day {day} of {total}',
+			'challenge.toPractice' => '{count} to practice today',
+			'challenge.todayDone' => 'Today done',
+			'challenge.allPracticed' => 'All practiced',
+			'challenge.today' => 'Today',
+			'challenge.otherPlans' => 'Other plans',
+			'challenge.finishRound' => 'Finish round',
+			'challenge.roundRecap' => 'You practiced {visited} of {total} in this round.',
+			'challenge.seeAll' => 'See all',
+			'challenge.plansCount' => '{count} plans',
+			'challenge.details' => 'Details',
 			'challenge.practiceTitle' => 'Practice',
 			'challenge.practiceListenSay' => 'Listen & say it',
 			'challenge.practiceSayOk' => 'Sounds right',
@@ -2044,6 +2150,12 @@ extension on Translations {
 			'challenge.practiceSpeakHint' => 'Say it out loud, then play it back.',
 			'challenge.practiceExerciseHint' => 'Finish this to mark it practiced.',
 			'challenge.practiceMicDenied' => 'Microphone unavailable; you can skip.',
+			'challenge.practiceSentenceHint' => 'Listen, then say the whole sentence.',
+			'challenge.practiceDictation' => 'Listen and type the sentence.',
+			'challenge.practiceCloze' => 'Fill in the blank.',
+			'challenge.practiceTranslate' => 'Translate into English.',
+			'challenge.practiceFreePrompt' => 'Write your own sentence using “{word}”.',
+			'challenge.practiceModel' => 'Sample: {answer}',
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',

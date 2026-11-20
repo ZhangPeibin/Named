@@ -98,6 +98,8 @@ class DiscoveredWord {
 
 enum WordAudioAccent { us, uk }
 
+const defaultWordAudioAccent = WordAudioAccent.uk;
+
 class SceneChunk {
   const SceneChunk({
     required this.phrase,
@@ -151,7 +153,7 @@ class WordAudio {
   final String? usUrl;
   final String? ukUrl;
 
-  String? get preferredUrl => usUrl ?? ukUrl;
+  String? get preferredUrl => urlFor(defaultWordAudioAccent);
   bool get hasAudio => preferredUrl != null;
 
   String? urlFor(WordAudioAccent accent) {

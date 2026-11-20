@@ -30,7 +30,7 @@ class WordDetailsSheet extends StatefulWidget {
 }
 
 class _WordDetailsSheetState extends State<WordDetailsSheet> {
-  var _accent = WordAudioAccent.us;
+  var _accent = defaultWordAudioAccent;
 
   @override
   Widget build(BuildContext context) {

@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     tts_model: str = "qwen-audio-3.1-tts-flash"
     tts_voice_us: str = "Cindy_v3.1"
     tts_voice_uk: str = "Emily_v3.1"
-    tts_voice_talk: str = "Cindy_v3.1"
+    tts_voice_talk: str = "Emily_v3.1"
     tts_format: str = "mp3"
     tts_rate: float = 1.0
     stt_model: str = "qwen-audio-3.1-asr-flash"

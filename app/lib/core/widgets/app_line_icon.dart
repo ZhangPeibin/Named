@@ -92,9 +92,10 @@ class _AppLineIconPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scale = size.width / 24.0;
+    final side = math.min(size.width, size.height);
     canvas.save();
-    canvas.scale(scale);
+    canvas.translate((size.width - side) / 2, (size.height - side) / 2);
+    canvas.scale(side / 24.0);
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..color = color
@@ -335,11 +336,11 @@ Path _pathFor(AppLineGlyph glyph) {
         ..lineTo(17, 7);
     case AppLineGlyph.flag:
       return Path()
-        ..moveTo(6, 21)
-        ..lineTo(6, 4)
-        ..cubicTo(10, 2, 13, 6, 18, 4)
-        ..lineTo(18, 13)
-        ..cubicTo(13, 15, 10, 11, 6, 13);
+        ..moveTo(5, 20)
+        ..lineTo(5, 5)
+        ..cubicTo(9.5, 3.2, 14, 7.2, 20, 5)
+        ..lineTo(20, 13.5)
+        ..cubicTo(14, 15.7, 9.5, 11.7, 5, 13.5);
     case AppLineGlyph.error:
       return Path()
         ..addOval(Rect.fromCircle(center: const Offset(12, 12), radius: 9))

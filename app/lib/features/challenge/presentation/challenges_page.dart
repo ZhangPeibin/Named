@@ -13,6 +13,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/challenge.dart';
@@ -60,13 +61,29 @@ class ChallengesPage extends ConsumerWidget {
               ),
             );
           }
+
+          final focus = active.isNotEmpty ? active.first : null;
+          final others = active.skip(1).toList();
+
           return ListView(
             padding: const EdgeInsets.only(bottom: AppSpacing.s24),
             children: [
-              if (active.isNotEmpty) ...[
-                _SectionLabel(label: t.active),
-                for (final challenge in active)
-                  _ChallengeCard(
+              if (focus != null)
+                KeyedSubtree(
+                  key: const Key('challenges.focus'),
+                  child: _FocusCard(
+                    key: Key('challenges.card.${focus.id}'),
+                    challenge: focus,
+                    onOpen: () => _openDetail(context, focus.id),
+                    onPractice: () => _openPractice(context, focus.id),
+                  ),
+                ),
+              if (others.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.s16),
+                _SectionLabel(label: t.otherPlans),
+                for (final challenge in others)
+                  _CompactRow(
+                    key: Key('challenges.card.${challenge.id}'),
                     challenge: challenge,
                     onTap: () => _openDetail(context, challenge.id),
                   ),
@@ -75,7 +92,8 @@ class ChallengesPage extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.s16),
                 _SectionLabel(label: t.ended),
                 for (final challenge in ended)
-                  _ChallengeCard(
+                  _CompactRow(
+                    key: Key('challenges.card.${challenge.id}'),
                     challenge: challenge,
                     onTap: () => _openDetail(context, challenge.id),
                   ),
@@ -105,10 +123,103 @@ class ChallengesPage extends ConsumerWidget {
       ),
     );
   }
+
+  void _openPractice(BuildContext context, String id) {
+    unawaited(
+      context.pushNamed(
+        AppRouteNames.challengePractice,
+        pathParameters: {'challengeId': id},
+      ),
+    );
+  }
 }
 
-class _ChallengeCard extends StatelessWidget {
-  const _ChallengeCard({required this.challenge, required this.onTap});
+class _FocusCard extends StatelessWidget {
+  const _FocusCard({
+    super.key,
+    required this.challenge,
+    required this.onOpen,
+    required this.onPractice,
+  });
+
+  final Challenge challenge;
+  final VoidCallback onOpen;
+  final VoidCallback onPractice;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.challenge;
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+    final focus = challenge.todayFocus;
+
+    return AppCard(
+      onTap: onOpen,
+      semanticLabel: challenge.name,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            (challenge.theme?.trim().isNotEmpty ?? false)
+                ? challenge.theme!.trim().toUpperCase()
+                : t.active.toUpperCase(),
+            style: AppTextStyles.eyebrow.copyWith(color: palette.accent),
+          ),
+          const SizedBox(height: AppSpacing.s8),
+          Text(challenge.name, style: textTheme.headlineMedium),
+          const SizedBox(height: AppSpacing.s8),
+          Text(
+            '${t.journey.replaceFirst('{day}', '${challenge.dayIndex}').replaceFirst('{total}', '${challenge.plannedDays}')} · '
+            '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
+            style: textTheme.bodySmall?.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            child: LinearProgressIndicator(
+              value: challenge.progress,
+              minHeight: 8,
+              backgroundColor: palette.surfaceMuted,
+              color: palette.primary,
+            ),
+          ),
+          if (challenge.isActive && challenge.isDue) ...[
+            const SizedBox(height: AppSpacing.s8),
+            Text(
+              t.due,
+              style: textTheme.bodySmall?.copyWith(color: palette.accent),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.s12),
+          Text(
+            challenge.isComplete
+                ? t.allPracticed
+                : focus.isEmpty
+                ? t.todayDone
+                : t.toPractice.replaceFirst('{count}', '${focus.length}'),
+            style: textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: challenge.isComplete ? palette.accent : palette.ink,
+            ),
+          ),
+          if (challenge.isActive &&
+              !challenge.isComplete &&
+              focus.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.s16),
+            AppButton(
+              key: const Key('challenges.practiceToday'),
+              label: t.practiceToday,
+              onPressed: onPractice,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CompactRow extends StatelessWidget {
+  const _CompactRow({super.key, required this.challenge, required this.onTap});
 
   final Challenge challenge;
   final VoidCallback onTap;
@@ -118,28 +229,44 @@ class _ChallengeCard extends StatelessWidget {
     final t = context.t.challenge;
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
-    return AppCard(
-      onTap: onTap,
-      key: Key('challenges.card.${challenge.id}'),
-      semanticLabel: challenge.name,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(challenge.name, style: textTheme.headlineMedium),
-          const SizedBox(height: AppSpacing.s6),
-          Text(
-            '${challenge.plannedDays} ${t.days} · '
-            '${t.visitedOf.replaceFirst('{visited}', '${challenge.visitedCount}').replaceFirst('{total}', '${challenge.totalCount}')}',
-            style: textTheme.bodySmall?.copyWith(color: palette.muted),
-          ),
-          if (challenge.isActive && challenge.isDue) ...[
-            const SizedBox(height: AppSpacing.s6),
-            Text(
-              t.due,
-              style: textTheme.bodySmall?.copyWith(color: palette.accent),
+    final journey = t.journey
+        .replaceFirst('{day}', '${challenge.dayIndex}')
+        .replaceFirst('{total}', '${challenge.plannedDays}');
+    final visited = t.visitedOf
+        .replaceFirst('{visited}', '${challenge.visitedCount}')
+        .replaceFirst('{total}', '${challenge.totalCount}');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s8),
+      child: AppCard(
+        onTap: onTap,
+        padding: const EdgeInsets.all(AppSpacing.s12),
+        semanticLabel: challenge.name,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    challenge.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s4),
+                  Text(
+                    '$journey · $visited',
+                    style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                  ),
+                ],
+              ),
             ),
+            AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
           ],
-        ],
+        ),
       ),
     );
   }

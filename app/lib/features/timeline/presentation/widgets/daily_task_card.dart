@@ -74,7 +74,7 @@ class DailyTaskCard extends StatelessWidget {
           AppLineIcon(
             AppLineGlyph.chevronRight,
             color: palette.muted,
-            size: AppSize.size16,
+            size: AppSize.size22,
           ),
         ],
       ),
