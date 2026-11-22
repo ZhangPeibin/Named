@@ -867,19 +867,7 @@ class _DailyLoading extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: palette.warm,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: AppLineIcon(
-                AppLineGlyph.book,
-                size: 28,
-                color: palette.primary,
-              ),
-            ),
+            const SizedBox(height: 64),
             const SizedBox(height: AppSpacing.s16),
             Text(
               t.preparing,

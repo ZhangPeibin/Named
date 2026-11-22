@@ -24,6 +24,9 @@ class RemoteDailyApi implements DailyApi {
       final response = await _dio.get<Map<String, dynamic>>(
         '/api/v1/daily/read',
         queryParameters: date == null ? null : {'date': _dateKey(date)},
+        // The first read of a day is generated on demand (text + audio) and
+        // regularly exceeds the 10s default.
+        options: Options(receiveTimeout: const Duration(seconds: 90)),
       );
       final data = response.data;
       if (data == null) {
