@@ -28,7 +28,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(t.words.notebookEyebrow.toUpperCase()), findsOneWidget);
-    expect(find.text(t.words.title), findsOneWidget);
 
     expect(find.text(t.words.needsReview.toUpperCase()), findsOneWidget);
     expect(find.text(t.words.attempted.toUpperCase()), findsOneWidget);

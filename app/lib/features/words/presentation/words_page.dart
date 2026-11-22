@@ -8,6 +8,7 @@ import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../app/theme/content_accent.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_empty_view.dart';
@@ -293,14 +294,6 @@ class _NotebookHeader extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.s2),
-                    Text(
-                      t.title,
-                      style: AppTextStyles.editorial.copyWith(
-                        fontSize: 29,
-                        height: 1.05,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -524,7 +517,7 @@ class _NotebookWordRow extends StatelessWidget {
                           icon: AppLineIcon(
                             AppLineGlyph.chat,
                             size: AppSize.size16,
-                            color: palette.primary,
+                            color: ContentAccents.talks(context),
                           ),
                         ),
                       ],
