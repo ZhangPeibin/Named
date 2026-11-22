@@ -28,7 +28,7 @@ class FakeEmailSender:
 
 
 class FakeIntentAgent:
-    def __init__(self, intent: str = "review_words") -> None:
+    def __init__(self, intent: str = "open_words") -> None:
         self.intent = intent
         self.calls: list[str] = []
         self.fail = False

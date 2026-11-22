@@ -122,7 +122,7 @@ async def test_runtime_returns_output_and_logs_usage(caplog) -> None:
 
 @pytest.mark.asyncio
 async def test_runtime_retries_transient_errors() -> None:
-    output = AssistantIntentOut(intent="review_words", confidence=0.8)
+    output = AssistantIntentOut(intent="open_words", confidence=0.8)
     agent = FakeAgent(outputs=[output], errors=[TimeoutError("slow provider")])
     runtime = runtime_for(agent, max_attempts=2)
 

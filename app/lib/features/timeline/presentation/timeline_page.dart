@@ -17,17 +17,16 @@ import '../../assistant/domain/assistant_intent.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
 import '../../progress/providers/progress_providers.dart';
-import '../../review/providers/review_providers.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
 import '../providers/timeline_providers.dart';
 import 'composer_hint.dart';
+import 'trail_visibility.dart';
 import 'widgets/challenge_carousel.dart';
 import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
 import 'widgets/question_thread_card.dart';
-import 'widgets/review_reminder_card.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/timeline_progress_card.dart';
 import 'widgets/word_naming_card.dart';
@@ -57,6 +56,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   late final AnimationController _trailVisibility;
   Timer? _trailEnableTimer;
   bool _trailVisibilityReady = false;
+  bool _trailVisible = true;
 
   static const _hintInterval = Duration(seconds: 6);
 
@@ -165,10 +165,16 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       return;
     }
     final position = _scrollController.position;
-    final atBottom =
-        position.maxScrollExtent <= 0 ||
-        position.pixels >= position.maxScrollExtent - 8;
-    _setTrailVisible(atBottom);
+    final shouldShow = shouldShowTrail(
+      currentlyVisible: _trailVisible,
+      maxScrollExtent: position.maxScrollExtent,
+      pixels: position.pixels,
+    );
+    if (shouldShow == _trailVisible) {
+      return;
+    }
+    _trailVisible = shouldShow;
+    _setTrailVisible(shouldShow);
   }
 
   void _setTrailVisible(bool visible) {
@@ -245,10 +251,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         text: t.composerHintWords,
       ),
       ComposerHintOption(
-        category: ComposerHintCategory.review,
-        text: t.composerHintReview,
-      ),
-      ComposerHintOption(
         category: ComposerHintCategory.startChallenge,
         text: t.composerHintStartChallenge,
       ),
@@ -263,7 +265,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     return switch (_hintCategory) {
       ComposerHintCategory.discovery => t.composerHint,
       ComposerHintCategory.openWords => t.composerHintWords,
-      ComposerHintCategory.review => t.composerHintReview,
       ComposerHintCategory.startChallenge => t.composerHintStartChallenge,
       ComposerHintCategory.viewChallenges => t.composerHintViewChallenges,
     };
@@ -289,9 +290,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         switch (intent.intent) {
           case AssistantIntent.openWords:
             unawaited(context.pushNamed(AppRouteNames.words));
-            break;
-          case AssistantIntent.reviewWords:
-            unawaited(context.pushNamed(AppRouteNames.review));
             break;
           case AssistantIntent.viewChallenges:
             unawaited(context.pushNamed(AppRouteNames.challenges));
@@ -467,7 +465,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
     final progress = ref.watch(progressProvider);
-    final dueReviewCount = ref.watch(dueReviewCountProvider);
     ref
       ..listen(challengesProvider, (previous, next) {
         if (next.hasValue) {
@@ -487,19 +484,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       padding: EdgeInsets.zero,
       body: Column(
         children: [
-          if (dueReviewCount > 0)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s16,
-                AppSpacing.s8,
-                AppSpacing.s16,
-                0,
-              ),
-              child: ReviewReminderCard(
-                count: dueReviewCount,
-                onTap: () => unawaited(_openReview()),
-              ),
-            ),
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -570,13 +554,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     if (mounted) {
       ref.invalidate(timelineControllerProvider);
       ref.invalidate(progressProvider);
-    }
-  }
-
-  Future<void> _openReview() async {
-    await context.pushNamed(AppRouteNames.review);
-    if (mounted) {
-      ref.invalidate(wordShelfProvider);
     }
   }
 

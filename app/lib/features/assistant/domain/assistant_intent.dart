@@ -1,10 +1,4 @@
-enum AssistantIntent {
-  openWords,
-  reviewWords,
-  startChallenge,
-  viewChallenges,
-  none,
-}
+enum AssistantIntent { openWords, startChallenge, viewChallenges, none }
 
 class AssistantIntentResult {
   const AssistantIntentResult({required this.intent, required this.confidence});

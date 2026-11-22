@@ -1,6 +1,6 @@
 # ADR 0001: 闭环靠状态而非知识图谱
 
-- **Status:** Accepted
+- **Status:** Accepted (partially superseded by ADR 0003)
 - **Date:** 2026-11-20
 - **Deciders:** 产品 / 客户端 / 后端
 - **Related:** PRD §3.5、§4、§5.5；`docs/feature/v1/loop-closure/discussion.md`

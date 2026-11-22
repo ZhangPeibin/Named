@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 AssistantIntent = Literal[
     "open_words",
-    "review_words",
     "start_challenge",
     "view_challenges",
     "none",

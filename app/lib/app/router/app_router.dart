@@ -16,7 +16,6 @@ import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
 import '../../features/question/domain/question.dart';
 import '../../features/question/presentation/question_page.dart';
-import '../../features/review/presentation/review_page.dart';
 import '../../features/settings/presentation/language_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/settings/presentation/theme_page.dart';
@@ -34,7 +33,6 @@ class AppRoutePaths {
   static const timeline = '/';
   static const loading = '/loading';
   static const signIn = '/sign-in';
-  static const review = '/review';
   static const history = '/history';
   static const challenges = '/challenges';
   static const challengeNew = '/challenges/new';
@@ -58,7 +56,6 @@ class AppRouteNames {
   static const timeline = 'timeline';
   static const loading = 'loading';
   static const signIn = 'signIn';
-  static const review = 'review';
   static const history = 'history';
   static const challenges = 'challenges';
   static const challengeNew = 'challengeNew';
@@ -128,11 +125,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutePaths.timeline,
         name: AppRouteNames.timeline,
         builder: (context, state) => const TimelinePage(),
-      ),
-      GoRoute(
-        path: AppRoutePaths.review,
-        name: AppRouteNames.review,
-        builder: (context, state) => const ReviewPage(),
       ),
       GoRoute(
         path: AppRoutePaths.history,

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum ComposerHintCategory {
   discovery,
   openWords,
-  review,
   startChallenge,
   viewChallenges,
 }
@@ -25,7 +24,6 @@ Map<ComposerHintCategory, double> composerHintWeights({
   return {
     ComposerHintCategory.discovery: 3,
     ComposerHintCategory.openWords: 3,
-    ComposerHintCategory.review: 1,
     ComposerHintCategory.startChallenge: hasActiveChallenge == null
         ? 3.5
         : hasActiveChallenge

@@ -17,7 +17,6 @@ class AssistantIntentDto {
     return AssistantIntentResult(
       intent: switch (intent) {
         'open_words' => AssistantIntent.openWords,
-        'review_words' => AssistantIntent.reviewWords,
         'start_challenge' => AssistantIntent.startChallenge,
         'view_challenges' => AssistantIntent.viewChallenges,
         _ => AssistantIntent.none,

@@ -152,8 +152,6 @@ class WordProgress(Base):
         String(36), ForeignKey("words.id", ondelete="CASCADE"), index=True, nullable=False
     )
     self_known_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    review_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    last_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     attempt_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     used_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

@@ -656,18 +656,9 @@ async def test_words_are_deduplicated_and_progress_is_tracked(discovery_env) -> 
     assert known.status_code == 200
     assert known.json()["status"] == "known"
 
-    reviewed = await http.post(
-        f"/api/v1/words/{word_id}/reviewed",
-        headers=headers,
-    )
-    assert reviewed.status_code == 200
-    assert reviewed.json()["review_count"] == 1
-
     response = await http.get("/api/v1/words", headers=headers)
     word = response.json()["words"][0]
     assert word["status"] == "known"
-    assert word["review_count"] == 1
-    assert response.json()["stats"]["reviewed_this_week"] == 1
 
 
 @pytest.mark.asyncio
@@ -694,10 +685,6 @@ async def test_word_attempt_is_tracked_and_moves_status(discovery_env) -> None:
     words = (await http.get("/api/v1/words", headers=headers)).json()["words"]
     assert words[0]["status"] == "attempted"
     assert words[0]["attempt_count"] == 1
-
-    reviewed = await http.post(f"/api/v1/words/{word_id}/reviewed", headers=headers)
-    assert reviewed.status_code == 200
-    assert reviewed.json()["status"] == "growing"
 
     empty = await http.post(
         f"/api/v1/words/{word_id}/attempt",

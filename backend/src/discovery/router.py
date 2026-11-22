@@ -26,7 +26,6 @@ from discovery.service import (
     get_words,
     lookup_word,
     mark_word_attempted,
-    mark_word_reviewed,
     save_talk_word,
     set_word_known,
 )
@@ -176,15 +175,6 @@ async def update_word_progress(
         word_id,
         payload.known,
     )
-
-
-@word_router.post("/{word_id}/reviewed", response_model=WordProgressOut)
-async def review_word(
-    word_id: str,
-    current: CurrentAuthDep,
-    session: SessionDep,
-) -> WordProgressOut:
-    return await mark_word_reviewed(session, current.account.id, word_id)
 
 
 @word_router.post("/{word_id}/attempt", response_model=WordProgressOut)

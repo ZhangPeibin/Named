@@ -14,10 +14,6 @@ const _options = [
     text: 'Try my words',
   ),
   ComposerHintOption(
-    category: ComposerHintCategory.review,
-    text: 'Try review words',
-  ),
-  ComposerHintOption(
     category: ComposerHintCategory.startChallenge,
     text: 'Try start a challenge',
   ),
@@ -32,12 +28,10 @@ void main() {
     final idle = composerHintWeights(hasActiveChallenge: null);
     expect(idle[ComposerHintCategory.discovery], 3);
     expect(idle[ComposerHintCategory.openWords], 3);
-    expect(idle[ComposerHintCategory.review], 1);
     expect(idle[ComposerHintCategory.startChallenge], 3.5);
     expect(idle[ComposerHintCategory.viewChallenges], 3.5);
 
     final noChallenge = composerHintWeights(hasActiveChallenge: false);
-    expect(noChallenge[ComposerHintCategory.review], 1);
     expect(
       noChallenge[ComposerHintCategory.startChallenge]!,
       greaterThan(noChallenge[ComposerHintCategory.viewChallenges]!),
@@ -68,7 +62,6 @@ void main() {
   test('provides localized Chinese command hints', () {
     final zh = TranslationsZh();
     expect(zh.timeline.composerHintWords, contains('单词'));
-    expect(zh.timeline.composerHintReview, contains('复习'));
     expect(zh.timeline.composerHintStartChallenge, contains('挑战'));
     expect(zh.timeline.composerHintViewChallenges, contains('挑战'));
   });
@@ -79,12 +72,12 @@ void main() {
       options: _options,
       weights: {
         ComposerHintCategory.discovery: 0,
-        ComposerHintCategory.review: 100,
+        ComposerHintCategory.openWords: 100,
         ComposerHintCategory.startChallenge: 0,
         ComposerHintCategory.viewChallenges: 0,
       },
     );
 
-    expect(next.category, ComposerHintCategory.review);
+    expect(next.category, ComposerHintCategory.openWords);
   });
 }

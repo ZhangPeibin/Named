@@ -21,7 +21,6 @@ Return exactly one intent:
 - open_words: the learner wants to see or browse their saved words.
   Examples: "my words", "show my words", "open my vocabulary",
   "看看我的单词", "我的词汇", "打开词语列表".
-- review_words: the learner wants to review or practise their saved words.
   Examples: "review words", "review my vocabulary", "我要复习单词",
   "帮我复习一下词语", "practice my words".
 - start_challenge: the learner wants to begin a new challenge.
@@ -43,7 +42,7 @@ Rules:
 - Distinguish starting from viewing: "开始 challenge" is start_challenge;
   "看看/查看 challenge" is view_challenges.
 - Distinguish viewing words from reviewing words: "my words/看看我的单词" is
-  open_words; "review/practice words/复习单词" is review_words.
+  open_words; "practice words/练词" is open_words.
 - Do not require exact wording. Understand natural phrasing, typos, and mixed
   Chinese/English.
 - If you are not confident, return none instead of guessing.

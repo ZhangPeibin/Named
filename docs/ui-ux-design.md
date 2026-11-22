@@ -84,11 +84,13 @@ Soul → Timeline → Name a thing or describe a moment → Word card or Moment 
 
 The composer is the product entry point: the learner sees something, names it, or describes what happened, and gets one English result. A word or short noun phrase becomes a Word card; a complete sentence becomes a Moment card with natural English and key chunks. There is no candidate picker. Challenge/task prompts are deferred; when added they must not turn the timeline into a course dashboard.
 
-### Revisit words
+### Practice (pending)
 
-Timeline → **Words to see today** → say it → hint ladder → answer → I said it / Not yet → Back to timeline.
-
-The timeline card is the single review entry point. Review is a production loop over the learner's own words: the answer stays hidden until the learner attempts it, then hints reveal progressively (first letter, IPA, audio, answer). Self-assessment decides whether the word counts as reviewed. It is not a scored quiz, does not claim mastery, and does not add a dashboard or tab.
+The earlier Review 3 flow was removed in November 2026: it was a production
+drill, not a history review, and calling it review conflicted with Review as
+"read your own history". A dedicated Practice feature will replace it, with a
+daily set of three items, a cue, a spoken or typed attempt, hints, reveal and
+self-assessment. Until it ships the timeline has no review/practice entry.
 
 ### Return to a conversation
 

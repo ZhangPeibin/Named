@@ -13,14 +13,14 @@ void main() {
     expect(result.hasAction, isTrue);
   });
 
-  test('maps review intent', () {
+  test('treats the removed review intent as no action', () {
     final result = const AssistantIntentDto(
       intent: 'review_words',
       confidence: 0.9,
     ).toDomain();
 
-    expect(result.intent, AssistantIntent.reviewWords);
-    expect(result.hasAction, isTrue);
+    expect(result.intent, AssistantIntent.none);
+    expect(result.hasAction, isFalse);
   });
 
   test('maps both challenge intents separately', () {

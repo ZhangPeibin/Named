@@ -66,7 +66,6 @@ void main() {
     final hints = {
       t.timeline.composerHint,
       t.timeline.composerHintWords,
-      t.timeline.composerHintReview,
       t.timeline.composerHintStartChallenge,
       t.timeline.composerHintViewChallenges,
     };
@@ -197,16 +196,6 @@ void _navigationTests() {
     await _pumpTimelineWithIntent(tester, AssistantIntent.openWords);
 
     expect(find.byType(WordsPage), findsOneWidget);
-  });
-
-  testWidgets('review command opens Review', (tester) async {
-    final assistant = await _pumpTimelineWithIntent(
-      tester,
-      AssistantIntent.reviewWords,
-    );
-
-    expect(assistant.calls, ['review words']);
-    expect(find.text(t.review.title), findsOneWidget);
   });
 
   testWidgets('start challenge command opens challenge creation', (

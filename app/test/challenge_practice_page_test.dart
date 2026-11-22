@@ -63,9 +63,7 @@ WordShelfItem _treeShelf() {
     discoveryCount: 1,
     firstSeenAt: DateTime(2026, 11, 12),
     lastSeenAt: DateTime(2026, 11, 12),
-    status: WordShelfStatus.growing,
-    reviewCount: 0,
-    lastReviewedAt: null,
+    status: WordShelfStatus.needsReview,
   );
 }
 
@@ -81,7 +79,6 @@ void main() {
               stats: WordsStats(
                 total: 0,
                 newThisWeek: 0,
-                reviewedThisWeek: 0,
                 usedInTalkThisWeek: 0,
               ),
               words: [],
@@ -108,7 +105,6 @@ void main() {
               stats: WordsStats(
                 total: 0,
                 newThisWeek: 0,
-                reviewedThisWeek: 0,
                 usedInTalkThisWeek: 0,
               ),
               words: [],
@@ -137,7 +133,6 @@ void main() {
               stats: const WordsStats(
                 total: 1,
                 newThisWeek: 1,
-                reviewedThisWeek: 0,
                 usedInTalkThisWeek: 0,
               ),
               words: [_treeShelf()],
