@@ -506,7 +506,10 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
                 axisAlignment: 1,
                 child: FadeTransition(
                   opacity: _trailVisibility,
-                  child: TimelineProgressCard(progress: progress.value!),
+                  child: TimelineProgressCard(
+                    progress: progress.value!,
+                    onWordsTap: () => unawaited(_openWords()),
+                  ),
                 ),
               ),
             ),
@@ -554,6 +557,13 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     if (mounted) {
       ref.invalidate(timelineControllerProvider);
       ref.invalidate(progressProvider);
+    }
+  }
+
+  Future<void> _openWords() async {
+    await context.pushNamed(AppRouteNames.words);
+    if (mounted) {
+      ref.invalidate(wordShelfProvider);
     }
   }
 

@@ -25,5 +25,25 @@ void main() {
     expect(find.text(t.timeline.progressWords), findsOneWidget);
     expect(find.text(t.timeline.progressConversations), findsOneWidget);
     expect(find.text(t.timeline.progressReads), findsOneWidget);
+    expect(find.byKey(const Key('timeline.progress.words')), findsNothing);
+  });
+
+  testWidgets('opens Words from the words stat', (tester) async {
+    var taps = 0;
+
+    await pumpWithTranslations(
+      tester,
+      child: Scaffold(
+        body: TimelineProgressCard(
+          progress: const Progress(words: 3, conversations: 2, readings: 1),
+          onWordsTap: () => taps++,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('timeline.progress.words')));
+    await tester.pumpAndSettle();
+
+    expect(taps, 1);
   });
 }

@@ -9,9 +9,14 @@ import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
 
 class TimelineProgressCard extends StatelessWidget {
-  const TimelineProgressCard({super.key, required this.progress});
+  const TimelineProgressCard({
+    super.key,
+    required this.progress,
+    this.onWordsTap,
+  });
 
   final Progress progress;
+  final VoidCallback? onWordsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +45,12 @@ class TimelineProgressCard extends StatelessWidget {
       child: Row(
         children: [
           _ProgressStat(
+            statKey: const Key('timeline.progress.words'),
             value: progress.words,
             label: t.progressWords,
             glyph: AppLineGlyph.book,
             color: ContentAccents.words(context),
+            onTap: onWordsTap,
           ),
           _divider(palette),
           _ProgressStat(
@@ -80,37 +87,51 @@ class _ProgressStat extends StatelessWidget {
     required this.label,
     required this.glyph,
     required this.color,
+    this.statKey,
+    this.onTap,
   });
 
   final int value;
   final String label;
   final AppLineGlyph glyph;
   final Color color;
+  final Key? statKey;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
 
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$value',
+          style: textTheme.titleMedium?.copyWith(color: palette.ink),
+        ),
+        Row(
+          children: [
+            AppLineIcon(glyph, size: 16, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: AppTextStyles.caption.copyWith(color: palette.muted),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    if (onTap == null) {
+      return Expanded(child: content);
+    }
     return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$value',
-            style: textTheme.titleMedium?.copyWith(color: palette.ink),
-          ),
-          Row(
-            children: [
-              AppLineIcon(glyph, size: 16, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: AppTextStyles.caption.copyWith(color: palette.muted),
-              ),
-            ],
-          ),
-        ],
+      child: InkWell(
+        key: statKey,
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.r12),
+        child: content,
       ),
     );
   }
