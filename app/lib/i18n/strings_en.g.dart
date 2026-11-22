@@ -57,7 +57,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$talk$en talk = Translations$talk$en._(_root);
 	late final Translations$timeline$en timeline = Translations$timeline$en._(_root);
 	late final Translations$words$en words = Translations$words$en._(_root);
-	late final Translations$review$en review = Translations$review$en._(_root);
 	late final Translations$history$en history = Translations$history$en._(_root);
 	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
 	late final Translations$daily$en daily = Translations$daily$en._(_root);
@@ -501,6 +500,15 @@ class Translations$soul$en {
 	/// en: 'My Soul'
 	String get profile => 'My Soul';
 
+	/// en: 'Soul notes'
+	String get notes => 'Soul notes';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Language'
+	String get nativeLanguageShort => 'Language';
+
 	/// en: 'Native language'
 	String get nativeLanguage => 'Native language';
 
@@ -519,8 +527,8 @@ class Translations$soul$en {
 	/// en: 'Interests and preferences'
 	String get items => 'Interests and preferences';
 
-	/// en: 'Add a few interests when you edit.'
-	String get noItems => 'Add a few interests when you edit.';
+	/// en: 'No notes yet. Add one about yourself.'
+	String get noItems => 'No notes yet. Add one about yourself.';
 
 	/// en: 'Edit'
 	String get edit => 'Edit';
@@ -990,9 +998,6 @@ class Translations$timeline$en {
 	/// en: 'Try “review words” or “start a challenge”.'
 	String get commandHint => 'Try “review words” or “start a challenge”.';
 
-	/// en: 'Try “review words”'
-	String get composerHintReview => 'Try “review words”';
-
 	/// en: 'Try “start a challenge”'
 	String get composerHintStartChallenge => 'Try “start a challenge”';
 
@@ -1013,15 +1018,6 @@ class Translations$timeline$en {
 
 	/// en: 'Reads'
 	String get progressReads => 'Reads';
-
-	/// en: 'Words to see today'
-	String get reviewReminderTitle => 'Words to see today';
-
-	/// en: '{count} words ready'
-	String get reviewReminderCount => '{count} words ready';
-
-	/// en: 'Review'
-	String get reviewReminderAction => 'Review';
 }
 
 // Path: words
@@ -1035,6 +1031,12 @@ class Translations$words$en {
 	/// en: 'Words'
 	String get title => 'Words';
 
+	/// en: 'Vocabulary notebook'
+	String get notebookEyebrow => 'Vocabulary notebook';
+
+	/// en: 'Tried'
+	String get attempted => 'Tried';
+
 	/// en: 'Your words'
 	String get yourWords => 'Your words';
 
@@ -1044,17 +1046,11 @@ class Translations$words$en {
 	/// en: '+${count} this week'
 	String newThisWeek({required Object count}) => '+${count} this week';
 
-	/// en: '${count} reviewed'
-	String reviewedThisWeek({required Object count}) => '${count} reviewed';
-
 	/// en: '${count} used in Talk'
 	String usedInTalkThisWeek({required Object count}) => '${count} used in Talk';
 
 	/// en: 'Needs a revisit'
 	String get needsReview => 'Needs a revisit';
-
-	/// en: 'Growing'
-	String get growing => 'Growing';
 
 	/// en: 'Known'
 	String get known => 'Known';
@@ -1064,9 +1060,6 @@ class Translations$words$en {
 
 	/// en: 'Hide known'
 	String get hideKnown => 'Hide known';
-
-	/// en: 'Review 3'
-	String get review3 => 'Review 3';
 
 	/// en: 'I know this'
 	String get knowThis => 'I know this';
@@ -1082,90 +1075,6 @@ class Translations$words$en {
 
 	/// en: 'Named words will appear here.'
 	String get empty => 'Named words will appear here.';
-}
-
-// Path: review
-class Translations$review$en {
-	Translations$review$en._(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// en: 'Review 3'
-	String get title => 'Review 3';
-
-	/// en: 'Do you remember?'
-	String get prompt => 'Do you remember?';
-
-	/// en: 'Show meaning'
-	String get showMeaning => 'Show meaning';
-
-	/// en: 'Next'
-	String get next => 'Next';
-
-	/// en: 'Finish'
-	String get finish => 'Finish';
-
-	/// en: 'Review complete'
-	String get completeTitle => 'Review complete';
-
-	/// en: 'A small review is enough for today.'
-	String get completeCopy => 'A small review is enough for today.';
-
-	/// en: 'Back to timeline'
-	String get backToTimeline => 'Back to timeline';
-
-	/// en: 'Nothing to review yet'
-	String get emptyTitle => 'Nothing to review yet';
-
-	/// en: 'Name something first. Your words will appear here for review.'
-	String get emptyCopy => 'Name something first. Your words will appear here for review.';
-
-	/// en: 'Could not load your review.'
-	String get loadFailed => 'Could not load your review.';
-
-	/// en: 'Say it in English'
-	String get attemptPrompt => 'Say it in English';
-
-	/// en: 'Try it first. Hints come after your attempt.'
-	String get attemptHint => 'Try it first. Hints come after your attempt.';
-
-	/// en: 'Type what you would say'
-	String get attemptPlaceholder => 'Type what you would say';
-
-	/// en: 'Check'
-	String get checkAttempt => 'Check';
-
-	/// en: 'Your answer'
-	String get yourAttempt => 'Your answer';
-
-	/// en: 'First letter'
-	String get hintFirst => 'First letter';
-
-	/// en: 'Pronunciation'
-	String get hintIpa => 'Pronunciation';
-
-	/// en: 'Show a hint'
-	String get showHint => 'Show a hint';
-
-	/// en: 'Show answer'
-	String get showAnswer => 'Show answer';
-
-	/// en: 'The word'
-	String get answerLabel => 'The word';
-
-	/// en: 'I said it'
-	String get saidIt => 'I said it';
-
-	/// en: 'Not yet'
-	String get notYet => 'Not yet';
-
-	/// en: 'Could not save your attempt. Try again.'
-	String get attemptFailed => 'Could not save your attempt. Try again.';
-
-	/// en: 'Try to say this in English.'
-	String get cueMissing => 'Try to say this in English.';
 }
 
 // Path: history
@@ -1625,6 +1534,12 @@ class Translations$daily$en {
 
 	/// en: 'Writing and recording your reading.'
 	String get preparingBody => 'Writing and recording your reading.';
+
+	/// en: 'Useful English'
+	String get usefulEnglish => 'Useful English';
+
+	/// en: 'Tap a word to see its meaning.'
+	String get glossaryHint => 'Tap a word to see its meaning.';
 }
 
 // Path: ask
@@ -1856,13 +1771,16 @@ extension on Translations {
 			'soul.headline' => 'Your world is growing.',
 			'soul.subtitle' => 'A quiet record of what you noticed and said.',
 			'soul.profile' => 'My Soul',
+			'soul.notes' => 'Soul notes',
+			'soul.add' => 'Add',
+			'soul.nativeLanguageShort' => 'Language',
 			'soul.nativeLanguage' => 'Native language',
 			'soul.age' => 'Age',
 			'soul.gender' => 'Gender',
 			'soul.years' => 'years',
 			'soul.notSet' => 'Not set',
 			'soul.items' => 'Interests and preferences',
-			'soul.noItems' => 'Add a few interests when you edit.',
+			'soul.noItems' => 'No notes yet. Add one about yourself.',
 			'soul.edit' => 'Edit',
 			'soul.editTitle' => 'Edit your Soul',
 			'soul.editSubtitle' => 'These details shape how explanations sound.',
@@ -2004,7 +1922,6 @@ extension on Translations {
 			'timeline.speed' => 'Playback speed',
 			'timeline.audioUnavailable' => 'Audio is unavailable.',
 			'timeline.commandHint' => 'Try “review words” or “start a challenge”.',
-			'timeline.composerHintReview' => 'Try “review words”',
 			'timeline.composerHintStartChallenge' => 'Try “start a challenge”',
 			'timeline.composerHintViewChallenges' => 'Try “show my challenge”',
 			'timeline.composerHintWords' => 'Try “my words”',
@@ -2012,51 +1929,22 @@ extension on Translations {
 			'timeline.progressWords' => 'Words',
 			'timeline.progressConversations' => 'Talks',
 			'timeline.progressReads' => 'Reads',
-			'timeline.reviewReminderTitle' => 'Words to see today',
-			'timeline.reviewReminderCount' => '{count} words ready',
-			'timeline.reviewReminderAction' => 'Review',
 			'words.title' => 'Words',
+			'words.notebookEyebrow' => 'Vocabulary notebook',
+			'words.attempted' => 'Tried',
 			'words.yourWords' => 'Your words',
 			'words.totalWords' => ({required Object count}) => '${count} words',
 			'words.newThisWeek' => ({required Object count}) => '+${count} this week',
-			'words.reviewedThisWeek' => ({required Object count}) => '${count} reviewed',
 			'words.usedInTalkThisWeek' => ({required Object count}) => '${count} used in Talk',
 			'words.needsReview' => 'Needs a revisit',
-			'words.growing' => 'Growing',
 			'words.known' => 'Known',
 			'words.showKnown' => 'Show known',
 			'words.hideKnown' => 'Hide known',
-			'words.review3' => 'Review 3',
 			'words.knowThis' => 'I know this',
 			'words.stillLearning' => 'Still learning',
 			'words.seenTimes' => ({required Object count}) => 'seen ${count}×',
 			'words.loadFailed' => 'Could not load your words.',
 			'words.empty' => 'Named words will appear here.',
-			'review.title' => 'Review 3',
-			'review.prompt' => 'Do you remember?',
-			'review.showMeaning' => 'Show meaning',
-			'review.next' => 'Next',
-			'review.finish' => 'Finish',
-			'review.completeTitle' => 'Review complete',
-			'review.completeCopy' => 'A small review is enough for today.',
-			'review.backToTimeline' => 'Back to timeline',
-			'review.emptyTitle' => 'Nothing to review yet',
-			'review.emptyCopy' => 'Name something first. Your words will appear here for review.',
-			'review.loadFailed' => 'Could not load your review.',
-			'review.attemptPrompt' => 'Say it in English',
-			'review.attemptHint' => 'Try it first. Hints come after your attempt.',
-			'review.attemptPlaceholder' => 'Type what you would say',
-			'review.checkAttempt' => 'Check',
-			'review.yourAttempt' => 'Your answer',
-			'review.hintFirst' => 'First letter',
-			'review.hintIpa' => 'Pronunciation',
-			'review.showHint' => 'Show a hint',
-			'review.showAnswer' => 'Show answer',
-			'review.answerLabel' => 'The word',
-			'review.saidIt' => 'I said it',
-			'review.notYet' => 'Not yet',
-			'review.attemptFailed' => 'Could not save your attempt. Try again.',
-			'review.cueMissing' => 'Try to say this in English.',
 			'history.title' => 'History',
 			'history.empty' => 'No experiences yet.',
 			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',
@@ -2201,6 +2089,8 @@ extension on Translations {
 			'daily.speed' => 'Playback speed',
 			'daily.preparing' => 'Preparing today\'s story…',
 			'daily.preparingBody' => 'Writing and recording your reading.',
+			'daily.usefulEnglish' => 'Useful English',
+			'daily.glossaryHint' => 'Tap a word to see its meaning.',
 			'ask.title' => 'Ask',
 			'ask.entryTooltip' => 'Ask a question',
 			'ask.placeholder' => 'Ask anything...',

@@ -294,11 +294,11 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     return Theme.of(context).textTheme.bodyLarge?.copyWith(
       fontFamily: 'Lora',
       fontFamilyFallback: AppTextStyles.editorialFallback,
-      fontVariations: const [FontVariation('wght', 600)],
-      fontWeight: FontWeight.w600,
-      fontSize: 22,
-      height: 1.55,
-      letterSpacing: -0.2,
+      fontVariations: const [FontVariation('wght', 400)],
+      fontWeight: FontWeight.w400,
+      fontSize: 18,
+      height: 1.72,
+      letterSpacing: 0,
       color: palette.ink,
     );
   }
@@ -604,6 +604,10 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                               data: (value) => Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  _DailyReadHeader(
+                                    date: value.date,
+                                    title: value.title,
+                                  ),
                                   if (translation == null)
                                     _DailyReadBody(
                                       reading: value,
@@ -669,7 +673,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                       child: ColoredBox(
                         color: palette.canvas,
                         child: _ReaderTopBar(
-                          title: reading?.title ?? t.title,
+                          title: t.title,
                           isDark: isDark,
                           onAsk: reading == null
                               ? null
@@ -1247,11 +1251,15 @@ TextStyle? _wordStyle(
   TextStyle? base, {
   required bool active,
   required bool target,
+  bool bold = false,
 }) {
   if (!active && !target) {
-    return null;
+    return bold ? _boldStyle(base) : null;
   }
   var style = active ? _activeWordStyle(palette, base) : base;
+  if (bold) {
+    style = _boldStyle(style);
+  }
   if (target) {
     style = style?.copyWith(
       decoration: TextDecoration.underline,
@@ -1261,6 +1269,183 @@ TextStyle? _wordStyle(
     );
   }
   return style;
+}
+
+TextStyle? _boldStyle(TextStyle? base) {
+  return base?.copyWith(
+    fontWeight: FontWeight.w600,
+    fontVariations: const [FontVariation('wght', 600)],
+  );
+}
+
+List<({int start, int end})> _leadRanges(String text) {
+  final ranges = <({int start, int end})>[];
+  final breaks = RegExp(r'\n[ \t]*\n').allMatches(text).toList();
+  var paragraphStart = 0;
+  for (var index = 0; index <= breaks.length; index++) {
+    final paragraphEnd = index < breaks.length
+        ? breaks[index].start
+        : text.length;
+    if (paragraphEnd > paragraphStart) {
+      var leadEnd = paragraphEnd;
+      for (var i = paragraphStart; i < paragraphEnd; i++) {
+        final char = text[i];
+        if (char == '.' || char == '!' || char == '?') {
+          leadEnd = i + 1;
+          while (leadEnd < paragraphEnd && _isClosingMark(text[leadEnd])) {
+            leadEnd++;
+          }
+          break;
+        }
+      }
+      ranges.add((start: paragraphStart, end: leadEnd));
+    }
+    if (index < breaks.length) {
+      paragraphStart = breaks[index].end;
+    }
+  }
+  return ranges;
+}
+
+bool _isClosingMark(String char) {
+  return const {'"', '”', '’', ')', ']'}.contains(char);
+}
+
+bool _inLead(int offset, List<({int start, int end})> leads) {
+  return leads.any((range) => offset >= range.start && offset < range.end);
+}
+
+InlineSpan _plainSpan(
+  String text,
+  TextStyle? base,
+  int start,
+  List<({int start, int end})> leads,
+) {
+  return TextSpan(
+    text: text,
+    style: _inLead(start, leads) ? _boldStyle(base) : null,
+  );
+}
+
+class _DailyReadHeader extends StatelessWidget {
+  const _DailyReadHeader({required this.date, required this.title});
+
+  final DateTime date;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final label = MaterialLocalizations.of(
+      context,
+    ).formatMediumDate(date).toUpperCase();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s20,
+        AppSpacing.s8,
+        AppSpacing.s20,
+        AppSpacing.s24,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+          ),
+          const SizedBox(height: AppSpacing.s10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.editorial.copyWith(
+              fontSize: 30,
+              height: 1.15,
+              fontWeight: FontWeight.w600,
+              fontVariations: const [FontVariation('wght', 600)],
+              color: palette.ink,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Glossary extends StatelessWidget {
+  const _Glossary({required this.words, required this.onShowWord});
+
+  final List<String> words;
+  final ValueChanged<String> onShowWord;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final t = context.t.daily;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: AppSpacing.s16),
+        Container(height: 1, color: palette.line),
+        const SizedBox(height: AppSpacing.s16),
+        Text(
+          t.usefulEnglish,
+          style: AppTextStyles.sectionTitle.copyWith(
+            fontSize: 22,
+            color: palette.ink,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.s4),
+        Text(
+          t.glossaryHint,
+          style: textTheme.bodySmall?.copyWith(color: palette.muted),
+        ),
+        const SizedBox(height: AppSpacing.s12),
+        for (var index = 0; index < words.length; index++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.s10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: AppSpacing.s24,
+                  child: Text(
+                    '${index + 1}.',
+                    style: textTheme.bodyMedium?.copyWith(color: palette.muted),
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => onShowWord(words[index]),
+                    child: Text(
+                      words[index],
+                      key: Key('daily.glossary.$index'),
+                      style: TextStyle(
+                        fontFamily: 'Lora',
+                        fontFamilyFallback: AppTextStyles.editorialFallback,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        fontVariations: const [FontVariation('wght', 600)],
+                        height: 1.4,
+                        color: palette.ink,
+                        decoration: TextDecoration.underline,
+                        decorationStyle: TextDecorationStyle.dotted,
+                        decorationColor: palette.accent.withValues(alpha: 0.6),
+                        decorationThickness: 1.4,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 class _DailyReadBody extends StatelessWidget {
@@ -1301,6 +1486,8 @@ class _DailyReadBody extends StatelessWidget {
               key: textKey,
             ),
           ),
+          if (reading.targetWords.isNotEmpty)
+            _Glossary(words: reading.targetWords, onShowWord: onShowWord),
         ],
       ),
     );
@@ -1314,6 +1501,7 @@ class _DailyReadBody extends StatelessWidget {
         activeWordIndex >= 0 && activeWordIndex < reading.words.length
         ? reading.words[activeWordIndex]
         : null;
+    final leads = _leadRanges(reading.passage);
     var cursor = 0;
     for (final word in words) {
       if (word.startChar < cursor ||
@@ -1324,7 +1512,12 @@ class _DailyReadBody extends StatelessWidget {
       }
       if (word.startChar > cursor) {
         spans.add(
-          TextSpan(text: reading.passage.substring(cursor, word.startChar)),
+          _plainSpan(
+            reading.passage.substring(cursor, word.startChar),
+            passageStyle,
+            cursor,
+            leads,
+          ),
         );
       }
       final active =
@@ -1340,13 +1533,21 @@ class _DailyReadBody extends StatelessWidget {
             passageStyle,
             active: active,
             target: target,
+            bold: _inLead(word.startChar, leads),
           ),
         ),
       );
       cursor = word.endChar;
     }
     if (cursor < reading.passage.length) {
-      spans.add(TextSpan(text: reading.passage.substring(cursor)));
+      spans.add(
+        _plainSpan(
+          reading.passage.substring(cursor),
+          passageStyle,
+          cursor,
+          leads,
+        ),
+      );
     }
     return spans;
   }
@@ -1465,6 +1666,8 @@ class _BilingualReadBody extends StatelessWidget {
             if (index < translation.lines.length - 1)
               const SizedBox(height: AppSpacing.s16),
           ],
+          if (reading.targetWords.isNotEmpty)
+            _Glossary(words: reading.targetWords, onShowWord: onShowWord),
         ],
       ),
     );

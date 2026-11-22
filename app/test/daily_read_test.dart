@@ -44,6 +44,9 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(t.daily.question.toUpperCase()), findsNothing);
+    expect(find.text(t.daily.usefulEnglish), findsOneWidget);
+    expect(find.byKey(const Key('daily.glossary.0')), findsOneWidget);
+    expect(find.text('notice'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('daily.translate')));
     await tester.pumpAndSettle();
