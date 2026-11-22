@@ -1,11 +1,10 @@
 import '../../discover/domain/discover.dart';
 
-enum WordShelfStatus { needsReview, attempted, growing, known }
+enum WordShelfStatus { needsReview, attempted, known }
 
 WordShelfStatus wordShelfStatusFromJson(String? value) {
   return switch (value) {
     'known' => WordShelfStatus.known,
-    'growing' => WordShelfStatus.growing,
     'attempted' => WordShelfStatus.attempted,
     _ => WordShelfStatus.needsReview,
   };
@@ -21,8 +20,6 @@ class WordShelfItem {
     required this.firstSeenAt,
     required this.lastSeenAt,
     required this.status,
-    required this.reviewCount,
-    required this.lastReviewedAt,
   });
 
   final String id;
@@ -33,21 +30,17 @@ class WordShelfItem {
   final DateTime firstSeenAt;
   final DateTime lastSeenAt;
   final WordShelfStatus status;
-  final int reviewCount;
-  final DateTime? lastReviewedAt;
 }
 
 class WordsStats {
   const WordsStats({
     required this.total,
     required this.newThisWeek,
-    required this.reviewedThisWeek,
     required this.usedInTalkThisWeek,
   });
 
   final int total;
   final int newThisWeek;
-  final int reviewedThisWeek;
   final int usedInTalkThisWeek;
 }
 

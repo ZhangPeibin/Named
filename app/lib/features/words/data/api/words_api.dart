@@ -196,20 +196,13 @@ class MockWordsApi implements WordsApi {
       firstSeenAt: DateTime.now(),
       lastSeenAt: DateTime.now(),
       status: WordShelfStatus.needsReview,
-      reviewCount: 0,
-      lastReviewedAt: null,
     );
   }
 
   @override
   Future<WordShelfDto> fetch() async {
     return const WordShelfDto(
-      stats: WordsStatsDto(
-        total: 0,
-        newThisWeek: 0,
-        reviewedThisWeek: 0,
-        usedInTalkThisWeek: 0,
-      ),
+      stats: WordsStatsDto(total: 0, newThisWeek: 0, usedInTalkThisWeek: 0),
       words: [],
     );
   }

@@ -13,10 +13,14 @@ class WordAudioButton extends ConsumerWidget {
     super.key,
     required this.audio,
     this.accent = defaultWordAudioAccent,
+    this.dimension = 28,
+    this.iconSize = 12,
   });
 
   final WordAudio? audio;
   final WordAudioAccent accent;
+  final double dimension;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,8 +37,8 @@ class WordAudioButton extends ConsumerWidget {
       pauseTooltip: t.pause,
       speedTooltip: t.speed,
       errorText: t.audioUnavailable,
-      dimension: 28,
-      iconSize: 12,
+      dimension: dimension,
+      iconSize: iconSize,
       color: palette.muted,
     );
   }

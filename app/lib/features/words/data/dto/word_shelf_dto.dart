@@ -11,8 +11,6 @@ class WordShelfItemDto {
     required this.firstSeenAt,
     required this.lastSeenAt,
     required this.status,
-    required this.reviewCount,
-    required this.lastReviewedAt,
   });
 
   factory WordShelfItemDto.fromJson(Map<String, dynamic> json) {
@@ -31,8 +29,6 @@ class WordShelfItemDto {
       firstSeenAt: _parseDate(json['first_seen_at']),
       lastSeenAt: _parseDate(json['last_seen_at']),
       status: wordShelfStatusFromJson(json['status'] as String?),
-      reviewCount: (json['review_count'] as num?)?.toInt() ?? 0,
-      lastReviewedAt: _parseNullableDate(json['last_reviewed_at']),
     );
   }
 
@@ -44,8 +40,6 @@ class WordShelfItemDto {
   final DateTime firstSeenAt;
   final DateTime lastSeenAt;
   final WordShelfStatus status;
-  final int reviewCount;
-  final DateTime? lastReviewedAt;
 
   WordShelfItem toDomain() {
     return WordShelfItem(
@@ -57,8 +51,6 @@ class WordShelfItemDto {
       firstSeenAt: firstSeenAt,
       lastSeenAt: lastSeenAt,
       status: status,
-      reviewCount: reviewCount,
-      lastReviewedAt: lastReviewedAt,
     );
   }
 }
@@ -67,7 +59,6 @@ class WordsStatsDto {
   const WordsStatsDto({
     required this.total,
     required this.newThisWeek,
-    required this.reviewedThisWeek,
     required this.usedInTalkThisWeek,
   });
 
@@ -75,7 +66,6 @@ class WordsStatsDto {
     return WordsStatsDto(
       total: (json['total'] as num?)?.toInt() ?? 0,
       newThisWeek: (json['new_this_week'] as num?)?.toInt() ?? 0,
-      reviewedThisWeek: (json['reviewed_this_week'] as num?)?.toInt() ?? 0,
       usedInTalkThisWeek:
           (json['used_in_talk_this_week'] as num?)?.toInt() ?? 0,
     );
@@ -83,14 +73,12 @@ class WordsStatsDto {
 
   final int total;
   final int newThisWeek;
-  final int reviewedThisWeek;
   final int usedInTalkThisWeek;
 
   WordsStats toDomain() {
     return WordsStats(
       total: total,
       newThisWeek: newThisWeek,
-      reviewedThisWeek: reviewedThisWeek,
       usedInTalkThisWeek: usedInTalkThisWeek,
     );
   }
@@ -127,11 +115,4 @@ DateTime _parseDate(Object? value) {
     return DateTime.tryParse(value) ?? DateTime.now();
   }
   return DateTime.now();
-}
-
-DateTime? _parseNullableDate(Object? value) {
-  if (value is String) {
-    return DateTime.tryParse(value);
-  }
-  return null;
 }
