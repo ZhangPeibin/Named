@@ -1,7 +1,6 @@
 {
   "app": {
     "name": "Named",
-    "subtitle": "A reusable starter project for Flutter apps.",
     "openApiDemo": "Open API demo",
     "languageSettings": "Language"
   },
@@ -117,7 +116,6 @@
     "loadFailed": "Failed to load page"
   },
   "explore": {
-    "headline": "Explore your world.",
     "prompt": "What caught your attention today?",
     "capturePhoto": "Take a photo",
     "captureTalk": "Talk",
@@ -130,10 +128,9 @@
   },
   "soul": {
     "title": "Me",
-    "eyebrow": "MY SOUL",
     "headline": "Your world is growing.",
     "subtitle": "A quiet record of what you noticed and said.",
-    "profile": "My Soul",
+    "profileTitle": "Profile",
     "notes": "Soul notes",
     "add": "Add",
     "nativeLanguageShort": "Language",
@@ -142,8 +139,7 @@
     "gender": "Gender",
     "years": "years",
     "notSet": "Not set",
-    "items": "Interests and preferences",
-    "noItems": "No notes yet. Add one about yourself.",
+    "noItems": "No notes yet.",
     "edit": "Edit",
     "editTitle": "Edit your Soul",
     "editSubtitle": "These details shape how explanations sound.",
@@ -154,7 +150,6 @@
     "invalidAge": "Enter a valid age.",
     "saved": "Soul updated.",
     "source": "Source: ${source}",
-    "rhythm": "My rhythm",
     "rhythmBody": "Challenges will appear here.",
     "library": "Your library",
     "wordsBody": "Words you kept from moments.",

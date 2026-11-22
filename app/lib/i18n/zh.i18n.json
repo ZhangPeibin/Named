@@ -1,7 +1,6 @@
 {
   "app": {
     "name": "Named",
-    "subtitle": "一个可复用的 Flutter 应用启动模板。",
     "openApiDemo": "打开 API 示例",
     "languageSettings": "语言"
   },
@@ -117,7 +116,6 @@
     "loadFailed": "页面加载失败"
   },
   "explore": {
-    "headline": "探索你的世界。",
     "prompt": "今天，什么吸引了你的注意？",
     "capturePhoto": "拍一张",
     "captureTalk": "聊一聊",
@@ -130,10 +128,9 @@
   },
   "soul": {
     "title": "我",
-    "eyebrow": "我的 SOUL",
     "headline": "你的世界正在生长。",
     "subtitle": "关于你注意到、说出口的事，慢慢留在这里。",
-    "profile": "我的 Soul",
+    "profileTitle": "资料",
     "notes": "Soul 笔记",
     "add": "添加",
     "nativeLanguageShort": "母语",
@@ -142,8 +139,7 @@
     "gender": "性别",
     "years": "岁",
     "notSet": "未填写",
-    "items": "兴趣与偏好",
-    "noItems": "还没有笔记，添加一条关于你的内容。",
+    "noItems": "还没有笔记。",
     "edit": "修改",
     "editTitle": "编辑你的 Soul",
     "editSubtitle": "这些细节会影响解释的方式。",
@@ -154,7 +150,6 @@
     "invalidAge": "请输入有效年龄。",
     "saved": "Soul 已更新。",
     "source": "来源：${source}",
-    "rhythm": "我的节奏",
     "rhythmBody": "挑战会出现在这里。",
     "library": "你的收藏",
     "wordsBody": "从经历里留下的词语。",

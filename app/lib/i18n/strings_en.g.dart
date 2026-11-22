@@ -74,9 +74,6 @@ class Translations$app$en {
 	/// en: 'Named'
 	String get name => 'Named';
 
-	/// en: 'A reusable starter project for Flutter apps.'
-	String get subtitle => 'A reusable starter project for Flutter apps.';
-
 	/// en: 'Open API demo'
 	String get openApiDemo => 'Open API demo';
 
@@ -446,9 +443,6 @@ class Translations$explore$en {
 
 	// Translations
 
-	/// en: 'Explore your world.'
-	String get headline => 'Explore your world.';
-
 	/// en: 'What caught your attention today?'
 	String get prompt => 'What caught your attention today?';
 
@@ -488,17 +482,14 @@ class Translations$soul$en {
 	/// en: 'Me'
 	String get title => 'Me';
 
-	/// en: 'MY SOUL'
-	String get eyebrow => 'MY SOUL';
-
 	/// en: 'Your world is growing.'
 	String get headline => 'Your world is growing.';
 
 	/// en: 'A quiet record of what you noticed and said.'
 	String get subtitle => 'A quiet record of what you noticed and said.';
 
-	/// en: 'My Soul'
-	String get profile => 'My Soul';
+	/// en: 'Profile'
+	String get profileTitle => 'Profile';
 
 	/// en: 'Soul notes'
 	String get notes => 'Soul notes';
@@ -524,11 +515,8 @@ class Translations$soul$en {
 	/// en: 'Not set'
 	String get notSet => 'Not set';
 
-	/// en: 'Interests and preferences'
-	String get items => 'Interests and preferences';
-
-	/// en: 'No notes yet. Add one about yourself.'
-	String get noItems => 'No notes yet. Add one about yourself.';
+	/// en: 'No notes yet.'
+	String get noItems => 'No notes yet.';
 
 	/// en: 'Edit'
 	String get edit => 'Edit';
@@ -559,9 +547,6 @@ class Translations$soul$en {
 
 	/// en: 'Source: ${source}'
 	String source({required Object source}) => 'Source: ${source}';
-
-	/// en: 'My rhythm'
-	String get rhythm => 'My rhythm';
 
 	/// en: 'Challenges will appear here.'
 	String get rhythmBody => 'Challenges will appear here.';
@@ -1659,7 +1644,6 @@ extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'app.name' => 'Named',
-			'app.subtitle' => 'A reusable starter project for Flutter apps.',
 			'app.openApiDemo' => 'Open API demo',
 			'app.languageSettings' => 'Language',
 			'common.loadFailed' => 'Couldn\'t load. Please try again.',
@@ -1756,7 +1740,6 @@ extension on Translations {
 			'webView.openDemo' => 'Open WebView demo',
 			'webView.linkNotAllowed' => ({required Object url}) => 'This link is not allowed: ${url}',
 			'webView.loadFailed' => 'Failed to load page',
-			'explore.headline' => 'Explore your world.',
 			'explore.prompt' => 'What caught your attention today?',
 			'explore.capturePhoto' => 'Take a photo',
 			'explore.captureTalk' => 'Talk',
@@ -1767,10 +1750,9 @@ extension on Translations {
 			'explore.learnedEmpty' => 'Words and expressions you learn will appear here.',
 			'explore.learnedEmptyHint' => 'Every discovery adds a little to your world.',
 			'soul.title' => 'Me',
-			'soul.eyebrow' => 'MY SOUL',
 			'soul.headline' => 'Your world is growing.',
 			'soul.subtitle' => 'A quiet record of what you noticed and said.',
-			'soul.profile' => 'My Soul',
+			'soul.profileTitle' => 'Profile',
 			'soul.notes' => 'Soul notes',
 			'soul.add' => 'Add',
 			'soul.nativeLanguageShort' => 'Language',
@@ -1779,8 +1761,7 @@ extension on Translations {
 			'soul.gender' => 'Gender',
 			'soul.years' => 'years',
 			'soul.notSet' => 'Not set',
-			'soul.items' => 'Interests and preferences',
-			'soul.noItems' => 'No notes yet. Add one about yourself.',
+			'soul.noItems' => 'No notes yet.',
 			'soul.edit' => 'Edit',
 			'soul.editTitle' => 'Edit your Soul',
 			'soul.editSubtitle' => 'These details shape how explanations sound.',
@@ -1791,7 +1772,6 @@ extension on Translations {
 			'soul.invalidAge' => 'Enter a valid age.',
 			'soul.saved' => 'Soul updated.',
 			'soul.source' => ({required Object source}) => 'Source: ${source}',
-			'soul.rhythm' => 'My rhythm',
 			'soul.rhythmBody' => 'Challenges will appear here.',
 			'soul.library' => 'Your library',
 			'soul.wordsBody' => 'Words you kept from moments.',

@@ -68,7 +68,6 @@ class _Translations$app$zh implements Translations$app$en {
 
 	// Translations
 	@override String get name => 'Named';
-	@override String get subtitle => '一个可复用的 Flutter 应用启动模板。';
 	@override String get openApiDemo => '打开 API 示例';
 	@override String get languageSettings => '语言';
 }
@@ -246,7 +245,6 @@ class _Translations$explore$zh implements Translations$explore$en {
 	final TranslationsZh _root; // ignore: unused_field
 
 	// Translations
-	@override String get headline => '探索你的世界。';
 	@override String get prompt => '今天，什么吸引了你的注意？';
 	@override String get capturePhoto => '拍一张';
 	@override String get captureTalk => '聊一聊';
@@ -266,10 +264,9 @@ class _Translations$soul$zh implements Translations$soul$en {
 
 	// Translations
 	@override String get title => '我';
-	@override String get eyebrow => '我的 SOUL';
 	@override String get headline => '你的世界正在生长。';
 	@override String get subtitle => '关于你注意到、说出口的事，慢慢留在这里。';
-	@override String get profile => '我的 Soul';
+	@override String get profileTitle => '资料';
 	@override String get notes => 'Soul 笔记';
 	@override String get add => '添加';
 	@override String get nativeLanguageShort => '母语';
@@ -278,8 +275,7 @@ class _Translations$soul$zh implements Translations$soul$en {
 	@override String get gender => '性别';
 	@override String get years => '岁';
 	@override String get notSet => '未填写';
-	@override String get items => '兴趣与偏好';
-	@override String get noItems => '还没有笔记，添加一条关于你的内容。';
+	@override String get noItems => '还没有笔记。';
 	@override String get edit => '修改';
 	@override String get editTitle => '编辑你的 Soul';
 	@override String get editSubtitle => '这些细节会影响解释的方式。';
@@ -290,7 +286,6 @@ class _Translations$soul$zh implements Translations$soul$en {
 	@override String get invalidAge => '请输入有效年龄。';
 	@override String get saved => 'Soul 已更新。';
 	@override String source({required Object source}) => '来源：${source}';
-	@override String get rhythm => '我的节奏';
 	@override String get rhythmBody => '挑战会出现在这里。';
 	@override String get library => '你的收藏';
 	@override String get wordsBody => '从经历里留下的词语。';
@@ -724,7 +719,6 @@ extension on TranslationsZh {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'app.name' => 'Named',
-			'app.subtitle' => '一个可复用的 Flutter 应用启动模板。',
 			'app.openApiDemo' => '打开 API 示例',
 			'app.languageSettings' => '语言',
 			'common.loadFailed' => '加载失败，请重试。',
@@ -821,7 +815,6 @@ extension on TranslationsZh {
 			'webView.openDemo' => '打开 WebView 示例',
 			'webView.linkNotAllowed' => ({required Object url}) => '不允许打开此链接：${url}',
 			'webView.loadFailed' => '页面加载失败',
-			'explore.headline' => '探索你的世界。',
 			'explore.prompt' => '今天，什么吸引了你的注意？',
 			'explore.capturePhoto' => '拍一张',
 			'explore.captureTalk' => '聊一聊',
@@ -832,10 +825,9 @@ extension on TranslationsZh {
 			'explore.learnedEmpty' => '学过的词和表达会出现在这里。',
 			'explore.learnedEmptyHint' => '每一次发现，都会让你的世界多一点。',
 			'soul.title' => '我',
-			'soul.eyebrow' => '我的 SOUL',
 			'soul.headline' => '你的世界正在生长。',
 			'soul.subtitle' => '关于你注意到、说出口的事，慢慢留在这里。',
-			'soul.profile' => '我的 Soul',
+			'soul.profileTitle' => '资料',
 			'soul.notes' => 'Soul 笔记',
 			'soul.add' => '添加',
 			'soul.nativeLanguageShort' => '母语',
@@ -844,8 +836,7 @@ extension on TranslationsZh {
 			'soul.gender' => '性别',
 			'soul.years' => '岁',
 			'soul.notSet' => '未填写',
-			'soul.items' => '兴趣与偏好',
-			'soul.noItems' => '还没有笔记，添加一条关于你的内容。',
+			'soul.noItems' => '还没有笔记。',
 			'soul.edit' => '修改',
 			'soul.editTitle' => '编辑你的 Soul',
 			'soul.editSubtitle' => '这些细节会影响解释的方式。',
@@ -856,7 +847,6 @@ extension on TranslationsZh {
 			'soul.invalidAge' => '请输入有效年龄。',
 			'soul.saved' => 'Soul 已更新。',
 			'soul.source' => ({required Object source}) => '来源：${source}',
-			'soul.rhythm' => '我的节奏',
 			'soul.rhythmBody' => '挑战会出现在这里。',
 			'soul.library' => '你的收藏',
 			'soul.wordsBody' => '从经历里留下的词语。',
