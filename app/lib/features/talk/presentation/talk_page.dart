@@ -566,7 +566,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                       : t.inputHint,
                   sendTooltip: t.send,
                   helpTooltip: t.helpMeSayIt,
-                  isSending: _isSending || _isTranscribing,
+                  isSending: _isSending,
                   isRecording: _isRecording,
                   isTranscribing: _isTranscribing,
                   onToggleRecording: _toggleRecording,
@@ -1276,7 +1276,9 @@ class _TalkComposer extends StatelessWidget {
               dimension: 38,
               child: IconButton.filledTonal(
                 key: const Key('talk.voice'),
-                onPressed: isSending ? null : onToggleRecording,
+                onPressed: isSending || isTranscribing
+                    ? null
+                    : onToggleRecording,
                 tooltip: isRecording ? t.stopRecording : t.speak,
                 style: IconButton.styleFrom(
                   backgroundColor: isRecording
@@ -1310,7 +1312,10 @@ class _TalkComposer extends StatelessWidget {
             ValueListenableBuilder<TextEditingValue>(
               valueListenable: controller,
               builder: (context, value, child) {
-                final enabled = value.text.trim().isNotEmpty && !isSending;
+                final enabled =
+                    value.text.trim().isNotEmpty &&
+                    !isSending &&
+                    !isTranscribing;
                 return SizedBox.square(
                   dimension: 38,
                   child: IconButton.filled(
