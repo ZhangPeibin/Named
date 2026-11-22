@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/theme/content_accent.dart';
 import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../progress/domain/progress.dart';
-import 'spot_mark.dart';
 
 class TimelineProgressCard extends StatelessWidget {
   const TimelineProgressCard({super.key, required this.progress});

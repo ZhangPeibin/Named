@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/content_accent.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../i18n/strings.g.dart';
@@ -57,7 +58,11 @@ class ChallengeCarousel extends ConsumerWidget {
           semanticLabel: focus.name,
           child: Row(
             children: [
-              AppLineIcon(AppLineGlyph.flag, size: 24, color: palette.accent),
+              AppLineIcon(
+                AppLineGlyph.flag,
+                size: 24,
+                color: ContentAccents.challenges(context),
+              ),
               const SizedBox(width: AppSpacing.s10),
               Expanded(
                 child: Column(

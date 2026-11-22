@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../app/theme/content_accent.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
@@ -661,7 +662,7 @@ class _ThreadRow extends StatelessWidget {
                 thread.contextType == null
                     ? AppLineGlyph.chat
                     : AppLineGlyph.bookmark,
-                color: palette.muted,
+                color: ContentAccents.ask(context),
                 size: 18,
               ),
               const SizedBox(width: AppSpacing.s12),

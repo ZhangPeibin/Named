@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/theme/content_accent.dart';
 import '../../../../core/widgets/app_line_icon.dart';
 
 class TalkAction extends StatelessWidget {
@@ -48,7 +49,7 @@ class TalkAction extends StatelessWidget {
                     AppLineIcon(
                       AppLineGlyph.chat,
                       size: 14,
-                      color: palette.muted,
+                      color: ContentAccents.talks(context),
                     ),
                     const SizedBox(width: AppSpacing.s6),
                     Text(

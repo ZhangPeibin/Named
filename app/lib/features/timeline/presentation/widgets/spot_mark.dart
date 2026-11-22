@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/content_accent.dart';
 import '../../../../core/widgets/app_line_icon.dart';
-
-class ContentAccents {
-  const ContentAccents._();
-
-  static Color words(BuildContext context) => context.appPalette.muted;
-
-  static Color talks(BuildContext context) => context.appPalette.muted;
-
-  static Color reads(BuildContext context) => context.appPalette.muted;
-}
 
 /// Read card mark: an ink line book. Dummied to `muted` once completed.
 class DailyMark extends StatelessWidget {
@@ -28,7 +19,7 @@ class DailyMark extends StatelessWidget {
       child: AppLineIcon(
         AppLineGlyph.book,
         size: size,
-        color: completed ? palette.muted : palette.ink,
+        color: completed ? palette.muted : ContentAccents.reads(context),
       ),
     );
   }
@@ -47,7 +38,7 @@ class AskMark extends StatelessWidget {
       child: AppLineIcon(
         AppLineGlyph.chat,
         size: size,
-        color: context.appPalette.ink,
+        color: ContentAccents.ask(context),
       ),
     );
   }
@@ -99,7 +90,7 @@ class UserMark extends StatelessWidget {
       child: AppLineIcon(
         AppLineGlyph.person,
         size: size,
-        color: context.appPalette.ink,
+        color: ContentAccents.soul(context),
       ),
     );
   }

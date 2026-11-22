@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/content_accent.dart';
 import '../../../../core/widgets/app_line_icon.dart';
 import 'spot_mark.dart';
 
@@ -106,7 +107,7 @@ class NamedComposer extends StatelessWidget {
                         onPressed: onOpenAsk,
                         tooltip: askTooltip,
                         style: IconButton.styleFrom(
-                          foregroundColor: palette.primary,
+                          foregroundColor: ContentAccents.ask(context),
                           minimumSize: const Size.square(38),
                           maximumSize: const Size.square(38),
                           padding: EdgeInsets.zero,
