@@ -15,7 +15,6 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
-import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
 import '../../auth/providers/auth_notifier.dart';
@@ -34,155 +33,150 @@ class SoulPage extends ConsumerWidget {
 
     return AppScaffold(
       key: const Key('me.page'),
-      title: t.title,
+      title: '',
+      showAppBar: false,
       centerBody: false,
-      actions: [
-        IconButton(
-          key: const Key('me.settings'),
-          tooltip: context.t.settings.title,
-          onPressed: () => unawaited(context.pushNamed(AppRouteNames.settings)),
-          icon: const AppLineIcon(AppLineGlyph.settings),
-        ),
-      ],
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontalPadding,
-        AppSpacing.s8,
-        AppSpacing.pageHorizontalPadding,
-        AppSpacing.s32,
-      ),
+      padding: EdgeInsets.zero,
       body: AppAsyncView(
         value: soul,
         data: (value) => ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontalPadding,
+            AppSpacing.s8,
+            AppSpacing.pageHorizontalPadding,
+            AppSpacing.s32,
+          ),
           children: [
-            Text(
-              t.eyebrow,
-              style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
-            ),
-            const SizedBox(height: AppSpacing.s8),
-            Text(t.headline, style: textTheme.displayMedium),
-            const SizedBox(height: AppSpacing.s10),
-            Text(
-              t.subtitle,
-              style: textTheme.bodyLarge?.copyWith(color: palette.muted),
-            ),
-            const SizedBox(height: AppSpacing.s24),
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const _RoundIcon(icon: AppLineGlyph.person),
-                      const SizedBox(width: AppSpacing.s14),
-                      Expanded(
-                        child: Text(t.profile, style: textTheme.headlineMedium),
+            Row(
+              children: [
+                if (Navigator.of(context).canPop())
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      right: AppSpacing.s8,
+                      top: 1,
+                    ),
+                    child: InkResponse(
+                      key: const Key('me.back'),
+                      onTap: () => Navigator.of(context).maybePop(),
+                      radius: 18,
+                      child: AppLineIcon(
+                        AppLineGlyph.arrowLeft,
+                        size: AppSize.size18,
+                        color: palette.primary,
                       ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: AppSpacing.s16),
-                  Text(
-                    _metadata(t.years, value),
-                    style: textTheme.bodyMedium?.copyWith(color: palette.muted),
+                Expanded(
+                  child: Text(
+                    t.eyebrow.toUpperCase(),
+                    style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
                   ),
-                ],
+                ),
+                IconButton(
+                  key: const Key('me.settings'),
+                  tooltip: context.t.settings.title,
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () =>
+                      unawaited(context.pushNamed(AppRouteNames.settings)),
+                  icon: AppLineIcon(
+                    AppLineGlyph.settings,
+                    size: AppSize.size18,
+                    color: palette.muted,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s2),
+            Text(
+              t.title,
+              style: AppTextStyles.editorial.copyWith(
+                fontSize: 34,
+                height: 1.05,
               ),
             ),
+            const SizedBox(height: AppSpacing.s8),
+            Text(
+              t.headline,
+              style: AppTextStyles.sectionTitle.copyWith(color: palette.ink),
+            ),
+            const SizedBox(height: AppSpacing.s4),
+            Text(
+              t.subtitle,
+              style: textTheme.bodyMedium?.copyWith(
+                color: palette.muted,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s20),
+            _ProfileBlock(
+              soul: value,
+              years: t.years,
+              notSet: t.notSet,
+              onEdit: () => _edit(context, ref, value),
+            ),
             const SizedBox(height: AppSpacing.s24),
-            AppSectionHeader(title: t.items),
-            const SizedBox(height: AppSpacing.s12),
+            _SectionHeader(
+              label: t.notes,
+              count: value.items.length,
+              action: TextButton(
+                key: const Key('soul.addItem'),
+                onPressed: () => _addItem(context, ref),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 28),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  t.add,
+                  style: AppTextStyles.label.copyWith(color: palette.accent),
+                ),
+              ),
+            ),
             if (value.items.isEmpty)
-              AppCard(
-                padding: const EdgeInsets.all(AppSpacing.s20),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
                 child: Text(
                   t.noItems,
-                  style: textTheme.bodyMedium?.copyWith(color: palette.muted),
+                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
                 ),
               )
             else
-              Column(
-                children: [
-                  for (final item in value.items) ...[
-                    _SoulItemTile(
-                      item: item,
-                      onEdit: () => _editItem(context, ref, item),
-                      onDelete: () => _deleteItem(context, ref, item),
-                    ),
-                    const SizedBox(height: AppSpacing.s8),
-                  ],
-                ],
-              ),
-            const SizedBox(height: AppSpacing.s12),
-            AppButton(
-              key: const Key('soul.addItem'),
-              label: t.addItem,
-              variant: AppButtonVariant.secondary,
-              onPressed: () => _addItem(context, ref),
-            ),
-            const SizedBox(height: AppSpacing.s32),
-            AppSectionHeader(title: t.rhythm),
-            const SizedBox(height: AppSpacing.s12),
-            AppCard(
-              padding: const EdgeInsets.all(AppSpacing.s16),
+              for (final item in value.items)
+                _SoulItemTile(
+                  item: item,
+                  onEdit: () => _editItem(context, ref, item),
+                  onDelete: () => _deleteItem(context, ref, item),
+                ),
+            const SizedBox(height: AppSpacing.s16),
+            _SectionHeader(label: t.rhythm),
+            _LinkRow(
+              icon: AppLineGlyph.flag,
+              title: context.t.challenge.title,
+              body: t.rhythmBody,
               onTap: () =>
                   unawaited(context.pushNamed(AppRouteNames.challenges)),
-              child: Row(
-                children: [
-                  const _RoundIcon(icon: AppLineGlyph.flag),
-                  const SizedBox(width: AppSpacing.s14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.t.challenge.title,
-                          style: textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          t.rhythmBody,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: palette.muted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
-                ],
-              ),
             ),
-            const SizedBox(height: AppSpacing.s32),
-            AppSectionHeader(title: t.library),
-            const SizedBox(height: AppSpacing.s12),
-            _LibraryCard(
+            const SizedBox(height: AppSpacing.s16),
+            _SectionHeader(label: t.library),
+            _LinkRow(
               icon: AppLineGlyph.headphones,
               title: context.t.daily.title,
               body: context.t.daily.body,
               onTap: () => unawaited(context.pushNamed(AppRouteNames.daily)),
             ),
-            const SizedBox(height: AppSpacing.s8),
-            _LibraryCard(
+            _LinkRow(
               icon: AppLineGlyph.book,
               title: context.t.words.title,
               body: t.wordsBody,
               onTap: () => unawaited(context.pushNamed(AppRouteNames.words)),
             ),
-            const SizedBox(height: AppSpacing.s8),
-            _LibraryCard(
+            _LinkRow(
               icon: AppLineGlyph.book,
               title: context.t.history.title,
               body: t.historyBody,
               onTap: () => unawaited(context.pushNamed(AppRouteNames.history)),
             ),
-            const SizedBox(height: AppSpacing.s32),
-            AppButton(
-              key: const Key('soul.editPrimary'),
-              label: t.edit,
-              onPressed: () => _edit(context, ref, value),
-            ),
-            const SizedBox(height: AppSpacing.s8),
+            const SizedBox(height: AppSpacing.s24),
             AppButton(
               key: const Key('me.signOut'),
               label: context.t.auth.signOut,
@@ -194,15 +188,6 @@ class SoulPage extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _metadata(String years, Soul soul) {
-    final parts = <String>[
-      if (soul.age != null) '${soul.age} $years',
-      if (soul.gender != null && soul.gender!.isNotEmpty) soul.gender!,
-      soul.nativeLanguage,
-    ];
-    return parts.join(' · ');
   }
 
   Future<void> _addItem(BuildContext context, WidgetRef ref) async {
@@ -294,8 +279,163 @@ class SoulPage extends ConsumerWidget {
   }
 }
 
-class _LibraryCard extends StatelessWidget {
-  const _LibraryCard({
+class _ProfileBlock extends StatelessWidget {
+  const _ProfileBlock({
+    required this.soul,
+    required this.years,
+    required this.notSet,
+    required this.onEdit,
+  });
+
+  final Soul soul;
+  final String years;
+  final String notSet;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.soul;
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const _RoundIcon(icon: AppLineGlyph.person),
+              const SizedBox(width: AppSpacing.s12),
+              Expanded(child: Text(t.profile, style: textTheme.headlineMedium)),
+              TextButton(
+                key: const Key('soul.editInline'),
+                onPressed: onEdit,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 28),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  t.edit,
+                  style: AppTextStyles.label.copyWith(color: palette.accent),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s14),
+          Container(height: 1, color: palette.line),
+          const SizedBox(height: AppSpacing.s14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _ProfileValue(
+                  label: t.nativeLanguageShort,
+                  value: soul.nativeLanguage,
+                ),
+              ),
+              _divider(palette),
+              Expanded(
+                child: _ProfileValue(
+                  label: t.age,
+                  value: soul.age == null ? notSet : '${soul.age} $years',
+                ),
+              ),
+              _divider(palette),
+              Expanded(
+                child: _ProfileValue(
+                  label: t.gender,
+                  value: (soul.gender == null || soul.gender!.isEmpty)
+                      ? notSet
+                      : soul.gender!,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider(AppPalette palette) {
+    return Container(
+      width: 1,
+      height: AppSpacing.s24,
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s12),
+      color: palette.line,
+    );
+  }
+}
+
+class _ProfileValue extends StatelessWidget {
+  const _ProfileValue({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: AppTextStyles.eyebrow.copyWith(
+            color: palette.muted,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.s4),
+        Text(value, style: textTheme.bodyMedium?.copyWith(color: palette.ink)),
+      ],
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.label, this.count, this.action});
+
+  final String label;
+  final int? count;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s4),
+      child: Row(
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+          ),
+          if (count != null) ...[
+            const SizedBox(width: AppSpacing.s8),
+            Text(
+              '$count',
+              style: AppTextStyles.caption.copyWith(color: palette.muted),
+            ),
+          ],
+          const SizedBox(width: AppSpacing.s10),
+          Expanded(child: Container(height: 1, color: palette.line)),
+          if (action != null) ...[
+            const SizedBox(width: AppSpacing.s8),
+            action!,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _LinkRow extends StatelessWidget {
+  const _LinkRow({
     required this.icon,
     required this.title,
     required this.body,
@@ -311,33 +451,41 @@ class _LibraryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.s16),
+
+    return InkWell(
       onTap: onTap,
-      child: Row(
-        children: [
-          _RoundIcon(icon: icon),
-          const SizedBox(width: AppSpacing.s14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: palette.line)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s12),
+        child: Row(
+          children: [
+            _RoundIcon(icon: icon, size: 32),
+            const SizedBox(width: AppSpacing.s12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: textTheme.labelLarge?.copyWith(color: palette.ink),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  body,
-                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
-                ),
-              ],
+                  const SizedBox(height: 2),
+                  Text(
+                    body,
+                    style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                  ),
+                ],
+              ),
             ),
-          ),
-          AppLineIcon(AppLineGlyph.chevronRight, color: palette.muted),
-        ],
+            AppLineIcon(
+              AppLineGlyph.chevronRight,
+              color: palette.muted,
+              size: AppSize.size16,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -360,41 +508,51 @@ class _SoulItemTile extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final t = context.t.soul;
 
-    return AppCard(
+    return Container(
       key: Key('soul.item.${item.id}'),
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s16,
-        AppSpacing.s12,
-        AppSpacing.s8,
-        AppSpacing.s12,
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: palette.line)),
       ),
-      onTap: onEdit,
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.text, style: textTheme.bodyLarge),
-                const SizedBox(height: AppSpacing.s2),
-                Text(
-                  _sourceLabel(t, item.source),
-                  style: textTheme.bodySmall?.copyWith(color: palette.muted),
+      child: InkWell(
+        onTap: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.text, style: textTheme.bodyLarge),
+                    const SizedBox(height: 2),
+                    Text(
+                      _sourceLabel(t, item.source),
+                      style: textTheme.bodySmall?.copyWith(
+                        color: palette.muted,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              IconButton(
+                key: Key('soul.delete.${item.id}'),
+                tooltip: t.deleteItem,
+                onPressed: onDelete,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: AppSpacing.s24,
+                  minHeight: AppSpacing.s24,
+                ),
+                icon: AppLineIcon(
+                  AppLineGlyph.trash,
+                  size: AppSize.size16,
+                  color: palette.muted,
+                ),
+              ),
+            ],
           ),
-          IconButton(
-            key: Key('soul.delete.${item.id}'),
-            tooltip: t.deleteItem,
-            onPressed: onDelete,
-            icon: AppLineIcon(
-              AppLineGlyph.trash,
-              size: AppSize.size20,
-              color: palette.muted,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -507,17 +665,18 @@ class _SoulItemSheetState extends ConsumerState<_SoulItemSheet> {
 }
 
 class _RoundIcon extends StatelessWidget {
-  const _RoundIcon({required this.icon});
+  const _RoundIcon({required this.icon, this.size = AppSize.size40});
 
   final AppLineGlyph icon;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
 
     return Container(
-      width: AppSize.size40,
-      height: AppSize.size40,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: palette.surfaceMuted,
         borderRadius: BorderRadius.circular(AppRadius.pill),
