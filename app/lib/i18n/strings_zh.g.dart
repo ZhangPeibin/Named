@@ -53,6 +53,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$understand$zh understand = _Translations$understand$zh._(_root);
 	@override late final _Translations$talk$zh talk = _Translations$talk$zh._(_root);
 	@override late final _Translations$timeline$zh timeline = _Translations$timeline$zh._(_root);
+	@override late final _Translations$practice$zh practice = _Translations$practice$zh._(_root);
 	@override late final _Translations$words$zh words = _Translations$words$zh._(_root);
 	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
 	@override late final _Translations$challenge$zh challenge = _Translations$challenge$zh._(_root);
@@ -468,6 +469,52 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get progressWords => '单词';
 	@override String get progressConversations => '对话';
 	@override String get progressReads => '阅读';
+	@override String get progressPractices => '练习';
+}
+
+// Path: practice
+class _Translations$practice$zh implements Translations$practice$en {
+	_Translations$practice$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '练习';
+	@override String get understandTitle => '理解';
+	@override String get pronounceTitle => '发音';
+	@override String get recogniseTitle => '识别';
+	@override String get recallTitle => '回忆';
+	@override String get useTitle => '对话中使用';
+	@override String get next => '下一步';
+	@override String get finish => '完成';
+	@override String get done => '完成';
+	@override String get loadFailed => '练习加载失败。';
+	@override String get emptyTitle => '还没有可以练习的词';
+	@override String get emptyCopy => '先保存一个词，再回来练习。';
+	@override String get understandHint => '读一读意思和例句。';
+	@override String get pronounceHint => '听一遍，再跟着说。';
+	@override String get record => '录音';
+	@override String get stop => '停止';
+	@override String get playback => '回放';
+	@override String get micDenied => '麦克风权限未开启，你仍然可以听。';
+	@override String get recognisePrompt => '你听到的是哪个词？';
+	@override String get recogniseWrong => '答案是“{word}”。';
+	@override String get recallPrompt => '输入或说出这个词。';
+	@override String get recallHint => '提示';
+	@override String get hintFirstLetter => '首字母';
+	@override String get hintIpa => '音标';
+	@override String get hintAudio => '发音';
+	@override String get hintAnswer => '答案';
+	@override String get usePrompt => '用这个词说一件关于你生活的事。';
+	@override String get usePlaceholder => '输入你的句子';
+	@override String get send => '发送';
+	@override String get sending => '发送中...';
+	@override String get useTurnsLeft => '还需要 {count} 轮';
+	@override String get useError => '发送失败，请重试。';
+	@override String get recastLabel => '更自然的说法';
+	@override String get completeTitle => '练习完成';
+	@override String get completeCount => '这个词你已经练习了 {count} 次。';
+	@override String get retry => '重试';
 }
 
 // Path: words
@@ -984,6 +1031,43 @@ extension on TranslationsZh {
 			'timeline.progressWords' => '单词',
 			'timeline.progressConversations' => '对话',
 			'timeline.progressReads' => '阅读',
+			'timeline.progressPractices' => '练习',
+			'practice.title' => '练习',
+			'practice.understandTitle' => '理解',
+			'practice.pronounceTitle' => '发音',
+			'practice.recogniseTitle' => '识别',
+			'practice.recallTitle' => '回忆',
+			'practice.useTitle' => '对话中使用',
+			'practice.next' => '下一步',
+			'practice.finish' => '完成',
+			'practice.done' => '完成',
+			'practice.loadFailed' => '练习加载失败。',
+			'practice.emptyTitle' => '还没有可以练习的词',
+			'practice.emptyCopy' => '先保存一个词，再回来练习。',
+			'practice.understandHint' => '读一读意思和例句。',
+			'practice.pronounceHint' => '听一遍，再跟着说。',
+			'practice.record' => '录音',
+			'practice.stop' => '停止',
+			'practice.playback' => '回放',
+			'practice.micDenied' => '麦克风权限未开启，你仍然可以听。',
+			'practice.recognisePrompt' => '你听到的是哪个词？',
+			'practice.recogniseWrong' => '答案是“{word}”。',
+			'practice.recallPrompt' => '输入或说出这个词。',
+			'practice.recallHint' => '提示',
+			'practice.hintFirstLetter' => '首字母',
+			'practice.hintIpa' => '音标',
+			'practice.hintAudio' => '发音',
+			'practice.hintAnswer' => '答案',
+			'practice.usePrompt' => '用这个词说一件关于你生活的事。',
+			'practice.usePlaceholder' => '输入你的句子',
+			'practice.send' => '发送',
+			'practice.sending' => '发送中...',
+			'practice.useTurnsLeft' => '还需要 {count} 轮',
+			'practice.useError' => '发送失败，请重试。',
+			'practice.recastLabel' => '更自然的说法',
+			'practice.completeTitle' => '练习完成',
+			'practice.completeCount' => '这个词你已经练习了 {count} 次。',
+			'practice.retry' => '重试',
 			'words.title' => '词语',
 			'words.notebookEyebrow' => '词汇本',
 			'words.attempted' => '试过了',

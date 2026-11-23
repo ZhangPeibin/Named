@@ -39,6 +39,11 @@ class MockProgressApi implements ProgressApi {
 
   @override
   Future<ProgressDto> fetch() async {
-    return const ProgressDto(words: 500, conversations: 300, readings: 100);
+    return const ProgressDto(
+      words: 500,
+      conversations: 300,
+      readings: 100,
+      practices: 42,
+    );
   }
 }

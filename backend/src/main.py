@@ -23,6 +23,7 @@ from discovery.router import router as discovery_router
 from errors import ApiError
 from experience.router import experience_router, history_router
 from experience.worker import experience_worker_loop
+from practice.router import router as practice_router
 from progress.router import router as progress_router
 from question.router import router as question_router
 from sentence.router import router as sentence_router
@@ -128,6 +129,7 @@ app.include_router(daily_router, prefix=settings.api_v1_prefix)
 app.include_router(talk_router, prefix=settings.api_v1_prefix)
 app.include_router(timeline_router, prefix=settings.api_v1_prefix)
 app.include_router(progress_router, prefix=settings.api_v1_prefix)
+app.include_router(practice_router, prefix=settings.api_v1_prefix)
 app.include_router(question_router, prefix=settings.api_v1_prefix)
 
 

@@ -156,6 +156,8 @@ class WordProgress(Base):
     last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     used_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    practice_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_practiced_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False

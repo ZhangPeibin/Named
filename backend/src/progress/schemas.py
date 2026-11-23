@@ -5,3 +5,4 @@ class ProgressOut(BaseModel):
     words: int
     conversations: int
     readings: int
+    practices: int

@@ -1,10 +1,10 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import Conversation, ConversationMessage, DailyReading, Discovery
+from models import Conversation, ConversationMessage, DailyReading, Discovery, WordProgress
 
 
-async def get_progress(session: AsyncSession, account_id: str) -> tuple[int, int, int]:
+async def get_progress(session: AsyncSession, account_id: str) -> tuple[int, int, int, int]:
     words = await session.scalar(
         select(func.count(func.distinct(Discovery.word_id))).where(
             Discovery.account_id == account_id,
@@ -26,4 +26,9 @@ async def get_progress(session: AsyncSession, account_id: str) -> tuple[int, int
             DailyReading.completed_at.is_not(None),
         )
     )
-    return words or 0, conversations or 0, readings or 0
+    practices = await session.scalar(
+        select(func.coalesce(func.sum(WordProgress.practice_count), 0)).where(
+            WordProgress.account_id == account_id
+        )
+    )
+    return words or 0, conversations or 0, readings or 0, int(practices or 0)

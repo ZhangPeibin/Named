@@ -12,9 +12,10 @@ async def read_progress(
     current: CurrentAuthDep,
     session: SessionDep,
 ) -> ProgressOut:
-    words, conversations, readings = await get_progress(session, current.account.id)
+    words, conversations, readings, practices = await get_progress(session, current.account.id)
     return ProgressOut(
         words=words,
         conversations=conversations,
         readings=readings,
+        practices=practices,
     )

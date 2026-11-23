@@ -56,6 +56,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$understand$en understand = Translations$understand$en._(_root);
 	late final Translations$talk$en talk = Translations$talk$en._(_root);
 	late final Translations$timeline$en timeline = Translations$timeline$en._(_root);
+	late final Translations$practice$en practice = Translations$practice$en._(_root);
 	late final Translations$words$en words = Translations$words$en._(_root);
 	late final Translations$history$en history = Translations$history$en._(_root);
 	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
@@ -1003,6 +1004,126 @@ class Translations$timeline$en {
 
 	/// en: 'Reads'
 	String get progressReads => 'Reads';
+
+	/// en: 'Practices'
+	String get progressPractices => 'Practices';
+}
+
+// Path: practice
+class Translations$practice$en {
+	Translations$practice$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Practice'
+	String get title => 'Practice';
+
+	/// en: 'Understand'
+	String get understandTitle => 'Understand';
+
+	/// en: 'Pronounce'
+	String get pronounceTitle => 'Pronounce';
+
+	/// en: 'Recognise'
+	String get recogniseTitle => 'Recognise';
+
+	/// en: 'Recall'
+	String get recallTitle => 'Recall';
+
+	/// en: 'Use in conversation'
+	String get useTitle => 'Use in conversation';
+
+	/// en: 'Next'
+	String get next => 'Next';
+
+	/// en: 'Finish'
+	String get finish => 'Finish';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Practice could not load.'
+	String get loadFailed => 'Practice could not load.';
+
+	/// en: 'No words to practice'
+	String get emptyTitle => 'No words to practice';
+
+	/// en: 'Save a word first, then come back.'
+	String get emptyCopy => 'Save a word first, then come back.';
+
+	/// en: 'Read the meaning and the example.'
+	String get understandHint => 'Read the meaning and the example.';
+
+	/// en: 'Listen, then say it back.'
+	String get pronounceHint => 'Listen, then say it back.';
+
+	/// en: 'Record'
+	String get record => 'Record';
+
+	/// en: 'Stop'
+	String get stop => 'Stop';
+
+	/// en: 'Play back'
+	String get playback => 'Play back';
+
+	/// en: 'Microphone access is off. You can still listen.'
+	String get micDenied => 'Microphone access is off. You can still listen.';
+
+	/// en: 'Which word did you hear?'
+	String get recognisePrompt => 'Which word did you hear?';
+
+	/// en: 'The answer is “{word}”.'
+	String get recogniseWrong => 'The answer is “{word}”.';
+
+	/// en: 'Type or say the word.'
+	String get recallPrompt => 'Type or say the word.';
+
+	/// en: 'Hints'
+	String get recallHint => 'Hints';
+
+	/// en: 'First letter'
+	String get hintFirstLetter => 'First letter';
+
+	/// en: 'IPA'
+	String get hintIpa => 'IPA';
+
+	/// en: 'Audio'
+	String get hintAudio => 'Audio';
+
+	/// en: 'Answer'
+	String get hintAnswer => 'Answer';
+
+	/// en: 'Say something true about your life with this word.'
+	String get usePrompt => 'Say something true about your life with this word.';
+
+	/// en: 'Type your sentence'
+	String get usePlaceholder => 'Type your sentence';
+
+	/// en: 'Send'
+	String get send => 'Send';
+
+	/// en: 'Sending...'
+	String get sending => 'Sending...';
+
+	/// en: '{count} more turns'
+	String get useTurnsLeft => '{count} more turns';
+
+	/// en: 'Could not send. Try again.'
+	String get useError => 'Could not send. Try again.';
+
+	/// en: 'More natural'
+	String get recastLabel => 'More natural';
+
+	/// en: 'Practice complete'
+	String get completeTitle => 'Practice complete';
+
+	/// en: 'You have practiced this word {count} times.'
+	String get completeCount => 'You have practiced this word {count} times.';
+
+	/// en: 'Try again'
+	String get retry => 'Try again';
 }
 
 // Path: words
@@ -1909,6 +2030,43 @@ extension on Translations {
 			'timeline.progressWords' => 'Words',
 			'timeline.progressConversations' => 'Talks',
 			'timeline.progressReads' => 'Reads',
+			'timeline.progressPractices' => 'Practices',
+			'practice.title' => 'Practice',
+			'practice.understandTitle' => 'Understand',
+			'practice.pronounceTitle' => 'Pronounce',
+			'practice.recogniseTitle' => 'Recognise',
+			'practice.recallTitle' => 'Recall',
+			'practice.useTitle' => 'Use in conversation',
+			'practice.next' => 'Next',
+			'practice.finish' => 'Finish',
+			'practice.done' => 'Done',
+			'practice.loadFailed' => 'Practice could not load.',
+			'practice.emptyTitle' => 'No words to practice',
+			'practice.emptyCopy' => 'Save a word first, then come back.',
+			'practice.understandHint' => 'Read the meaning and the example.',
+			'practice.pronounceHint' => 'Listen, then say it back.',
+			'practice.record' => 'Record',
+			'practice.stop' => 'Stop',
+			'practice.playback' => 'Play back',
+			'practice.micDenied' => 'Microphone access is off. You can still listen.',
+			'practice.recognisePrompt' => 'Which word did you hear?',
+			'practice.recogniseWrong' => 'The answer is “{word}”.',
+			'practice.recallPrompt' => 'Type or say the word.',
+			'practice.recallHint' => 'Hints',
+			'practice.hintFirstLetter' => 'First letter',
+			'practice.hintIpa' => 'IPA',
+			'practice.hintAudio' => 'Audio',
+			'practice.hintAnswer' => 'Answer',
+			'practice.usePrompt' => 'Say something true about your life with this word.',
+			'practice.usePlaceholder' => 'Type your sentence',
+			'practice.send' => 'Send',
+			'practice.sending' => 'Sending...',
+			'practice.useTurnsLeft' => '{count} more turns',
+			'practice.useError' => 'Could not send. Try again.',
+			'practice.recastLabel' => 'More natural',
+			'practice.completeTitle' => 'Practice complete',
+			'practice.completeCount' => 'You have practiced this word {count} times.',
+			'practice.retry' => 'Try again',
 			'words.title' => 'Words',
 			'words.notebookEyebrow' => 'Vocabulary notebook',
 			'words.attempted' => 'Tried',

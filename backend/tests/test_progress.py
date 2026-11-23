@@ -22,7 +22,12 @@ async def test_progress_counts_words_and_conversations(progress_env) -> None:
 
     response = await http.get("/api/v1/progress", headers=headers)
     assert response.status_code == 200, response.text
-    assert response.json() == {"words": 1, "conversations": 0, "readings": 0}
+    assert response.json() == {
+        "words": 1,
+        "conversations": 0,
+        "readings": 0,
+        "practices": 0,
+    }
 
     conversation_id = await create_conversation(http, headers, word_id)
     response = await http.get("/api/v1/progress", headers=headers)
@@ -36,4 +41,9 @@ async def test_progress_counts_words_and_conversations(progress_env) -> None:
     assert response.status_code == 200, response.text
 
     response = await http.get("/api/v1/progress", headers=headers)
-    assert response.json() == {"words": 1, "conversations": 1, "readings": 0}
+    assert response.json() == {
+        "words": 1,
+        "conversations": 1,
+        "readings": 0,
+        "practices": 0,
+    }

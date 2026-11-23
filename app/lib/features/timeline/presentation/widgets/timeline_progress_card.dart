@@ -13,10 +13,12 @@ class TimelineProgressCard extends StatelessWidget {
     super.key,
     required this.progress,
     this.onWordsTap,
+    this.onPracticesTap,
   });
 
   final Progress progress;
   final VoidCallback? onWordsTap;
+  final VoidCallback? onPracticesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +68,17 @@ class TimelineProgressCard extends StatelessWidget {
             glyph: AppLineGlyph.headphones,
             color: ContentAccents.reads(context),
           ),
+          if (progress.words > 0) ...[
+            _divider(palette),
+            _ProgressStat(
+              statKey: const Key('timeline.progress.practices'),
+              value: progress.practices,
+              label: t.progressPractices,
+              glyph: AppLineGlyph.replay,
+              color: ContentAccents.words(context),
+              onTap: onPracticesTap,
+            ),
+          ],
         ],
       ),
     );
@@ -75,7 +88,7 @@ class TimelineProgressCard extends StatelessWidget {
     return Container(
       width: 1,
       height: AppSpacing.s24,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s12),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
       color: palette.line,
     );
   }
@@ -114,9 +127,13 @@ class _ProgressStat extends StatelessWidget {
           children: [
             AppLineIcon(glyph, size: 16, color: color),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: AppTextStyles.caption.copyWith(color: palette.muted),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(color: palette.muted),
+              ),
             ),
           ],
         ),

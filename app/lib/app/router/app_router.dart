@@ -14,6 +14,7 @@ import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
 import '../../features/loading/presentation/loading_page.dart';
 import '../../features/not_found/presentation/not_found_page.dart';
+import '../../features/practice/presentation/practice_page.dart';
 import '../../features/question/domain/question.dart';
 import '../../features/question/presentation/question_page.dart';
 import '../../features/settings/presentation/language_page.dart';
@@ -40,6 +41,7 @@ class AppRoutePaths {
   static const challengePractice = '/challenges/:challengeId/practice';
   static const experience = '/history/:experienceId';
   static const words = '/words';
+  static const practice = '/practice';
   static const daily = '/daily';
   static const ask = '/ask';
   static const me = '/me';
@@ -63,6 +65,7 @@ class AppRouteNames {
   static const challengePractice = 'challengePractice';
   static const experience = 'experience';
   static const words = 'words';
+  static const practice = 'practice';
   static const daily = 'daily';
   static const ask = 'ask';
   static const me = 'me';
@@ -168,6 +171,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRouteNames.words,
         builder: (context, state) =>
             WordsPage(initialWordId: state.uri.queryParameters['wordId']),
+      ),
+      GoRoute(
+        path: AppRoutePaths.practice,
+        name: AppRouteNames.practice,
+        builder: (context, state) => const PracticePage(),
       ),
       GoRoute(
         path: AppRoutePaths.daily,
