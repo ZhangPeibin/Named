@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_spacing.dart';
 import 'app_button.dart';
+import 'app_empty_view.dart';
 import 'app_line_icon.dart';
 
 class AppErrorView extends StatelessWidget {
@@ -18,30 +18,19 @@ class AppErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppLineIcon(AppLineGlyph.error, size: 56, color: colorScheme.error),
-        const SizedBox(height: AppSpacing.s16),
-        Text(
-          title,
-          style: textTheme.headlineSmall,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        Text(message, style: textTheme.bodyLarge, textAlign: TextAlign.center),
-        if (onRetry != null) ...[
-          const SizedBox(height: AppSpacing.s24),
-          AppButton(
-            label: 'Try again',
-            variant: AppButtonVariant.text,
-            onPressed: onRetry,
-          ),
-        ],
-      ],
+    return AppEmptyView(
+      icon: AppLineGlyph.error,
+      iconColor: Theme.of(context).colorScheme.error,
+      title: title,
+      message: message,
+      action: onRetry == null
+          ? null
+          : AppButton(
+              label: 'Try again',
+              variant: AppButtonVariant.text,
+              expand: false,
+              onPressed: onRetry,
+            ),
     );
   }
 }

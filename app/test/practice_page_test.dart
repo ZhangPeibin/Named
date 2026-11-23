@@ -119,6 +119,7 @@ void main() {
       find.byKey(const Key('practice.useInput')),
       'I saw a tree in the park.',
     );
+    await tester.pump();
     await tester.ensureVisible(find.byKey(const Key('practice.send')));
     await tester.tap(find.byKey(const Key('practice.send')));
     await tester.pumpAndSettle();
@@ -128,6 +129,7 @@ void main() {
       find.byKey(const Key('practice.useInput')),
       'It was tall.',
     );
+    await tester.pump();
     await tester.ensureVisible(find.byKey(const Key('practice.send')));
     await tester.tap(find.byKey(const Key('practice.send')));
     await tester.pumpAndSettle();
@@ -143,6 +145,51 @@ void main() {
       find.text(t.practice.completeCount.replaceFirst('{count}', '3')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('fits a phone viewport through the conversation', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakePracticeApi();
+
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          practiceSessionProvider.overrideWith((ref) async => _word()),
+          practiceRepositoryProvider.overrideWithValue(PracticeRepository(api)),
+          progressProvider.overrideWith(
+            (ref) async => const Progress(
+              words: 1,
+              conversations: 0,
+              readings: 0,
+              practices: 0,
+            ),
+          ),
+        ],
+        child: const PracticePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (var index = 0; index < 4; index++) {
+      await tester.tap(find.byKey(const Key('practice.next')));
+      await tester.pumpAndSettle();
+    }
+
+    await tester.enterText(
+      find.byKey(const Key('practice.useInput')),
+      'I saw a tree in the park.',
+    );
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const Key('practice.send')));
+    await tester.tap(find.byKey(const Key('practice.send')));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('keeps the session open when the reply fails', (tester) async {
@@ -177,6 +224,7 @@ void main() {
       find.byKey(const Key('practice.useInput')),
       'I saw a tree in the park.',
     );
+    await tester.pump();
     await tester.ensureVisible(find.byKey(const Key('practice.send')));
     await tester.tap(find.byKey(const Key('practice.send')));
     await tester.pumpAndSettle();

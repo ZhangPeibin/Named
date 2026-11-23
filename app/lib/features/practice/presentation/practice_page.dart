@@ -4,17 +4,23 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:record/record.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_composer.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
+import '../../../core/widgets/app_loading_view.dart';
+import '../../../core/widgets/app_message_bubble.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
 import '../../discover/domain/discover.dart';
 import '../../progress/providers/progress_providers.dart';
@@ -78,7 +84,7 @@ class _PracticePageState extends ConsumerState<PracticePage> {
       title: t.title,
       centerBody: false,
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: AppLoadingView()),
         error: (error, stack) => _errorView(error, t),
         data: (word) => _completed
             ? _completeView(context, word, t)
@@ -94,6 +100,12 @@ class _PracticePageState extends ConsumerState<PracticePage> {
           title: t.emptyTitle,
           message: t.emptyCopy,
           icon: AppLineGlyph.book,
+          action: AppButton(
+            label: context.t.words.title,
+            variant: AppButtonVariant.secondary,
+            expand: false,
+            onPressed: () => unawaited(_openWords()),
+          ),
         ),
       );
     }
@@ -121,30 +133,10 @@ class _PracticePageState extends ConsumerState<PracticePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              '${_node.index + 1} / $total',
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(color: palette.muted),
-            ),
-            const SizedBox(width: AppSpacing.s8),
-            Expanded(
-              child: Text(
-                _nodeTitle(t),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: LinearProgressIndicator(
-            value: (_node.index + 1) / total,
-            minHeight: 4,
-          ),
+        _PracticeStepper(
+          index: _node.index,
+          total: total,
+          title: _nodeTitle(t),
         ),
         const SizedBox(height: AppSpacing.s20),
         Expanded(
@@ -163,6 +155,7 @@ class _PracticePageState extends ConsumerState<PracticePage> {
         AppButton(
           key: const Key('practice.next'),
           label: isLast ? t.finish : t.next,
+          size: AppButtonSize.lg,
           isLoading: _completing,
           onPressed: canFinish ? () => _next(word) : null,
         ),
@@ -406,18 +399,12 @@ class _PracticePageState extends ConsumerState<PracticePage> {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         const SizedBox(height: AppSpacing.s12),
-        Text(
-          t.recallPrompt,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: palette.muted),
-        ),
-        const SizedBox(height: AppSpacing.s8),
-        TextField(
-          key: const Key('practice.recallInput'),
-          controller: _recallController,
-          textInputAction: TextInputAction.done,
-          decoration: InputDecoration(
+        AppField(
+          label: t.recallPrompt,
+          child: AppTextField(
+            key: const Key('practice.recallInput'),
+            controller: _recallController,
+            textInputAction: TextInputAction.done,
             suffixIcon: IconButton(
               key: const Key('practice.recallMic'),
               onPressed: _isTranscribing
@@ -509,24 +496,30 @@ class _PracticePageState extends ConsumerState<PracticePage> {
         const SizedBox(height: AppSpacing.s16),
         Text(t.usePrompt, style: Theme.of(context).textTheme.bodyLarge),
         const SizedBox(height: AppSpacing.s12),
-        for (final message in _useMessages) ...[
-          _messageBubble(context, message, t),
-          const SizedBox(height: AppSpacing.s8),
-        ],
-        if (_useTurns < 2) ...[
-          TextField(
-            key: const Key('practice.useInput'),
-            controller: _useController,
-            minLines: 2,
-            maxLines: 4,
-            decoration: InputDecoration(hintText: t.usePlaceholder),
+        for (var index = 0; index < _useMessages.length; index++)
+          AppMessageBubble(
+            text: _useMessages[index].text,
+            side: _useMessages[index].isLearner
+                ? AppMessageSide.outgoing
+                : AppMessageSide.incoming,
+            firstInGroup:
+                index == 0 ||
+                _useMessages[index - 1].isLearner !=
+                    _useMessages[index].isLearner,
+            secondaryLabel: t.recastLabel,
+            secondaryText: _useMessages[index].recast,
           ),
-          const SizedBox(height: AppSpacing.s8),
-          AppButton(
-            key: const Key('practice.send'),
-            label: _useSending ? t.sending : t.send,
-            isLoading: _useSending,
-            onPressed: _useSending ? null : () => unawaited(_sendUseTurn(word)),
+        if (_useTurns < 2) ...[
+          const SizedBox(height: AppSpacing.s12),
+          AppComposer(
+            controller: _useController,
+            hintText: t.usePlaceholder,
+            sendTooltip: t.send,
+            onSend: () => unawaited(_sendUseTurn(word)),
+            isSending: _useSending,
+            maxLines: 4,
+            inputKey: const Key('practice.useInput'),
+            sendKey: const Key('practice.send'),
           ),
           const SizedBox(height: AppSpacing.s8),
           Text(
@@ -546,48 +539,6 @@ class _PracticePageState extends ConsumerState<PracticePage> {
           ),
         ],
       ],
-    );
-  }
-
-  Widget _messageBubble(
-    BuildContext context,
-    _UseMessage message,
-    Translations$practice$en t,
-  ) {
-    final palette = context.appPalette;
-    return Align(
-      alignment: message.isLearner
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.82,
-        ),
-        child: AppCard(
-          color: message.isLearner ? palette.surfaceMuted : palette.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(message.text, style: Theme.of(context).textTheme.bodyMedium),
-              if (message.recast != null &&
-                  message.recast!.trim().isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.s8),
-                Text(
-                  t.recastLabel,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: palette.accent),
-                ),
-                const SizedBox(height: AppSpacing.s2),
-                Text(
-                  message.recast!,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -669,7 +620,14 @@ class _PracticePageState extends ConsumerState<PracticePage> {
     required String label,
     required VoidCallback onPressed,
   }) {
-    return OutlinedButton(key: key, onPressed: onPressed, child: Text(label));
+    return AppButton(
+      key: key,
+      label: label,
+      variant: AppButtonVariant.secondary,
+      size: AppButtonSize.sm,
+      expand: false,
+      onPressed: onPressed,
+    );
   }
 
   Widget _hintValue(BuildContext context, String value) {
@@ -808,11 +766,19 @@ class _PracticePageState extends ConsumerState<PracticePage> {
           AppButton(
             key: const Key('practice.done'),
             label: t.done,
+            size: AppButtonSize.lg,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openWords() async {
+    await context.pushNamed(AppRouteNames.words);
+    if (mounted) {
+      ref.invalidate(practiceSessionProvider);
+    }
   }
 
   Future<void> _toggleRecording({required bool transcribe}) async {
@@ -917,6 +883,59 @@ class _PracticePageState extends ConsumerState<PracticePage> {
     } catch (_) {
       // ignore
     }
+  }
+}
+
+class _PracticeStepper extends StatelessWidget {
+  const _PracticeStepper({
+    required this.index,
+    required this.total,
+    required this.title,
+  });
+
+  final int index;
+  final int total;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              '${index + 1} / $total',
+              style: textTheme.labelLarge?.copyWith(color: palette.muted),
+            ),
+            const SizedBox(width: AppSpacing.s8),
+            Expanded(child: Text(title, style: textTheme.titleMedium)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.s10),
+        Row(
+          children: [
+            for (var step = 0; step < total; step++) ...[
+              Expanded(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: step <= index ? palette.primary : palette.line,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                ),
+              ),
+              if (step < total - 1) const SizedBox(width: AppSpacing.s4),
+            ],
+          ],
+        ),
+      ],
+    );
   }
 }
 
