@@ -35,6 +35,8 @@ MemoryKind = Literal[
     "experience",
     "topic",
     "preference",
+    "do_not_mention",
+    "do_not_remember",
 ]
 
 
@@ -43,6 +45,8 @@ class MemoryCandidate(BaseModel):
     text: str = Field(min_length=1, max_length=500)
     confidence: float = Field(default=0.8, ge=0, le=1)
     importance: float = Field(default=0.5, ge=0, le=1)
+    relation: Literal["new", "replaces", "contradicts"] = "new"
+    replaces_text: str | None = Field(default=None, max_length=500)
 
 
 class TalkResponse(BaseModel):

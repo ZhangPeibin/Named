@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from sqlalchemy import func, select
@@ -30,6 +31,7 @@ from discovery.word_lookup_agent import AgentFailed as WordLookupFailed
 from discovery.word_lookup_agent import WordLookupAgent
 from errors import ApiError
 from media import MediaStore
+from memory.service import record_memories
 from models import (
     Conversation,
     Discovery,
@@ -40,8 +42,11 @@ from models import (
     WordContent,
     WordProgress,
 )
+from talk.schemas import MemoryCandidate
 from tts.schemas import SpeechAudioOut
 from tts.service import SpeechAudioService, WordAudioService
+
+logger = logging.getLogger(__name__)
 
 
 def normalize_label(label: str) -> str:
@@ -319,6 +324,23 @@ async def create_discovery(
             confirmed_label=output.focus.label_en,
         )
         discovery.word_id = word.id
+        try:
+            await record_memories(
+                session,
+                account_id,
+                [
+                    MemoryCandidate(
+                        kind="word",
+                        text=word.label_en,
+                        confidence=0.9,
+                        importance=0.6,
+                    )
+                ],
+                source_type="discovery",
+                source_id=discovery.id,
+            )
+        except Exception:
+            logger.warning("Word memory update failed")
     elif scene_payload is not None:
         _, scene_audio_key = await speech_service.synthesize(
             session,

@@ -1,17 +1,20 @@
 import pytest
 import pytest_asyncio
+from sqlalchemy import select
 from test_discovery import FakeTTSProvider, bearer, discovery_client, request_and_verify
 
 from daily.agent import get_daily_read_agent
 from daily.schemas import DailyReadAgentOutput
 from daily.translation_agent import get_daily_translation_agent
 from main import app
+from models import DailyReading, MemoryItem
 from tts.timed_provider import TimedSpeechResult, TimedWord, get_timed_speech_provider
 
 
 class FakeDailyReadAgent:
     def __init__(self) -> None:
         self.calls: list[tuple[list[str], str]] = []
+        self.contexts: list[str] = []
 
     async def write(
         self,
@@ -19,8 +22,10 @@ class FakeDailyReadAgent:
         target_words: list[str],
         native_language: str,
         theme: str,
+        learner_context: str,
     ) -> DailyReadAgentOutput:
         self.calls.append((target_words, native_language))
+        self.contexts.append(learner_context)
         words = ", ".join(target_words)
         return DailyReadAgentOutput(
             title="A Quiet Morning",
@@ -79,7 +84,7 @@ async def daily_env(tmp_path):
         app.dependency_overrides[get_daily_translation_agent] = lambda: translation_agent
         app.dependency_overrides[get_timed_speech_provider] = lambda: FakeTimedSpeechProvider()
         try:
-            yield http, sender, daily_agent, translation_agent, tts
+            yield http, sender, daily_agent, translation_agent, tts, sessions
         finally:
             app.dependency_overrides.pop(get_daily_read_agent, None)
             app.dependency_overrides.pop(get_daily_translation_agent, None)
@@ -88,7 +93,7 @@ async def daily_env(tmp_path):
 
 @pytest.mark.asyncio
 async def test_daily_read_is_created_once_per_day(daily_env) -> None:
-    http, sender, agent, translation_agent, tts = daily_env
+    http, sender, agent, translation_agent, tts, _ = daily_env
     verified = await request_and_verify(http, sender, "daily@example.com")
     headers = bearer(verified["session_token"])
 
@@ -112,14 +117,14 @@ async def test_daily_read_is_created_once_per_day(daily_env) -> None:
 
 @pytest.mark.asyncio
 async def test_daily_read_requires_auth(daily_env) -> None:
-    http, _, _, _, _ = daily_env
+    http, _, _, _, _, _ = daily_env
     response = await http.get("/api/v1/daily/read")
     assert response.status_code == 401
 
 
 @pytest.mark.asyncio
 async def test_daily_translation_is_sentence_aligned_and_cached(daily_env) -> None:
-    http, sender, _, translation_agent, _ = daily_env
+    http, sender, _, translation_agent, _, _ = daily_env
     verified = await request_and_verify(http, sender, "daily-translation@example.com")
     headers = bearer(verified["session_token"])
 
@@ -143,7 +148,7 @@ async def test_daily_translation_is_sentence_aligned_and_cached(daily_env) -> No
 
 @pytest.mark.asyncio
 async def test_daily_read_completion_is_idempotent(daily_env) -> None:
-    http, sender, _, _, _ = daily_env
+    http, sender, _, _, _, _ = daily_env
     verified = await request_and_verify(http, sender, "daily-complete@example.com")
     headers = bearer(verified["session_token"])
 
@@ -178,7 +183,7 @@ async def test_daily_read_completion_is_idempotent(daily_env) -> None:
 
 @pytest.mark.asyncio
 async def test_daily_read_can_be_opened_by_date(daily_env) -> None:
-    http, sender, _, _, _ = daily_env
+    http, sender, _, _, _, _ = daily_env
     verified = await request_and_verify(http, sender, "daily-date@example.com")
     headers = bearer(verified["session_token"])
 
@@ -201,3 +206,60 @@ async def test_daily_read_can_be_opened_by_date(daily_env) -> None:
     )
     assert invalid.status_code == 400
     assert invalid.json()["code"] == "invalid_date"
+
+
+@pytest.mark.asyncio
+async def test_daily_read_uses_learner_context_and_completion_writes_memory(daily_env) -> None:
+    http, sender, agent, _, _, sessions = daily_env
+    verified = await request_and_verify(http, sender, "daily-learner@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+
+    item = await http.post(
+        "/api/v1/soul/items",
+        headers=headers,
+        json={"kind": "interest", "text": "gardening"},
+    )
+    assert item.status_code == 201, item.text
+
+    reading = await http.get("/api/v1/daily/read", headers=headers)
+    assert reading.status_code == 200, reading.text
+    assert "gardening" in agent.contexts[-1]
+
+    async with sessions() as session:
+        stored = await session.scalar(
+            select(DailyReading).where(DailyReading.account_id == account_id)
+        )
+    assert stored is not None
+    assert stored.theme == "gardening"
+
+    completed = await http.post(
+        "/api/v1/daily/read/complete",
+        headers=headers,
+        json={"duration_seconds": 90},
+    )
+    assert completed.status_code == 200, completed.text
+
+    target_words = reading.json()["target_words"]
+    async with sessions() as session:
+        rows = list(
+            await session.scalars(select(MemoryItem).where(MemoryItem.account_id == account_id))
+        )
+    topics = [row for row in rows if row.kind == "topic"]
+    words = [row for row in rows if row.kind == "word"]
+    assert any(row.text == "gardening" for row in topics)
+    assert {row.text for row in words} == set(target_words)
+    assert all(row.mention_count == 1 for row in words)
+
+    again = await http.post(
+        "/api/v1/daily/read/complete",
+        headers=headers,
+        json={"duration_seconds": 120},
+    )
+    assert again.status_code == 200, again.text
+
+    async with sessions() as session:
+        rows = list(
+            await session.scalars(select(MemoryItem).where(MemoryItem.account_id == account_id))
+        )
+    assert all(row.mention_count == 1 for row in rows)

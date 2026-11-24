@@ -1,9 +1,9 @@
 # ADR 0002: Soul 由用户控制
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR 0004; visibility parts restored by ADR 0005
 - **Date:** 2026-11-20
 - **Deciders:** 产品 / 客户端 / 后端
-- **Related:** PRD §5.10、§5.11；`docs/feature/v1/loop-closure/discussion.md`
+- **Related:** ADR 0004（取代本决定）；ADR 0005（恢复可见性部分）；PRD §5.10、§5.11；`docs/feature/v1/loop-closure/discussion.md`
 
 ## Context
 

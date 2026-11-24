@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from clock import utcnow
 from errors import ApiError
-from models import SoulItem, SoulProfile
+from memory.service import memory_key
+from models import MemoryItem, SoulProfile
 from soul.schemas import InitialSoul, SoulItemCreate, SoulItemUpdate, SoulUpdate
 
 
@@ -14,12 +15,20 @@ async def get_profile(session: AsyncSession, account_id: str) -> SoulProfile:
     return profile
 
 
-async def get_soul(session: AsyncSession, account_id: str) -> tuple[SoulProfile, list[SoulItem]]:
+async def get_soul(
+    session: AsyncSession,
+    account_id: str,
+) -> tuple[SoulProfile, list[MemoryItem]]:
     profile = await get_profile(session, account_id)
     items = await session.scalars(
-        select(SoulItem)
-        .where(SoulItem.account_id == account_id, SoulItem.deleted_at.is_(None))
-        .order_by(SoulItem.created_at)
+        select(MemoryItem)
+        .where(
+            MemoryItem.account_id == account_id,
+            MemoryItem.scope == "about",
+            MemoryItem.status == "active",
+            MemoryItem.deleted_at.is_(None),
+        )
+        .order_by(MemoryItem.created_at)
     )
     return profile, list(items)
 
@@ -44,11 +53,19 @@ async def bind_initial_soul(
         interest = raw_interest.strip()
         if interest:
             session.add(
-                SoulItem(
+                MemoryItem(
                     account_id=account_id,
+                    scope="about",
                     kind="interest",
                     text=interest,
-                    source="onboarding",
+                    canonical_key=memory_key("interest", interest),
+                    source_type="onboarding",
+                    source_id="onboarding",
+                    confidence=0.9,
+                    importance=0.6,
+                    mention_count=1,
+                    status="active",
+                    valid_from=utcnow(),
                 )
             )
     await session.flush()
@@ -59,7 +76,7 @@ async def update_soul(
     session: AsyncSession,
     account_id: str,
     payload: SoulUpdate,
-) -> tuple[SoulProfile, list[SoulItem]]:
+) -> tuple[SoulProfile, list[MemoryItem]]:
     profile = await get_profile(session, account_id)
     fields = payload.model_fields_set
 
@@ -86,13 +103,21 @@ async def create_item(
     session: AsyncSession,
     account_id: str,
     payload: SoulItemCreate,
-) -> SoulItem:
+) -> MemoryItem:
     await get_profile(session, account_id)
-    item = SoulItem(
+    item = MemoryItem(
         account_id=account_id,
+        scope="about",
         kind=payload.kind,
         text=payload.text,
-        source="user_edit",
+        canonical_key=memory_key(payload.kind, payload.text),
+        source_type="user_edit",
+        source_id="user_edit",
+        confidence=0.9,
+        importance=0.6,
+        mention_count=1,
+        status="active",
+        valid_from=utcnow(),
     )
     session.add(item)
     await session.commit()
@@ -100,12 +125,13 @@ async def create_item(
     return item
 
 
-async def _get_item(session: AsyncSession, account_id: str, item_id: str) -> SoulItem:
+async def _get_item(session: AsyncSession, account_id: str, item_id: str) -> MemoryItem:
     item = await session.scalar(
-        select(SoulItem).where(
-            SoulItem.id == item_id,
-            SoulItem.account_id == account_id,
-            SoulItem.deleted_at.is_(None),
+        select(MemoryItem).where(
+            MemoryItem.id == item_id,
+            MemoryItem.account_id == account_id,
+            MemoryItem.scope == "about",
+            MemoryItem.deleted_at.is_(None),
         )
     )
     if item is None:
@@ -118,7 +144,7 @@ async def update_item(
     account_id: str,
     item_id: str,
     payload: SoulItemUpdate,
-) -> SoulItem:
+) -> MemoryItem:
     item = await _get_item(session, account_id, item_id)
     fields = payload.model_fields_set
 
@@ -131,6 +157,7 @@ async def update_item(
             raise ApiError("text is required.", code="text_required")
         item.text = payload.text
 
+    item.canonical_key = memory_key(item.kind, item.text)
     item.updated_at = utcnow()
     await session.commit()
     await session.refresh(item)

@@ -162,10 +162,7 @@ class FakeTalkAgent:
         *,
         native_language: str,
         focus_context: str,
-        soul_context: str,
-        memory_context: str,
-        error_profile_context: str,
-        experience_context: str,
+        learner_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -173,10 +170,7 @@ class FakeTalkAgent:
             {
                 "native_language": native_language,
                 "focus_context": focus_context,
-                "soul_context": soul_context,
-                "memory_context": memory_context,
-                "error_profile_context": error_profile_context,
-                "experience_context": experience_context,
+                "learner_context": learner_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -200,10 +194,7 @@ class FakeHelpAgent:
         *,
         native_language: str,
         focus_context: str,
-        soul_context: str,
-        memory_context: str,
-        error_profile_context: str,
-        experience_context: str,
+        learner_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -211,10 +202,7 @@ class FakeHelpAgent:
             {
                 "native_language": native_language,
                 "focus_context": focus_context,
-                "soul_context": soul_context,
-                "memory_context": memory_context,
-                "error_profile_context": error_profile_context,
-                "experience_context": experience_context,
+                "learner_context": learner_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -464,7 +452,7 @@ async def test_conversation_can_disable_memory(talk_env) -> None:
         json={"client_message_id": "memory-1", "text": "Look at this tree."},
     )
     assert first.status_code == 200, first.text
-    assert "gardening" in agent.calls[-1]["soul_context"]
+    assert "gardening" in agent.calls[-1]["learner_context"]
 
     patched = await http.patch(
         f"/api/v1/conversations/{conversation_id}",
@@ -480,7 +468,7 @@ async def test_conversation_can_disable_memory(talk_env) -> None:
         json={"client_message_id": "memory-2", "text": "The leaves are green."},
     )
     assert second.status_code == 200, second.text
-    assert agent.calls[-1]["soul_context"] == ""
+    assert "gardening" not in agent.calls[-1]["learner_context"]
 
 
 @pytest.mark.asyncio
@@ -1170,7 +1158,7 @@ async def test_memory_context_crosses_conversations_and_accounts(talk_env) -> No
         json={"client_message_id": "recall-2", "text": "What should I notice about this tree?"},
     )
     assert second.status_code == 200, second.text
-    assert "herb garden" in agent.calls[-1]["memory_context"]
+    assert "herb garden" in agent.calls[-1]["learner_context"]
 
     other = await request_and_verify(http, sender, "memory-other@example.com")
     other_headers = bearer(other["session_token"])
@@ -1182,7 +1170,7 @@ async def test_memory_context_crosses_conversations_and_accounts(talk_env) -> No
         json={"client_message_id": "recall-other", "text": "I like this tree."},
     )
     assert response.status_code == 200, response.text
-    assert "herb garden" not in agent.calls[-1]["memory_context"]
+    assert "herb garden" not in agent.calls[-1]["learner_context"]
 
 
 @pytest.mark.asyncio
@@ -1227,7 +1215,7 @@ async def test_deleted_memory_is_excluded_from_context(talk_env) -> None:
         json={"client_message_id": "deleted-memory-2", "text": "What next?"},
     )
     assert response.status_code == 200, response.text
-    assert "herb garden" not in agent.calls[-1]["memory_context"]
+    assert "herb garden" not in agent.calls[-1]["learner_context"]
 
 
 @pytest.mark.asyncio
@@ -1268,7 +1256,7 @@ async def test_help_uses_memory_context(tmp_path) -> None:
             json={"text": "我想说这棵树很漂亮。"},
         )
         assert response.status_code == 200, response.text
-        assert "mint" in help_agent.calls[-1]["memory_context"]
+        assert "mint" in help_agent.calls[-1]["learner_context"]
 
 
 @pytest.mark.asyncio
@@ -1313,7 +1301,7 @@ async def test_expired_memory_is_excluded_from_context(talk_env) -> None:
         json={"client_message_id": "expired-memory-2", "text": "What next?"},
     )
     assert response.status_code == 200, response.text
-    assert "lake every summer" not in agent.calls[-1]["memory_context"]
+    assert "lake every summer" not in agent.calls[-1]["learner_context"]
 
 
 @pytest.mark.asyncio
@@ -1429,7 +1417,7 @@ async def test_recurring_errors_are_profiled_and_injected(talk_env) -> None:
         json={"client_message_id": "error-profile-2", "text": "She go home."},
     )
     assert second.status_code == 200, second.text
-    assert "third-person singular -s" in agent.calls[-1]["error_profile_context"]
+    assert "third-person singular -s" in agent.calls[-1]["learner_context"]
 
     async with sessions() as session:
         pattern = await session.scalar(
@@ -1726,7 +1714,7 @@ async def test_talk_and_help_receive_relevant_experience_context(tmp_path) -> No
             json={"client_message_id": "experience-context-1", "text": "I saw a tree."},
         )
         assert response.status_code == 200, response.text
-        context = talk_agent.calls[-1]["experience_context"]
+        context = talk_agent.calls[-1]["learner_context"]
         assert "life" in context
         assert "低置信度" not in context
         assert "另一个账号" not in context
@@ -1737,8 +1725,8 @@ async def test_talk_and_help_receive_relevant_experience_context(tmp_path) -> No
             json={"text": "我想说这棵树。"},
         )
         assert response.status_code == 200, response.text
-        assert "life" in help_agent.calls[-1]["experience_context"]
-        assert "低置信度" not in help_agent.calls[-1]["experience_context"]
+        assert "life" in help_agent.calls[-1]["learner_context"]
+        assert "低置信度" not in help_agent.calls[-1]["learner_context"]
 
 
 @pytest.mark.asyncio
@@ -1750,11 +1738,233 @@ async def test_experience_context_failure_does_not_block_talk(talk_env, monkeypa
     async def fail(*args, **kwargs):
         raise RuntimeError("context unavailable")
 
-    monkeypatch.setattr("talk.service.get_experience_context", fail)
+    monkeypatch.setattr("learner.context.get_experience_context", fail)
     response = await http.post(
         f"/api/v1/conversations/{conversation_id}/messages",
         headers=headers,
         json={"client_message_id": "experience-fail-1", "text": "I saw a tree."},
     )
     assert response.status_code == 200, response.text
-    assert agent.calls[-1]["experience_context"] == ""
+    assert "life" not in agent.calls[-1]["learner_context"]
+
+
+@pytest.mark.asyncio
+async def test_replacing_memory_supersedes_the_old_fact(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-supersede@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory-supersede@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="preference",
+            text="The learner loves coffee.",
+            confidence=0.9,
+        )
+    ]
+    first = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "supersede-1", "text": "I love coffee."},
+    )
+    assert first.status_code == 200, first.text
+
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="preference",
+            text="The learner no longer drinks coffee.",
+            confidence=0.95,
+            relation="replaces",
+            replaces_text="The learner loves coffee.",
+        )
+    ]
+    second = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "supersede-2", "text": "I stopped drinking coffee."},
+    )
+    assert second.status_code == 200, second.text
+
+    async with sessions() as session:
+        rows = list(
+            await session.scalars(
+                select(MemoryItem).where(
+                    MemoryItem.account_id == account_id,
+                    MemoryItem.kind == "preference",
+                )
+            )
+        )
+
+    active = [row for row in rows if row.status == "active"]
+    superseded = [row for row in rows if row.status == "superseded"]
+    assert len(active) == 1
+    assert active[0].text == "The learner no longer drinks coffee."
+    assert len(superseded) == 1
+    assert superseded[0].text == "The learner loves coffee."
+    assert superseded[0].superseded_by == active[0].id
+    assert superseded[0].valid_until is not None
+
+    third = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "supersede-3", "text": "What should I drink?"},
+    )
+    assert third.status_code == 200, third.text
+    context = agent.calls[-1]["learner_context"]
+    assert "no longer drinks coffee" in context
+    assert "loves coffee" not in context
+
+
+@pytest.mark.asyncio
+async def test_conflicting_memory_is_not_injected(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-conflict@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory-conflict@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="preference",
+            text="The learner is a night owl.",
+            confidence=0.95,
+            relation="contradicts",
+        )
+    ]
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "conflict-1", "text": "Maybe I am a night owl."},
+    )
+    assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        row = await session.scalar(
+            select(MemoryItem).where(
+                MemoryItem.account_id == account_id,
+                MemoryItem.text == "The learner is a night owl.",
+            )
+        )
+    assert row is not None
+    assert row.status == "conflicted"
+
+    next_response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "conflict-2", "text": "Tell me about mornings."},
+    )
+    assert next_response.status_code == 200, next_response.text
+    assert "night owl" not in agent.calls[-1]["learner_context"]
+
+
+@pytest.mark.asyncio
+async def test_boundary_filters_related_learner_context(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-boundary@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory-boundary@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    agent.response.memories = [
+        MemoryCandidate(kind="preference", text="The learner loves coffee.", confidence=0.9)
+    ]
+    first = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "boundary-1", "text": "I love coffee."},
+    )
+    assert first.status_code == 200, first.text
+
+    agent.response.memories = [
+        MemoryCandidate(
+            kind="do_not_mention",
+            text="coffee",
+            confidence=1.0,
+            importance=1.0,
+        )
+    ]
+    second = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "boundary-2", "text": "Don't mention coffee again."},
+    )
+    assert second.status_code == 200, second.text
+
+    async with sessions() as session:
+        boundary = await session.scalar(
+            select(MemoryItem).where(
+                MemoryItem.account_id == account_id,
+                MemoryItem.kind == "do_not_mention",
+            )
+        )
+    assert boundary is not None
+
+    third = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "boundary-3", "text": "What should I drink?"},
+    )
+    assert third.status_code == 200, third.text
+    assert "coffee" not in agent.calls[-1]["learner_context"].lower()
+
+
+@pytest.mark.asyncio
+async def test_auto_extract_off_skips_new_memories_but_keeps_corrections(talk_env) -> None:
+    http, sender, sessions, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "memory-auto-off@example.com")
+    headers = bearer(verified["session_token"])
+    account_id = verified["account"]["id"]
+    _, _, word_id = await create_word(http, sender, "memory-auto-off@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+
+    patched = await http.patch("/api/v1/soul", headers=headers, json={"auto_extract": False})
+    assert patched.status_code == 200, patched.text
+
+    agent.response.memories = [
+        MemoryCandidate(kind="preference", text="The learner loves jazz.", confidence=0.9)
+    ]
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "auto-off-1", "text": "I am grow mint."},
+    )
+    assert response.status_code == 200, response.text
+
+    async with sessions() as session:
+        rows = list(
+            await session.scalars(select(MemoryItem).where(MemoryItem.account_id == account_id))
+        )
+    assert all("jazz" not in row.text for row in rows)
+    assert any(row.kind == "learning_error" for row in rows)
+
+
+@pytest.mark.asyncio
+async def test_talk_context_includes_word_encounters(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    verified = await request_and_verify(http, sender, "word-memory@example.com")
+    headers = bearer(verified["session_token"])
+
+    for index in range(2):
+        discovered = await http.post(
+            "/api/v1/discoveries",
+            headers=headers,
+            data={"text": "树", "context": f"garden {index}"},
+        )
+        assert discovered.status_code == 201, discovered.text
+    word_id = discovered.json()["word_id"]
+
+    conversation_id = await create_conversation(http, headers, word_id)
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "word-memory-1", "text": "Look at this tree."},
+    )
+    assert response.status_code == 200, response.text
+
+    context = agent.calls[-1]["learner_context"]
+    assert "word: tree" in context
+    assert "seen 2 time(s)" in context

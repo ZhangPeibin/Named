@@ -10,16 +10,15 @@ from clock import utcnow
 from config import Settings
 from discovery.schemas import WordPayload
 from errors import ApiError
-from experience.context import get_experience_context
 from experience.service import enqueue_experience_job
-from memory.service import correction_candidates, get_memory_context, record_memories
+from learner.context import build_learner_context
+from memory.service import correction_candidates, record_memories
 from models import (
     Conversation,
     ConversationMessage,
     Discovery,
     MessageAnnotation,
     MessageCorrection,
-    SoulItem,
     SoulProfile,
     Word,
     WordContent,
@@ -27,7 +26,7 @@ from models import (
 )
 from talk.agent import HELP_SPEC, HelpAgent, TalkAgent
 from talk.agent import SPEC as TALK_SPEC
-from talk.errors import get_error_profile_context, record_error_profile
+from talk.errors import record_error_profile
 from talk.schemas import (
     AnnotationOut,
     ConversationCreate,
@@ -210,28 +209,6 @@ async def _focus_context(
         parts.append(f"Learner input: {discovery.input_text}")
     if discovery.context:
         parts.append(f"Context: {discovery.context}")
-    return "\n".join(parts)
-
-
-async def _soul_context(session: AsyncSession, account_id: str, use_memory: bool = True) -> str:
-    if not use_memory:
-        return ""
-    profile = await session.get(SoulProfile, account_id)
-    if profile is None:
-        return ""
-    parts = [f"Native language: {profile.native_language}"]
-    if profile.age is not None:
-        parts.append(f"Age (learner-provided, do not infer from it): {profile.age}")
-    if profile.gender is not None:
-        parts.append(f"Gender (learner-provided, do not infer from it): {profile.gender}")
-
-    items = await session.scalars(
-        select(SoulItem)
-        .where(SoulItem.account_id == account_id, SoulItem.deleted_at.is_(None))
-        .order_by(SoulItem.created_at)
-    )
-    for item in items:
-        parts.append(f"{item.kind}: {item.text} (source: {item.source})")
     return "\n".join(parts)
 
 
@@ -445,34 +422,21 @@ async def send_message(
 
     native_language = await _native_language(session, account_id)
     focus_context = await _focus_context(session, conversation, native_language, settings)
-    soul_context = await _soul_context(session, account_id, conversation.use_memory)
-    memory_context = await get_memory_context(
+    learner_context = await build_learner_context(
         session,
         account_id,
         focus_context=focus_context,
         user_text=user_message.text,
+        settings=settings,
+        use_memory=conversation.use_memory,
     )
-    error_profile_context = await get_error_profile_context(session, account_id)
     history = await _history(session, conversation_id, before_sequence=user_message.sequence)
-    try:
-        experience_context = await get_experience_context(
-            session,
-            account_id,
-            focus_context=focus_context,
-            user_text=user_message.text,
-            settings=settings,
-        )
-    except Exception:
-        experience_context = ""
 
     try:
         response = await agent.respond(
             native_language=native_language,
             focus_context=focus_context,
-            soul_context=soul_context,
-            memory_context=memory_context,
-            error_profile_context=error_profile_context,
-            experience_context=experience_context,
+            learner_context=learner_context,
             history=history,
             user_text=user_message.text,
         )
@@ -546,10 +510,12 @@ async def send_message(
 
     try:
         async with session.begin_nested():
+            profile = await session.get(SoulProfile, account_id)
+            extracted = list(response.memories) if profile is None or profile.auto_extract else []
             await record_memories(
                 session,
                 account_id,
-                [*response.memories, *correction_candidates(response.corrections)],
+                [*extracted, *correction_candidates(response.corrections)],
                 source_type="conversation_message",
                 source_id=user_message.id,
             )
@@ -602,34 +568,21 @@ async def help_expression(
     conversation = await _get_conversation(session, account_id, conversation_id)
     native_language = await _native_language(session, account_id)
     focus_context = await _focus_context(session, conversation, native_language, settings)
-    soul_context = await _soul_context(session, account_id, conversation.use_memory)
-    memory_context = await get_memory_context(
+    learner_context = await build_learner_context(
         session,
         account_id,
         focus_context=focus_context,
         user_text=payload.text,
+        settings=settings,
+        use_memory=conversation.use_memory,
     )
-    error_profile_context = await get_error_profile_context(session, account_id)
     history = await _history(session, conversation_id)
-    try:
-        experience_context = await get_experience_context(
-            session,
-            account_id,
-            focus_context=focus_context,
-            user_text=payload.text,
-            settings=settings,
-        )
-    except Exception:
-        experience_context = ""
 
     try:
         suggestion = await agent.suggest(
             native_language=native_language,
             focus_context=focus_context,
-            soul_context=soul_context,
-            memory_context=memory_context,
-            error_profile_context=error_profile_context,
-            experience_context=experience_context,
+            learner_context=learner_context,
             history=history,
             user_text=payload.text,
         )

@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -490,18 +491,14 @@ class ChallengeItem(Base):
 class MemoryItem(Base):
     __tablename__ = "memory_items"
     __table_args__ = (
-        UniqueConstraint(
-            "account_id",
-            "kind",
-            "canonical_key",
-            name="uq_memory_items_account_kind_key",
-        ),
+        Index("ix_memory_items_account_kind_key", "account_id", "kind", "canonical_key"),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     account_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
     )
+    scope: Mapped[str] = mapped_column(String(16), default="learned", nullable=False)
     kind: Mapped[str] = mapped_column(String(32), nullable=False)
     text: Mapped[str] = mapped_column(String(500), nullable=False)
     canonical_key: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -513,12 +510,24 @@ class MemoryItem(Base):
     first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
+    superseded_by: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("memory_items.id", ondelete="SET NULL"), nullable=True
+    )
+    valid_from: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    valid_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    @property
+    def source(self) -> str:
+        if self.source_type in ("onboarding", "user_edit"):
+            return self.source_type
+        return "ai_extracted"
 
 
 class MessageCorrection(Base):

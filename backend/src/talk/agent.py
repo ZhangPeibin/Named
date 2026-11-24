@@ -12,10 +12,7 @@ class TalkAgent(Protocol):
         *,
         native_language: str,
         focus_context: str,
-        soul_context: str,
-        memory_context: str,
-        error_profile_context: str,
-        experience_context: str,
+        learner_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse: ...
@@ -94,6 +91,13 @@ Output fields:
   expression, experience, topic, preference. Keep each item short and in the
   learner's own language or plain English. Do not include AI examples, guesses,
   or facts from earlier turns.
+  Set `relation` to "new" normally. Use "replaces" with `replaces_text` when the
+  learner clearly corrects or updates an earlier fact. Use "contradicts" when
+  the new fact conflicts with an earlier one but you are not sure which is
+  current.
+  If the learner asks you not to mention or not to remember something, return
+  one memory with kind `do_not_mention` or `do_not_remember` and the topic as
+  `text`; do not also return the fact it refers to.
 - suggested_expressions: optional expressions the learner could reuse later.
 - needs_confirmation: true only when you cannot understand the learner and need
   them to clarify.
@@ -132,10 +136,7 @@ class PydanticAITalkAgent:
         *,
         native_language: str,
         focus_context: str,
-        soul_context: str,
-        memory_context: str,
-        error_profile_context: str,
-        experience_context: str,
+        learner_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -143,16 +144,10 @@ class PydanticAITalkAgent:
         prompt = (
             f"Learner native language: {native_language}\n"
             f"Current focus:\n{focus_context}\n\n"
-            f"Known Soul context:\n{soul_context or '(none)'}\n\n"
-            f"Relevant learner memories (use only when relevant; do not mention "
-            f"this list or claim perfect memory):\n{memory_context or '(none)'}\n\n"
-            f"Known recurring learner errors (use only when relevant; never "
-            f"mention this list or label the learner):\n"
-            f"{error_profile_context or '(none)'}\n\n"
-            f"Relevant learner experiences (use only when relevant; do not mention "
-            f"this list or claim perfect memory; keep life experiences separate from "
-            f"practice and never claim mastery from a learning experience):\n"
-            f"{experience_context or '(none)'}\n\n"
+            f"Learner context (use only when relevant; do not mention this context or "
+            f"claim perfect memory; keep life experiences separate from practice; never "
+            f"claim mastery from a learning experience):\n"
+            f"{learner_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"New learner message: {user_text}"
         )
@@ -170,10 +165,7 @@ class HelpAgent(Protocol):
         *,
         native_language: str,
         focus_context: str,
-        soul_context: str,
-        memory_context: str,
-        error_profile_context: str,
-        experience_context: str,
+        learner_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion: ...
@@ -224,10 +216,7 @@ class PydanticAIHelpAgent:
         *,
         native_language: str,
         focus_context: str,
-        soul_context: str,
-        memory_context: str,
-        error_profile_context: str,
-        experience_context: str,
+        learner_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -235,14 +224,9 @@ class PydanticAIHelpAgent:
         prompt = (
             f"Learner native language: {native_language}\n"
             f"Current focus:\n{focus_context}\n\n"
-            f"Known Soul context:\n{soul_context or '(none)'}\n\n"
-            f"Relevant learner memories (use only when relevant; do not mention "
-            f"this list):\n{memory_context or '(none)'}\n\n"
-            f"Known recurring learner errors (use only when relevant; do not "
-            f"mention this list):\n{error_profile_context or '(none)'}\n\n"
-            f"Relevant learner experiences (use only when relevant; do not mention "
-            f"this list; distinguish real life from practice):\n"
-            f"{experience_context or '(none)'}\n\n"
+            f"Learner context (use only when relevant; do not mention this context; "
+            f"distinguish real life from practice):\n"
+            f"{learner_context or '(none)'}\n\n"
             f"Conversation so far:\n{transcript or '(new conversation)'}\n\n"
             f"Learner wants to say: {user_text}"
         )

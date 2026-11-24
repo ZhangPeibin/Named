@@ -16,6 +16,7 @@ class DailyReadAgent(Protocol):
         target_words: list[str],
         native_language: str,
         theme: str,
+        learner_context: str,
     ) -> DailyReadAgentOutput: ...
 
 
@@ -40,6 +41,9 @@ Requirements:
 - Make the text coherent and pleasant to read aloud.
 - Do not mention the learner, the target words, Named, or the exercise.
 - Do not invent personal facts about the learner.
+- Use the learner context only to choose a fitting theme, tone, and links
+  between target words; never state the learner's personal facts as story
+  content.
 - Return plain text only, with no Markdown.
 - title is a short, inviting title.
 - question is one optional simple comprehension or reflection question.
@@ -62,11 +66,14 @@ class PydanticAIDailyReadAgent:
         target_words: list[str],
         native_language: str,
         theme: str,
+        learner_context: str,
     ) -> DailyReadAgentOutput:
         prompt = (
             f"Story theme: {theme}\n"
             f"Target words: {', '.join(target_words)}\n"
-            f"Learner native language: {native_language}"
+            f"Learner native language: {native_language}\n\n"
+            f"Learner context (do not reuse personal facts as story content):\n"
+            f"{learner_context or '(none)'}"
         )
         try:
             result = await self._agent.run(prompt)

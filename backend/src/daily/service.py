@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import date, timedelta
 
@@ -17,9 +18,14 @@ from daily.schemas import (
 )
 from daily.translation_agent import DailyTranslationAgent, TranslationFailed
 from errors import ApiError
-from models import DailyReading, Discovery, SoulProfile, Word
+from learner.context import build_learner_context
+from memory.service import record_memories
+from models import DailyReading, Discovery, MemoryItem, SoulProfile, Word
+from talk.schemas import MemoryCandidate
 from tts.timed_provider import TimedSpeechError, TimedSpeechNotConfigured
 from tts.timed_service import TimedSpeechService
+
+logger = logging.getLogger(__name__)
 
 _STARTER_WORDS = ["notice", "small", "today", "look", "quiet"]
 
@@ -122,6 +128,38 @@ async def ensure_daily_task(
     return reading
 
 
+async def _learner_theme(session: AsyncSession, account_id: str) -> str | None:
+    soul_theme = await session.scalar(
+        select(MemoryItem.text)
+        .where(
+            MemoryItem.account_id == account_id,
+            MemoryItem.scope == "about",
+            MemoryItem.status == "active",
+            MemoryItem.kind.in_(("interest", "preference", "goal")),
+            MemoryItem.deleted_at.is_(None),
+        )
+        .order_by(MemoryItem.updated_at.desc())
+        .limit(1)
+    )
+    if soul_theme:
+        return soul_theme.strip()[:64]
+    memory_theme = await session.scalar(
+        select(MemoryItem.text)
+        .where(
+            MemoryItem.account_id == account_id,
+            MemoryItem.scope == "learned",
+            MemoryItem.kind.in_(("topic", "preference")),
+            MemoryItem.status == "active",
+            MemoryItem.deleted_at.is_(None),
+        )
+        .order_by(MemoryItem.importance.desc(), MemoryItem.last_seen_at.desc())
+        .limit(1)
+    )
+    if memory_theme:
+        return memory_theme.strip()[:64]
+    return None
+
+
 async def _pick_theme(session: AsyncSession, account_id: str) -> str:
     recent = list(
         await session.scalars(
@@ -135,6 +173,9 @@ async def _pick_theme(session: AsyncSession, account_id: str) -> str:
         )
     )
     used = {theme for theme in recent if theme}
+    preferred = await _learner_theme(session, account_id)
+    if preferred and preferred not in used:
+        return preferred
     for theme in _STORY_THEMES:
         if theme not in used:
             return theme
@@ -235,11 +276,19 @@ async def get_daily_read(
         target_words = await _recent_words(session, account_id)
         native_language = await _native_language(session, account_id)
         theme = await _pick_theme(session, account_id)
+        learner_context = await build_learner_context(
+            session,
+            account_id,
+            focus_context=f"Daily reading theme: {theme}",
+            user_text=" ".join(target_words),
+            settings=settings,
+        )
         try:
             output = await agent.write(
                 target_words=target_words,
                 native_language=native_language,
                 theme=theme,
+                learner_context=learner_context,
             )
         except AINotConfigured as exc:
             raise ApiError(
@@ -301,6 +350,25 @@ async def complete_daily_read(
         reading.completed_at = utcnow()
         reading.completed_duration_seconds = duration_seconds
         session.add(reading)
+        candidates: list[MemoryCandidate] = []
+        if reading.theme:
+            candidates.append(
+                MemoryCandidate(kind="topic", text=reading.theme, confidence=0.7, importance=0.6)
+            )
+        candidates.extend(
+            MemoryCandidate(kind="word", text=word, confidence=0.8, importance=0.5)
+            for word in reading.target_words_json or []
+        )
+        try:
+            await record_memories(
+                session,
+                account_id,
+                candidates,
+                source_type="daily_read",
+                source_id=reading.id,
+            )
+        except Exception:
+            logger.warning("Daily reading memory update failed")
         await session.commit()
     return DailyCompleteOut(
         date=reading.reading_date,
