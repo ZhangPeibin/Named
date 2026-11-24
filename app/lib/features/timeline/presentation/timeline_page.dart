@@ -509,6 +509,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
                   child: TimelineProgressCard(
                     progress: progress.value!,
                     onWordsTap: () => unawaited(_openWords()),
+                    onTalksTap: () => unawaited(_openTalks()),
+                    onReadsTap: () => unawaited(_openReads()),
                     onPracticesTap: () => unawaited(_openPractice()),
                   ),
                 ),
@@ -570,6 +572,20 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
 
   Future<void> _openPractice() async {
     await context.pushNamed(AppRouteNames.practice);
+    if (mounted) {
+      ref.invalidate(progressProvider);
+    }
+  }
+
+  Future<void> _openTalks() async {
+    await context.pushNamed(AppRouteNames.talks);
+    if (mounted) {
+      ref.invalidate(progressProvider);
+    }
+  }
+
+  Future<void> _openReads() async {
+    await context.pushNamed(AppRouteNames.reads);
     if (mounted) {
       ref.invalidate(progressProvider);
     }

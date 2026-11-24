@@ -13,11 +13,15 @@ class TimelineProgressCard extends StatelessWidget {
     super.key,
     required this.progress,
     this.onWordsTap,
+    this.onTalksTap,
+    this.onReadsTap,
     this.onPracticesTap,
   });
 
   final Progress progress;
   final VoidCallback? onWordsTap;
+  final VoidCallback? onTalksTap;
+  final VoidCallback? onReadsTap;
   final VoidCallback? onPracticesTap;
 
   @override
@@ -56,17 +60,21 @@ class TimelineProgressCard extends StatelessWidget {
           ),
           _divider(palette),
           _ProgressStat(
+            statKey: const Key('timeline.progress.talks'),
             value: progress.conversations,
             label: t.progressConversations,
             glyph: AppLineGlyph.chat,
             color: ContentAccents.talks(context),
+            onTap: onTalksTap,
           ),
           _divider(palette),
           _ProgressStat(
+            statKey: const Key('timeline.progress.reads'),
             value: progress.readings,
             label: t.progressReads,
             glyph: AppLineGlyph.headphones,
             color: ContentAccents.reads(context),
+            onTap: onReadsTap,
           ),
           if (progress.words > 0) ...[
             _divider(palette),

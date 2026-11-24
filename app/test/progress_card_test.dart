@@ -59,6 +59,34 @@ void main() {
     expect(taps, 1);
   });
 
+  testWidgets('opens Talks and Reads from their stats', (tester) async {
+    var talks = 0;
+    var reads = 0;
+
+    await pumpWithTranslations(
+      tester,
+      child: Scaffold(
+        body: TimelineProgressCard(
+          progress: const Progress(
+            words: 3,
+            conversations: 2,
+            readings: 1,
+            practices: 4,
+          ),
+          onTalksTap: () => talks++,
+          onReadsTap: () => reads++,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('timeline.progress.talks')));
+    await tester.tap(find.byKey(const Key('timeline.progress.reads')));
+    await tester.pumpAndSettle();
+
+    expect(talks, 1);
+    expect(reads, 1);
+  });
+
   testWidgets('hides Practice when there are no saved words', (tester) async {
     await pumpWithTranslations(
       tester,

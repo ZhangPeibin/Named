@@ -22,6 +22,7 @@ import '../../features/settings/presentation/settings_page.dart';
 import '../../features/settings/presentation/theme_page.dart';
 import '../../features/soul/presentation/soul_page.dart';
 import '../../features/talk/presentation/talk_page.dart';
+import '../../features/timeline/presentation/timeline_feed_page.dart';
 import '../../features/timeline/presentation/timeline_page.dart';
 import '../../features/todo_demo/presentation/todo_demo_page.dart';
 import '../../features/webview/domain/webview_host_policy.dart';
@@ -41,6 +42,8 @@ class AppRoutePaths {
   static const challengePractice = '/challenges/:challengeId/practice';
   static const experience = '/history/:experienceId';
   static const words = '/words';
+  static const talks = '/talks';
+  static const reads = '/reads';
   static const practice = '/practice';
   static const daily = '/daily';
   static const ask = '/ask';
@@ -65,6 +68,8 @@ class AppRouteNames {
   static const challengePractice = 'challengePractice';
   static const experience = 'experience';
   static const words = 'words';
+  static const talks = 'talks';
+  static const reads = 'reads';
   static const practice = 'practice';
   static const daily = 'daily';
   static const ask = 'ask';
@@ -171,6 +176,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRouteNames.words,
         builder: (context, state) =>
             WordsPage(initialWordId: state.uri.queryParameters['wordId']),
+      ),
+      GoRoute(
+        path: AppRoutePaths.talks,
+        name: AppRouteNames.talks,
+        builder: (context, state) =>
+            const TimelineFeedPage(kind: TimelineFeedKind.talks),
+      ),
+      GoRoute(
+        path: AppRoutePaths.reads,
+        name: AppRouteNames.reads,
+        builder: (context, state) =>
+            const TimelineFeedPage(kind: TimelineFeedKind.reads),
       ),
       GoRoute(
         path: AppRoutePaths.practice,
