@@ -1,8 +1,16 @@
 # Named
 
-**AI that turns everyday moments into English conversations.**
+<p align="center">
+  <img src="web/assets/brand/c-lockup-horizontal.svg" alt="Named" width="200" />
+</p>
 
-Explore what you see, talk about what matters to you, and build your own world of English memories.
+**One word, one story.**
+
+Named gives you **Milo**, an AI English companion who turns what you notice into a word you keep: a timeline, a notebook, practice, and a story made from your own days.
+
+Start with one word, and build your own English world.
+
+[Official website](https://zhangpeibin.github.io/Named) · [Get early access](https://zhangpeibin.github.io/Named#try) · [GitHub](https://github.com/ZhangPeibin/Named)
 
 ```mermaid
 %%{init: {
@@ -20,20 +28,19 @@ Explore what you see, talk about what matters to you, and build your own world o
   }
 }}%%
 flowchart LR
-    D["Discover<br/>notice something real"] --> T["Talk<br/>say what you mean"]
-    T --> U["Understand<br/>words, sounds, usage"]
-    U --> S["Save<br/>keep the conversation"]
-    S --> R["Review<br/>return and notice change"]
-    R --> Reuse["Reuse<br/>use it in a new moment"]
-    Reuse -.->|same word, new story| D
+    See["See<br/>Timeline · name a real moment"] --> Say["Say<br/>Talk · reply, then a quiet correction"]
+    Say --> Keep["Keep<br/>Words · sound, meaning, one chunk"]
+    Keep --> Practice["Practice<br/>understand, recall, use"]
+    Practice --> Meet["Meet it again<br/>Daily · a story from your words"]
+    Meet -.->|same word, new moment| See
 
     classDef warm fill:#F7F0E3,stroke:#B86B45,stroke-width:1.7px,color:#2D2A26
     classDef blue fill:#E8F0F5,stroke:#456A7C,stroke-width:1.7px,color:#243746
     classDef sage fill:#EAF0E5,stroke:#6F8A62,stroke-width:1.7px,color:#2C3828
     classDef lavender fill:#EDE9F7,stroke:#7A6AA6,stroke-width:1.7px,color:#30294A
-    class D,R warm
-    class T,U blue
-    class S,Reuse sage
+    class See,Meet warm
+    class Say,Practice blue
+    class Keep sage
 ```
 
 ## Why Named exists
@@ -49,7 +56,9 @@ Named starts from the learner's real life:
 
 The product turns those moments into a personal learning loop:
 
-**Discover → Talk → Understand → Save → Review → Reuse**
+**See → Say → Keep → Practice → Meet it again**
+
+On the marketing site these five moves map to the app's Timeline, Talk, Words, Practice, and Daily surfaces.
 
 The goal is not to complete a fixed curriculum. It is to build **your own world of English memories**: English grounded in what you noticed, what you shared, and what you returned to.
 
@@ -310,11 +319,13 @@ flowchart LR
 │   ├── prd-v1.0.md       Product definition and scope
 │   └── ui-ux-design.md   Visual and interaction direction
 ├── final/                Exported design boards
+├── web/                  Marketing site served at the official website
 └── AGENTS.md             Engineering workflow and repository conventions
 ```
 
 ## Explore the design
 
+- [Visit the official website](https://zhangpeibin.github.io/Named) or [join the early-access list](https://zhangpeibin.github.io/Named#try).
 - [Open the interactive mobile prototype](docs/prototypes/named.html) directly in a browser. No installation or build step is required.
 - [View the three-screen design board](final/00-overview.png).
 - [Read the prototype guide](docs/prototypes/named-guide.md) for flows, screens, and demo limitations.
@@ -328,6 +339,7 @@ Keep the prototype's HTML, CSS, JavaScript files, and `assets/` directory togeth
 - [Experience + History requirements](docs/feature/v1/experience-and-history/discussion.md): async agent decisions, evidence rules, and History scope.
 - [Companion memory requirements](docs/feature/v1/companion-memory/discussion.md): internal memory model and retrieval.
 - [Competitive landscape](docs/competitive-landscape.md): researched comparisons and differentiation hypotheses.
+- [Brand identity](docs/brand-identity.md): logo, wordmark, color, and app icon rules.
 - [Visual design files](final/README.md): PNG previews and editable SVG artwork.
 
 ## Backend development
@@ -511,6 +523,8 @@ Important behaviors:
   not PydanticAI agents.
 
 ## Current status
+
+Named with Milo is still **coming soon to iOS and Android**. The official website is live and the early-access list is open; the sections below describe what is implemented in this repository, not a public release.
 
 Implemented:
 
