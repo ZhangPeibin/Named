@@ -357,6 +357,18 @@
     "leaveCancel": "Keep practicing",
     "retry": "Try again"
   },
+  "talks": {
+    "title": "Talks",
+    "empty": "No talks yet.",
+    "emptyHint": "Open a word and tap “Talk about it”.",
+    "loadFailed": "Could not load your talks."
+  },
+  "reads": {
+    "title": "Reads",
+    "empty": "No readings yet.",
+    "emptyHint": "Your daily reading will appear here.",
+    "loadFailed": "Could not load your readings."
+  },
   "words": {
     "title": "Words",
     "notebookEyebrow": "Vocabulary notebook",
@@ -373,7 +385,11 @@
     "stillLearning": "Still learning",
     "seenTimes": "seen ${count}×",
     "loadFailed": "Could not load your words.",
-    "empty": "Named words will appear here."
+    "empty": "Named words will appear here.",
+    "addToWords": "Add to words",
+    "addedToWords": "In your words",
+    "addFailed": "Could not add this word. Try again.",
+    "lookingUp": "Looking up this word..."
   },
   "history": {
     "title": "History",

@@ -57,6 +57,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$talk$en talk = Translations$talk$en._(_root);
 	late final Translations$timeline$en timeline = Translations$timeline$en._(_root);
 	late final Translations$practice$en practice = Translations$practice$en._(_root);
+	late final Translations$talks$en talks = Translations$talks$en._(_root);
+	late final Translations$reads$en reads = Translations$reads$en._(_root);
 	late final Translations$words$en words = Translations$words$en._(_root);
 	late final Translations$history$en history = Translations$history$en._(_root);
 	late final Translations$challenge$en challenge = Translations$challenge$en._(_root);
@@ -1186,6 +1188,48 @@ class Translations$practice$en {
 	String get retry => 'Try again';
 }
 
+// Path: talks
+class Translations$talks$en {
+	Translations$talks$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Talks'
+	String get title => 'Talks';
+
+	/// en: 'No talks yet.'
+	String get empty => 'No talks yet.';
+
+	/// en: 'Open a word and tap “Talk about it”.'
+	String get emptyHint => 'Open a word and tap “Talk about it”.';
+
+	/// en: 'Could not load your talks.'
+	String get loadFailed => 'Could not load your talks.';
+}
+
+// Path: reads
+class Translations$reads$en {
+	Translations$reads$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Reads'
+	String get title => 'Reads';
+
+	/// en: 'No readings yet.'
+	String get empty => 'No readings yet.';
+
+	/// en: 'Your daily reading will appear here.'
+	String get emptyHint => 'Your daily reading will appear here.';
+
+	/// en: 'Could not load your readings.'
+	String get loadFailed => 'Could not load your readings.';
+}
+
 // Path: words
 class Translations$words$en {
 	Translations$words$en._(this._root);
@@ -1241,6 +1285,18 @@ class Translations$words$en {
 
 	/// en: 'Named words will appear here.'
 	String get empty => 'Named words will appear here.';
+
+	/// en: 'Add to words'
+	String get addToWords => 'Add to words';
+
+	/// en: 'In your words'
+	String get addedToWords => 'In your words';
+
+	/// en: 'Could not add this word. Try again.'
+	String get addFailed => 'Could not add this word. Try again.';
+
+	/// en: 'Looking up this word...'
+	String get lookingUp => 'Looking up this word...';
 }
 
 // Path: history
@@ -2147,6 +2203,14 @@ extension on Translations {
 			'practice.leaveConfirm' => 'Leave',
 			'practice.leaveCancel' => 'Keep practicing',
 			'practice.retry' => 'Try again',
+			'talks.title' => 'Talks',
+			'talks.empty' => 'No talks yet.',
+			'talks.emptyHint' => 'Open a word and tap “Talk about it”.',
+			'talks.loadFailed' => 'Could not load your talks.',
+			'reads.title' => 'Reads',
+			'reads.empty' => 'No readings yet.',
+			'reads.emptyHint' => 'Your daily reading will appear here.',
+			'reads.loadFailed' => 'Could not load your readings.',
 			'words.title' => 'Words',
 			'words.notebookEyebrow' => 'Vocabulary notebook',
 			'words.attempted' => 'Tried',
@@ -2163,6 +2227,10 @@ extension on Translations {
 			'words.seenTimes' => ({required Object count}) => 'seen ${count}×',
 			'words.loadFailed' => 'Could not load your words.',
 			'words.empty' => 'Named words will appear here.',
+			'words.addToWords' => 'Add to words',
+			'words.addedToWords' => 'In your words',
+			'words.addFailed' => 'Could not add this word. Try again.',
+			'words.lookingUp' => 'Looking up this word...',
 			'history.title' => 'History',
 			'history.empty' => 'No experiences yet.',
 			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',
@@ -2324,6 +2392,8 @@ extension on Translations {
 			'ask.recent' => 'Recent questions',
 			'ask.thread' => 'Question thread',
 			'ask.context' => 'From this context',
+			_ => null,
+		} ?? switch (path) {
 			'ask.followUpHint' => 'Ask a follow-up...',
 			'ask.followUp' => 'Ask follow-up',
 			'ask.delete' => 'Delete thread',
@@ -2336,8 +2406,6 @@ extension on Translations {
 			'ask.suggestion3' => 'Make this sentence more natural.',
 			'ask.emptyHistory' => 'Your questions will appear here.',
 			'ask.confidenceHigh' => 'Confident',
-			_ => null,
-		} ?? switch (path) {
 			'ask.confidenceMedium' => 'Fairly confident',
 			'ask.confidenceLow' => 'Not fully sure',
 			'ask.helpful' => 'Helpful',

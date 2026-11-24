@@ -54,6 +54,8 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$talk$zh talk = _Translations$talk$zh._(_root);
 	@override late final _Translations$timeline$zh timeline = _Translations$timeline$zh._(_root);
 	@override late final _Translations$practice$zh practice = _Translations$practice$zh._(_root);
+	@override late final _Translations$talks$zh talks = _Translations$talks$zh._(_root);
+	@override late final _Translations$reads$zh reads = _Translations$reads$zh._(_root);
 	@override late final _Translations$words$zh words = _Translations$words$zh._(_root);
 	@override late final _Translations$history$zh history = _Translations$history$zh._(_root);
 	@override late final _Translations$challenge$zh challenge = _Translations$challenge$zh._(_root);
@@ -537,6 +539,32 @@ class _Translations$practice$zh implements Translations$practice$en {
 	@override String get retry => '重试';
 }
 
+// Path: talks
+class _Translations$talks$zh implements Translations$talks$en {
+	_Translations$talks$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '对话';
+	@override String get empty => '还没有对话。';
+	@override String get emptyHint => '打开一个词，点“聊聊这个词”。';
+	@override String get loadFailed => '暂时无法加载对话。';
+}
+
+// Path: reads
+class _Translations$reads$zh implements Translations$reads$en {
+	_Translations$reads$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '阅读';
+	@override String get empty => '还没有阅读。';
+	@override String get emptyHint => '每日阅读会出现在这里。';
+	@override String get loadFailed => '暂时无法加载阅读。';
+}
+
 // Path: words
 class _Translations$words$zh implements Translations$words$en {
 	_Translations$words$zh._(this._root);
@@ -560,6 +588,10 @@ class _Translations$words$zh implements Translations$words$en {
 	@override String seenTimes({required Object count}) => '出现 ${count} 次';
 	@override String get loadFailed => '词汇加载失败。';
 	@override String get empty => '命名过的词会出现在这里。';
+	@override String get addToWords => '加入词语';
+	@override String get addedToWords => '已在词语中';
+	@override String get addFailed => '加入失败，请重试。';
+	@override String get lookingUp => '正在查这个词…';
 }
 
 // Path: history
@@ -1108,6 +1140,14 @@ extension on TranslationsZh {
 			'practice.leaveConfirm' => '离开',
 			'practice.leaveCancel' => '继续练习',
 			'practice.retry' => '重试',
+			'talks.title' => '对话',
+			'talks.empty' => '还没有对话。',
+			'talks.emptyHint' => '打开一个词，点“聊聊这个词”。',
+			'talks.loadFailed' => '暂时无法加载对话。',
+			'reads.title' => '阅读',
+			'reads.empty' => '还没有阅读。',
+			'reads.emptyHint' => '每日阅读会出现在这里。',
+			'reads.loadFailed' => '暂时无法加载阅读。',
 			'words.title' => '词语',
 			'words.notebookEyebrow' => '词汇本',
 			'words.attempted' => '试过了',
@@ -1124,6 +1164,10 @@ extension on TranslationsZh {
 			'words.seenTimes' => ({required Object count}) => '出现 ${count} 次',
 			'words.loadFailed' => '词汇加载失败。',
 			'words.empty' => '命名过的词会出现在这里。',
+			'words.addToWords' => '加入词语',
+			'words.addedToWords' => '已在词语中',
+			'words.addFailed' => '加入失败，请重试。',
+			'words.lookingUp' => '正在查这个词…',
 			'history.title' => '回忆',
 			'history.empty' => '还没有可回看的经历。',
 			'history.emptyHint' => '一段有意义的对话会在 Milo 整理后出现在这里。',
@@ -1285,6 +1329,8 @@ extension on TranslationsZh {
 			'ask.recent' => '最近提问',
 			'ask.thread' => '问答',
 			'ask.context' => '来自这里',
+			_ => null,
+		} ?? switch (path) {
 			'ask.followUpHint' => '继续追问…',
 			'ask.followUp' => '继续问',
 			'ask.delete' => '删除问答',
@@ -1297,8 +1343,6 @@ extension on TranslationsZh {
 			'ask.suggestion3' => '这句话怎么说更自然？',
 			'ask.emptyHistory' => '你的提问会出现在这里。',
 			'ask.confidenceHigh' => '确定',
-			_ => null,
-		} ?? switch (path) {
 			'ask.confidenceMedium' => '比较确定',
 			'ask.confidenceLow' => '不太确定',
 			'ask.helpful' => '有帮助',

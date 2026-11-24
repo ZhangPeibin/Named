@@ -357,6 +357,18 @@
     "leaveCancel": "继续练习",
     "retry": "重试"
   },
+  "talks": {
+    "title": "对话",
+    "empty": "还没有对话。",
+    "emptyHint": "打开一个词，点“聊聊这个词”。",
+    "loadFailed": "暂时无法加载对话。"
+  },
+  "reads": {
+    "title": "阅读",
+    "empty": "还没有阅读。",
+    "emptyHint": "每日阅读会出现在这里。",
+    "loadFailed": "暂时无法加载阅读。"
+  },
   "words": {
     "title": "词语",
     "notebookEyebrow": "词汇本",
@@ -373,7 +385,11 @@
     "stillLearning": "还要再学",
     "seenTimes": "出现 ${count} 次",
     "loadFailed": "词汇加载失败。",
-    "empty": "命名过的词会出现在这里。"
+    "empty": "命名过的词会出现在这里。",
+    "addToWords": "加入词语",
+    "addedToWords": "已在词语中",
+    "addFailed": "加入失败，请重试。",
+    "lookingUp": "正在查这个词…"
   },
   "history": {
     "title": "回忆",
