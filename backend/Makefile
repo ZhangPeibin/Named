@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format-check format migrate migration purge docker-up docker-down
+.PHONY: install dev test lint format-check format migrate migration purge docker-up docker-down deploy-backend
 
 install:
 	uv sync --all-groups
@@ -33,3 +33,8 @@ docker-up:
 
 docker-down:
 	docker compose down
+
+# Sync backend source to the production host and rebuild the API container.
+# Defaults: BACKEND_HOST=root@101.201.198.87 BACKEND_DIR=/opt/named/backend
+deploy-backend:
+	bash scripts/deploy_backend.sh

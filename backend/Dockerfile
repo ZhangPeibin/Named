@@ -1,4 +1,5 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+ARG PYTHON_IMAGE=ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM ${PYTHON_IMAGE}
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -9,8 +10,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+ARG UV_INDEX_URL=https://pypi.org/simple
+ENV UV_INDEX_URL=${UV_INDEX_URL}
+
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
+ARG PYPI_FILES_MIRROR=
+RUN if [ -n "$PYPI_FILES_MIRROR" ]; then \
+        sed -i "s#https://files.pythonhosted.org/packages#${PYPI_FILES_MIRROR}#g" uv.lock; \
+    fi \
+    && uv sync --frozen --no-dev
 
 COPY alembic.ini ./
 COPY migrations ./migrations

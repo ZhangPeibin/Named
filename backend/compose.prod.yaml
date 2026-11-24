@@ -1,0 +1,63 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-docker.m.daocloud.io/library/mysql:8.4}
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: named
+      MYSQL_USER: named
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD}
+    command:
+      - --innodb-buffer-pool-size=192M
+      - --performance-schema=OFF
+      - --skip-name-resolve
+      - --max-connections=80
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$DB_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    mem_limit: 700m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-ghcr.m.daocloud.io/astral-sh/uv:python3.12-bookworm-slim}
+        UV_INDEX_URL: ${UV_INDEX_URL:-https://mirrors.aliyun.com/pypi/simple/}
+        PYPI_FILES_MIRROR: ${PYPI_FILES_MIRROR:-https://mirrors.aliyun.com/pypi/packages}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql+asyncmy://named:${DB_PASSWORD}@mysql:3306/named?charset=utf8mb4
+      MEDIA_ROOT: /app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command:
+      - /bin/sh
+      - -c
+      - alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir src
+    volumes:
+      - media_data:/app/media
+    mem_limit: 800m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  mysql_data:
+  media_data:

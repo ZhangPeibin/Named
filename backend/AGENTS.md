@@ -2,6 +2,8 @@
 
 Run Python backend commands from `backend/`. Install dependencies with `uv sync --all-groups`. Use `make dev`, `make test`, `make lint`, and `make format-check` for development and checks. Start local MySQL with `docker compose up -d mysql`, copy `.env.example` to `.env`, and use `make migrate` to apply Alembic migrations. To run MySQL and the API together, use `docker compose up --build`; the API container applies migrations and serves on port 8000. Docker is required for local MySQL and the API container; tests and static checks do not require a database.
 
+Deploy backend source to the production host with `make deploy-backend`. It rsyncs `src/`, `migrations/`, `alembic.ini`, `pyproject.toml`, and `uv.lock` to `BACKEND_HOST` (default `root@101.201.198.87`), then rebuilds and restarts the API container with `compose.prod.yaml`. Server-owned `.env`, `compose.prod.yaml`, and `Dockerfile` are not overwritten. Use `DRY_RUN=1` to preview the actions.
+
 ## Structure
 
 - `src/` contains importable backend modules directly; do not add an enclosing application package layer.
