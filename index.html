@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Named — One word, one story</title>
+    <meta
+      name="description"
+      content="Named turns what you notice into a word you keep: a timeline, a notebook, practice, and a daily story made from your own words."
+    />
+    <meta name="theme-color" content="#fbf8f2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Named" />
+    <meta property="og:title" content="Named — One word, one story" />
+    <meta
+      property="og:description"
+      content="Name what you notice. Keep the word. Meet it again in practice and in a story made from your own days."
+    />
+    <meta property="og:image" content="assets/forest.jpg" />
+    <meta property="og:image:alt" content="Sunlight falling through tall trees in a quiet forest" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Named — One word, one story" />
+    <meta
+      name="twitter:description"
+      content="Name what you notice. Keep the word. Meet it again in practice and in a story made from your own days."
+    />
+    <meta name="twitter:image" content="assets/forest.jpg" />
+    <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="assets/favicon/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
+    <link rel="preload" href="assets/fonts/Lora-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="assets/fonts/Lora-Italic-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="assets/forest.jpg" as="image" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      document.documentElement.classList.remove("no-js");
+      document.documentElement.classList.add("js");
+      window.setTimeout(function () {
+        if (document.body) document.body.classList.add("is-ready");
+      }, 1200);
+    </script>
+    <script src="main.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+
+    <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+      <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" fill="currentColor" stroke="none" /></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" /></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4m0 0h10l-2 4 2 4H6" /></symbol>
+      <symbol id="i-headphones" viewBox="0 0 24 24">
+        <path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14v3a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 1zm16 0v3a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 1z" />
+      </symbol>
+      <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z" /></symbol>
+      <symbol id="i-history" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4M12 8v4l3 2" /></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24">
+        <path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" />
+      </symbol>
+      <symbol id="i-person" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-10" /></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" /></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" /></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24">
+        <path d="M4 8h10M18 8h2M4 16h2M10 16h10" />
+        <circle cx="16" cy="8" r="2" />
+        <circle cx="8" cy="16" r="2" />
+      </symbol>
+      <symbol id="i-signal" viewBox="0 0 18 12">
+        <rect x="0" y="8" width="3" height="4" rx="1" />
+        <rect x="5" y="6" width="3" height="6" rx="1" />
+        <rect x="10" y="3" width="3" height="9" rx="1" />
+        <rect x="15" y="0" width="3" height="12" rx="1" />
+      </symbol>
+      <symbol id="i-wifi" viewBox="0 0 16 12">
+        <path d="M1 4a10 10 0 0 1 14 0M3.5 6.5a6.5 6.5 0 0 1 9 0M6 9a3 3 0 0 1 4 0" />
+        <circle cx="8" cy="11" r="1" />
+      </symbol>
+      <symbol id="i-battery" viewBox="0 0 26 12">
+        <rect x="0.5" y="0.5" width="22" height="11" rx="3" />
+        <rect class="battery-fill" x="2.5" y="2.5" width="18" height="7" rx="1.5" />
+        <path d="M24.5 4v4" />
+      </symbol>
+    </svg>
+
+    <header class="nav" id="nav">
+      <div class="nav-inner container">
+        <a class="brand" href="#top" aria-label="Named — home" data-i18n-aria-label="nav.home">
+          <img src="assets/brand/c-lockup-horizontal.svg" alt="Named" width="700" height="256" />
+        </a>
+        <nav class="nav-links" aria-label="Primary" data-i18n-aria-label="nav.primary">
+          <a href="#idea" data-i18n="nav.idea">The idea</a>
+          <a href="#loop" data-i18n="nav.loop">The loop</a>
+          <a href="#story" data-i18n="nav.story">A story</a>
+        </nav>
+        <div class="nav-actions">
+          <div class="lang-toggle" role="group" aria-label="Language" data-i18n-aria-label="nav.language">
+            <button type="button" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+          </div>
+          <a class="btn btn-small nav-try" href="#try" data-i18n="nav.early">Get early access</a>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open menu">
+            <svg class="icon icon-menu"><use href="#i-menu" /></svg>
+            <svg class="icon icon-close"><use href="#i-close" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="nav-drawer" id="drawer">
+        <a href="#idea" data-i18n="nav.idea">The idea</a>
+        <a href="#loop" data-i18n="nav.loop">The loop</a>
+        <a href="#story" data-i18n="nav.story">A story</a>
+        <a href="#library" data-i18n="nav.library">Your library</a>
+        <a href="#try" class="drawer-cta" data-i18n="nav.early">Get early access</a>
+        <div class="drawer-foot">
+          <p data-i18n="footer.tagline">One word, one story.</p>
+          <span data-i18n="footer.support">Start with one word, and build your own English world.</span>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow intro" style="--intro-delay: 0.05s" data-i18n="hero.eyebrow">Your everyday, in English</p>
+            <h1 class="hero-title intro" style="--intro-delay: 0.12s" data-i18n-html="hero.title">One word,<br /><em>one story.</em></h1>
+            <p class="hero-lede intro" style="--intro-delay: 0.22s" data-i18n="hero.lede">
+              Name what you notice. Keep the word. Meet it again in practice, and in a story made from your own days.
+            </p>
+            <form class="demo intro" id="demo" style="--intro-delay: 0.3s" autocomplete="off">
+              <label class="demo-label" for="demo-input" data-i18n="hero.prompt">What did you see today?</label>
+              <div class="demo-field">
+                <input
+                  id="demo-input"
+                  name="word"
+                  type="text"
+                  data-i18n-placeholder="hero.placeholder"
+                  placeholder="A tree, a cup of coffee, my daughter…"
+                />
+                <button class="demo-submit" type="submit" data-i18n-aria-label="hero.submit" aria-label="Try this word">
+                  <svg class="icon"><use href="#i-arrow" /></svg>
+                </button>
+              </div>
+              <div class="chips" role="group" aria-label="Try a word" data-i18n-aria-label="hero.chipsAria">
+                <button class="chip is-active" type="button" data-word="tree">
+                  <img src="assets/forest.jpg" alt="" loading="lazy" /><span data-i18n="chip.tree">A tree</span>
+                </button>
+                <button class="chip" type="button" data-word="coffee">
+                  <img src="assets/coffee.jpg" alt="" loading="lazy" /><span data-i18n="chip.coffee">Coffee</span>
+                </button>
+                <button class="chip" type="button" data-word="wateringcan">
+                  <img src="assets/watering-can.jpg" alt="" loading="lazy" /><span data-i18n="chip.wateringcan">A watering can</span>
+                </button>
+                <button class="chip" type="button" data-word="daughter">
+                  <img src="assets/forest.jpg" alt="" loading="lazy" /><span data-i18n="chip.daughter">My daughter</span>
+                </button>
+              </div>
+              <p class="demo-note" data-i18n="hero.note">No sign-up. Just one word.</p>
+            </form>
+            <div class="hero-links intro" style="--intro-delay: 0.38s">
+              <a class="link-arrow" href="#loop"
+                ><span data-i18n="hero.see">See the loop</span><svg class="icon"><use href="#i-arrow" /></svg
+              ></a>
+              <a class="link-quiet" href="#try" data-i18n="hero.early">Get early access</a>
+            </div>
+            <div class="hero-meta intro" style="--intro-delay: 0.46s">
+              <span data-i18n="hero.metaOne">iOS + Android · Coming soon</span>
+              <span data-i18n="hero.metaTwo">Private by default · No streaks</span>
+            </div>
+          </div>
+          <div class="hero-visual intro" style="--intro-delay: 0.26s">
+            <figure class="hero-photo">
+              <img
+                class="photo-layer is-active"
+                id="photo-a"
+                src="assets/forest.jpg"
+                alt="Sunlight falling through tall trees in a quiet forest"
+              />
+              <img class="photo-layer" id="photo-b" alt="" aria-hidden="true" />
+              <figcaption class="photo-caption" data-i18n="hero.caption">A real moment, kept.</figcaption>
+            </figure>
+            <aside class="word-card" id="word-card" aria-live="polite" aria-label="Example word" data-i18n-aria-label="hero.cardAria">
+              <div class="word-card-head">
+                <div>
+                  <p class="word" id="hero-word">tree</p>
+                  <p class="ipa"><span id="hero-ipa">/triː/</span> · <span id="hero-pos-zh">树 · noun</span></p>
+                </div>
+                <button class="play" id="hero-play" type="button" data-speak="tree" aria-label="Play the pronunciation of tree">
+                  <svg class="icon"><use href="#i-play" /></svg>
+                  <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+                </button>
+              </div>
+              <p class="definition" id="hero-def">A tall plant with a trunk, branches, and leaves.</p>
+              <p class="definition-zh" id="hero-def-zh" lang="zh-CN">一种有树干、树枝和叶子的高大植物。</p>
+              <ul class="chunks" id="hero-chunks">
+                <li>leaf <span lang="zh-CN">叶子</span></li>
+                <li>branch <span lang="zh-CN">树枝</span></li>
+                <li>trunk <span lang="zh-CN">树干</span></li>
+              </ul>
+              <div class="word-card-foot">
+                <p class="from-life" id="hero-from">From your walk in the park.</p>
+                <a class="word-card-talk" href="#loop"
+                  ><span data-i18n="hero.talk">Talk about it</span><svg class="icon"><use href="#i-chat" /></svg
+                ></a>
+              </div>
+            </aside>
+            <svg class="hero-thread" viewBox="0 0 160 120" aria-hidden="true">
+              <path d="M6 6c46 10 14 34 54 44s44 30 94 62" />
+              <circle cx="154" cy="112" r="2.4" />
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="idea" id="idea">
+        <div class="container">
+          <div class="idea-grid">
+            <div class="idea-copy">
+              <p class="eyebrow reveal" data-i18n="idea.eyebrow">01 — The idea</p>
+              <h2 class="display reveal" style="--d: 0.05s" data-i18n-html="idea.title">
+                Most tools teach words.<br /><em>Named starts from your life.</em>
+              </h2>
+              <p class="reveal" style="--d: 0.1s" data-i18n="idea.p1">
+                A word becomes yours when it is tied to something you saw, said, or felt. Named begins with a question: what caught your eye
+                today?
+              </p>
+              <p class="reveal" style="--d: 0.14s" data-i18n="idea.p2">
+                From there, the word is not a flashcard. It becomes a card in your timeline, a line in your notebook, a step in practice,
+                and a sentence in a story made from your own words.
+              </p>
+            </div>
+            <div class="idea-side">
+              <div class="idea-tiles">
+                <figure class="tile reveal" style="--d: 0.04s">
+                  <div class="tile-media"><img src="assets/forest.jpg" alt="A path through a sunlit forest" loading="lazy" /></div>
+                  <figcaption><span class="tile-word">tree</span><span class="tile-cn" data-i18n="idea.tile1">树 · 公园</span></figcaption>
+                </figure>
+                <figure class="tile reveal" style="--d: 0.12s">
+                  <div class="tile-media"><img src="assets/watering-can.jpg" alt="A green watering can in a garden" loading="lazy" /></div>
+                  <figcaption>
+                    <span class="tile-word">watering can</span><span class="tile-cn" data-i18n="idea.tile2">洒水壶 · 阳台</span>
+                  </figcaption>
+                </figure>
+                <figure class="tile reveal" style="--d: 0.2s">
+                  <div class="tile-media">
+                    <img src="assets/coffee.jpg" alt="A cup of coffee held in warm morning light" loading="lazy" />
+                  </div>
+                  <figcaption>
+                    <span class="tile-word">coffee</span><span class="tile-cn" data-i18n="idea.tile3">咖啡 · 清晨</span>
+                  </figcaption>
+                </figure>
+              </div>
+              <blockquote class="pullquote reveal" style="--d: 0.16s" data-i18n="idea.quote">
+                One thread over and under: the new word tied to what you already know.
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="film" id="loop">
+        <div class="container">
+          <div class="film-head reveal">
+            <p class="eyebrow" data-i18n="film.eyebrow">02 — The loop</p>
+            <h2 class="display" data-i18n-html="film.title">From a word<br /><em>to a story.</em></h2>
+            <p class="lede" data-i18n="film.lede">
+              Five quiet moves. No units to finish, no streak to protect. The same word comes back in a new context.
+            </p>
+          </div>
+        </div>
+        <div class="container film-grid">
+          <div class="film-stage">
+            <div class="loop-stage" role="group" aria-label="Conversation preview" data-i18n-aria-label="film.preview">
+              <div class="loop-top">
+                <span class="loop-count" id="loop-count">01 / 05</span>
+                <span class="loop-caption" data-i18n="film.dialogue.caption">One word, passed back and forth.</span>
+              </div>
+              <div class="loop-exchanges">
+                <article class="loop-exchange is-active" data-screen="0" aria-hidden="false">
+                  <div class="loop-you">
+                    <p class="loop-speaker">
+                      <span class="loop-dot" aria-hidden="true"></span><span data-i18n="film.dialogue.you">You</span>
+                    </p>
+                    <p class="loop-line" id="loop-see-user">I stopped under a tree this morning.</p>
+                  </div>
+                  <div class="loop-bridge" aria-hidden="true">
+                    <svg viewBox="0 0 130 40" preserveAspectRatio="none"><path d="M3 4C33 4 31 34 64 34S104 20 127 20" /></svg>
+                    <span class="loop-bead"></span>
+                  </div>
+                  <div class="loop-agent">
+                    <p class="loop-speaker">
+                      <img class="loop-avatar" src="assets/companion.jpg" alt="" loading="lazy" /><span data-i18n="film.dialogue.named"
+                        >Named</span
+                      >
+                    </p>
+                    <div class="loop-result loop-see">
+                      <p class="loop-word-line">
+                        <span id="loop-see-word">tree</span><span class="loop-ipa" id="loop-see-ipa">/triː/</span
+                        ><button
+                          class="loop-play"
+                          id="loop-word-play"
+                          type="button"
+                          data-speak="tree"
+                          aria-label="Play the pronunciation"
+                          data-i18n-aria-label="film.dialogue.playWord"
+                        >
+                          <svg class="icon"><use href="#i-play" /></svg>
+                        </button>
+                      </p>
+                      <p class="loop-meta" id="loop-see-meta">树 · noun</p>
+                      <p class="loop-def" id="loop-see-def">A tall plant with a trunk, branches, and leaves.</p>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="loop-exchange" data-screen="1" aria-hidden="true">
+                  <div class="loop-you">
+                    <p class="loop-speaker">
+                      <span class="loop-dot" aria-hidden="true"></span><span data-i18n="film.dialogue.you">You</span>
+                    </p>
+                    <p class="loop-line" id="loop-talk-user">I sit under tree with my daughter yesterday.</p>
+                  </div>
+                  <div class="loop-bridge" aria-hidden="true">
+                    <svg viewBox="0 0 130 40" preserveAspectRatio="none"><path d="M3 4C33 4 31 34 64 34S104 20 127 20" /></svg>
+                    <span class="loop-bead"></span>
+                  </div>
+                  <div class="loop-agent">
+                    <p class="loop-speaker">
+                      <img class="loop-avatar" src="assets/companion.jpg" alt="" loading="lazy" /><span data-i18n="film.dialogue.named"
+                        >Named</span
+                      >
+                    </p>
+                    <div class="loop-result loop-correct">
+                      <p class="loop-kicker" data-i18n="film.dialogue.moreNatural">More natural English</p>
+                      <p class="loop-corrected" id="loop-talk-corrected">I sat under the tree with my daughter yesterday.</p>
+                      <div class="loop-correct-foot">
+                        <span class="loop-note" id="loop-talk-note">sit → sat; add “the” before tree.</span
+                        ><button class="loop-use" id="use-this" type="button">Use this</button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="loop-exchange" data-screen="2" aria-hidden="true">
+                  <div class="loop-you">
+                    <p class="loop-speaker">
+                      <span class="loop-dot" aria-hidden="true"></span><span data-i18n="film.dialogue.you">You</span>
+                    </p>
+                    <p class="loop-line" data-i18n="film.dialogue.keepUser">Keep this one.</p>
+                  </div>
+                  <div class="loop-bridge" aria-hidden="true">
+                    <svg viewBox="0 0 130 40" preserveAspectRatio="none"><path d="M3 4C33 4 31 34 64 34S104 20 127 20" /></svg>
+                    <span class="loop-bead"></span>
+                  </div>
+                  <div class="loop-agent">
+                    <p class="loop-speaker">
+                      <img class="loop-avatar" src="assets/companion.jpg" alt="" loading="lazy" /><span data-i18n="film.dialogue.named"
+                        >Named</span
+                      >
+                    </p>
+                    <div class="loop-result loop-keep">
+                      <p class="loop-kicker" data-i18n="film.dialogue.kept">Kept in your notebook</p>
+                      <p class="loop-chunk"><b id="loop-keep-chunk">under the tree</b><span id="loop-keep-chunk-zh">在树下</span></p>
+                      <ul class="loop-chips" id="loop-keep-chips">
+                        <li>leaf <span lang="zh-CN">叶子</span></li>
+                        <li>branch <span lang="zh-CN">树枝</span></li>
+                        <li>trunk <span lang="zh-CN">树干</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="loop-exchange" data-screen="3" aria-hidden="true">
+                  <div class="loop-agent loop-prompt">
+                    <p class="loop-speaker">
+                      <img class="loop-avatar" src="assets/companion.jpg" alt="" loading="lazy" /><span data-i18n="film.dialogue.named"
+                        >Named</span
+                      >
+                    </p>
+                    <div class="loop-result loop-practice">
+                      <p class="loop-kicker" data-i18n="film.dialogue.oneReturn">One quiet return</p>
+                      <p class="loop-cue" id="loop-practice-cue">I sat <span class="loop-blank">___</span> the tree with my daughter.</p>
+                    </div>
+                  </div>
+                  <div class="loop-bridge" aria-hidden="true">
+                    <svg viewBox="0 0 130 40" preserveAspectRatio="none"><path d="M3 4C33 4 31 34 64 34S104 20 127 20" /></svg>
+                    <span class="loop-bead"></span>
+                  </div>
+                  <div class="loop-you">
+                    <p class="loop-speaker">
+                      <span class="loop-dot" aria-hidden="true"></span><span data-i18n="film.dialogue.you">You</span>
+                    </p>
+                    <p class="loop-line loop-answer" id="loop-practice-answer">under.</p>
+                  </div>
+                  <p class="loop-confirm">
+                    <svg class="icon"><use href="#i-check" /></svg><span data-i18n="film.dialogue.noScore">Yes. No score, no streak.</span>
+                  </p>
+                </article>
+
+                <article class="loop-exchange" data-screen="4" aria-hidden="true">
+                  <div class="loop-you">
+                    <p class="loop-speaker">
+                      <span class="loop-dot" aria-hidden="true"></span><span data-i18n="film.dialogue.you">You</span>
+                    </p>
+                    <p class="loop-line" data-i18n="film.dialogue.readIt">Read it to me.</p>
+                  </div>
+                  <div class="loop-bridge" aria-hidden="true">
+                    <svg viewBox="0 0 130 40" preserveAspectRatio="none"><path d="M3 4C33 4 31 34 64 34S104 20 127 20" /></svg>
+                    <span class="loop-bead"></span>
+                  </div>
+                  <div class="loop-agent">
+                    <p class="loop-speaker">
+                      <img class="loop-avatar" src="assets/companion.jpg" alt="" loading="lazy" /><span data-i18n="film.dialogue.named"
+                        >Named</span
+                      >
+                    </p>
+                    <div class="loop-result loop-story">
+                      <p class="loop-kicker" data-i18n="film.dialogue.fromWords">From your words</p>
+                      <p class="loop-story-title" id="loop-story-title">The Tree by the Path</p>
+                      <p class="loop-story-text" id="loop-story-text">
+                        At seven in the morning, the path was still cool under the <span class="u">tree</span>. She stood there with her
+                        daughter and listened to the leaves.
+                      </p>
+                      <div class="loop-story-foot">
+                        <button
+                          class="loop-listen"
+                          id="loop-story-play"
+                          type="button"
+                          data-speak="At seven in the morning, the path was still cool under the tree. She stood there with her daughter and listened to the leaves."
+                          aria-label="Listen to the story"
+                          data-i18n-aria-label="film.dialogue.listenStory"
+                        >
+                          <svg class="icon"><use href="#i-play" /></svg><span data-i18n="film.dialogue.listen">Listen</span>
+                        </button>
+                        <a class="loop-link" href="#story" data-i18n="film.dialogue.fullStory">Read the full story</a>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+          <div class="film-steps-wrap">
+            <span class="film-rail" aria-hidden="true"><span class="film-rail-fill"></span></span>
+            <ol class="film-steps" id="film-steps">
+              <li class="film-step is-active" data-screen="0">
+                <div class="film-step-inner">
+                  <span class="step-num">01</span>
+                  <h3 data-i18n="film.step1.title">See it</h3>
+                  <p data-i18n="film.step1.desc">One feed for what you noticed, talked about, and read.</p>
+                  <span class="step-tag" data-i18n="film.step1.tag">Timeline</span>
+                </div>
+              </li>
+              <li class="film-step" data-screen="1">
+                <div class="film-step-inner">
+                  <span class="step-num">02</span>
+                  <h3 data-i18n="film.step2.title">Say it</h3>
+                  <p data-i18n="film.step2.desc">Milo replies, and quietly offers a more accurate English.</p>
+                  <span class="step-tag" data-i18n="film.step2.tag">Talk</span>
+                </div>
+              </li>
+              <li class="film-step" data-screen="2">
+                <div class="film-step-inner">
+                  <span class="step-num">03</span>
+                  <h3 data-i18n="film.step3.title">Keep it</h3>
+                  <p data-i18n="film.step3.desc">The word goes into your notebook, with its sounds, meaning, and chunk.</p>
+                  <span class="step-tag" data-i18n="film.step3.tag">Words</span>
+                </div>
+              </li>
+              <li class="film-step" data-screen="3">
+                <div class="film-step-inner">
+                  <span class="step-num">04</span>
+                  <h3 data-i18n="film.step4.title">Practice it</h3>
+                  <p data-i18n="film.step4.desc">A five-step return: understand, recall, use. No score.</p>
+                  <span class="step-tag" data-i18n="film.step4.tag">Practice</span>
+                </div>
+              </li>
+              <li class="film-step" data-screen="4">
+                <div class="film-step-inner">
+                  <span class="step-num">05</span>
+                  <h3 data-i18n="film.step5.title">Meet it again</h3>
+                  <p data-i18n="film.step5.desc">A short daily story brings the word back in a new context.</p>
+                  <span class="step-tag" data-i18n="film.step5.tag">Daily</span>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="story" id="story">
+        <div class="container story-grid">
+          <div class="story-copy">
+            <p class="eyebrow reveal" data-i18n="story.eyebrow">03 — A story</p>
+            <h2 class="display reveal" style="--d: 0.05s" data-i18n-html="story.title">A story made<br /><em>from your words.</em></h2>
+            <p class="lede reveal" style="--d: 0.1s" data-i18n="story.lede">
+              Every day, Named writes a short story using the words you kept. Read it, listen to it, and meet your words in a new light.
+            </p>
+            <blockquote class="pullquote reveal" style="--d: 0.16s" data-i18n="story.quote">
+              Not a quiz. Not a streak. Just a story.
+            </blockquote>
+            <p class="story-note reveal" style="--d: 0.2s" data-i18n="story.note">
+              Tap the underlined word to hear it and see how it is used.
+            </p>
+          </div>
+          <article class="reading-card reveal" style="--d: 0.12s">
+            <div class="reading-top">
+              <p class="reading-date" data-i18n="story.date">Mon, Nov 23</p>
+              <button
+                class="listen-btn"
+                type="button"
+                data-speak="At seven in the morning, the kitchen floor was cold under Mia's bare feet. She stood at the counter with a cup of tea, still half asleep, when she heard something small and quick under the boards. Scratch, scratch, scratch. Then silence."
+                data-i18n-aria-label="story.listenAria"
+                aria-label="Listen to today's story"
+              >
+                <svg class="icon icon-play"><use href="#i-play" /></svg>
+                <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span data-i18n="story.listen">Listen</span>
+              </button>
+            </div>
+            <h3 class="reading-title" data-i18n="story.storyTitle">The Sound Under the Floor</h3>
+            <p>
+              At seven in the morning, the kitchen floor was cold under Mia's bare feet. She stood at the counter with a cup of tea, still
+              half asleep, when she heard something small and quick under the boards.
+              <span class="annot-wrap"
+                ><button class="annot" type="button" data-annot="scratch" aria-expanded="false" aria-controls="annot-scratch">
+                  Scratch</button
+                ><span class="annot-pop" id="annot-scratch" hidden
+                  ><span class="annot-head"
+                    ><span class="annot-word">scratch</span
+                    ><button class="play play-small" type="button" data-speak="scratch" aria-label="Play the pronunciation of scratch">
+                      <svg class="icon icon-play"><use href="#i-play" /></svg
+                      ><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></button></span
+                  ><span class="annot-ipa">/skrætʃ/ · verb</span
+                  ><span class="annot-def">To rub your skin with your nails, usually because it itches.</span
+                  ><span class="annot-cn" lang="zh-CN">（用指甲）挠、抓（通常因为痒）。</span></span
+                ></span
+              >, scratch, scratch. Then silence.
+            </p>
+            <p>
+              She put down her cup and listened. The sound came again, near the corner by the old wooden cupboard. A mouse, she thought, and
+              her heart sank a little.
+            </p>
+            <div class="reading-foot">
+              <span data-i18n="story.from">Made with your words</span><span class="reading-words">scratch · slippery · floor</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="library" id="library">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow" data-i18n="library.eyebrow">04 — Your library</p>
+            <h2 class="display" data-i18n-html="library.title">Everything stays<br /><em>in one place.</em></h2>
+            <p class="lede" data-i18n="library.lede">Your words, your talks, your readings, and the moments worth returning to.</p>
+          </div>
+          <div class="library-grid">
+            <ul class="library-rows">
+              <li class="library-row reveal">
+                <span class="library-icon"
+                  ><svg class="icon"><use href="#i-flag" /></svg
+                ></span>
+                <div>
+                  <h3 data-i18n="library.row1.title">Challenges</h3>
+                  <p data-i18n="library.row1.desc">A plan for what to revisit.</p>
+                </div>
+                <svg class="icon chev"><use href="#i-chevron" /></svg>
+              </li>
+              <li class="library-row reveal" style="--d: 0.06s">
+                <span class="library-icon"
+                  ><svg class="icon"><use href="#i-headphones" /></svg
+                ></span>
+                <div>
+                  <h3 data-i18n="library.row2.title">Daily listen/read</h3>
+                  <p data-i18n="library.row2.desc">A short story made from your words.</p>
+                </div>
+                <svg class="icon chev"><use href="#i-chevron" /></svg>
+              </li>
+              <li class="library-row reveal" style="--d: 0.12s">
+                <span class="library-icon"
+                  ><svg class="icon"><use href="#i-bookmark" /></svg
+                ></span>
+                <div>
+                  <h3 data-i18n="library.row3.title">Words</h3>
+                  <p data-i18n="library.row3.desc">The notebook you are building.</p>
+                </div>
+                <svg class="icon chev"><use href="#i-chevron" /></svg>
+              </li>
+              <li class="library-row reveal" style="--d: 0.18s">
+                <span class="library-icon"
+                  ><svg class="icon"><use href="#i-history" /></svg
+                ></span>
+                <div>
+                  <h3 data-i18n="library.row4.title">History</h3>
+                  <p data-i18n="library.row4.desc">Experiences worth looking back on.</p>
+                </div>
+                <svg class="icon chev"><use href="#i-chevron" /></svg>
+              </li>
+            </ul>
+            <figure class="library-phone reveal" style="--d: 0.1s">
+              <div class="phone library-phone-shell" aria-hidden="true">
+                <span class="phone-notch"></span>
+                <div class="phone-viewport">
+                  <div class="app-screen me-screen">
+                    <div class="statusbar">
+                      <span class="status-time">9:41</span
+                      ><span class="status-icons"
+                        ><svg class="icon"><use href="#i-signal" /></svg><svg class="icon"><use href="#i-wifi" /></svg
+                        ><svg class="icon"><use href="#i-battery" /></svg
+                      ></span>
+                    </div>
+                    <div class="app-body me-body">
+                      <div class="me-head">
+                        <p class="me-title">Me</p>
+                        <svg class="icon"><use href="#i-settings" /></svg>
+                      </div>
+                      <div class="me-label"><span>Profile</span><span class="me-action">Edit</span></div>
+                      <div class="me-profile">
+                        <div><span>Language</span><b>Chinese</b></div>
+                        <div><span>Age</span><b>34</b></div>
+                        <div><span>Gender</span><b>Female</b></div>
+                      </div>
+                      <div class="me-label"><span>Soul notes 2</span><span class="me-action">Add</span></div>
+                      <ul class="me-notes">
+                        <li>I walk to work through the park.</li>
+                        <li>My daughter is learning to read.</li>
+                      </ul>
+                      <div class="me-label"><span>Your library</span></div>
+                      <ul class="me-library">
+                        <li>
+                          <svg class="icon"><use href="#i-flag" /></svg>
+                          <div><b>Challenges</b><span>A short plan for this week.</span></div>
+                          <svg class="icon chev"><use href="#i-chevron" /></svg>
+                        </li>
+                        <li>
+                          <svg class="icon"><use href="#i-headphones" /></svg>
+                          <div><b>Daily listen/read</b><span>A short reading made from your words.</span></div>
+                          <svg class="icon chev"><use href="#i-chevron" /></svg>
+                        </li>
+                        <li>
+                          <svg class="icon"><use href="#i-bookmark" /></svg>
+                          <div><b>Words</b><span>Words you kept from moments.</span></div>
+                          <svg class="icon chev"><use href="#i-chevron" /></svg>
+                        </li>
+                        <li>
+                          <svg class="icon"><use href="#i-history" /></svg>
+                          <div><b>History</b><span>Experiences worth looking back on.</span></div>
+                          <svg class="icon chev"><use href="#i-chevron" /></svg>
+                        </li>
+                      </ul>
+                      <p class="me-signout">Sign out</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <figcaption data-i18n="library.caption">Me — your profile, your library, your words.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="principles" id="principles">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow" data-i18n="principles.eyebrow">05 — Why it feels different</p>
+            <h2 class="display" data-i18n="principles.title">Calm by design.</h2>
+          </div>
+          <ol class="principle-grid">
+            <li class="principle reveal">
+              <span class="principle-num">01</span>
+              <h3 data-i18n="principles.one.title">Life first</h3>
+              <p data-i18n="principles.one.desc">A real photo or one honest sentence leads. Chrome stays quiet.</p>
+            </li>
+            <li class="principle reveal" style="--d: 0.06s">
+              <span class="principle-num">02</span>
+              <h3 data-i18n="principles.two.title">No streaks</h3>
+              <p data-i18n="principles.two.desc">No scores, no pressure, no leaderboard. Returning is enough.</p>
+            </li>
+            <li class="principle reveal" style="--d: 0.12s">
+              <span class="principle-num">03</span>
+              <h3 data-i18n="principles.three.title">Yours to keep</h3>
+              <p data-i18n="principles.three.desc">Your words and moments are private. Soul is yours to shape.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="cta" id="try">
+        <img class="cta-mark" src="assets/brand/c-symbol.svg" alt="" aria-hidden="true" />
+        <div class="container cta-inner">
+          <p class="eyebrow reveal" data-i18n="cta.eyebrow">Begin</p>
+          <h2 class="display reveal" style="--d: 0.05s" data-i18n-html="cta.title">Start with<br /><em>one word.</em></h2>
+          <p class="lede reveal" style="--d: 0.1s" data-i18n="cta.lede">
+            Named is coming to iOS and Android. Leave a note and we will write when it is ready.
+          </p>
+          <form class="waitlist reveal" id="waitlist" style="--d: 0.16s" novalidate>
+            <label class="sr-only" for="email" data-i18n="cta.emailLabel">Email address</label>
+            <div class="field-row">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                inputmode="email"
+                autocomplete="email"
+                data-i18n-placeholder="cta.placeholder"
+                placeholder="you@example.com"
+                required
+              />
+              <button class="btn" type="submit">
+                <span data-i18n="cta.button">Join the waitlist</span><svg class="icon"><use href="#i-arrow" /></svg>
+              </button>
+            </div>
+            <p class="form-note" id="form-note" data-i18n="cta.note">One email when it is ready. No noise.</p>
+            <p class="form-success" id="form-success" role="status" hidden>
+              <svg class="icon"><use href="#i-check" /></svg
+              ><span data-i18n="cta.success">You are on the list. We will write when Named is ready.</span>
+            </p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <img src="assets/brand/c-symbol.svg" alt="Named woven N symbol" width="256" height="256" />
+          <p class="footer-name">Named</p>
+          <p class="footer-tagline" data-i18n="footer.tagline">One word, one story.</p>
+          <p class="footer-support" data-i18n="footer.support">Start with one word, and build your own English world.</p>
+        </div>
+        <div class="footer-cols">
+          <div>
+            <h3 data-i18n="footer.product">Product</h3>
+            <a href="#idea" data-i18n="nav.idea">The idea</a>
+            <a href="#loop" data-i18n="nav.loop">The loop</a>
+            <a href="#story" data-i18n="nav.story">A story</a>
+            <a href="#library" data-i18n="nav.library">Your library</a>
+          </div>
+          <div>
+            <h3 data-i18n="footer.more">More</h3>
+            <a href="https://github.com/ZhangPeibin/Named" target="_blank" rel="noopener noreferrer" data-i18n="footer.github">GitHub</a>
+            <a href="#try" data-i18n="nav.early">Get early access</a>
+          </div>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span data-i18n="footer.note">© 2026 Named</span>
+        <a href="#top"><span data-i18n="footer.top">Back to top</span> <span aria-hidden="true">↑</span></a>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
