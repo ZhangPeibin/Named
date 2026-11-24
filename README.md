@@ -6,7 +6,7 @@
 
 **One word, one story.**
 
-Named gives you **Milo**, an AI English companion who turns what you notice into a word you keep: a timeline, a notebook, practice, and a story made from your own days.
+Named gives you **Milo**, an AI English companion that turns what you notice into a word you keep, then builds a timeline, a notebook, practice, and a story from your own days.
 
 Start with one word, and build your own English world.
 
@@ -56,11 +56,11 @@ Named starts from the learner's real life:
 
 The product turns those moments into a personal learning loop:
 
-**See → Say → Keep → Practice → Meet it again**
+**See, Say, Keep, Practice, and Meet it again**
 
 On the marketing site these five moves map to the app's Timeline, Talk, Words, Practice, and Daily surfaces.
 
-The goal is not to complete a fixed curriculum. It is to build **your own world of English memories**: English grounded in what you noticed, what you shared, and what you returned to.
+The goal is not to complete a fixed curriculum. It is to build **your own world of English memories**, English grounded in what you noticed, what you shared, and what you returned to.
 
 ## Core features
 
@@ -72,16 +72,16 @@ The goal is not to complete a fixed curriculum. It is to build **your own world 
 | **Voice Talk** | Record a turn, transcribe it, and send automatically after stopping. Empty recordings return quietly without an error. |
 | **Accurate English** | Chinese input gets a natural English version; English with a clear error gets the complete corrected sentence. Already-natural English is not repeated. |
 | **Text selection** | Long-press any Talk message to copy, open Word details for a word, or open Sentence details for a phrase/sentence. Sentence details explain the English and provide Listen. |
-| **Challenge** | Select Word/Moment discoveries, set a name and planned days, continue from Timeline, track opened content, and end the round manually. Content is never deleted or treated as mastered. |
+| **Challenge** | Select Word/Moment discoveries, set a name and planned days, continue from Timeline, track opened content, and end the round manually. Named never deletes content or marks it mastered. |
 | **Help me say it** | Ask for a natural English expression, hear it, and insert it into Talk without turning the exchange into a grammar lecture. |
 | **Experience + History** | After Talk, an asynchronous agent extracts meaningful life and learning experiences. History lets the learner revisit them, and Talk/Help can use relevant experiences as context. |
 | **Companion memory** | Milo can use relevant prior context, recurring learning errors, and explicit memories without exposing an internal memory-management screen. |
-| **Soul** | Keep a lightweight, user-owned profile that guides personalization. Soul is not inferred from private content or silently rewritten from practice. |
+| **Soul** | Keep a lightweight, user-owned profile that guides personalization. Named does not infer Soul from private content or rewrite it from practice. |
 | **Account lifecycle** | Email-code authentication, opaque sessions, account deletion, and a 30-day hard-delete purge. |
 
 ### Experience versus Memory
 
-These are deliberately separate:
+These are separate:
 
 | Layer | Purpose | Visible to learner |
 | --- | --- | --- |
@@ -92,14 +92,14 @@ These are deliberately separate:
 
 An Experience is not a chat summary. It is a small, sourced record such as:
 
-- **Life experience**: “和女儿在公园的树荫下休息。”
-- **Learning experience**: “练习了 `under the tree`，并纠正了第三人称单数。”
+- **Life experience**: "和女儿在公园的树荫下休息。"
+- **Learning experience**: "练习了 `under the tree`，并纠正了第三人称单数。"
 
 Practice, hypotheticals, role-play, and AI-generated examples cannot become life experiences.
 
 ## Agent architecture
 
-Named uses **Pydantic AI** with a replaceable model string (currently DeepSeek text/vision). Agents are not free-form database writers: each one returns a structured contract, and backend services validate and persist the result.
+Named uses **Pydantic AI** with a replaceable model string (currently DeepSeek text/vision). Agents are not free-form database writers. Each one returns a structured contract, and backend services validate and persist the result.
 
 ```mermaid
 %%{init: {
@@ -167,7 +167,7 @@ flowchart TB
     Runtime --> Model["Model provider<br/>DeepSeek / replaceable"]
     API --> DB["MySQL"]
     API --> Media["Media store<br/>images + audio"]
-    API --> Speech["DashScope<br/>TTS + speech recognition"]
+    API --> Speech["DashScope<br/>text-to-speech + speech recognition"]
 
     classDef warm fill:#F7F0E3,stroke:#B86B45,stroke-width:1.7px,color:#2D2A26
     classDef blue fill:#E8F0F5,stroke:#456A7C,stroke-width:1.7px,color:#243746
@@ -189,7 +189,7 @@ flowchart TB
 | --- | --- | --- | --- |
 | **DiscoveryAgent** | Text, image, learner context | Focus kind, candidates, Word/Scene payload, warnings | Discover |
 | **TalkAgent** | Focus, Soul, memory, recurring errors, history, new message | Reply, native translation, user-English hint, corrections, annotations, memory candidates | Talk |
-| **HelpAgent** | Desired idea, focus, relevant history | Natural English, note, alternatives | “Help me say it” |
+| **HelpAgent** | Desired idea, focus, relevant history | Natural English, note, alternatives | "Help me say it" |
 | **ExperienceAgent** | Full conversation with message sequence numbers, focus, corrections, annotations | At most one life and one learning candidate with evidence and confidence | Experience worker |
 | **WordLookupAgent** | Selected Chinese or English word | One English word to look up | Word lookup |
 | **SentenceAgent** | Selected phrase or sentence | English version, explanation, structure, chunks, key words | Sentence details |
@@ -200,7 +200,7 @@ flowchart TB
 - Experience evidence must reference real messages in the same conversation.
 - Life experiences require explicit user facts; practice and hypotheticals cannot be promoted to real life.
 - Talk and Help failures use a bounded, user-readable error contract. Experience extraction failure never fails the Talk turn.
-- Account deletion removes account-scoped data; shared content-addressed audio caches are retained.
+- Account deletion removes account-scoped data; the API retains shared content-addressed audio caches.
 
 ## Talk and Experience pipeline
 
@@ -286,7 +286,7 @@ flowchart LR
 
     subgraph Providers["External providers"]
         DeepSeek["DeepSeek<br/>text + vision"]
-        DashScope["DashScope<br/>TTS + ASR"]
+        DashScope["DashScope<br/>text-to-speech + speech recognition"]
     end
 
     IOS --> API
@@ -338,7 +338,7 @@ Keep the prototype's HTML, CSS, JavaScript files, and `assets/` directory togeth
 - [UI/UX direction](docs/ui-ux-design.md): navigation, screen map, interaction direction, and visual system.
 - [Experience + History requirements](docs/feature/v1/experience-and-history/discussion.md): async agent decisions, evidence rules, and History scope.
 - [Companion memory requirements](docs/feature/v1/companion-memory/discussion.md): internal memory model and retrieval.
-- [Competitive landscape](docs/competitive-landscape.md): researched comparisons and differentiation hypotheses.
+- [Competitive research](docs/competitive-landscape.md): researched comparisons and differentiation hypotheses.
 - [Brand identity](docs/brand-identity.md): logo, wordmark, color, and app icon rules.
 - [Visual design files](final/README.md): PNG previews and editable SVG artwork.
 
@@ -449,7 +449,7 @@ Errors use `application/problem+json` with `code`, `status`, `detail`, and
 ## AI agents
 
 All AI behavior lives in separate PydanticAI agents under `backend/src/`. They
-are not separate services: each agent registers an `AgentSpec` with the shared
+are not separate services. Each agent registers an `AgentSpec` with the shared
 runtime in `backend/src/agents/`, is created once per process, injected as a
 FastAPI dependency, and uses the shared model/provider configured by `AI_MODEL`
 in `backend/src/ai.py`. The default is `deepseek:deepseek-flash`; DeepSeek runs
@@ -486,7 +486,7 @@ GET /api/v1/daily/read
   -> recent words / starter words
   -> Daily read agent
   -> persisted once per account/day
-  -> TTS audio cached; app renders Listen + Read
+  -> text-to-speech audio cached; app renders Listen + Read
 
 GET /api/v1/daily/read/translation
   -> split stored passage into sentence spans
@@ -558,7 +558,7 @@ Not implemented yet:
 - Real-time full-duplex Live Talk / barge-in
 - Automatic Soul updates from Experience
 - Full Knowledge Graph / Personal English World
-- Streaming Talk (SSE)
+- Streaming Talk with server-sent events
 - Lock-screen media controls
 - Production email delivery, object storage, and deployment automation
 - Age gate / parental consent
