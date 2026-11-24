@@ -656,6 +656,40 @@ async def test_word_lookup_resolves_chinese_and_returns_word_details(talk_env) -
 
 
 @pytest.mark.asyncio
+async def test_looked_up_word_can_be_saved_to_words(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    verified = await request_and_verify(http, sender, "save-lookup@example.com")
+    headers = bearer(verified["session_token"])
+
+    lookup = await http.get("/api/v1/words/lookup?text=tree", headers=headers)
+    assert lookup.status_code == 200, lookup.text
+    body = lookup.json()
+    assert body["saved"] is False
+    word_id = body["id"]
+
+    words = await http.get("/api/v1/words", headers=headers)
+    assert words.json()["stats"]["total"] == 0
+
+    saved = await http.post(f"/api/v1/words/{word_id}/save", headers=headers)
+    assert saved.status_code == 201, saved.text
+    assert saved.json() == {"word_id": word_id, "label": "tree", "created": True}
+
+    words = await http.get("/api/v1/words", headers=headers)
+    assert words.json()["stats"]["total"] == 1
+    assert words.json()["words"][0]["id"] == word_id
+    assert words.json()["words"][0]["label_en"] == "tree"
+
+    again = await http.post(f"/api/v1/words/{word_id}/save", headers=headers)
+    assert again.status_code == 201, again.text
+    assert again.json()["created"] is False
+    words = await http.get("/api/v1/words", headers=headers)
+    assert words.json()["stats"]["total"] == 1
+
+    lookup = await http.get("/api/v1/words/lookup?text=tree", headers=headers)
+    assert lookup.json()["saved"] is True
+
+
+@pytest.mark.asyncio
 async def test_sentence_lookup_and_speech(talk_env) -> None:
     http, sender, _, _, _, _ = talk_env
     verified = await request_and_verify(http, sender, "sentence@example.com")

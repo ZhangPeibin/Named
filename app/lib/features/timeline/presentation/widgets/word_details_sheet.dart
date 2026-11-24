@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../i18n/strings.g.dart';
@@ -19,11 +20,15 @@ class WordDetailsSheet extends StatefulWidget {
     required this.item,
     this.known,
     this.onToggleKnown,
+    this.saved,
+    this.onAddToWords,
   });
 
   final TimelineWordItem item;
   final bool? known;
   final VoidCallback? onToggleKnown;
+  final bool? saved;
+  final Future<void> Function()? onAddToWords;
 
   @override
   State<WordDetailsSheet> createState() => _WordDetailsSheetState();
@@ -31,6 +36,36 @@ class WordDetailsSheet extends StatefulWidget {
 
 class _WordDetailsSheetState extends State<WordDetailsSheet> {
   var _accent = defaultWordAudioAccent;
+  var _saving = false;
+  var _saved = false;
+
+  bool get _isSaved => _saved || widget.saved == true;
+
+  Future<void> _addToWords() async {
+    final onAddToWords = widget.onAddToWords;
+    if (onAddToWords == null || _saving) {
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      await onAddToWords();
+      if (!mounted) {
+        return;
+      }
+      setState(() => _saved = true);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.words.addFailed)));
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +161,34 @@ class _WordDetailsSheetState extends State<WordDetailsSheet> {
               icon: const AppLineIcon(AppLineGlyph.chat, size: 18),
               label: Text(context.t.ask.title),
             ),
+            if (widget.onAddToWords != null) ...[
+              const SizedBox(height: AppSpacing.s12),
+              if (_isSaved)
+                Row(
+                  children: [
+                    AppLineIcon(
+                      AppLineGlyph.checkCircle,
+                      size: 18,
+                      color: palette.primary,
+                    ),
+                    const SizedBox(width: AppSpacing.s8),
+                    Text(
+                      context.t.words.addedToWords,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: palette.muted,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                AppButton(
+                  key: const Key('wordDetails.add'),
+                  label: context.t.words.addToWords,
+                  icon: const AppLineIcon(AppLineGlyph.bookmark, size: 18),
+                  isLoading: _saving,
+                  onPressed: _addToWords,
+                ),
+            ],
             if (widget.onToggleKnown != null) ...[
               const SizedBox(height: AppSpacing.s4),
               Align(

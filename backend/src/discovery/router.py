@@ -27,6 +27,7 @@ from discovery.service import (
     lookup_word,
     mark_word_attempted,
     save_talk_word,
+    save_word,
     set_word_known,
 )
 from discovery.word_lookup_agent import WordLookupAgent, get_word_lookup_agent
@@ -160,6 +161,17 @@ async def save_from_talk(
     session: SessionDep,
 ) -> WordSaveOut:
     return await save_talk_word(session, current.account.id, payload)
+
+
+@word_router.post(
+    "/{word_id}/save", response_model=WordSaveOut, status_code=status.HTTP_201_CREATED
+)
+async def save_word_to_shelf(
+    word_id: str,
+    current: CurrentAuthDep,
+    session: SessionDep,
+) -> WordSaveOut:
+    return await save_word(session, current.account.id, word_id)
 
 
 @word_router.patch("/{word_id}/progress", response_model=WordProgressOut)

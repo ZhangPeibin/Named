@@ -20,6 +20,7 @@ class WordShelfItem {
     required this.firstSeenAt,
     required this.lastSeenAt,
     required this.status,
+    this.saved = true,
   });
 
   final String id;
@@ -30,6 +31,7 @@ class WordShelfItem {
   final DateTime firstSeenAt;
   final DateTime lastSeenAt;
   final WordShelfStatus status;
+  final bool saved;
 }
 
 class WordsStats {

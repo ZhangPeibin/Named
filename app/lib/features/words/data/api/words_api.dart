@@ -10,6 +10,8 @@ abstract class WordsApi {
 
   Future<WordShelfItemDto> lookup(String text);
 
+  Future<bool> addToShelf(String wordId);
+
   Future<void> setKnown({required String wordId, required bool known});
 
   Future<void> markReviewed(String wordId);
@@ -76,6 +78,27 @@ class RemoteWordsApi implements WordsApi {
         );
       }
       return WordShelfItemDto.fromJson(data);
+    } on DioException catch (error) {
+      final apiException = error.error;
+      if (apiException is ApiException) {
+        throw apiException;
+      }
+      throw ApiException.fromDioException(error);
+    } on FormatException catch (error) {
+      throw ApiException(
+        type: ApiExceptionType.badResponse,
+        message: error.message,
+      );
+    }
+  }
+
+  @override
+  Future<bool> addToShelf(String wordId) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/v1/words/$wordId/save',
+      );
+      return response.data?['created'] as bool? ?? true;
     } on DioException catch (error) {
       final apiException = error.error;
       if (apiException is ApiException) {
@@ -196,6 +219,7 @@ class MockWordsApi implements WordsApi {
       firstSeenAt: DateTime.now(),
       lastSeenAt: DateTime.now(),
       status: WordShelfStatus.needsReview,
+      saved: false,
     );
   }
 
@@ -205,6 +229,11 @@ class MockWordsApi implements WordsApi {
       stats: WordsStatsDto(total: 0, newThisWeek: 0, usedInTalkThisWeek: 0),
       words: [],
     );
+  }
+
+  @override
+  Future<bool> addToShelf(String wordId) async {
+    return true;
   }
 
   @override

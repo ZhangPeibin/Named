@@ -439,6 +439,45 @@ async def get_discovery(
     return await _discovery_out(session, discovery, settings, audio_service)
 
 
+async def _word_is_saved(session: AsyncSession, account_id: str, word_id: str) -> bool:
+    linked = await session.scalar(
+        select(Discovery.id)
+        .where(
+            Discovery.account_id == account_id,
+            Discovery.word_id == word_id,
+            Discovery.focus_kind == "word",
+            Discovery.deleted_at.is_(None),
+        )
+        .limit(1)
+    )
+    return linked is not None
+
+
+async def _ensure_word_discovery(
+    session: AsyncSession,
+    account_id: str,
+    word: Word,
+    *,
+    input_type: str,
+    input_text: str | None,
+) -> bool:
+    if await _word_is_saved(session, account_id, word.id):
+        return False
+    native_language = await _native_language(session, account_id)
+    session.add(
+        Discovery(
+            account_id=account_id,
+            input_type=input_type,
+            input_text=input_text,
+            input_language=native_language,
+            focus_kind="word",
+            word_id=word.id,
+            status="ready",
+        )
+    )
+    return True
+
+
 async def get_word(
     session: AsyncSession,
     account_id: str,
@@ -460,6 +499,7 @@ async def get_word(
         label_en=word.label_en,
         content=WordPayload.model_validate(content.payload_json) if content else None,
         audio=audio,
+        saved=await _word_is_saved(session, account_id, word.id),
     )
 
 
@@ -504,8 +544,15 @@ async def lookup_word(
         confirmed_label=label,
     )
     audio = await audio_service.for_word(session, word)
+    saved = await _word_is_saved(session, account_id, word.id)
     await session.commit()
-    return WordOut(id=word.id, label_en=word.label_en, content=payload, audio=audio)
+    return WordOut(
+        id=word.id,
+        label_en=word.label_en,
+        content=payload,
+        audio=audio,
+        saved=saved,
+    )
 
 
 async def delete_discovery(
@@ -714,6 +761,26 @@ async def mark_word_attempted(
     return _progress_out(word_id, progress, utcnow())
 
 
+async def save_word(
+    session: AsyncSession,
+    account_id: str,
+    word_id: str,
+) -> WordSaveOut:
+    word = await session.get(Word, word_id)
+    if word is None:
+        raise ApiError("Word not found.", status_code=404, code="word_not_found")
+
+    created = await _ensure_word_discovery(
+        session,
+        account_id,
+        word,
+        input_type="lookup",
+        input_text=word.label_en,
+    )
+    await session.commit()
+    return WordSaveOut(word_id=word.id, label=word.label_en, created=created)
+
+
 async def save_talk_word(
     session: AsyncSession,
     account_id: str,
@@ -729,32 +796,14 @@ async def save_talk_word(
         session.add(word)
         await session.flush()
 
-    existing_discovery = await session.scalar(
-        select(Discovery)
-        .where(
-            Discovery.account_id == account_id,
-            Discovery.word_id == word.id,
-            Discovery.focus_kind == "word",
-            Discovery.deleted_at.is_(None),
-        )
-        .limit(1)
+    created = await _ensure_word_discovery(
+        session,
+        account_id,
+        word,
+        input_type="talk",
+        input_text=label,
     )
-    created = existing_discovery is None
-    if created:
-        native_language = await _native_language(session, account_id)
-        session.add(
-            Discovery(
-                account_id=account_id,
-                input_type="talk",
-                input_text=label,
-                input_language=native_language,
-                focus_kind="word",
-                word_id=word.id,
-                status="ready",
-            )
-        )
-    else:
-        native_language = await _native_language(session, account_id)
+    native_language = await _native_language(session, account_id)
 
     content = await session.scalar(
         select(WordContent)

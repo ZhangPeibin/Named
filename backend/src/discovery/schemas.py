@@ -181,6 +181,7 @@ class WordOut(BaseModel):
     label_en: str
     content: WordPayload | None
     audio: AudioOut | None = None
+    saved: bool = False
 
 
 WordStatus = Literal["needs_review", "attempted", "known"]

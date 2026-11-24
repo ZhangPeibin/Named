@@ -11,6 +11,7 @@ class WordShelfItemDto {
     required this.firstSeenAt,
     required this.lastSeenAt,
     required this.status,
+    this.saved,
   });
 
   factory WordShelfItemDto.fromJson(Map<String, dynamic> json) {
@@ -29,6 +30,7 @@ class WordShelfItemDto {
       firstSeenAt: _parseDate(json['first_seen_at']),
       lastSeenAt: _parseDate(json['last_seen_at']),
       status: wordShelfStatusFromJson(json['status'] as String?),
+      saved: json['saved'] as bool?,
     );
   }
 
@@ -40,6 +42,7 @@ class WordShelfItemDto {
   final DateTime firstSeenAt;
   final DateTime lastSeenAt;
   final WordShelfStatus status;
+  final bool? saved;
 
   WordShelfItem toDomain() {
     return WordShelfItem(
@@ -51,6 +54,7 @@ class WordShelfItemDto {
       firstSeenAt: firstSeenAt,
       lastSeenAt: lastSeenAt,
       status: status,
+      saved: saved ?? true,
     );
   }
 }
