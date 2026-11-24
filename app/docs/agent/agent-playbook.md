@@ -140,6 +140,23 @@ Reusable UI belongs in `lib/core/widgets/` and must reuse theme tokens from
 hardcoded colors/sizes. Check `core/widgets/` first — prefer `AppScaffold`,
 `AppButton`, `AppAsyncView`, `AppEmptyView`, etc. before adding a new control.
 
+## Recipe: install the app on a physical iPhone
+
+Use a profile or release build. Flutter debug builds need a debugger/JIT
+connection and cannot start standalone on a physical device.
+
+```sh
+make install-ios
+make install-ios DEVICE=<udid>
+make install-ios CONFIG=config/dev-ios.json
+make install-ios MODE=release
+```
+
+`make install-ios` auto-detects a single physical iOS device, builds the
+`dev` flavor in profile mode with `config/dev-remote.json`, installs it with
+`xcrun devicectl`, and launches it. If several physical devices are connected,
+pass `DEVICE=<udid>`.
+
 ## Recipe: write a test
 
 - Unit-test domain rules, DTO parsing, repositories, and providers.

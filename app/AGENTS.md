@@ -11,3 +11,8 @@ features: `dart run tool/new_feature.dart <name>`.
 
 Before finishing, run `make check` and report any check that could not run. Do
 not revert unrelated worktree changes or edit generated Dart files manually.
+
+When asked to install or update the app on a physical iPhone, run
+`make install-ios` (profile build by default). Never install a Flutter debug
+build on a physical iPhone; it requires a debugger/JIT connection and cannot
+start standalone.

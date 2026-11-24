@@ -1,4 +1,5 @@
 .PHONY: bootstrap run-dev run-dev-ios run-staging run-prod \
+        install-ios \
         build-apk build-appbundle build-apk-local build-ios \
         preflight-prod preflight-android preflight-ios \
         check fix format-check generated-check architecture-check \
@@ -37,6 +38,12 @@ run-staging:
 
 run-prod: preflight-prod
 	flutter run --flavor prod --release --dart-define-from-file=config/prod.json
+
+# Build a standalone (profile by default) dev app and install it on a physical
+# iPhone. Debug builds require a debugger/JIT connection and are not usable
+# standalone. Overrides: CONFIG=..., MODE=release, DEVICE=<udid>.
+install-ios:
+	PATH="$(CURDIR)/.fvm/flutter_sdk/bin:$$PATH" bash tool/install_ios.sh
 
 preflight-prod: bootstrap
 	dart run tool/release_preflight.dart \

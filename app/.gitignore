@@ -48,6 +48,9 @@ app.*.map.json
 # Local production env (may contain secrets). Seed it from config/prod.example.json.
 /config/prod.json
 
+# Local remote-testing env; points at a personal server IP.
+/config/dev-remote.json
+
 # Signing credentials and local export configuration
 /android/key.properties
 /android/*.jks
