@@ -771,18 +771,55 @@ input:focus-visible {
   margin: 0;
 }
 
-.agent-visual {
-  display: grid;
-  place-items: center;
+.agent-frame {
+  display: flex;
+  flex-direction: column;
   aspect-ratio: 4 / 5;
-  padding: 16%;
+  padding: 28px;
+  border: 1px solid var(--line-strong);
   border-radius: 20px;
-  background: var(--stone);
+  background: transparent;
 }
 
-.agent-mark {
-  width: 100%;
-  height: auto;
+.agent-frame-kicker {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.agent-frame-line {
+  margin: auto 0;
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.agent-frame-line em {
+  font-style: italic;
+}
+
+.agent-thread {
+  width: 120px;
+  height: 36px;
+  margin-top: auto;
+  fill: none;
+  stroke: var(--terracotta);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.agent-thread circle {
+  fill: var(--terracotta);
+  stroke: none;
+}
+
+body[data-lang="zh"] .agent-frame-line {
+  letter-spacing: 0;
+  line-height: 1.35;
 }
 
 .agent-portrait figcaption {
@@ -894,6 +931,14 @@ body[data-lang="zh"] .agent-quote p {
   .agent-portrait {
     max-width: 320px;
   }
+
+  .agent-frame {
+    padding: 24px;
+  }
+
+  .agent-frame-line {
+    font-size: 30px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -903,6 +948,19 @@ body[data-lang="zh"] .agent-quote p {
 
   .agent-portrait {
     max-width: 240px;
+  }
+
+  .agent-frame {
+    padding: 20px;
+  }
+
+  .agent-frame-line {
+    font-size: 24px;
+  }
+
+  .agent-thread {
+    width: 90px;
+    height: 28px;
   }
 
   .agent-traits {
@@ -918,6 +976,19 @@ body[data-lang="zh"] .agent-quote p {
 @media (max-width: 420px) {
   .agent-portrait {
     max-width: 220px;
+  }
+
+  .agent-frame {
+    padding: 18px;
+  }
+
+  .agent-frame-line {
+    font-size: 22px;
+  }
+
+  .agent-thread {
+    width: 76px;
+    height: 24px;
   }
 }
 
@@ -1054,11 +1125,12 @@ body[data-lang="zh"] .agent-quote p {
   background: var(--terracotta);
 }
 
-.loop-avatar {
-  width: 24px;
-  height: 24px;
+.loop-agent-bead {
+  width: 6px;
+  height: 6px;
+  flex: none;
   border-radius: 50%;
-  object-fit: cover;
+  background: var(--terracotta);
 }
 
 .loop-line {
