@@ -143,7 +143,7 @@ async def get_next_practice(
             label for word_id, label in saved if word_id != chosen_id and label != chosen_label
         )
     )
-    options = random.sample(labels, k=min(3, len(labels))) if labels else []
+    options = random.sample(labels, k=min(4, len(labels))) if labels else []
 
     return PracticeWordOut(
         id=chosen_id,

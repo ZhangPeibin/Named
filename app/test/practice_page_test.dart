@@ -81,6 +81,39 @@ PracticeWord _word() {
   );
 }
 
+Offset _swipeStart(WidgetTester tester) {
+  final box = tester.getRect(find.byKey(const Key('practice.pages')));
+  return Offset(box.center.dx, box.top + 120);
+}
+
+Future<void> _swipeNext(WidgetTester tester) async {
+  await tester.dragFrom(_swipeStart(tester), const Offset(-350, 0));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _swipeBack(WidgetTester tester) async {
+  await tester.dragFrom(_swipeStart(tester), const Offset(350, 0));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _swipeNextAfterCheck(WidgetTester tester) async {
+  await tester.dragFrom(_swipeStart(tester), const Offset(-350, 0));
+  await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _advanceToUse(WidgetTester tester) async {
+  await _swipeNext(tester);
+  await _swipeNext(tester);
+  await tester.tap(find.byKey(const Key('practice.option.tree')));
+  await tester.pumpAndSettle();
+  await _swipeNext(tester);
+  await tester.enterText(find.byKey(const Key('practice.recallInput')), 'tree');
+  await tester.pump();
+  await _swipeNextAfterCheck(tester);
+}
+
 void main() {
   testWidgets('walks all five nodes and completes once', (tester) async {
     final api = _FakePracticeApi();
@@ -106,13 +139,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(t.practice.understandTitle), findsOneWidget);
+    expect(find.text(t.practice.swipeHint), findsOneWidget);
+    expect(
+      find.text('There is a tree in the park.', findRichText: true),
+      findsOneWidget,
+    );
 
-    for (var index = 0; index < 4; index++) {
-      await tester.tap(find.byKey(const Key('practice.next')));
-      await tester.pumpAndSettle();
-    }
+    await _swipeNext(tester);
+    expect(find.text(t.practice.swipeHint), findsNothing);
+
+    await _swipeBack(tester);
+    await _swipeNext(tester);
+    await _swipeNext(tester);
+    await tester.tap(find.byKey(const Key('practice.option.tree')));
+    await tester.pumpAndSettle();
+    await _swipeNext(tester);
+    await tester.enterText(
+      find.byKey(const Key('practice.recallInput')),
+      'tree',
+    );
+    await tester.pump();
+    await _swipeNextAfterCheck(tester);
 
     expect(find.text(t.practice.useTitle), findsOneWidget);
+    expect(find.byKey(const Key('practice.finish')), findsOneWidget);
     expect(api.completions, 0);
 
     await tester.enterText(
@@ -134,9 +184,8 @@ void main() {
     await tester.tap(find.byKey(const Key('practice.send')));
     await tester.pumpAndSettle();
     expect(api.replies, 2);
-    expect(find.byKey(const Key('practice.useInput')), findsNothing);
 
-    await tester.tap(find.byKey(const Key('practice.next')));
+    await tester.tap(find.byKey(const Key('practice.finish')));
     await tester.pumpAndSettle();
 
     expect(api.completions, 1);
@@ -175,10 +224,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (var index = 0; index < 4; index++) {
-      await tester.tap(find.byKey(const Key('practice.next')));
-      await tester.pumpAndSettle();
-    }
+    await _advanceToUse(tester);
 
     await tester.enterText(
       find.byKey(const Key('practice.useInput')),
@@ -215,10 +261,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (var index = 0; index < 4; index++) {
-      await tester.tap(find.byKey(const Key('practice.next')));
-      await tester.pumpAndSettle();
-    }
+    await _advanceToUse(tester);
 
     await tester.enterText(
       find.byKey(const Key('practice.useInput')),
@@ -232,6 +275,211 @@ void main() {
     expect(find.text(t.practice.useError), findsOneWidget);
     expect(find.byKey(const Key('practice.useInput')), findsOneWidget);
     expect(api.completions, 0);
+  });
+
+  testWidgets('gates recognise and recall until the learner acts', (
+    tester,
+  ) async {
+    final api = _FakePracticeApi();
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          practiceSessionProvider.overrideWith((ref) async => _word()),
+          practiceRepositoryProvider.overrideWithValue(PracticeRepository(api)),
+          progressProvider.overrideWith(
+            (ref) async => const Progress(
+              words: 1,
+              conversations: 0,
+              readings: 0,
+              practices: 0,
+            ),
+          ),
+        ],
+        child: const PracticePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _swipeNext(tester);
+    await _swipeNext(tester);
+    expect(find.text(t.practice.recogniseTitle), findsOneWidget);
+    expect(find.text('There is a ____ in the park.'), findsOneWidget);
+
+    await _swipeNext(tester);
+    expect(find.text(t.practice.recogniseTitle), findsOneWidget);
+    expect(find.text(t.practice.swipeBlockedHint), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('practice.option.tree')));
+    await tester.pumpAndSettle();
+    expect(find.text(t.practice.recogniseCorrect), findsOneWidget);
+    await _swipeNext(tester);
+    expect(find.text(t.practice.recallTitle), findsOneWidget);
+
+    await _swipeNext(tester);
+    expect(find.text(t.practice.recallTitle), findsOneWidget);
+    expect(find.text(t.practice.swipeBlockedHint), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('practice.recallInput')),
+      'river',
+    );
+    await tester.pump();
+    await _swipeNext(tester);
+    expect(find.text(t.practice.recallTitle), findsOneWidget);
+    expect(
+      find.text(t.practice.recallWrong.replaceFirst('{word}', 'tree')),
+      findsOneWidget,
+    );
+
+    await _swipeNext(tester);
+    expect(find.text(t.practice.useTitle), findsOneWidget);
+  });
+
+  testWidgets('reveals recall hints one step at a time', (tester) async {
+    final api = _FakePracticeApi();
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          practiceSessionProvider.overrideWith((ref) async => _word()),
+          practiceRepositoryProvider.overrideWithValue(PracticeRepository(api)),
+          progressProvider.overrideWith(
+            (ref) async => const Progress(
+              words: 1,
+              conversations: 0,
+              readings: 0,
+              practices: 0,
+            ),
+          ),
+        ],
+        child: const PracticePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _swipeNext(tester);
+    await _swipeNext(tester);
+    await tester.tap(find.byKey(const Key('practice.option.tree')));
+    await tester.pumpAndSettle();
+    await _swipeNext(tester);
+
+    expect(find.byKey(const Key('practice.hint.firstLetter')), findsOneWidget);
+    expect(find.byKey(const Key('practice.hint.answer')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('practice.hint.firstLetter')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('practice.hint.ipa')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('practice.hint.ipa')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('practice.hint.audio')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('practice.hint.audio')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('practice.hint.answer')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('practice.hint.answer')));
+    await tester.pumpAndSettle();
+    await _swipeNext(tester);
+    expect(find.text(t.practice.useTitle), findsOneWidget);
+  });
+
+  testWidgets('keeps finish disabled until two replies and starts another', (
+    tester,
+  ) async {
+    var loads = 0;
+    final api = _FakePracticeApi();
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          practiceSessionProvider.overrideWith((ref) async {
+            loads += 1;
+            return _word();
+          }),
+          practiceRepositoryProvider.overrideWithValue(PracticeRepository(api)),
+          progressProvider.overrideWith(
+            (ref) async => const Progress(
+              words: 1,
+              conversations: 0,
+              readings: 0,
+              practices: 0,
+            ),
+          ),
+        ],
+        child: const PracticePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _advanceToUse(tester);
+    await tester.tap(find.byKey(const Key('practice.finish')));
+    await tester.pumpAndSettle();
+    expect(api.completions, 0);
+
+    await tester.enterText(
+      find.byKey(const Key('practice.useInput')),
+      'I saw a tree in the park.',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('practice.send')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('practice.finish')));
+    await tester.pumpAndSettle();
+    expect(api.completions, 0);
+
+    await tester.enterText(
+      find.byKey(const Key('practice.useInput')),
+      'It was tall.',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('practice.send')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('practice.finish')));
+    await tester.pumpAndSettle();
+    expect(api.completions, 1);
+
+    expect(find.text(t.practice.completeTitle), findsOneWidget);
+    await tester.tap(find.byKey(const Key('practice.another')));
+    await tester.pumpAndSettle();
+    expect(find.text(t.practice.understandTitle), findsOneWidget);
+    expect(loads, 2);
+  });
+
+  testWidgets('allows swiping back to review previous steps', (tester) async {
+    final api = _FakePracticeApi();
+    await pumpWithTranslations(
+      tester,
+      child: ProviderScope(
+        overrides: [
+          practiceSessionProvider.overrideWith((ref) async => _word()),
+          practiceRepositoryProvider.overrideWithValue(PracticeRepository(api)),
+          progressProvider.overrideWith(
+            (ref) async => const Progress(
+              words: 1,
+              conversations: 0,
+              readings: 0,
+              practices: 0,
+            ),
+          ),
+        ],
+        child: const PracticePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _advanceToUse(tester);
+    expect(find.text(t.practice.useTitle), findsOneWidget);
+
+    await _swipeBack(tester);
+    expect(find.text(t.practice.recallTitle), findsOneWidget);
+    await _swipeBack(tester);
+    expect(find.text(t.practice.recogniseTitle), findsOneWidget);
+
+    await _swipeNext(tester);
+    expect(find.text(t.practice.recallTitle), findsOneWidget);
+    await _swipeNext(tester);
+    expect(find.text(t.practice.useTitle), findsOneWidget);
   });
 
   testWidgets('shows the empty state when there are no saved words', (

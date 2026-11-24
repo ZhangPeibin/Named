@@ -1044,6 +1044,12 @@ class Translations$practice$en {
 	/// en: 'Done'
 	String get done => 'Done';
 
+	/// en: 'Swipe to move between steps'
+	String get swipeHint => 'Swipe to move between steps';
+
+	/// en: 'Finish the current task or exercise to continue.'
+	String get swipeBlockedHint => 'Finish the current task or exercise to continue.';
+
 	/// en: 'Practice could not load.'
 	String get loadFailed => 'Practice could not load.';
 
@@ -1071,8 +1077,23 @@ class Translations$practice$en {
 	/// en: 'Microphone access is off. You can still listen.'
 	String get micDenied => 'Microphone access is off. You can still listen.';
 
+	/// en: 'Recording {seconds}s'
+	String get recordingSeconds => 'Recording {seconds}s';
+
+	/// en: 'Up to 10s'
+	String get recordingLimit => 'Up to 10s';
+
+	/// en: 'Your context'
+	String get contextLabel => 'Your context';
+
 	/// en: 'Which word did you hear?'
 	String get recognisePrompt => 'Which word did you hear?';
+
+	/// en: 'Which word fits?'
+	String get recogniseSentencePrompt => 'Which word fits?';
+
+	/// en: 'Correct.'
+	String get recogniseCorrect => 'Correct.';
 
 	/// en: 'The answer is “{word}”.'
 	String get recogniseWrong => 'The answer is “{word}”.';
@@ -1082,6 +1103,15 @@ class Translations$practice$en {
 
 	/// en: 'Hints'
 	String get recallHint => 'Hints';
+
+	/// en: 'Need a hint?'
+	String get needHint => 'Need a hint?';
+
+	/// en: 'Correct.'
+	String get recallCorrect => 'Correct.';
+
+	/// en: 'Not quite — the word is “{word}”.'
+	String get recallWrong => 'Not quite — the word is “{word}”.';
 
 	/// en: 'First letter'
 	String get hintFirstLetter => 'First letter';
@@ -1098,8 +1128,14 @@ class Translations$practice$en {
 	/// en: 'Say something true about your life with this word.'
 	String get usePrompt => 'Say something true about your life with this word.';
 
+	/// en: 'Say something true about your life with “{word}”.'
+	String get useOpening => 'Say something true about your life with “{word}”.';
+
 	/// en: 'Type your sentence'
 	String get usePlaceholder => 'Type your sentence';
+
+	/// en: 'Conversation complete'
+	String get useDonePlaceholder => 'Conversation complete';
 
 	/// en: 'Send'
 	String get send => 'Send';
@@ -1109,6 +1145,9 @@ class Translations$practice$en {
 
 	/// en: '{count} more turns'
 	String get useTurnsLeft => '{count} more turns';
+
+	/// en: 'Two replies done. Tap Finish when you're ready.'
+	String get useTurnsDone => 'Two replies done. Tap Finish when you\'re ready.';
 
 	/// en: 'Could not send. Try again.'
 	String get useError => 'Could not send. Try again.';
@@ -1121,6 +1160,27 @@ class Translations$practice$en {
 
 	/// en: 'You have practiced this word {count} times.'
 	String get completeCount => 'You have practiced this word {count} times.';
+
+	/// en: 'Hints used: {count}'
+	String get hintsUsed => 'Hints used: {count}';
+
+	/// en: 'Replies: {count}'
+	String get repliesCount => 'Replies: {count}';
+
+	/// en: 'Practice another'
+	String get practiceAnother => 'Practice another';
+
+	/// en: 'Leave practice?'
+	String get leaveTitle => 'Leave practice?';
+
+	/// en: 'This session will not be saved.'
+	String get leaveBody => 'This session will not be saved.';
+
+	/// en: 'Leave'
+	String get leaveConfirm => 'Leave';
+
+	/// en: 'Keep practicing'
+	String get leaveCancel => 'Keep practicing';
 
 	/// en: 'Try again'
 	String get retry => 'Try again';
@@ -2040,6 +2100,8 @@ extension on Translations {
 			'practice.next' => 'Next',
 			'practice.finish' => 'Finish',
 			'practice.done' => 'Done',
+			'practice.swipeHint' => 'Swipe to move between steps',
+			'practice.swipeBlockedHint' => 'Finish the current task or exercise to continue.',
 			'practice.loadFailed' => 'Practice could not load.',
 			'practice.emptyTitle' => 'No words to practice',
 			'practice.emptyCopy' => 'Save a word first, then come back.',
@@ -2049,23 +2111,41 @@ extension on Translations {
 			'practice.stop' => 'Stop',
 			'practice.playback' => 'Play back',
 			'practice.micDenied' => 'Microphone access is off. You can still listen.',
+			'practice.recordingSeconds' => 'Recording {seconds}s',
+			'practice.recordingLimit' => 'Up to 10s',
+			'practice.contextLabel' => 'Your context',
 			'practice.recognisePrompt' => 'Which word did you hear?',
+			'practice.recogniseSentencePrompt' => 'Which word fits?',
+			'practice.recogniseCorrect' => 'Correct.',
 			'practice.recogniseWrong' => 'The answer is “{word}”.',
 			'practice.recallPrompt' => 'Type or say the word.',
 			'practice.recallHint' => 'Hints',
+			'practice.needHint' => 'Need a hint?',
+			'practice.recallCorrect' => 'Correct.',
+			'practice.recallWrong' => 'Not quite — the word is “{word}”.',
 			'practice.hintFirstLetter' => 'First letter',
 			'practice.hintIpa' => 'IPA',
 			'practice.hintAudio' => 'Audio',
 			'practice.hintAnswer' => 'Answer',
 			'practice.usePrompt' => 'Say something true about your life with this word.',
+			'practice.useOpening' => 'Say something true about your life with “{word}”.',
 			'practice.usePlaceholder' => 'Type your sentence',
+			'practice.useDonePlaceholder' => 'Conversation complete',
 			'practice.send' => 'Send',
 			'practice.sending' => 'Sending...',
 			'practice.useTurnsLeft' => '{count} more turns',
+			'practice.useTurnsDone' => 'Two replies done. Tap Finish when you\'re ready.',
 			'practice.useError' => 'Could not send. Try again.',
 			'practice.recastLabel' => 'More natural',
 			'practice.completeTitle' => 'Practice complete',
 			'practice.completeCount' => 'You have practiced this word {count} times.',
+			'practice.hintsUsed' => 'Hints used: {count}',
+			'practice.repliesCount' => 'Replies: {count}',
+			'practice.practiceAnother' => 'Practice another',
+			'practice.leaveTitle' => 'Leave practice?',
+			'practice.leaveBody' => 'This session will not be saved.',
+			'practice.leaveConfirm' => 'Leave',
+			'practice.leaveCancel' => 'Keep practicing',
 			'practice.retry' => 'Try again',
 			'words.title' => 'Words',
 			'words.notebookEyebrow' => 'Vocabulary notebook',
@@ -2256,6 +2336,8 @@ extension on Translations {
 			'ask.suggestion3' => 'Make this sentence more natural.',
 			'ask.emptyHistory' => 'Your questions will appear here.',
 			'ask.confidenceHigh' => 'Confident',
+			_ => null,
+		} ?? switch (path) {
 			'ask.confidenceMedium' => 'Fairly confident',
 			'ask.confidenceLow' => 'Not fully sure',
 			'ask.helpful' => 'Helpful',
