@@ -53,24 +53,6 @@ class SoulProfile(Base):
     )
 
 
-class SoulItem(Base):
-    __tablename__ = "soul_items"
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    account_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), index=True, nullable=False
-    )
-    kind: Mapped[str] = mapped_column(String(32), nullable=False)
-    text: Mapped[str] = mapped_column(String(500), nullable=False)
-    source: Mapped[str] = mapped_column(String(32), nullable=False)
-    source_ref: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=utcnow, onupdate=utcnow, nullable=False
-    )
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-
-
 class AuthCode(Base):
     __tablename__ = "auth_codes"
 

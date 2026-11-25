@@ -22,7 +22,6 @@ from models import (
     MemoryItem,
     MessageAnnotation,
     MessageCorrection,
-    SoulItem,
     SoulProfile,
     WordAttempt,
     WordProgress,
@@ -123,7 +122,6 @@ async def purge_expired_deletions(session: AsyncSession, store: MediaStore) -> i
         await session.execute(delete(WordProgress).where(WordProgress.account_id == account.id))
         await session.execute(delete(MemoryItem).where(MemoryItem.account_id == account.id))
         await session.execute(delete(ErrorPattern).where(ErrorPattern.account_id == account.id))
-        await session.execute(delete(SoulItem).where(SoulItem.account_id == account.id))
         await session.execute(delete(SoulProfile).where(SoulProfile.account_id == account.id))
         await session.execute(delete(AuthSession).where(AuthSession.account_id == account.id))
         await session.execute(delete(AuthCode).where(AuthCode.email == account.email))

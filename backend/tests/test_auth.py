@@ -30,7 +30,6 @@ from models import (
     ExperienceJob,
     ExperienceSource,
     MemoryItem,
-    SoulItem,
     Word,
     WordProgress,
 )
@@ -492,11 +491,14 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
 
     async with sessions() as session:
         session.add(
-            SoulItem(
+            MemoryItem(
                 account_id=account_id,
+                scope="about",
                 kind="interest",
                 text="gardening",
-                source="user_edit",
+                canonical_key="purge-gardening",
+                source_type="user_edit",
+                source_id="purge-about-source",
             )
         )
         word = Word(canonical_key="purge-tree", label_en="tree")
@@ -682,10 +684,6 @@ async def test_purge_expired_deletions_removes_data(client) -> None:
             await session.scalar(select(ErrorPattern).where(ErrorPattern.account_id == account_id))
             is None
         )
-        soul_items = await session.scalars(
-            select(SoulItem).where(SoulItem.account_id == account_id)
-        )
-        assert list(soul_items) == []
 
     response = await http.post(
         "/api/v1/auth/code",

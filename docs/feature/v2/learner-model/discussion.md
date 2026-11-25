@@ -288,12 +288,12 @@ MemoryItem        聚合记忆：kind=word, mention_count, first/last seen
 
 - `0027_memory_lifecycle` 增加 `status`、`superseded_by`、`valid_from`、`valid_until`，并移除旧的唯一约束。
 - `0028_memory_scope` 增加 `scope`，把未删除的 `soul_items` 回填为 `memory_items(scope='about')`。
-- `/soul` 已改读写 `memory_items(scope='about')`；`soul_items` 表暂时保留用于回滚，确认无读取后再删除。
+- `/soul` 已改读写 `memory_items(scope='about')`；`0029_drop_soul_items` 删除旧的 `soul_items` 表。
 - 开发环境允许 reset；生产环境通过 `make migrate` 应用。
 
 ## Evidence
 
-- `backend/src/models.py`：`SoulProfile`、`SoulItem`、`MemoryItem`、`Experience`、`ErrorPattern`。
+- `backend/src/models.py`：`SoulProfile`、`MemoryItem`、`Experience`、`ErrorPattern`。
 - `backend/src/talk/service.py`：Soul / Memory / Error / Experience 四段注入。
 - `backend/src/memory/service.py`：MemoryItem 去重、排序、检索。
 - `backend/src/soul/service.py`：onboarding 和手动写入。
