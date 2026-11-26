@@ -86,6 +86,7 @@ async def _word_items(
             .where(
                 WordContent.word_id.in_(word_ids),
                 WordContent.native_language == native_language,
+                WordContent.content_level == "full",
             )
             .order_by(WordContent.created_at.desc())
         )

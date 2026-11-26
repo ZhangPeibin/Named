@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_exception.dart';
@@ -28,12 +26,6 @@ abstract class TalkApi {
     required String conversationId,
     required String text,
   });
-
-  Future<PronunciationAudioDto> synthesizePronunciation(String text);
-
-  Future<String> transcribeAudio(Uint8List audio);
-
-  Future<TalkAudioDto> synthesizeSpeech(String text);
 }
 
 class RemoteTalkApi implements TalkApi {
@@ -105,86 +97,6 @@ class RemoteTalkApi implements TalkApi {
         type: ApiExceptionType.badResponse,
         message: error.message,
       );
-    }
-  }
-
-  @override
-  Future<PronunciationAudioDto> synthesizePronunciation(String text) async {
-    try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        '/api/v1/audio/pronunciation',
-        data: {'text': text},
-      );
-      final data = response.data;
-      if (data == null) {
-        throw const ApiException(
-          type: ApiExceptionType.badResponse,
-          message: 'Pronunciation response was empty',
-        );
-      }
-      return PronunciationAudioDto.fromJson(data);
-    } on DioException catch (error) {
-      final apiException = error.error;
-      if (apiException is ApiException) {
-        throw apiException;
-      }
-      throw ApiException.fromDioException(error);
-    } on FormatException catch (error) {
-      throw ApiException(
-        type: ApiExceptionType.badResponse,
-        message: error.message,
-      );
-    }
-  }
-
-  @override
-  Future<String> transcribeAudio(Uint8List audio) async {
-    try {
-      final form = FormData.fromMap({
-        'file': MultipartFile.fromBytes(audio, filename: 'voice.wav'),
-      });
-      final response = await _dio.post<Map<String, dynamic>>(
-        '/api/v1/audio/transcribe',
-        data: form,
-      );
-      final data = response.data;
-      if (data == null || data['text'] is! String) {
-        throw const ApiException(
-          type: ApiExceptionType.badResponse,
-          message: 'Transcription response was empty',
-        );
-      }
-      return data['text'] as String;
-    } on DioException catch (error) {
-      final apiException = error.error;
-      if (apiException is ApiException) {
-        throw apiException;
-      }
-      throw ApiException.fromDioException(error);
-    }
-  }
-
-  @override
-  Future<TalkAudioDto> synthesizeSpeech(String text) async {
-    try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        '/api/v1/audio/speech',
-        data: {'text': text},
-      );
-      final data = response.data;
-      if (data == null) {
-        throw const ApiException(
-          type: ApiExceptionType.badResponse,
-          message: 'Speech response was empty',
-        );
-      }
-      return TalkAudioDto.fromJson(data);
-    } on DioException catch (error) {
-      final apiException = error.error;
-      if (apiException is ApiException) {
-        throw apiException;
-      }
-      throw ApiException.fromDioException(error);
     }
   }
 
@@ -323,21 +235,6 @@ class MockTalkApi implements TalkApi {
     );
     _messages.putIfAbsent(conversationId, () => []).addAll([user, assistant]);
     return TurnDto(userMessage: user, assistantMessage: assistant);
-  }
-
-  @override
-  Future<PronunciationAudioDto> synthesizePronunciation(String text) async {
-    return const PronunciationAudioDto(usUrl: null, ukUrl: null);
-  }
-
-  @override
-  Future<String> transcribeAudio(Uint8List audio) async {
-    return 'This is a mock voice transcript.';
-  }
-
-  @override
-  Future<TalkAudioDto> synthesizeSpeech(String text) async {
-    return const TalkAudioDto(url: null, status: 'unavailable');
   }
 
   @override

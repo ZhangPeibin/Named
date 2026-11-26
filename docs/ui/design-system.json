@@ -1,0 +1,303 @@
+{
+  "protocol_version": "0.1.0",
+  "metadata": {
+    "project_name": "Named",
+    "design_foundation": "material3",
+    "theme": "light",
+    "description": "Mirrored from docs/ui-design-system.md, docs/brand-identity.md and app/lib/app/theme/. Default family is Ink & Linen (skyLight); dark lives in design-system.dark.json.",
+    "version": "2.0"
+  },
+  "x-source": {
+    "colors": "app/lib/app/theme/app_colors.dart AppPalette.skyLight + docs/ui-design-system.md",
+    "typography": "app/lib/app/theme/app_text_styles.dart + docs/ui-design-system.md \u00a73",
+    "spacing": "app/lib/app/theme/app_spacing.dart + docs/ui-design-system.md \u00a74",
+    "shape": "app/lib/app/theme/app_spacing.dart AppRadius + docs/ui-design-system.md \u00a74",
+    "elevation": "docs/ui-design-system.md \u00a74",
+    "opacity": "docs/ui-design-system.md \u00a75 (disabled 40%)",
+    "dimensions": "app/lib/app/theme/app_spacing.dart AppSize + docs/ui-design-system.md \u00a75",
+    "motion": "docs/ui-design-system.md \u00a77",
+    "brand": "docs/brand-identity.md + docs/brand/logo/round7/c-weave/README.md"
+  },
+  "tokens": {
+    "colors": {
+      "canvas": {
+        "value": "#ffffff",
+        "role": "background",
+        "description": "App background for the default Ink & Linen family."
+      },
+      "surface": {
+        "value": "#ffffff",
+        "role": "surface",
+        "description": "Cards, fields, sheets."
+      },
+      "surface_muted": {
+        "value": "#f3f1ec",
+        "role": "surface-variant",
+        "description": "Quiet blocks, selected tiles, skeletons."
+      },
+      "primary": {
+        "value": "#2b2a26",
+        "role": "primary",
+        "description": "Primary actions, active nav, identity."
+      },
+      "primary_pressed": {
+        "value": "#1c1b18",
+        "role": "primary",
+        "description": "Pressed primary."
+      },
+      "on_primary": {
+        "value": "#ffffff",
+        "role": "on-primary",
+        "description": "Text and icons on primary."
+      },
+      "ink": {
+        "value": "#232220",
+        "role": "on-surface",
+        "description": "Main text."
+      },
+      "muted": {
+        "value": "#6e6a62",
+        "role": "on-surface-variant",
+        "description": "Supporting text, metadata."
+      },
+      "accent": {
+        "value": "#526b4b",
+        "role": "secondary",
+        "description": "Quiet warm/green accents, not large backgrounds."
+      },
+      "warm": {
+        "value": "#f2eadf",
+        "role": "secondary-container",
+        "description": "Warm callouts, user-message surface."
+      },
+      "line": {
+        "value": "#e6e3dd",
+        "role": "outline-variant",
+        "description": "Borders and dividers."
+      },
+      "warning_surface": {
+        "value": "#f4e5d2",
+        "role": "tertiary-container",
+        "description": "Retry and inline warning background."
+      },
+      "warning_text": {
+        "value": "#7a4c2a",
+        "role": "on-tertiary-container",
+        "description": "Retry and inline warning text."
+      },
+      "error": {
+        "value": "#a13d32",
+        "role": "error",
+        "description": "Errors and destructive actions."
+      },
+      "on_error": {
+        "value": "#ffffff",
+        "role": "on-error",
+        "description": "Text on error."
+      },
+      "brand_ink": {
+        "value": "#232a31",
+        "role": "on-surface",
+        "description": "Woven mark stems on light grounds."
+      },
+      "brand_cobalt": {
+        "value": "#2f4a6b",
+        "role": "primary",
+        "description": "Brand cobalt from the app icon; not the default UI primary."
+      },
+      "brand_terracotta": {
+        "value": "#b05230",
+        "role": "tertiary",
+        "description": "The single thread that ties the word into the mark."
+      },
+      "brand_paper": {
+        "value": "#fbf8f2",
+        "role": "surface",
+        "description": "Brand paper ground used by the app icon and splash."
+      },
+      "splash_ground": {
+        "value": "#fbf8f2",
+        "role": "background",
+        "description": "Must equal the native splash color in app/pubspec.yaml so cold start does not flash."
+      },
+      "scrim": {
+        "value": "#000000",
+        "role": "scrim",
+        "description": "Modal scrim."
+      }
+    },
+    "typography": {
+      "display": {
+        "font_family": "Lora",
+        "size": 40,
+        "weight": 500,
+        "line_height": 44,
+        "letter_spacing": -1,
+        "description": "Hero editorial statement."
+      },
+      "editorial": {
+        "font_family": "Lora",
+        "size": 32,
+        "weight": 500,
+        "line_height": 38,
+        "letter_spacing": -0.8,
+        "description": "Page-level editorial headline."
+      },
+      "wordmark": {
+        "font_family": "Lora",
+        "size": 20,
+        "weight": 500,
+        "line_height": 24,
+        "letter_spacing": -0.3,
+        "description": "In-app wordmark text; the brand wordmark itself is the Manrope 800 lockup asset."
+      },
+      "page_title": {
+        "font_family": "Lora",
+        "size": 26,
+        "weight": 500,
+        "line_height": 32,
+        "letter_spacing": -0.4
+      },
+      "section_title": {
+        "font_family": "Lora",
+        "size": 21,
+        "weight": 500,
+        "line_height": 28,
+        "letter_spacing": -0.2
+      },
+      "body_large": {
+        "font_family": "System Sans",
+        "size": 16,
+        "weight": 400,
+        "line_height": 24
+      },
+      "body": {
+        "font_family": "System Sans",
+        "size": 15,
+        "weight": 400,
+        "line_height": 23
+      },
+      "body_small": {
+        "font_family": "System Sans",
+        "size": 13,
+        "weight": 400,
+        "line_height": 20
+      },
+      "label": {
+        "font_family": "System Sans",
+        "size": 13,
+        "weight": 600,
+        "line_height": 18
+      },
+      "button": {
+        "font_family": "System Sans",
+        "size": 15,
+        "weight": 600,
+        "line_height": 18
+      },
+      "nav": {
+        "font_family": "System Sans",
+        "size": 10,
+        "weight": 500,
+        "line_height": 12
+      },
+      "caption": {
+        "font_family": "System Sans",
+        "size": 11,
+        "weight": 500,
+        "line_height": 16
+      },
+      "eyebrow": {
+        "font_family": "System Sans",
+        "size": 10,
+        "weight": 600,
+        "line_height": 14,
+        "letter_spacing": 1.6,
+        "description": "Uppercase brand kicker."
+      }
+    },
+    "spacing": {
+      "s2": 2,
+      "s4": 4,
+      "s6": 6,
+      "s8": 8,
+      "s10": 10,
+      "s12": 12,
+      "s14": 14,
+      "s16": 16,
+      "s18": 18,
+      "s20": 20,
+      "s24": 24,
+      "s32": 32,
+      "s40": 40,
+      "s48": 48,
+      "page_horizontal": 24,
+      "page_max_width": 520
+    },
+    "shape": {
+      "r8": 8,
+      "r10": 10,
+      "r12": 12,
+      "r16": 16,
+      "r18": 18,
+      "r24": 24,
+      "pill": 999
+    },
+    "elevation": {
+      "level0": 0,
+      "level1": 1,
+      "floating": 14
+    },
+    "opacity": {
+      "low": 0.12,
+      "dot": 0.32,
+      "disabled": 0.4,
+      "medium": 0.6,
+      "full": 1
+    },
+    "dimensions": {
+      "touch_target": 48,
+      "touch_min": 44,
+      "app_bar_height": 56,
+      "button_height": 52,
+      "field_height": 56,
+      "icon_sm": 18,
+      "icon_md": 22,
+      "icon_lg": 24,
+      "logo_symbol": 96,
+      "logo_lockup_width": 200,
+      "logo_lockup_height": 74,
+      "splash_progress_width": 96,
+      "splash_progress_height": 2,
+      "step_bar_active": 26,
+      "step_bar_idle": 8,
+      "step_bar_height": 6,
+      "page_max_width": 520,
+      "sheet_handle": 32,
+      "spacer_8": 8,
+      "spacer_16": 16
+    },
+    "motion": {
+      "quick": {
+        "duration_ms": 120,
+        "easing": "easeOut",
+        "description": "Press and micro feedback."
+      },
+      "standard": {
+        "duration_ms": 220,
+        "easing": "easeOutCubic",
+        "description": "State and step transitions."
+      },
+      "page": {
+        "duration_ms": 280,
+        "easing": "easeOutCubic",
+        "description": "Page and sheet transitions."
+      },
+      "emphasized": {
+        "duration_ms": 300,
+        "easing": "easeOutCubic",
+        "description": "Splash mark fade-in."
+      }
+    }
+  }
+}

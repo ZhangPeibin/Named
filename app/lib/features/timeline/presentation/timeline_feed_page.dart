@@ -168,6 +168,7 @@ class _TimelineFeedPageState extends ConsumerState<TimelineFeedPage> {
         case TimelineWordItem():
         case TimelineSceneItem():
         case TimelineQuestionItem():
+        case TimelinePendingItem():
           break;
       }
     }

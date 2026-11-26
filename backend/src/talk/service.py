@@ -93,6 +93,7 @@ async def _word_terms(
         .where(
             WordContent.word_id == word.id,
             WordContent.native_language == await _native_language(session, account_id),
+            WordContent.content_level == "full",
         )
         .order_by(WordContent.created_at.desc())
     )
@@ -183,6 +184,7 @@ async def _focus_context(
                 WordContent.native_language == native_language,
                 WordContent.model == settings.ai_model,
                 WordContent.prompt_version == settings.ai_prompt_version,
+                WordContent.content_level == "full",
             )
             .order_by(WordContent.created_at.desc())
             .limit(1)

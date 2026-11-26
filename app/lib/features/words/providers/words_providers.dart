@@ -22,7 +22,27 @@ final wordShelfProvider = FutureProvider.autoDispose<WordShelf>((ref) {
   return ref.watch(wordsRepositoryProvider).fetch();
 });
 
+final wordDetailsCacheProvider = Provider<Map<String, WordShelfItem>>((ref) {
+  return {};
+});
+
 final wordLookupProvider = FutureProvider.autoDispose
     .family<WordShelfItem, String>((ref, text) {
-      return ref.watch(wordsRepositoryProvider).lookup(text);
-    });
+      ref.keepAlive();
+      return ref.watch(wordsRepositoryProvider).lookup(text, level: 'card');
+    }, retry: (retryCount, error) => null);
+
+final wordDetailsProvider = FutureProvider.autoDispose
+    .family<WordShelfItem, String>((ref, wordId) async {
+      ref.keepAlive();
+      final cache = ref.watch(wordDetailsCacheProvider);
+      final cached = cache[wordId];
+      if (cached != null) {
+        return cached;
+      }
+      final item = await ref
+          .watch(wordsRepositoryProvider)
+          .fetchDetails(wordId);
+      cache[wordId] = item;
+      return item;
+    }, retry: (retryCount, error) => null);

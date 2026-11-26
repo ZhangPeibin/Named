@@ -1,0 +1,683 @@
+{
+  "protocol_version": "0.1.0",
+  "metadata": {
+    "project_name": "Named",
+    "platform": "mobile",
+    "design_foundation": "material3",
+    "theme": "light",
+    "target_screen": "sign_in",
+    "description": "Brand-led splash handoff and two-step sign-in (native language, then email code). Adopted from app/lib/features/loading/presentation/loading_page.dart and app/lib/features/auth/presentation/sign_in_page.dart.",
+    "locale": "en"
+  },
+  "design_system_ref": "../design-system.json",
+  "x-theme-pairs": {
+    "splash_mark": { "light": "splash_symbol", "dark": "splash_symbol_dark" },
+    "brand_lockup": { "light": "brand_lockup", "dark": "brand_lockup_dark" }
+  },
+  "assets": [
+    {
+      "id": "splash_symbol",
+      "type": "image",
+      "source": "asset:../../../app/assets/branding/marks/symbol_light.png",
+      "dimensions": { "width": 512, "height": 512 },
+      "fit": "contain",
+      "description": "The Weave N, ink stems + terracotta thread on transparent, for light grounds."
+    },
+    {
+      "id": "splash_symbol_dark",
+      "type": "image",
+      "source": "asset:../../../app/assets/branding/marks/symbol_dark.png",
+      "dimensions": { "width": 512, "height": 512 },
+      "fit": "contain",
+      "description": "The Weave N, paper stems + terracotta thread on transparent, for dark grounds."
+    },
+    {
+      "id": "brand_lockup",
+      "type": "image",
+      "source": "asset:../../../app/assets/branding/marks/lockup_light.png",
+      "dimensions": { "width": 1400, "height": 512 },
+      "fit": "contain",
+      "description": "Primary horizontal lockup: woven N + Manrope 800 Named wordmark, ink on transparent."
+    },
+    {
+      "id": "brand_lockup_dark",
+      "type": "image",
+      "source": "asset:../../../app/assets/branding/marks/lockup_dark.png",
+      "dimensions": { "width": 1400, "height": 512 },
+      "fit": "contain",
+      "description": "Horizontal lockup with paper stems and paper wordmark on transparent, for dark grounds."
+    }
+  ],
+  "screens": [
+    {
+      "id": "splash",
+      "name": "Splash",
+      "description": "Cold-start brand moment while the saved session is read. No input and no action; the router replaces this route as soon as auth resolves.",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "density": 3,
+        "safe_area": { "top": 47, "bottom": 34 }
+      },
+      "background": "color.splash_ground",
+      "root": {
+        "id": "splash_root",
+        "type": "scaffold",
+        "interactions": [
+          {
+            "id": "splash_resolved",
+            "trigger": "appear",
+            "action": "navigate",
+            "target": "sign_in",
+            "result": "When no saved session exists the router replaces the splash with sign in; a saved session goes to the timeline instead."
+          }
+        ],
+        "children": [
+          {
+            "id": "splash_area",
+            "type": "safe_area",
+            "layout": { "width": "fill", "height": "fill" },
+            "children": [
+              {
+                "id": "splash_stack",
+                "type": "stack",
+                "layout": { "width": "fill", "height": "fill" },
+                "children": [
+                  {
+                    "id": "splash_mark",
+                    "type": "image",
+                    "props": { "asset": "splash_symbol" },
+                    "layout": {
+                      "width": "size.logo_symbol",
+                      "height": "size.logo_symbol",
+                      "alignment": "center"
+                    },
+                    "accessibility": { "label": "Named" },
+                    "motion": [
+                      {
+                        "id": "splash_mark_fade",
+                        "trigger": "on_appear",
+                        "property": "opacity",
+                        "from": 0,
+                        "to": 1,
+                        "duration": "motion.emphasized",
+                        "easing": "emphasized"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "splash_progress",
+                    "type": "progress_indicator",
+                    "props": { "variant": "linear", "indeterminate": true },
+                    "layout": {
+                      "width": "size.splash_progress_width",
+                      "height": "size.splash_progress_height",
+                      "alignment": "bottom_center",
+                      "margin": { "bottom": "space.s32" }
+                    },
+                    "style": { "tint": "color.primary" },
+                    "accessibility": { "label": "Loading" }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "states": [
+        {
+          "id": "loading",
+          "name": "Loading",
+          "default": true,
+          "visible_when": "auth status is still resolving",
+          "show": ["splash_mark", "splash_progress"]
+        },
+        {
+          "id": "leaving",
+          "name": "Leaving",
+          "visible_when": "auth status resolved and the router is replacing this route",
+          "hide": ["splash_mark", "splash_progress"]
+        }
+      ],
+      "notes": [
+        "Empty cannot occur: the screen holds no collection.",
+        "Error cannot occur as a screen state: a failed session read is treated as signed out and the router shows sign in.",
+        "The in-app ground must equal the flutter_native_splash color so the native splash to first frame has no color flash."
+      ]
+    },
+    {
+      "id": "sign_in",
+      "name": "Sign in",
+      "description": "Two steps in one route: native language, then email with a 6-digit code. The brand lockup stays fixed; only the step panel changes.",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "density": 3,
+        "safe_area": { "top": 47, "bottom": 34 }
+      },
+      "background": "color.canvas",
+      "root": {
+        "id": "sign_in_root",
+        "type": "scaffold",
+        "children": [
+          {
+            "id": "sign_in_area",
+            "type": "safe_area",
+            "layout": { "width": "fill", "height": "fill" },
+            "children": [
+              {
+                "id": "sign_in_column",
+                "type": "column",
+                "layout": {
+                  "width": "fill",
+                  "height": "fill",
+                  "padding": { "horizontal": "space.page_horizontal", "top": "space.s8" }
+                },
+                "children": [
+                  {
+                    "id": "sign_in_header",
+                    "type": "stack",
+                    "layout": {
+                      "width": "fill",
+                      "height": "size.logo_lockup_height"
+                    },
+                    "children": [
+                      {
+                        "id": "brand_lockup",
+                        "type": "image",
+                        "props": { "asset": "brand_lockup" },
+                        "layout": {
+                          "width": "size.logo_lockup_width",
+                          "height": "size.logo_lockup_height",
+                          "alignment": "center"
+                        },
+                        "accessibility": { "label": "Named" }
+                      },
+                      {
+                        "id": "back_button",
+                        "type": "icon_button",
+                        "props": { "variant": "standard", "icon": "material:chevron_left" },
+                        "layout": {
+                          "width": "size.touch_target",
+                          "height": "size.touch_target",
+                          "alignment": "center_start"
+                        },
+                        "accessibility": { "label": "Back to native language" },
+                        "interactions": [
+                          {
+                            "id": "back_tap",
+                            "trigger": "tap",
+                            "action": "set_state",
+                            "target": "sign_in.language_step",
+                            "result": "Returns to the native language step without losing what was typed there."
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "step_indicator",
+                    "type": "row",
+                    "layout": {
+                      "gap": "space.s6",
+                      "main_axis_alignment": "center",
+                      "margin": { "top": "space.s24" }
+                    },
+                    "children": [
+                      {
+                        "id": "step_bar_language",
+                        "type": "container",
+                        "layout": {
+                          "width": "size.step_bar_active",
+                          "height": "size.step_bar_height"
+                        },
+                        "style": { "background": "color.primary", "shape": "shape.pill" }
+                      },
+                      {
+                        "id": "step_bar_email",
+                        "type": "container",
+                        "layout": {
+                          "width": "size.step_bar_idle",
+                          "height": "size.step_bar_height"
+                        },
+                        "style": { "background": "color.line", "shape": "shape.pill" },
+                        "states": {
+                          "active": {
+                            "layout": { "width": "size.step_bar_active" },
+                            "style": { "background": "color.primary" }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "sign_in_pager",
+                    "type": "container",
+                    "layout": { "width": "fill", "height": "fill" },
+                    "children": [
+                      {
+                        "id": "language_panel",
+                        "type": "scroll_view",
+                        "layout": {
+                          "width": "fill",
+                          "height": "fill",
+                          "scroll": "vertical"
+                        },
+                        "children": [
+                          {
+                            "id": "language_content",
+                            "type": "column",
+                            "layout": {
+                              "cross_axis_alignment": "stretch",
+                              "gap": "space.s12",
+                              "padding": { "top": "space.s32", "bottom": "space.s32" }
+                            },
+                            "children": [
+                              {
+                                "id": "language_eyebrow",
+                                "type": "text",
+                                "content": "YOUR EVERYDAY, IN ENGLISH",
+                                "props": { "max_lines": 1, "overflow": "ellipsis" },
+                                "style": {
+                                  "typography": "type.eyebrow",
+                                  "text_color": "color.muted"
+                                }
+                              },
+                              {
+                                "id": "language_title",
+                                "type": "text",
+                                "content": "Let’s start with you.",
+                                "props": { "max_lines": 2, "overflow": "ellipsis" },
+                                "style": { "typography": "type.editorial" },
+                                "accessibility": { "heading": true }
+                              },
+                              {
+                                "id": "language_intro",
+                                "type": "text",
+                                "content": "Choose the language you want explanations in. You can change it later.",
+                                "props": { "overflow": "wrap" },
+                                "style": {
+                                  "typography": "type.body_large",
+                                  "text_color": "color.muted"
+                                }
+                              },
+                              {
+                                "id": "language_gap",
+                                "type": "spacer",
+                                "layout": { "height": "size.spacer_16" }
+                              },
+                              {
+                                "id": "language_field",
+                                "type": "text_field",
+                                "props": {
+                                  "variant": "filled",
+                                  "label": "Native language",
+                                  "hint": "e.g. zh, en, es",
+                                  "keyboard": "text",
+                                  "action": "done"
+                                },
+                                "accessibility": { "label": "Native language" },
+                                "interactions": [
+                                  {
+                                    "id": "language_submit",
+                                    "trigger": "submit",
+                                    "action": "set_state",
+                                    "target": "sign_in.email_step",
+                                    "result": "Validates the native language, stores it locally, and reveals the email step."
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "language_error",
+                                "type": "text",
+                                "visible": false,
+                                "content": "Choose your native language.",
+                                "props": { "overflow": "wrap" },
+                                "style": {
+                                  "typography": "type.body_small",
+                                  "text_color": "color.error"
+                                }
+                              },
+                              {
+                                "id": "continue_button",
+                                "type": "button",
+                                "content": "Continue",
+                                "props": { "variant": "filled" },
+                                "layout": {
+                                  "width": "fill",
+                                  "height": "size.button_height"
+                                },
+                                "accessibility": { "label": "Continue" },
+                                "interactions": [
+                                  {
+                                    "id": "continue_tap",
+                                    "trigger": "tap",
+                                    "action": "set_state",
+                                    "target": "sign_in.email_step",
+                                    "result": "Validates the native language, stores it locally, and reveals the email step."
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "existing_account_button",
+                                "type": "button",
+                                "content": "I already have an account",
+                                "props": { "variant": "text" },
+                                "layout": { "width": "fill", "min_height": "size.touch_min" },
+                                "accessibility": { "label": "I already have an account" },
+                                "interactions": [
+                                  {
+                                    "id": "existing_account_tap",
+                                    "trigger": "tap",
+                                    "action": "set_state",
+                                    "target": "sign_in.email_step",
+                                    "result": "Skips the initial Soul and goes straight to email sign-in."
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": "email_panel",
+                        "type": "scroll_view",
+                        "visible": false,
+                        "layout": {
+                          "width": "fill",
+                          "height": "fill",
+                          "scroll": "vertical"
+                        },
+                        "children": [
+                          {
+                            "id": "email_content",
+                            "type": "column",
+                            "layout": {
+                              "cross_axis_alignment": "stretch",
+                              "gap": "space.s12",
+                              "padding": { "top": "space.s32", "bottom": "space.s32" }
+                            },
+                            "children": [
+                              {
+                                "id": "email_title",
+                                "type": "text",
+                                "content": "Your everyday, in English.",
+                                "props": { "max_lines": 2, "overflow": "ellipsis" },
+                                "style": { "typography": "type.editorial" },
+                                "accessibility": { "heading": true }
+                              },
+                              {
+                                "id": "email_intro",
+                                "type": "text",
+                                "content": "Sign in with your email. We will send a 6-digit code.",
+                                "props": { "overflow": "wrap" },
+                                "style": {
+                                  "typography": "type.body_large",
+                                  "text_color": "color.muted"
+                                }
+                              },
+                              {
+                                "id": "email_gap",
+                                "type": "spacer",
+                                "layout": { "height": "size.spacer_16" }
+                              },
+                              {
+                                "id": "email_field",
+                                "type": "text_field",
+                                "props": {
+                                  "variant": "filled",
+                                  "label": "Email",
+                                  "hint": "you@example.com",
+                                  "keyboard": "email",
+                                  "action": "next"
+                                },
+                                "accessibility": { "label": "Email" },
+                                "interactions": [
+                                  {
+                                    "id": "email_changed",
+                                    "trigger": "blur",
+                                    "action": "custom",
+                                    "result": "Changing the address clears the sent code, hides the code block, and stops accepting the old code."
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "send_code_button",
+                                "type": "button",
+                                "content": "Send code",
+                                "props": { "variant": "outlined" },
+                                "layout": {
+                                  "width": "fill",
+                                  "height": "size.button_height"
+                                },
+                                "accessibility": { "label": "Send verification code" },
+                                "states": {
+                                  "disabled": {
+                                    "props": { "enabled": false },
+                                    "style": { "opacity": "opacity.disabled" }
+                                  },
+                                  "sending": {
+                                    "props": { "enabled": false, "loading": true }
+                                  },
+                                  "counting_down": {
+                                    "props": { "enabled": false },
+                                    "content": "00:59"
+                                  }
+                                },
+                                "interactions": [
+                                  {
+                                    "id": "send_code_tap",
+                                    "trigger": "tap",
+                                    "action": "custom",
+                                    "result": "Requests a 6-digit code and starts a 60 second resend countdown.",
+                                    "dependency": "backend:auth.request-code"
+                                  },
+                                  {
+                                    "id": "send_code_state",
+                                    "trigger": "tap",
+                                    "action": "set_state",
+                                    "target": "sign_in.code_sent",
+                                    "result": "Reveals the code field and the verify action."
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "code_block",
+                                "type": "column",
+                                "visible": false,
+                                "layout": {
+                                  "cross_axis_alignment": "stretch",
+                                  "gap": "space.s12",
+                                  "margin": { "top": "space.s8" }
+                                },
+                                "children": [
+                                  {
+                                    "id": "code_sent_text",
+                                    "type": "text",
+                                    "content": "Code sent to {email}",
+                                    "props": { "max_lines": 1, "overflow": "ellipsis" },
+                                    "style": {
+                                      "typography": "type.body_small",
+                                      "text_color": "color.muted"
+                                    }
+                                  },
+                                  {
+                                    "id": "code_label",
+                                    "type": "text",
+                                    "content": "Verification code",
+                                    "props": { "max_lines": 1, "overflow": "ellipsis" },
+                                    "style": { "typography": "type.label", "text_color": "color.ink" },
+                                    "accessibility": { "label": "Verification code" }
+                                  },
+                                  {
+                                    "id": "otp_field",
+                                    "type": "text_field",
+                                    "props": {
+                                      "variant": "filled",
+                                      "otp": true,
+                                      "length": 6,
+                                      "keyboard": "number",
+                                      "action": "done"
+                                    },
+                                    "accessibility": { "label": "6-digit verification code" },
+                                    "interactions": [
+                                      {
+                                        "id": "otp_submit",
+                                        "trigger": "submit",
+                                        "action": "custom",
+                                        "result": "Submits the code as soon as all six digits are present.",
+                                        "dependency": "backend:auth.verify"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "email_error",
+                                "type": "text",
+                                "visible": false,
+                                "content": "Enter a valid email.",
+                                "props": { "overflow": "wrap" },
+                                "style": {
+                                  "typography": "type.body_small",
+                                  "text_color": "color.error"
+                                }
+                              },
+                              {
+                                "id": "verify_button",
+                                "type": "button",
+                                "content": "Verify",
+                                "visible": false,
+                                "props": { "variant": "filled" },
+                                "layout": {
+                                  "width": "fill",
+                                  "height": "size.button_height"
+                                },
+                                "accessibility": { "label": "Verify and sign in" },
+                                "states": {
+                                  "loading": {
+                                    "props": { "enabled": false, "loading": true }
+                                  }
+                                },
+                                "interactions": [
+                                  {
+                                    "id": "verify_tap",
+                                    "trigger": "tap",
+                                    "action": "custom",
+                                    "result": "Signs in and the router replaces this route with the timeline.",
+                                    "dependency": "backend:auth.verify"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "states": [
+        {
+          "id": "language_step",
+          "name": "Native language step",
+          "default": true,
+          "visible_when": "step == 'language'",
+          "show": ["language_panel"],
+          "hide": ["email_panel", "back_button", "code_block", "verify_button", "language_error", "email_error"]
+        },
+        {
+          "id": "language_error",
+          "name": "Native language missing",
+          "visible_when": "step == 'language' and submit rejected because the field is empty",
+          "show": ["language_panel", "language_error"],
+          "hide": ["email_panel", "back_button", "code_block", "verify_button", "email_error"]
+        },
+        {
+          "id": "email_step",
+          "name": "Email step",
+          "visible_when": "step == 'email' and no code has been sent",
+          "show": ["email_panel", "back_button"],
+          "hide": ["language_panel", "code_block", "verify_button", "language_error", "email_error"]
+        },
+        {
+          "id": "sending_code",
+          "name": "Sending code",
+          "visible_when": "step == 'email' and the request-code call is in flight",
+          "show": ["email_panel", "back_button"],
+          "hide": ["language_panel", "code_block", "verify_button", "language_error", "email_error"]
+        },
+        {
+          "id": "code_sent",
+          "name": "Code sent",
+          "visible_when": "step == 'email' and request-code succeeded",
+          "show": ["email_panel", "back_button", "code_block", "verify_button"],
+          "hide": ["language_panel", "language_error", "email_error"]
+        },
+        {
+          "id": "verifying",
+          "name": "Verifying",
+          "visible_when": "the verify call is in flight",
+          "show": ["email_panel", "back_button", "code_block", "verify_button"],
+          "hide": ["language_panel", "language_error", "email_error"]
+        },
+        {
+          "id": "verify_error",
+          "name": "Verification failed",
+          "visible_when": "the verify call returned an error that does not require the language step",
+          "show": ["email_panel", "back_button", "code_block", "verify_button", "email_error"],
+          "hide": ["language_panel", "language_error"]
+        }
+      ],
+      "responsive": {
+        "breakpoints": [
+          { "id": "compact", "min_width": 0, "max_width": 599 },
+          { "id": "medium", "min_width": 600, "max_width": 1600 }
+        ],
+        "variants": [
+          {
+            "breakpoint": "medium",
+            "description": "The form keeps a comfortable reading width and stays centered.",
+            "overrides": [
+              {
+                "id": "sign_in_column",
+                "layout": { "max_width": "size.page_max_width" }
+              }
+            ]
+          }
+        ]
+      },
+      "notes": [
+        "Empty cannot occur: both steps are forms with one field group.",
+        "Loading is shown inside the acting button; the page never blanks.",
+        "Errors keep the typed language, email, and code so the user can retry.",
+        "The page indicator has one bar per real step: two bars for the shipped language then email flow."
+      ]
+    }
+  ],
+  "navigation": {
+    "initial": "splash",
+    "edges": [
+      {
+        "from": "splash",
+        "to": "sign_in",
+        "trigger": "splash_resolved",
+        "type": "replace"
+      }
+    ]
+  },
+  "accessibility": {
+    "min_contrast_text": 4.5,
+    "max_text_scale": 2,
+    "reduced_motion": "respect",
+    "notes": [
+      "Every input has a visible label, not just a placeholder.",
+      "Icon-only back action has a semantic label and a 48dp target.",
+      "Splash motion is a single opacity fade and is skipped when disableAnimations is on."
+    ]
+  }
+}

@@ -21,6 +21,7 @@ class WordShelfItem {
     required this.lastSeenAt,
     required this.status,
     this.saved = true,
+    this.contentLevel = 'full',
   });
 
   final String id;
@@ -32,6 +33,9 @@ class WordShelfItem {
   final DateTime lastSeenAt;
   final WordShelfStatus status;
   final bool saved;
+  final String contentLevel;
+
+  bool get isCard => contentLevel == 'card';
 }
 
 class WordsStats {

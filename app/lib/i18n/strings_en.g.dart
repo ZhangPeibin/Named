@@ -898,6 +898,12 @@ class Translations$talk$en {
 
 	/// en: 'Turn off to talk without your saved background.'
 	String get memoryHint => 'Turn off to talk without your saved background.';
+
+	/// en: 'Listen to the natural way'
+	String get playNaturalWay => 'Listen to the natural way';
+
+	/// en: 'Listen in English'
+	String get playEnglish => 'Listen in English';
 }
 
 // Path: timeline
@@ -1009,6 +1015,24 @@ class Translations$timeline$en {
 
 	/// en: 'Practices'
 	String get progressPractices => 'Practices';
+
+	/// en: 'Speak'
+	String get speak => 'Speak';
+
+	/// en: 'Stop recording'
+	String get stopRecording => 'Stop recording';
+
+	/// en: 'Listening…'
+	String get listening => 'Listening…';
+
+	/// en: 'Transcribing…'
+	String get transcribing => 'Transcribing…';
+
+	/// en: 'Microphone access is off. Turn it on in system settings.'
+	String get micDenied => 'Microphone access is off. Turn it on in system settings.';
+
+	/// en: 'Naming…'
+	String get naming => 'Naming…';
 }
 
 // Path: practice
@@ -1297,6 +1321,9 @@ class Translations$words$en {
 
 	/// en: 'Looking up this word...'
 	String get lookingUp => 'Looking up this word...';
+
+	/// en: 'Loading more details…'
+	String get loadingMore => 'Loading more details…';
 }
 
 // Path: history
@@ -2113,6 +2140,8 @@ extension on Translations {
 			'talk.copyEnglish' => 'Copy English',
 			'talk.memoryLabel' => 'Use my Soul',
 			'talk.memoryHint' => 'Turn off to talk without your saved background.',
+			'talk.playNaturalWay' => 'Listen to the natural way',
+			'talk.playEnglish' => 'Listen in English',
 			'timeline.today' => 'Today',
 			'timeline.yesterday' => 'Yesterday',
 			'timeline.emptyTitle' => 'What did you see today?',
@@ -2147,6 +2176,12 @@ extension on Translations {
 			'timeline.progressConversations' => 'Talks',
 			'timeline.progressReads' => 'Reads',
 			'timeline.progressPractices' => 'Practices',
+			'timeline.speak' => 'Speak',
+			'timeline.stopRecording' => 'Stop recording',
+			'timeline.listening' => 'Listening…',
+			'timeline.transcribing' => 'Transcribing…',
+			'timeline.micDenied' => 'Microphone access is off. Turn it on in system settings.',
+			'timeline.naming' => 'Naming…',
 			'practice.title' => 'Practice',
 			'practice.understandTitle' => 'Understand',
 			'practice.pronounceTitle' => 'Pronounce',
@@ -2231,6 +2266,7 @@ extension on Translations {
 			'words.addedToWords' => 'In your words',
 			'words.addFailed' => 'Could not add this word. Try again.',
 			'words.lookingUp' => 'Looking up this word...',
+			'words.loadingMore' => 'Loading more details…',
 			'history.title' => 'History',
 			'history.empty' => 'No experiences yet.',
 			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',
@@ -2383,6 +2419,8 @@ extension on Translations {
 			'ask.emptyTitle' => 'What are you curious about?',
 			'ask.emptyBody' => 'Ask about a word, a sentence, or anything you want to understand.',
 			'ask.thinking' => 'Thinking...',
+			_ => null,
+		} ?? switch (path) {
 			'ask.error' => 'Could not answer that. Try again.',
 			'ask.loadFailed' => 'Could not load this question.',
 			'ask.retry' => 'Try again',
@@ -2392,8 +2430,6 @@ extension on Translations {
 			'ask.recent' => 'Recent questions',
 			'ask.thread' => 'Question thread',
 			'ask.context' => 'From this context',
-			_ => null,
-		} ?? switch (path) {
 			'ask.followUpHint' => 'Ask a follow-up...',
 			'ask.followUp' => 'Ask follow-up',
 			'ask.delete' => 'Delete thread',

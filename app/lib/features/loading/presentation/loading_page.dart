@@ -2,47 +2,66 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../app/theme/app_text_styles.dart';
-import '../../../core/widgets/app_line_icon.dart';
 
-class LoadingPage extends StatelessWidget {
+class LoadingPage extends StatefulWidget {
   const LoadingPage({super.key});
 
   @override
+  State<LoadingPage> createState() => _LoadingPageState();
+}
+
+class _LoadingPageState extends State<LoadingPage> {
+  @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final isDark = context.isAppDark;
+    final mark = Image.asset(
+      isDark
+          ? 'assets/branding/marks/symbol_dark.png'
+          : 'assets/branding/marks/symbol_light.png',
+      width: AppSize.splashMark,
+      height: AppSize.splashMark,
+      fit: BoxFit.contain,
+      semanticLabel: 'Named',
+    );
 
-    return Scaffold(
-      backgroundColor: palette.canvas,
-      body: SafeArea(
-        child: Column(
+    return ColoredBox(
+      color: context.appSplashGround,
+      child: SafeArea(
+        child: Stack(
           children: [
-            const Spacer(flex: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Named',
-                  style: AppTextStyles.display.copyWith(fontSize: 34),
-                ),
-                const SizedBox(width: AppSpacing.s6),
-                AppLineIcon(
-                  AppLineGlyph.leaf,
-                  color: palette.primary,
-                  size: 18,
-                ),
-              ],
+            Center(
+              child: reduceMotion
+                  ? mark
+                  : TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) =>
+                          Opacity(opacity: value, child: child),
+                      child: mark,
+                    ),
             ),
-            const Spacer(flex: 3),
-            SizedBox(
-              width: 96,
-              child: LinearProgressIndicator(
-                minHeight: 2,
-                color: palette.accent,
-                backgroundColor: palette.line,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: AppSpacing.s32,
+              child: Center(
+                child: SizedBox(
+                  width: AppSize.splashProgressWidth,
+                  height: AppSize.splashProgressHeight,
+                  child: reduceMotion
+                      ? ColoredBox(color: palette.line)
+                      : LinearProgressIndicator(
+                          minHeight: AppSize.splashProgressHeight,
+                          color: palette.primary,
+                          backgroundColor: palette.line,
+                        ),
+                ),
               ),
             ),
-            const Spacer(flex: 1),
           ],
         ),
       ),

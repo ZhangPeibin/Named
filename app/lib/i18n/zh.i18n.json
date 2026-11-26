@@ -261,7 +261,9 @@
     "keyWords": "关键词",
     "copyEnglish": "复制英文",
     "memoryLabel": "使用我的记忆",
-    "memoryHint": "关闭后，这次对话不使用已保存的背景。"
+    "memoryHint": "关闭后，这次对话不使用已保存的背景。",
+    "playNaturalWay": "听一听更自然的说法",
+    "playEnglish": "听英文说法"
   },
   "timeline": {
     "today": "今天",
@@ -297,7 +299,13 @@
     "progressWords": "单词",
     "progressConversations": "对话",
     "progressReads": "阅读",
-    "progressPractices": "练习"
+    "progressPractices": "练习",
+    "speak": "说话",
+    "stopRecording": "停止录音",
+    "listening": "正在聆听…",
+    "transcribing": "正在转写…",
+    "micDenied": "麦克风未授权，请在系统设置中开启。",
+    "naming": "正在命名…"
   },
   "practice": {
     "title": "练习",
@@ -389,7 +397,8 @@
     "addToWords": "加入词语",
     "addedToWords": "已在词语中",
     "addFailed": "加入失败，请重试。",
-    "lookingUp": "正在查这个词…"
+    "lookingUp": "正在查这个词…",
+    "loadingMore": "正在加载更多内容…"
   },
   "history": {
     "title": "回忆",
@@ -448,11 +457,9 @@
     "visitedOf": "已练过 {visited} / {total}",
     "markPracticed": "标记练过",
     "due": "计划时间到了，可以继续，也可以随时结束。",
-
     "daysLeft": "还剩 {count} 天",
     "dayLeft": "还剩 {count} 天",
     "dueToday": "今天到期",
-
     "practiceStart": "开始练习",
     "practiceToday": "开始今天的练习",
     "journey": "第 {day} 天 · 共 {total} 天",
@@ -466,18 +473,15 @@
     "seeAll": "查看全部",
     "plansCount": "{count} 个计划",
     "details": "详情",
-
-
     "practiceTitle": "练习",
-
     "practiceListenSay": "听并说一遍",
-
     "practiceSayOk": "听起来对",
-
-    "practiceSayRetry": "再说一遍试试",    "practiceListen": "听",
+    "practiceSayRetry": "再说一遍试试",
+    "practiceListen": "听",
     "practiceSpeak": "说",
     "practiceExercise": "练习",
-    "practiceNext": "下一步",    "practiceRecord": "录音",
+    "practiceNext": "下一步",
+    "practiceRecord": "录音",
     "practiceStop": "停止",
     "practicePlayback": "回放",
     "practiceSkip": "跳过",

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_line_icon.dart';
@@ -216,7 +217,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   Widget build(BuildContext context) {
     final t = context.t.auth;
     final palette = context.appPalette;
-    final textTheme = Theme.of(context).textTheme;
 
     return AppScaffold(
       title: '',
@@ -227,30 +227,20 @@ class _SignInPageState extends ConsumerState<SignInPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.s8,
-              AppSpacing.s8,
-              AppSpacing.s8,
-              0,
-            ),
+            padding: const EdgeInsets.only(top: AppSpacing.s8),
             child: SizedBox(
-              height: 48,
+              height: AppSize.logoLockupHeight,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Named', style: textTheme.headlineLarge),
-                        const SizedBox(width: AppSpacing.s8),
-                        AppLineIcon(
-                          AppLineGlyph.leaf,
-                          color: palette.primary,
-                          size: AppSize.size18,
-                        ),
-                      ],
-                    ),
+                  Image.asset(
+                    context.isAppDark
+                        ? 'assets/branding/marks/lockup_dark.png'
+                        : 'assets/branding/marks/lockup_light.png',
+                    width: AppSize.logoLockupWidth,
+                    height: AppSize.logoLockupHeight,
+                    fit: BoxFit.contain,
+                    semanticLabel: 'Named',
                   ),
                   if (_page > 0)
                     Align(
@@ -261,7 +251,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                         onPressed: () => _goToPage(0),
                         icon: AppLineIcon(
                           AppLineGlyph.chevronLeft,
-                          size: 22,
+                          size: AppSize.size22,
                           color: palette.ink,
                         ),
                       ),
@@ -270,7 +260,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.s12),
+          const SizedBox(height: AppSpacing.s24),
           _StepIndicator(current: _page, count: _pageCount),
           Expanded(
             child: PageView(
@@ -291,6 +281,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     BuildContext context, {
     required String title,
     required String intro,
+    String? eyebrow,
     required List<Widget> children,
   }) {
     final palette = context.appPalette;
@@ -307,13 +298,27 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: textTheme.displayMedium),
+          if (eyebrow != null) ...[
+            Text(
+              eyebrow,
+              style: AppTextStyles.eyebrow.copyWith(color: palette.muted),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: AppSpacing.s12),
+          ],
+          Text(
+            title,
+            style: textTheme.displayMedium,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: AppSpacing.s12),
           Text(
             intro,
             style: textTheme.bodyLarge?.copyWith(color: palette.muted),
           ),
-          const SizedBox(height: AppSpacing.s32),
+          const SizedBox(height: AppSpacing.s16),
           ...children,
         ],
       ),
@@ -324,6 +329,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     final t = context.t.auth;
     return _pageFrame(
       context,
+      eyebrow: t.brandEyebrow,
       title: t.languageTitle,
       intro: t.nativeLanguageIntro,
       children: [
@@ -455,8 +461,10 @@ class _StepIndicator extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
-            width: index == current ? 26 : 8,
-            height: 6,
+            width: index == current
+                ? AppSize.stepBarActive
+                : AppSize.stepBarIdle,
+            height: AppSize.stepBarHeight,
             decoration: BoxDecoration(
               color: index <= current ? palette.primary : palette.line,
               borderRadius: BorderRadius.circular(AppRadius.pill),

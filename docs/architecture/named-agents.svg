@@ -1,0 +1,381 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2220" height="5040" viewBox="0 0 2220 5040">
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#495057"/></marker></defs>
+<rect width="2220" height="5040" fill="white"/>
+<rect x="20" y="20" width="2160" height="980" rx="10" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="38" y="54.0" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#343a40" text-anchor="start">1. API  →  Agent 总览</text>
+<rect x="60" y="110" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="146.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /assistant/route</text>
+<rect x="620" y="110" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="129.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">intent</text>
+<text x="880.0" y="146.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt intent-v1</text>
+<text x="880.0" y="163.45000000000002" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">intent + confidence</text>
+<polyline points="460,142.0 620,142.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="186" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="214.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /discoveries</text>
+<text x="260.0" y="231.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ /{id}/focus</text>
+<rect x="620" y="186" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="197.2" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">discovery</text>
+<text x="880.0" y="214.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt discover-v3</text>
+<text x="880.0" y="231.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">word/scene content</text>
+<text x="880.0" y="247.9" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">3.5–5.2s</text>
+<polyline points="460,218.0 620,218.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="262" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="298.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">GET /words/lookup?text=</text>
+<rect x="620" y="262" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="273.2" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">word_lookup</text>
+<text x="880.0" y="290.09999999999997" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt word-lookup-v1</text>
+<text x="880.0" y="306.99999999999994" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">CJK → English word · discovery on miss</text>
+<text x="880.0" y="323.8999999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">~0.5s</text>
+<polyline points="460,294.0 620,294.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="338" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="374.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /conversations/{id}/messages</text>
+<rect x="620" y="338" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="349.2" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">talk</text>
+<text x="880.0" y="366.09999999999997" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt talk-v1</text>
+<text x="880.0" y="382.99999999999994" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">reply + corrections</text>
+<text x="880.0" y="399.8999999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">memories + annotations</text>
+<polyline points="460,370.0 620,370.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="414" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="450.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /conversations/{id}/help</text>
+<rect x="620" y="414" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="433.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">help</text>
+<text x="880.0" y="450.54999999999995" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt help-v1</text>
+<text x="880.0" y="467.44999999999993" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">natural English + alternatives</text>
+<polyline points="460,446.0 620,446.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="490" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="518.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /questions</text>
+<text x="260.0" y="535.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ /{id}/messages</text>
+<rect x="620" y="490" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="509.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">question</text>
+<text x="880.0" y="526.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt question-v2</text>
+<text x="880.0" y="543.4499999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">answer + explanation</text>
+<polyline points="460,522.0 620,522.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="566" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="602.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /sentences/lookup</text>
+<rect x="620" y="566" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="585.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">sentence</text>
+<text x="880.0" y="602.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt sentence-v1</text>
+<text x="880.0" y="619.4499999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">explanation + chunks</text>
+<polyline points="460,598.0 620,598.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="642" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="678.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /practice/{word_id}/reply</text>
+<rect x="620" y="642" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="661.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">practice</text>
+<text x="880.0" y="678.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt practice-v1</text>
+<text x="880.0" y="695.4499999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">reply + recast</text>
+<polyline points="460,674.0 620,674.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="718" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="754.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">GET /daily/read</text>
+<rect x="620" y="718" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="737.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">daily_read</text>
+<text x="880.0" y="754.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">inline prompt (no version)</text>
+<text x="880.0" y="771.4499999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">passage writer</text>
+<polyline points="460,750.0 620,750.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="794" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="830.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">GET /daily/read/translation</text>
+<rect x="620" y="794" width="520" height="64" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="813.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">daily_translation</text>
+<text x="880.0" y="830.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">inline prompt (no version)</text>
+<text x="880.0" y="847.4499999999999" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">sentence translations</text>
+<polyline points="460,826.0 620,826.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="870" width="400" height="64" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="260.0" y="898.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">background worker</text>
+<text x="260.0" y="915.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">(no HTTP)</text>
+<rect x="620" y="870" width="520" height="64" rx="10" fill="#d0bfff" stroke="#495057" stroke-width="1.5" />
+<text x="880.0" y="881.2" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">experience</text>
+<text x="880.0" y="898.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">prompt experience-v1</text>
+<text x="880.0" y="915.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">life/learning extraction</text>
+<text x="880.0" y="931.9" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">max 1 attempt</text>
+<polyline points="460,902.0 620,902.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="1200" y="110" width="940" height="230" rx="10" fill="#fff3bf" stroke="#495057" stroke-width="1.5" />
+<text x="1212" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Shared runtime · AgentRuntime</text>
+<text x="1212" y="152.2" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">model: deepseek:deepseek-flash · thinking=False</text>
+<text x="1212" y="170.39999999999998" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">timeout 60s · max attempts 2 · backoff 0.5s</text>
+<text x="1212" y="188.59999999999997" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">structured output via pydantic-ai</text>
+<text x="1212" y="206.79999999999995" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">logs: named.agent latency_ms + input/output tokens</text>
+<text x="1212" y="224.99999999999994" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">daily_read / daily_translation bypass this runtime</text>
+<rect x="1200" y="360" width="940" height="290" rx="10" fill="#fff3bf" stroke="#495057" stroke-width="1.5" />
+<text x="1212" y="384.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Caches / de-dup</text>
+<text x="1212" y="402.2" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Discovery: identical input within 60s</text>
+<text x="1212" y="420.4" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">WordContent: word + native language + model + prompt version</text>
+<text x="1212" y="438.59999999999997" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">WordAudio: word + region + voice + model + rate + format</text>
+<text x="1212" y="456.79999999999995" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">TTSAudio: text + voice + model + TTL</text>
+<text x="1212" y="474.99999999999994" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">TimedSpeechAudio: passage + voice + model</text>
+<text x="1212" y="493.19999999999993" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">DailyReading: account + date · translation_json: per language</text>
+<text x="1212" y="511.3999999999999" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">ExperienceJob: unique per conversation · 3s debounce</text>
+<rect x="1200" y="670" width="940" height="210" rx="10" fill="#fff3bf" stroke="#495057" stroke-width="1.5" />
+<text x="1212" y="694.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Current latency hotspots</text>
+<text x="1212" y="712.2" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">discovery: ~2851 input tokens · 700–1000 output tokens · 3.5–5.2s</text>
+<text x="1212" y="730.4000000000001" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">word lookup on content miss: same discovery agent + word audio</text>
+<text x="1212" y="748.6000000000001" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">talk: agent + synchronous TTS for the assistant reply</text>
+<text x="1212" y="766.8000000000002" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">daily first read: daily_read agent + timed speech (client 90s timeout)</text>
+<text x="1212" y="785.0000000000002" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">already improved: intent fast-path · pending card · cached-only discovery audio</text>
+<text x="60" y="964.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start">Colors: green = API · blue = agent · purple = async agent · teal = service/context · yellow = note</text>
+<rect x="20" y="1040" width="2160" height="1180" rx="10" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="38" y="1074.0" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#343a40" text-anchor="start">2. discovery / word_lookup 详细流程</text>
+<rect x="60" y="1130" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="1161.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /discoveries</text>
+<text x="230.0" y="1178.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">text or image</text>
+<rect x="460" y="1130" width="300" height="70" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="610.0" y="1169.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">normalize + validate</text>
+<polygon points="610.0,1220 760,1260.0 610.0,1300 460,1260.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="610.0" y="1256.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">identical input</text>
+<text x="610.0" y="1273.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">within 60s?</text>
+<polygon points="630.0,1330 800,1375.0 630.0,1420 460,1375.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="630.0" y="1371.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">single English word</text>
+<text x="630.0" y="1388.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ WordContent cached?</text>
+<rect x="880" y="1330" width="400" height="90" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="1362.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">discovery agent</text>
+<text x="1080.0" y="1379.5500000000002" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">discover-v3</text>
+<text x="1080.0" y="1396.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">classify + full content</text>
+<polygon points="1080.0,1460 1280,1505.0 1080.0,1550 880,1505.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="1080.0" y="1501.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">focus kind</text>
+<text x="1080.0" y="1518.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">word or scene?</text>
+<rect x="1360" y="1220" width="340" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1530.0" y="1255.8" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">persist Discovery</text>
+<text x="1530.0" y="1274.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">+ word memory</text>
+<rect x="1360" y="1130" width="340" height="90" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1530.0" y="1161.7" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">Word + WordContent</text>
+<text x="1530.0" y="1179.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">1–3 senses · chunks</text>
+<text x="1530.0" y="1198.1000000000001" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">grammar · variety · scenes</text>
+<rect x="1360" y="1340" width="340" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1530.0" y="1375.8" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">WordAudio cache</text>
+<text x="1530.0" y="1394.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">US + UK</text>
+<rect x="1360" y="1450" width="340" height="70" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1530.0" y="1489.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">scene payload</text>
+<rect x="1800" y="1220" width="340" height="80" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1970.0" y="1264.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">DiscoveryOut</text>
+<rect x="1800" y="1340" width="340" height="90" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1970.0" y="1380.8" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">DiscoveryOut</text>
+<text x="1970.0" y="1399.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">+ cached-only audio</text>
+<polyline points="400,1165.0 430.0,1165.0 430.0,1165.0 460,1165.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="760,1165.0 610.0,1165.0 610.0,1260.0 460,1260.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="760,1260.0 1060.0,1260.0 1060.0,1260.0 1360,1260.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="1060.0" y="1254.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">yes</text>
+<polyline points="610.0,1300 610.0,1315.0 630.0,1315.0 630.0,1330" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="620.0" y="1309.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">no</text>
+<polyline points="800,1375.0 1080.0,1375.0 1080.0,1260.0 1360,1260.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="1080.0" y="1311.5" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">yes</text>
+<polyline points="800,1375.0 840.0,1375.0 840.0,1375.0 880,1375.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="840.0" y="1369.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">no</text>
+<polyline points="1080.0,1420 1080.0,1440.0 1080.0,1440.0 1080.0,1460" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1280,1505.0 1320.0,1505.0 1320.0,1175.0 1360,1175.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="1320.0" y="1334.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">word</text>
+<polyline points="1280,1505.0 1320.0,1505.0 1320.0,1485.0 1360,1485.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="1320.0" y="1489.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">scene</text>
+<polyline points="1530.0,1220 1530.0,1280.0 1530.0,1280.0 1530.0,1340" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1700,1260.0 1750.0,1260.0 1750.0,1260.0 1800,1260.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1700,1380.0 1750.0,1380.0 1750.0,1385.0 1800,1385.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1700,1485.0 1750.0,1485.0 1750.0,1385.0 1800,1385.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="460" y="1592.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start">cache hit: persist Discovery,</text>
+<text x="460" y="1607.6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start">skip the discovery agent</text>
+<rect x="60" y="1660" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="1699.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /discoveries/{id}/focus</text>
+<rect x="460" y="1660" width="340" height="80" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="630.0" y="1686.7" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">ready? return</text>
+<text x="630.0" y="1704.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">else select candidate</text>
+<text x="630.0" y="1723.1000000000001" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">or whole scene</text>
+<rect x="880" y="1660" width="400" height="80" rx="10" fill="#c3fae8" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="1695.8" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">get_or_create WordContent</text>
+<text x="1080.0" y="1714.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">cache hit or discovery agent</text>
+<rect x="1360" y="1660" width="340" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1530.0" y="1704.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">WordContent</text>
+<rect x="1800" y="1660" width="340" height="80" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1970.0" y="1704.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">DiscoveryOut</text>
+<polyline points="400,1695.0 430.0,1695.0 430.0,1700.0 460,1700.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="800,1700.0 840.0,1700.0 840.0,1700.0 880,1700.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1280,1700.0 1320.0,1700.0 1320.0,1700.0 1360,1700.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1700,1700.0 1750.0,1700.0 1750.0,1700.0 1800,1700.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="1800" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="1839.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">GET /words/lookup?text=</text>
+<polygon points="630.0,1800 800,1845.0 630.0,1890 460,1845.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="630.0" y="1849.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">contains CJK?</text>
+<rect x="880" y="1760" width="400" height="80" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="1787.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">word_lookup agent</text>
+<text x="1080.0" y="1804.5500000000002" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">word-lookup-v1</text>
+<text x="1080.0" y="1821.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">resolve one English word</text>
+<polygon points="630.0,1920 800,1965.0 630.0,2010 460,1965.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="630.0" y="1969.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">content cached?</text>
+<rect x="880" y="1920" width="400" height="80" rx="10" fill="#c3fae8" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="1955.8" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">get_or_create WordContent</text>
+<text x="1080.0" y="1974.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">miss → discovery agent</text>
+<rect x="1360" y="1800" width="340" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1530.0" y="1835.8" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">WordAudio cache</text>
+<text x="1530.0" y="1854.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">US + UK · still sync</text>
+<rect x="1800" y="1800" width="340" height="80" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1970.0" y="1844.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="middle">WordOut</text>
+<polyline points="400,1835.0 430.0,1835.0 430.0,1845.0 460,1845.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="800,1845.0 840.0,1845.0 840.0,1800.0 880,1800.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="840.0" y="1816.5" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">yes</text>
+<polyline points="630.0,1890 630.0,1905.0 630.0,1905.0 630.0,1920" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="630.0" y="1899.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">no</text>
+<polyline points="1280,1800.0 870.0,1800.0 870.0,1965.0 460,1965.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="800,1965.0 840.0,1965.0 840.0,1960.0 880,1960.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="840.0" y="1956.5" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">no</text>
+<polyline points="800,1965.0 1080.0,1965.0 1080.0,1840.0 1360,1840.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="1080.0" y="1896.5" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">yes</text>
+<polyline points="1280,1960.0 1320.0,1960.0 1320.0,1840.0 1360,1840.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1700,1840.0 1750.0,1840.0 1750.0,1840.0 1800,1840.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="2050" width="2080" height="130" rx="10" fill="#fff3bf" stroke="#495057" stroke-width="1.5" />
+<text x="72" y="2074.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Latency detail: discovery = ~2851 input tokens, 700–1000 output tokens, 3.5–5.2s; word_lookup ≈ 0.5s.</text>
+<text x="72" y="2092.2" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">WordContent is global per word + native language + model + prompt version. Cached words skip the discovery agent.</text>
+<text x="72" y="2110.3999999999996" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Discovery responses now return cached-only audio. /words/lookup still synthesizes US/UK synchronously (planned: cached-only + lazy play).</text>
+<rect x="20" y="2240" width="2160" height="1060" rx="10" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="38" y="2274.0" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#343a40" text-anchor="start">3. talk / help / experience 流程</text>
+<rect x="60" y="2340" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="2379.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /conversations/{id}/messages</text>
+<rect x="60" y="2500" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="2539.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /conversations/{id}/help</text>
+<rect x="460" y="2320" width="380" height="150" rx="10" fill="#c3fae8" stroke="#495057" stroke-width="1.5" />
+<text x="650.0" y="2374.2" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">Context builder</text>
+<text x="650.0" y="2391.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">Soul + memories</text>
+<text x="650.0" y="2408.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">error profile + experiences</text>
+<text x="650.0" y="2424.9" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">focus + last 20 turns</text>
+<rect x="920" y="2320" width="420" height="110" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="1130.0" y="2345.75" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">talk agent</text>
+<text x="1130.0" y="2362.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">talk-v1</text>
+<text x="1130.0" y="2379.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">reply + native_reply</text>
+<text x="1130.0" y="2396.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">user_english + corrections</text>
+<text x="1130.0" y="2413.3500000000004" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">annotations + memories</text>
+<rect x="920" y="2500" width="420" height="100" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="1130.0" y="2529.2" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">help agent</text>
+<text x="1130.0" y="2546.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">help-v1</text>
+<text x="1130.0" y="2563.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">natural English</text>
+<text x="1130.0" y="2579.9" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">alternatives + note</text>
+<rect x="1420" y="2380" width="360" height="90" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1600.0" y="2412.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">SpeechAudioService</text>
+<text x="1600.0" y="2429.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">synchronous TTS</text>
+<text x="1600.0" y="2446.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">assistant reply / help text</text>
+<rect x="1820" y="2320" width="340" height="110" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1990.0" y="2362.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">ConversationMessage</text>
+<text x="1990.0" y="2379.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ corrections</text>
+<text x="1990.0" y="2396.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ annotations</text>
+<rect x="1820" y="2460" width="340" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1990.0" y="2496.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">Memories</text>
+<text x="1990.0" y="2513.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ error profile</text>
+<rect x="920" y="2680" width="420" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1130.0" y="2716.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">ExperienceJob</text>
+<text x="1130.0" y="2733.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">3s debounce</text>
+<rect x="920" y="2800" width="420" height="80" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1130.0" y="2836.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">experience worker</text>
+<text x="1130.0" y="2853.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">every 1s · due pending jobs</text>
+<rect x="1420" y="2800" width="420" height="80" rx="10" fill="#d0bfff" stroke="#495057" stroke-width="1.5" />
+<text x="1630.0" y="2827.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">experience agent</text>
+<text x="1630.0" y="2844.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">experience-v1 · max 1 attempt</text>
+<text x="1630.0" y="2861.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">life + learning</text>
+<rect x="1860" y="2800" width="300" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="2010.0" y="2836.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">Experiences</text>
+<text x="2010.0" y="2853.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ evidence sources</text>
+<polyline points="400,2375.0 430.0,2375.0 430.0,2395.0 460,2395.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="840,2395.0 880.0,2395.0 880.0,2375.0 920,2375.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1340,2550.0 1380.0,2550.0 1380.0,2425.0 1420,2425.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1340,2375.0 1380.0,2375.0 1380.0,2425.0 1420,2425.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1340,2375.0 1580.0,2375.0 1580.0,2375.0 1820,2375.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1340,2375.0 1380,2375.0 1380,2500.0 1820,2500.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="920,2375.0 880,2375.0 880,2720.0 920,2720.0" fill="none" stroke="#495057" stroke-width="1.5" stroke-dasharray="8 6" marker-end="url(#arr)"/>
+<text x="920.0" y="2541.5" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">enqueue 3s</text>
+<polyline points="1130.0,2760 1130.0,2780.0 1130.0,2780.0 1130.0,2800" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1340,2840.0 1380.0,2840.0 1380.0,2840.0 1420,2840.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1840,2840.0 1850.0,2840.0 1850.0,2840.0 1860,2840.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="400,2535.0 430.0,2535.0 430.0,2395.0 460,2395.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="60" y="2973.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#868e96" text-anchor="start">Talk is blocking: agent + TTS complete before the turn returns. Experience extraction is asynchronous.</text>
+<rect x="20" y="3340" width="2160" height="820" rx="10" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="38" y="3374.0" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#343a40" text-anchor="start">4. daily_read / daily_translation 流程</text>
+<rect x="60" y="3440" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="3479.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">GET /daily/read</text>
+<polygon points="620.0,3440 780,3480.0 620.0,3520 460,3480.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="620.0" y="3476.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">DailyReading</text>
+<text x="620.0" y="3493.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">exists for today?</text>
+<rect x="860" y="3440" width="400" height="90" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="1060.0" y="3472.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">daily_read agent</text>
+<text x="1060.0" y="3489.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">inline prompt</text>
+<text x="1060.0" y="3506.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">220–320 words</text>
+<rect x="1340" y="3440" width="320" height="80" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1500.0" y="3476.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">persist</text>
+<text x="1500.0" y="3493.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">DailyReading</text>
+<rect x="1740" y="3440" width="360" height="90" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1920.0" y="3472.65" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">TimedSpeechService</text>
+<text x="1920.0" y="3489.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">cache by passage</text>
+<text x="1920.0" y="3506.4500000000003" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">first time is slow</text>
+<rect x="1740" y="3560" width="360" height="70" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1920.0" y="3591.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">DailyReadOut</text>
+<text x="1920.0" y="3608.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">passage + timed audio</text>
+<polyline points="400,3475.0 430.0,3475.0 430.0,3480.0 460,3480.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="780,3480.0 820.0,3480.0 820.0,3485.0 860,3485.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="820.0" y="3476.5" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">no</text>
+<polyline points="1260,3485.0 1300.0,3485.0 1300.0,3480.0 1340,3480.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1660,3480.0 1700.0,3480.0 1700.0,3485.0 1740,3485.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1920.0,3530 1920.0,3545.0 1920.0,3545.0 1920.0,3560" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="460" y="3552.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start">yes → build output</text>
+<rect x="60" y="3700" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="3739.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">GET /daily/read/translation</text>
+<polygon points="620.0,3700 780,3740.0 620.0,3780 460,3740.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="620.0" y="3736.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">translation_json</text>
+<text x="620.0" y="3753.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">exists for language?</text>
+<rect x="860" y="3700" width="360" height="80" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1040.0" y="3736.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">split passage</text>
+<text x="1040.0" y="3753.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">into sentences</text>
+<rect x="1340" y="3700" width="400" height="80" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="1540.0" y="3736.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">daily_translation agent</text>
+<text x="1540.0" y="3753.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">inline prompt</text>
+<polygon points="1970.0,3700 2140,3740.0 1970.0,3780 1800,3740.0" fill="#ffec99" stroke="#495057" stroke-width="1.5"/>
+<text x="1970.0" y="3736.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">line count</text>
+<text x="1970.0" y="3753.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">matches?</text>
+<rect x="1800" y="3810" width="340" height="70" rx="10" fill="#ffe8cc" stroke="#495057" stroke-width="1.5" />
+<text x="1970.0" y="3849.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">translation_json</text>
+<polyline points="400,3735.0 430.0,3735.0 430.0,3740.0 460,3740.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="780,3740.0 820.0,3740.0 820.0,3740.0 860,3740.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="820.0" y="3734.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">no</text>
+<polyline points="1220,3740.0 1280.0,3740.0 1280.0,3740.0 1340,3740.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1740,3740.0 1770.0,3740.0 1770.0,3740.0 1800,3740.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="1970.0,3780 1970.0,3795.0 1970.0,3795.0 1970.0,3810" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<text x="1970.0" y="3789.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="middle">yes</text>
+<text x="1800" y="3797.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#c92a2a" text-anchor="start">no → 502 daily_translation_failed</text>
+<text x="60" y="3993.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#868e96" text-anchor="start">Both daily agents construct pydantic-ai Agent directly: no shared retry, no named.agent latency log.</text>
+<rect x="20" y="4200" width="2160" height="800" rx="10" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="38" y="4234.0" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#343a40" text-anchor="start">5. intent / question / sentence / practice</text>
+<rect x="60" y="4300" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="4339.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /assistant/route</text>
+<rect x="460" y="4300" width="360" height="70" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="640.0" y="4331.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">intent</text>
+<text x="640.0" y="4348.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">intent-v1</text>
+<rect x="880" y="4300" width="400" height="70" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="4339.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">intent + confidence</text>
+<text x="1320" y="4327.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#868e96" text-anchor="start">client navigates or falls back to discovery</text>
+<polyline points="400,4335.0 430.0,4335.0 430.0,4335.0 460,4335.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="820,4335.0 850.0,4335.0 850.0,4335.0 880,4335.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="4410" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="4441.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /questions</text>
+<text x="230.0" y="4458.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">+ /{id}/messages</text>
+<rect x="460" y="4410" width="360" height="70" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="640.0" y="4441.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">question</text>
+<text x="640.0" y="4458.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">question-v2</text>
+<rect x="880" y="4410" width="400" height="70" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="4449.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">answer + example + native explanation</text>
+<text x="1320" y="4437.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#868e96" text-anchor="start">persists thread + messages; optional context quote</text>
+<polyline points="400,4445.0 430.0,4445.0 430.0,4445.0 460,4445.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="820,4445.0 850.0,4445.0 850.0,4445.0 880,4445.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="4520" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="4559.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /sentences/lookup</text>
+<rect x="460" y="4520" width="360" height="70" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="640.0" y="4551.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">sentence</text>
+<text x="640.0" y="4568.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">sentence-v1</text>
+<rect x="880" y="4520" width="400" height="70" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="4559.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">natural English + grammar + chunks</text>
+<text x="1320" y="4547.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#868e96" text-anchor="start">no server cache; audio lazy on client</text>
+<polyline points="400,4555.0 430.0,4555.0 430.0,4555.0 460,4555.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="820,4555.0 850.0,4555.0 850.0,4555.0 880,4555.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="4630" width="340" height="70" rx="10" fill="#b2f2bb" stroke="#495057" stroke-width="1.5" />
+<text x="230.0" y="4669.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">POST /practice/{word_id}/reply</text>
+<rect x="460" y="4630" width="360" height="70" rx="10" fill="#a5d8ff" stroke="#495057" stroke-width="1.5" />
+<text x="640.0" y="4661.1" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">practice</text>
+<text x="640.0" y="4678.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">practice-v1</text>
+<rect x="880" y="4630" width="400" height="70" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="1.5" />
+<text x="1080.0" y="4669.55" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#212529" text-anchor="middle">reply + recast + native reply</text>
+<text x="1320" y="4657.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#868e96" text-anchor="start">stateless; progress via separate endpoint</text>
+<polyline points="400,4665.0 430.0,4665.0 430.0,4665.0 460,4665.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<polyline points="820,4665.0 850.0,4665.0 850.0,4665.0 880,4665.0" fill="none" stroke="#495057" stroke-width="1.5"  marker-end="url(#arr)"/>
+<rect x="60" y="4760" width="1900" height="90" rx="10" fill="#fff3bf" stroke="#495057" stroke-width="1.5" />
+<text x="72" y="4784.0" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">Shared runtime for all agents except daily: deepseek:deepseek-flash · timeout 60s · attempts 2 · pydantic structured output.</text>
+<text x="72" y="4802.2" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start">experience is the only async agent (max 1 attempt).</text>
+</svg>

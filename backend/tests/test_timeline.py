@@ -172,7 +172,7 @@ async def test_timeline_returns_scene_items(timeline_env) -> None:
     assert scene_item["type"] == "scene"
     assert scene_item["input_text"] == "今天在公园里和女儿休息了一会儿"
     assert scene_item["scene"]["natural_english"] == ("I rested in the park with my daughter.")
-    assert scene_item["audio"]["status"] == "ready"
+    assert scene_item["audio"] is None
     assert scene_item["conversation_id"] is None
 
     conversation = await http.post(

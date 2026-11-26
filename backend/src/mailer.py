@@ -15,10 +15,9 @@ class LoggingEmailSender:
         self.settings = settings
 
     async def send_code(self, email: str, code: str) -> None:
-        if self.settings.auth_dev_log_codes:
-            logger.info("Development auth code for %s: %s", email, code)
-        else:
-            logger.info("Auth code sent to %s", email)
+        # Never log the plaintext code. Local development can set
+        # AUTH_FIXED_CODE when a known code is needed.
+        logger.info("Auth code generated for %s", email)
 
 
 def get_email_sender() -> EmailSender:

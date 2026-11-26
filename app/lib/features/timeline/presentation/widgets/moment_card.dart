@@ -65,11 +65,12 @@ class MomentCard extends StatelessWidget {
                   style: textTheme.headlineMedium,
                 ),
               ),
-              if (item.audio?.isReady == true) ...[
+              if (scene.naturalEnglish.trim().isNotEmpty) ...[
                 const SizedBox(width: AppSpacing.s8),
                 SceneAudioButton(
                   key: Key('timeline.scene.listen.${item.id}'),
                   audio: item.audio,
+                  text: scene.naturalEnglish,
                 ),
               ],
             ],

@@ -4,7 +4,7 @@ from auth.router import CurrentAuthDep, SessionDep
 from errors import ApiError
 from ratelimit import TalkRateLimitDep
 from tts.deps import MediaStoreDep, SpeechAudioServiceDep
-from tts.schemas import AudioOut, AudioTrackOut, PronunciationRequest, SpeechAudioOut, SpeechRequest
+from tts.schemas import AudioOut, PronunciationRequest, SpeechAudioOut, SpeechRequest
 
 audio_router = APIRouter(prefix="/audio", tags=["audio"])
 
@@ -56,18 +56,4 @@ async def pronounce(
     speech_service: SpeechAudioServiceDep,
     _: TalkRateLimitDep,
 ) -> AudioOut:
-    us, _ = await speech_service.synthesize(
-        session,
-        payload.text,
-        voice=speech_service.settings.tts_voice_us,
-    )
-    uk, _ = await speech_service.synthesize(
-        session,
-        payload.text,
-        voice=speech_service.settings.tts_voice_uk,
-    )
-    await session.commit()
-    return AudioOut(
-        us=AudioTrackOut(url=us.url, status=us.status),
-        uk=AudioTrackOut(url=uk.url, status=uk.status),
-    )
+    return await speech_service.pronunciation(session, payload.text)

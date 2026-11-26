@@ -271,6 +271,15 @@ extension AppPaletteContext on BuildContext {
       Theme.of(this).extension<AppPalette>() ?? AppPalette.light;
 }
 
+extension AppSplashContext on BuildContext {
+  bool get isAppDark => Theme.of(this).brightness == Brightness.dark;
+
+  /// Brand paper ground fixed across theme families so the in-app splash
+  /// matches flutter_native_splash and cold start cannot flash.
+  Color get appSplashGround =>
+      isAppDark ? const Color(0xFF171A1D) : const Color(0xFFFBF8F2);
+}
+
 /// Raw light-theme values kept for older shared widgets. New feature code must
 /// read semantic colors from [AppPalette] through [AppPaletteContext].
 class AppColors {

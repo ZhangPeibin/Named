@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
@@ -23,6 +23,7 @@ from discovery.service import (
     focus_discovery,
     get_discovery,
     get_word,
+    get_word_details,
     get_words,
     lookup_word,
     mark_word_attempted,
@@ -30,12 +31,13 @@ from discovery.service import (
     save_word,
     set_word_known,
 )
+from discovery.word_card_agent import WordCardAgent, get_word_card_agent
 from discovery.word_lookup_agent import WordLookupAgent, get_word_lookup_agent
 from errors import ApiError
 from images import ImageError, process_image
 from models import Discovery
 from ratelimit import DiscoverRateLimitDep
-from tts.deps import MediaStoreDep, SpeechAudioServiceDep, WordAudioServiceDep
+from tts.deps import MediaStoreDep, WordAudioServiceDep
 
 router = APIRouter(prefix="/discoveries", tags=["discoveries"])
 word_router = APIRouter(prefix="/words", tags=["words"])
@@ -43,6 +45,7 @@ image_router = APIRouter(prefix="/images", tags=["images"])
 
 DiscoveryAgentDep = Annotated[DiscoveryAgent, Depends(get_discovery_agent)]
 WordLookupAgentDep = Annotated[WordLookupAgent, Depends(get_word_lookup_agent)]
+WordCardAgentDep = Annotated[WordCardAgent, Depends(get_word_card_agent)]
 
 
 @router.post("", response_model=DiscoveryOut, status_code=status.HTTP_201_CREATED)
@@ -52,7 +55,6 @@ async def create(
     agent: DiscoveryAgentDep,
     settings: SettingsDep,
     audio_service: WordAudioServiceDep,
-    speech_service: SpeechAudioServiceDep,
     store: MediaStoreDep,
     _: DiscoverRateLimitDep,
     text: Annotated[str | None, Form()] = None,
@@ -86,7 +88,6 @@ async def create(
             agent,
             settings,
             audio_service,
-            speech_service,
         )
     except Exception:
         if image_key is not None:
@@ -212,8 +213,10 @@ async def read_word_lookup(
     audio_service: WordAudioServiceDep,
     lookup_agent: WordLookupAgentDep,
     content_agent: DiscoveryAgentDep,
+    card_agent: WordCardAgentDep,
     _: DiscoverRateLimitDep,
     text: Annotated[str, Query(min_length=1, max_length=100)],
+    level: Annotated[Literal["card", "full"], Query()] = "full",
 ) -> WordOut:
     return await lookup_word(
         session,
@@ -223,6 +226,28 @@ async def read_word_lookup(
         audio_service,
         lookup_agent,
         content_agent,
+        card_agent,
+        level,
+    )
+
+
+@word_router.get("/{word_id}/details", response_model=WordOut)
+async def read_word_details(
+    word_id: str,
+    current: CurrentAuthDep,
+    session: SessionDep,
+    settings: SettingsDep,
+    audio_service: WordAudioServiceDep,
+    agent: DiscoveryAgentDep,
+    _: DiscoverRateLimitDep,
+) -> WordOut:
+    return await get_word_details(
+        session,
+        current.account.id,
+        word_id,
+        settings,
+        audio_service,
+        agent,
     )
 
 

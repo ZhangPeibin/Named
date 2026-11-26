@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import '../../domain/talk.dart';
 import '../api/talk_api.dart';
 import '../dto/talk_dto.dart';
@@ -31,18 +29,6 @@ class TalkRepository {
       conversationId: conversationId,
       useMemory: useMemory,
     )).toDomain();
-  }
-
-  Future<PronunciationAudio> synthesizePronunciation(String text) async {
-    return (await _api.synthesizePronunciation(text)).toDomain();
-  }
-
-  Future<String> transcribeAudio(Uint8List audio) {
-    return _api.transcribeAudio(audio);
-  }
-
-  Future<TalkAudio> synthesizeSpeech(String text) async {
-    return (await _api.synthesizeSpeech(text)).toDomain();
   }
 
   Future<HelpSuggestion> helpExpression({

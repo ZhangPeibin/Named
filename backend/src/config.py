@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,6 +17,7 @@ class Settings(BaseSettings):
     auth_code_max_per_hour: int = 10
     auth_session_ttl_days: int = 30
     auth_dev_log_codes: bool = False
+    auth_fixed_code: str | None = None
 
     ai_model: str = "deepseek:deepseek-flash"
     ai_prompt_version: str = "discover-v3"
@@ -52,6 +54,12 @@ class Settings(BaseSettings):
     rate_limit_talk_per_minute: int = 60
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @model_validator(mode="after")
+    def reject_fixed_code_in_production(self) -> "Settings":
+        if self.auth_fixed_code and self.app_env.lower() in {"prod", "production"}:
+            raise ValueError("AUTH_FIXED_CODE is not allowed in production.")
+        return self
 
 
 @lru_cache

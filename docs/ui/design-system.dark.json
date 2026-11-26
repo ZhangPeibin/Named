@@ -1,0 +1,269 @@
+{
+  "protocol_version": "0.1.0",
+  "metadata": {
+    "project_name": "Named",
+    "design_foundation": "material3",
+    "theme": "dark",
+    "description": "Dark mirror of design-system.json from AppPalette.skyDark. The splash ground is the native splash dark color so cold start does not flash.",
+    "version": "2.0"
+  },
+  "x-source": {
+    "colors": "app/lib/app/theme/app_colors.dart AppPalette.skyDark",
+    "brand": "docs/brand-identity.md; splash ground matches flutter_native_splash color_dark"
+  },
+  "tokens": {
+    "colors": {
+      "canvas": {
+        "value": "#141312",
+        "role": "background"
+      },
+      "surface": {
+        "value": "#1d1b18",
+        "role": "surface"
+      },
+      "surface_muted": {
+        "value": "#2a2723",
+        "role": "surface-variant"
+      },
+      "primary": {
+        "value": "#e7e2d8",
+        "role": "primary"
+      },
+      "primary_pressed": {
+        "value": "#d5cfc4",
+        "role": "primary"
+      },
+      "on_primary": {
+        "value": "#1a1815",
+        "role": "on-primary"
+      },
+      "ink": {
+        "value": "#efeae1",
+        "role": "on-surface"
+      },
+      "muted": {
+        "value": "#aba396",
+        "role": "on-surface-variant"
+      },
+      "accent": {
+        "value": "#a7bc96",
+        "role": "secondary"
+      },
+      "warm": {
+        "value": "#2e2822",
+        "role": "secondary-container"
+      },
+      "line": {
+        "value": "#38332d",
+        "role": "outline-variant"
+      },
+      "warning_surface": {
+        "value": "#3a2c22",
+        "role": "tertiary-container"
+      },
+      "warning_text": {
+        "value": "#f0dcc8",
+        "role": "on-tertiary-container"
+      },
+      "error": {
+        "value": "#e6a09a",
+        "role": "error"
+      },
+      "on_error": {
+        "value": "#1a1815",
+        "role": "on-error"
+      },
+      "brand_ink": {
+        "value": "#e7ebef",
+        "role": "on-surface",
+        "description": "Placeholder aliasing; the dark mark uses paper stems, not this token."
+      },
+      "brand_cobalt": {
+        "value": "#2f4a6b",
+        "role": "primary"
+      },
+      "brand_terracotta": {
+        "value": "#b05230",
+        "role": "tertiary"
+      },
+      "brand_paper": {
+        "value": "#fbf8f2",
+        "role": "surface"
+      },
+      "splash_ground": {
+        "value": "#171a1d",
+        "role": "background",
+        "description": "Equals flutter_native_splash color_dark."
+      },
+      "scrim": {
+        "value": "#000000",
+        "role": "scrim"
+      }
+    },
+    "typography": {
+      "display": {
+        "font_family": "Lora",
+        "size": 40,
+        "weight": 500,
+        "line_height": 44,
+        "letter_spacing": -1
+      },
+      "editorial": {
+        "font_family": "Lora",
+        "size": 32,
+        "weight": 500,
+        "line_height": 38,
+        "letter_spacing": -0.8
+      },
+      "wordmark": {
+        "font_family": "Lora",
+        "size": 20,
+        "weight": 500,
+        "line_height": 24,
+        "letter_spacing": -0.3
+      },
+      "page_title": {
+        "font_family": "Lora",
+        "size": 26,
+        "weight": 500,
+        "line_height": 32,
+        "letter_spacing": -0.4
+      },
+      "section_title": {
+        "font_family": "Lora",
+        "size": 21,
+        "weight": 500,
+        "line_height": 28,
+        "letter_spacing": -0.2
+      },
+      "body_large": {
+        "font_family": "System Sans",
+        "size": 16,
+        "weight": 400,
+        "line_height": 24
+      },
+      "body": {
+        "font_family": "System Sans",
+        "size": 15,
+        "weight": 400,
+        "line_height": 23
+      },
+      "body_small": {
+        "font_family": "System Sans",
+        "size": 13,
+        "weight": 400,
+        "line_height": 20
+      },
+      "label": {
+        "font_family": "System Sans",
+        "size": 13,
+        "weight": 600,
+        "line_height": 18
+      },
+      "button": {
+        "font_family": "System Sans",
+        "size": 15,
+        "weight": 600,
+        "line_height": 18
+      },
+      "nav": {
+        "font_family": "System Sans",
+        "size": 10,
+        "weight": 500,
+        "line_height": 12
+      },
+      "caption": {
+        "font_family": "System Sans",
+        "size": 11,
+        "weight": 500,
+        "line_height": 16
+      },
+      "eyebrow": {
+        "font_family": "System Sans",
+        "size": 10,
+        "weight": 600,
+        "line_height": 14,
+        "letter_spacing": 1.6
+      }
+    },
+    "spacing": {
+      "s2": 2,
+      "s4": 4,
+      "s6": 6,
+      "s8": 8,
+      "s10": 10,
+      "s12": 12,
+      "s14": 14,
+      "s16": 16,
+      "s18": 18,
+      "s20": 20,
+      "s24": 24,
+      "s32": 32,
+      "s40": 40,
+      "s48": 48,
+      "page_horizontal": 24,
+      "page_max_width": 520
+    },
+    "shape": {
+      "r8": 8,
+      "r10": 10,
+      "r12": 12,
+      "r16": 16,
+      "r18": 18,
+      "r24": 24,
+      "pill": 999
+    },
+    "elevation": {
+      "level0": 0,
+      "level1": 1,
+      "floating": 14
+    },
+    "opacity": {
+      "low": 0.12,
+      "dot": 0.32,
+      "disabled": 0.4,
+      "medium": 0.6,
+      "full": 1
+    },
+    "dimensions": {
+      "touch_target": 48,
+      "touch_min": 44,
+      "app_bar_height": 56,
+      "button_height": 52,
+      "field_height": 56,
+      "icon_sm": 18,
+      "icon_md": 22,
+      "icon_lg": 24,
+      "logo_symbol": 96,
+      "logo_lockup_width": 200,
+      "logo_lockup_height": 74,
+      "splash_progress_width": 96,
+      "splash_progress_height": 2,
+      "step_bar_active": 26,
+      "step_bar_idle": 8,
+      "step_bar_height": 6,
+      "page_max_width": 520,
+      "sheet_handle": 32,
+      "spacer_8": 8,
+      "spacer_16": 16
+    },
+    "motion": {
+      "quick": {
+        "duration_ms": 120,
+        "easing": "easeOut"
+      },
+      "standard": {
+        "duration_ms": 220,
+        "easing": "easeOutCubic"
+      },
+      "page": {
+        "duration_ms": 280,
+        "easing": "easeOutCubic"
+      },
+      "emphasized": {
+        "duration_ms": 300,
+        "easing": "easeOutCubic"
+      }
+    }
+  }
+}

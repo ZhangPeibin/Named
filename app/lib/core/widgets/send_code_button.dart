@@ -100,19 +100,16 @@ class _SendCodeButtonState extends State<SendCodeButton> {
     return TextButton(
       onPressed: disabled ? null : _sendCode,
       style: TextButton.styleFrom(
-        backgroundColor: disabled ? palette.surfaceMuted : palette.surface,
-        foregroundColor: disabled ? palette.muted : palette.primary,
+        backgroundColor: palette.surface,
+        foregroundColor: palette.primary,
         disabledForegroundColor: palette.muted,
-        minimumSize: const Size(44, 38),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s14,
-          vertical: AppSpacing.s8,
+        minimumSize: const Size(AppSize.touchMin, AppSize.buttonHeight),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+        side: BorderSide(color: palette.line),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.r12),
         ),
-        side: BorderSide(color: disabled ? palette.line : palette.primary),
-        shape: const StadiumBorder(),
-        textStyle: Theme.of(
-          context,
-        ).textTheme.labelMedium?.copyWith(fontSize: 12),
+        textStyle: Theme.of(context).textTheme.labelLarge,
       ),
       child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
     );

@@ -17,7 +17,9 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    op.drop_index("ix_soul_items_account_id", table_name="soul_items")
+    # MySQL keeps ix_soul_items_account_id alive because the foreign key uses
+    # it; dropping the table removes both. Dropping the index first fails with
+    # error 1553.
     op.drop_table("soul_items")
 
 

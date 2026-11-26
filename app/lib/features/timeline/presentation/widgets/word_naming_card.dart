@@ -89,9 +89,9 @@ class WordNamingCard extends StatelessWidget {
                   style: textTheme.displayMedium,
                 ),
               ),
-              if (item.audio?.hasAudio == true) ...[
+              if (word.spelling.trim().isNotEmpty) ...[
                 const SizedBox(width: AppSpacing.s8),
-                WordAudioButton(audio: item.audio),
+                WordAudioButton(audio: item.audio, text: word.spelling),
               ],
             ],
           ),

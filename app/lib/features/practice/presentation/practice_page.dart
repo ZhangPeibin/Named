@@ -11,6 +11,7 @@ import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/speech/speech_providers.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_view.dart';
@@ -23,7 +24,6 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
 import '../../discover/domain/discover.dart';
 import '../../progress/providers/progress_providers.dart';
-import '../../talk/providers/talk_providers.dart';
 import '../../timeline/presentation/widgets/word_audio_button.dart';
 import '../domain/practice_word.dart';
 import '../providers/practice_providers.dart';
@@ -1453,9 +1453,7 @@ class _PracticePageState extends ConsumerState<PracticePage> {
     }
     try {
       final bytes = await File(path).readAsBytes();
-      final text = await ref
-          .read(talkRepositoryProvider)
-          .transcribeAudio(bytes);
+      final text = await ref.read(speechRepositoryProvider).transcribe(bytes);
       if (!mounted) {
         return;
       }

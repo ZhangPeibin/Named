@@ -82,58 +82,107 @@ class TimelineController extends AsyncNotifier<TimelineState> {
   }
 
   Future<TimelineItem?> createNamed(String text) async {
-    final discover = ref.read(discoverRepositoryProvider);
-    var discovery = await discover.createText(text: text);
+    final pendingId = 'pending-${DateTime.now().microsecondsSinceEpoch}';
+    _appendItem(
+      TimelinePendingItem(
+        id: pendingId,
+        inputText: text,
+        createdAt: DateTime.now(),
+      ),
+    );
 
-    if (discovery.needsConfirmation) {
-      if (discovery.candidates.isNotEmpty) {
-        discovery = await discover.focus(
-          discoveryId: discovery.id,
-          candidateId: discovery.candidates.first.id,
+    try {
+      final discover = ref.read(discoverRepositoryProvider);
+      var discovery = await discover.createText(text: text);
+
+      if (discovery.needsConfirmation) {
+        if (discovery.candidates.isNotEmpty) {
+          discovery = await discover.focus(
+            discoveryId: discovery.id,
+            candidateId: discovery.candidates.first.id,
+          );
+        } else if (discovery.isScene) {
+          discovery = await discover.focus(
+            discoveryId: discovery.id,
+            wholeScene: true,
+          );
+        }
+      }
+
+      final scene = discovery.scene;
+      if (discovery.isScene && scene != null) {
+        final item = TimelineSceneItem(
+          id: discovery.id,
+          createdAt: DateTime.now(),
+          inputText: discovery.inputText ?? text,
+          inputLanguage: discovery.inputLanguage,
+          scene: scene,
+          audio: discovery.sceneAudio,
+          conversationId: null,
         );
-      } else if (discovery.isScene) {
-        discovery = await discover.focus(
-          discoveryId: discovery.id,
-          wholeScene: true,
+        _replaceItem(pendingId, item);
+        return item;
+      }
+
+      final word = discovery.word;
+      if (word == null) {
+        throw const ApiException(
+          type: ApiExceptionType.badResponse,
+          message:
+              'No discovery result. Try naming one thing or describing a moment.',
         );
       }
-    }
 
-    final scene = discovery.scene;
-    if (discovery.isScene && scene != null) {
-      final item = TimelineSceneItem(
+      final item = TimelineWordItem(
         id: discovery.id,
         createdAt: DateTime.now(),
         inputText: discovery.inputText ?? text,
-        inputLanguage: discovery.inputLanguage,
-        scene: scene,
-        audio: discovery.sceneAudio,
+        wordId: discovery.wordId,
+        word: word,
+        audio: discovery.audio,
         conversationId: null,
       );
-      _appendItem(item);
+      _replaceItem(pendingId, item);
       return item;
+    } catch (_) {
+      _removeItem(pendingId);
+      rethrow;
     }
+  }
 
-    final word = discovery.word;
-    if (word == null) {
-      throw const ApiException(
-        type: ApiExceptionType.badResponse,
-        message:
-            'No discovery result. Try naming one thing or describing a moment.',
-      );
+  void _replaceItem(String id, TimelineItem item) {
+    final currentState = state.value;
+    if (currentState == null) {
+      _appendItem(item);
+      return;
     }
-
-    final item = TimelineWordItem(
-      id: discovery.id,
-      createdAt: DateTime.now(),
-      inputText: discovery.inputText ?? text,
-      wordId: discovery.wordId,
-      word: word,
-      audio: discovery.audio,
-      conversationId: null,
+    state = AsyncData(
+      TimelineState(
+        items: [
+          for (final existing in currentState.items)
+            if (existing is TimelinePendingItem && existing.id == id)
+              item
+            else
+              existing,
+        ],
+        nextCursor: currentState.nextCursor,
+      ),
     );
-    _appendItem(item);
-    return item;
+  }
+
+  void _removeItem(String id) {
+    final currentState = state.value;
+    if (currentState == null) {
+      return;
+    }
+    state = AsyncData(
+      TimelineState(
+        items: currentState.items
+            .where((item) => !(item is TimelinePendingItem && item.id == id))
+            .toList(),
+        nextCursor: currentState.nextCursor,
+      ),
+    );
   }
 
   void _appendItem(TimelineItem item) {
@@ -267,6 +316,7 @@ class TimelineController extends AsyncNotifier<TimelineState> {
       TimelineTalkItem() => 'talk:${item.id}',
       TimelineDailyItem() => 'daily:${item.id}',
       TimelineQuestionItem() => 'question:${item.id}',
+      TimelinePendingItem() => 'pending:${item.id}',
     };
   }
 }

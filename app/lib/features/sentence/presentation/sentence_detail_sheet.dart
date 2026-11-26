@@ -8,13 +8,13 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/speech/speech_providers.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/audio_control.dart';
 import '../../../i18n/strings.g.dart';
 import '../../question/presentation/ask_launcher.dart';
-import '../../talk/providers/talk_providers.dart';
 import '../domain/sentence_detail.dart';
 import '../providers/sentence_providers.dart';
 
@@ -243,7 +243,7 @@ class _SentenceAudioButton extends ConsumerWidget {
     if (cached != null) {
       return cached;
     }
-    final audio = await ref.read(talkRepositoryProvider).synthesizeSpeech(text);
+    final audio = await ref.read(speechRepositoryProvider).synthesize(text);
     if (!audio.isReady || audio.url == null) {
       return null;
     }

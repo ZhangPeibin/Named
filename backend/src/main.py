@@ -34,9 +34,13 @@ from timeline.router import router as timeline_router
 from tts.router import audio_router
 
 settings = get_settings()
-if settings.auth_dev_log_codes:
-    logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("named.request")
+if settings.auth_fixed_code:
+    logger.warning(
+        "AUTH_FIXED_CODE is enabled; verification codes are fixed. "
+        "Do not use this outside development or staging."
+    )
 
 
 @asynccontextmanager

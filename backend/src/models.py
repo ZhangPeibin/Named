@@ -97,6 +97,9 @@ class WordContent(Base):
     )
     native_language: Mapped[str] = mapped_column(String(32), nullable=False)
     payload_json: Mapped[dict] = mapped_column(JSON, nullable=False)
+    content_level: Mapped[str] = mapped_column(
+        String(8), default="full", server_default="full", nullable=False
+    )
     source: Mapped[str] = mapped_column(String(16), default="ai", nullable=False)
     model: Mapped[str] = mapped_column(String(120), nullable=False)
     prompt_version: Mapped[str] = mapped_column(String(32), nullable=False)

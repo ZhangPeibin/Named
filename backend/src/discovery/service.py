@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import re
 from datetime import timedelta
 
 from sqlalchemy import func, select
@@ -26,6 +28,8 @@ from discovery.schemas import (
     WordsResponse,
     WordsStats,
 )
+from discovery.word_card_agent import SPEC as WORD_CARD_SPEC
+from discovery.word_card_agent import WORD_CARD_PROMPT_VERSION, WordCardAgent
 from discovery.word_lookup_agent import SPEC as WORD_LOOKUP_SPEC
 from discovery.word_lookup_agent import AgentFailed as WordLookupFailed
 from discovery.word_lookup_agent import WordLookupAgent
@@ -44,9 +48,12 @@ from models import (
 )
 from talk.schemas import MemoryCandidate
 from tts.schemas import SpeechAudioOut
-from tts.service import SpeechAudioService, WordAudioService
+from tts.service import WordAudioService
 
 logger = logging.getLogger(__name__)
+
+
+_SINGLE_WORD_RE = re.compile(r"^[A-Za-z][A-Za-z'\-]{0,39}$")
 
 
 def normalize_label(label: str) -> str:
@@ -91,6 +98,8 @@ async def _latest_word_content(
     word_id: str,
     native_language: str,
     settings: Settings,
+    level: str = "full",
+    prompt_version: str | None = None,
 ) -> WordContent | None:
     return await session.scalar(
         select(WordContent)
@@ -98,7 +107,8 @@ async def _latest_word_content(
             WordContent.word_id == word_id,
             WordContent.native_language == native_language,
             WordContent.model == settings.ai_model,
-            WordContent.prompt_version == settings.ai_prompt_version,
+            WordContent.prompt_version == (prompt_version or settings.ai_prompt_version),
+            WordContent.content_level == level,
         )
         .order_by(WordContent.created_at.desc())
         .limit(1)
@@ -109,12 +119,14 @@ async def _latest_word_content_any(
     session: AsyncSession,
     word_id: str,
     native_language: str,
+    level: str = "full",
 ) -> WordContent | None:
     return await session.scalar(
         select(WordContent)
         .where(
             WordContent.word_id == word_id,
             WordContent.native_language == native_language,
+            WordContent.content_level == level,
         )
         .order_by(WordContent.created_at.desc())
         .limit(1)
@@ -175,6 +187,7 @@ async def _get_or_create_word_content(
         word_id=word.id,
         native_language=native_language,
         payload_json=payload.model_dump(mode="json"),
+        content_level="full",
         source="ai",
         model=settings.ai_model,
         prompt_version=settings.ai_prompt_version,
@@ -184,11 +197,120 @@ async def _get_or_create_word_content(
     return word, payload
 
 
+async def _get_or_create_word_card(
+    session: AsyncSession,
+    label: str,
+    native_language: str,
+    settings: Settings,
+    agent: WordCardAgent,
+) -> tuple[Word, WordPayload]:
+    normalized = normalize_label(label)
+    key = canonical_key(normalized)
+    word = await session.scalar(select(Word).where(Word.canonical_key == key))
+    if word is None:
+        word = Word(canonical_key=key, label_en=normalized)
+        session.add(word)
+        await session.flush()
+
+    cached = await _latest_word_content(
+        session,
+        word.id,
+        native_language,
+        settings,
+        level="card",
+        prompt_version=WORD_CARD_PROMPT_VERSION,
+    )
+    if cached is not None:
+        return word, WordPayload.model_validate(cached.payload_json)
+
+    try:
+        payload = await agent.generate(
+            word=normalized,
+            native_language=native_language,
+        )
+    except AINotConfigured as exc:
+        raise ApiError(
+            "AI provider is not configured.",
+            status_code=503,
+            code="ai_not_configured",
+        ) from exc
+    except AgentFailed as exc:
+        raise agent_api_error(exc, WORD_CARD_SPEC) from exc
+
+    payload = payload.model_copy(update={"spelling": normalized})
+    session.add(
+        WordContent(
+            word_id=word.id,
+            native_language=native_language,
+            payload_json=payload.model_dump(mode="json"),
+            content_level="card",
+            source="ai",
+            model=settings.ai_model,
+            prompt_version=WORD_CARD_PROMPT_VERSION,
+        )
+    )
+    await session.flush()
+    return word, payload
+
+
+async def _word_out(
+    session: AsyncSession,
+    account_id: str,
+    word: Word,
+    payload: WordPayload,
+    level: str,
+    audio_service: WordAudioService,
+) -> WordOut:
+    audio = await audio_service.for_word(session, word, cached_only=True)
+    saved = await _word_is_saved(session, account_id, word.id)
+    await session.commit()
+    return WordOut(
+        id=word.id,
+        label_en=word.label_en,
+        content=payload,
+        content_level="full" if level == "full" else "card",
+        audio=audio,
+        saved=saved,
+    )
+
+
+async def _content_for_label(
+    session: AsyncSession,
+    label: str,
+    native_language: str,
+    settings: Settings,
+    level: str,
+) -> tuple[Word, WordPayload] | None:
+    word = await session.scalar(
+        select(Word).where(Word.canonical_key == canonical_key(normalize_label(label)))
+    )
+    if word is None:
+        return None
+    if level == "full":
+        content = await _latest_word_content(
+            session, word.id, native_language, settings, level="full"
+        )
+    else:
+        content = await _latest_word_content(
+            session,
+            word.id,
+            native_language,
+            settings,
+            level="card",
+            prompt_version=WORD_CARD_PROMPT_VERSION,
+        )
+    if content is None:
+        return None
+    return word, WordPayload.model_validate(content.payload_json)
+
+
 async def _discovery_out(
     session: AsyncSession,
     discovery: Discovery,
     settings: Settings,
     audio_service: WordAudioService,
+    *,
+    cached_audio_only: bool = True,
 ) -> DiscoveryOut:
     candidates = await _get_candidates(session, discovery.id)
     word: WordPayload | None = None
@@ -203,7 +325,7 @@ async def _discovery_out(
 
         word_row = await session.get(Word, discovery.word_id)
         if word_row is not None:
-            audio = await audio_service.for_word(session, word_row)
+            audio = await audio_service.for_word(session, word_row, cached_only=cached_audio_only)
 
     if discovery.scene_payload_json is not None:
         scene = ScenePayload.model_validate(discovery.scene_payload_json)
@@ -241,6 +363,62 @@ async def _discovery_out(
     )
 
 
+async def _cached_word_discovery(
+    session: AsyncSession,
+    account_id: str,
+    text: str,
+    context: str | None,
+    image_key: str | None,
+    settings: Settings,
+    audio_service: WordAudioService,
+) -> DiscoveryOut | None:
+    if image_key is not None or not _SINGLE_WORD_RE.match(text):
+        return None
+    word = await session.scalar(select(Word).where(Word.canonical_key == canonical_key(text)))
+    if word is None:
+        return None
+    native_language = await _native_language(session, account_id)
+    content = await _latest_word_content(session, word.id, native_language, settings)
+    if content is None:
+        return None
+
+    discovery = Discovery(
+        account_id=account_id,
+        input_type="text",
+        input_text=text,
+        context=context,
+        image_key=None,
+        input_language="en",
+        focus_kind="word",
+        status="ready",
+        warnings_json=[],
+        scene_payload_json=None,
+        word_id=word.id,
+    )
+    session.add(discovery)
+    await session.flush()
+    try:
+        await record_memories(
+            session,
+            account_id,
+            [
+                MemoryCandidate(
+                    kind="word",
+                    text=word.label_en,
+                    confidence=0.9,
+                    importance=0.6,
+                )
+            ],
+            source_type="discovery",
+            source_id=discovery.id,
+        )
+    except Exception:
+        logger.warning("Word memory update failed")
+    await session.commit()
+    logger.info("discovery cache hit word=%s native_language=%s", word.label_en, native_language)
+    return await _discovery_out(session, discovery, settings, audio_service, cached_audio_only=True)
+
+
 async def create_discovery(
     session: AsyncSession,
     account_id: str,
@@ -252,7 +430,6 @@ async def create_discovery(
     agent: DiscoveryAgent,
     settings: Settings,
     audio_service: WordAudioService,
-    speech_service: SpeechAudioService,
 ) -> DiscoveryOut:
     normalized_text = (text or "").strip()
     if not normalized_text and image is None:
@@ -274,6 +451,18 @@ async def create_discovery(
         )
         if recent is not None:
             return await _discovery_out(session, recent, settings, audio_service)
+
+        cached = await _cached_word_discovery(
+            session,
+            account_id,
+            normalized_text,
+            context,
+            image_key,
+            settings,
+            audio_service,
+        )
+        if cached is not None:
+            return cached
 
     native_language = await _native_language(session, account_id)
 
@@ -341,13 +530,6 @@ async def create_discovery(
             )
         except Exception:
             logger.warning("Word memory update failed")
-    elif scene_payload is not None:
-        _, scene_audio_key = await speech_service.synthesize(
-            session,
-            scene_payload.natural_english,
-        )
-        discovery.scene_audio_key = scene_audio_key
-
     await session.commit()
     return await _discovery_out(session, discovery, settings, audio_service)
 
@@ -498,6 +680,7 @@ async def get_word(
         id=word.id,
         label_en=word.label_en,
         content=WordPayload.model_validate(content.payload_json) if content else None,
+        content_level="full",
         audio=audio,
         saved=await _word_is_saved(session, account_id, word.id),
     )
@@ -511,48 +694,202 @@ async def lookup_word(
     audio_service: WordAudioService,
     lookup_agent: WordLookupAgent,
     content_agent: DiscoveryAgent,
+    card_agent: WordCardAgent,
+    level: str = "full",
 ) -> WordOut:
     native_language = await _native_language(session, account_id)
     selected = normalize_label(text)
     if not selected:
         raise ApiError("Word is empty.", code="word_empty")
-    label = selected
-    if any("\u4e00" <= char <= "\u9fff" for char in selected):
+    is_cjk = any("\u4e00" <= char <= "\u9fff" for char in selected)
+
+    if level == "full":
+        label = selected
+        if is_cjk:
+            try:
+                label = await lookup_agent.resolve(
+                    text=selected,
+                    native_language=native_language,
+                )
+            except WordLookupFailed as exc:
+                raise agent_api_error(exc, WORD_LOOKUP_SPEC) from exc
+            label = normalize_label(label)
+        if not label:
+            raise ApiError(
+                "No English word was found.",
+                status_code=422,
+                code="word_not_resolved",
+            )
+
+        word, payload = await _get_or_create_word_content(
+            session,
+            label,
+            None,
+            native_language,
+            settings,
+            content_agent,
+            context=None,
+            confirmed_label=label,
+        )
+        audio = await audio_service.for_word(session, word)
+        saved = await _word_is_saved(session, account_id, word.id)
+        await session.commit()
+        return WordOut(
+            id=word.id,
+            label_en=word.label_en,
+            content=payload,
+            content_level="full",
+            audio=audio,
+            saved=saved,
+        )
+
+    async def existing(label: str) -> WordOut | None:
+        for content_level in ("full", "card"):
+            found = await _content_for_label(
+                session,
+                label,
+                native_language,
+                settings,
+                content_level,
+            )
+            if found is not None:
+                word, payload = found
+                return await _word_out(
+                    session,
+                    account_id,
+                    word,
+                    payload,
+                    content_level,
+                    audio_service,
+                )
+        return None
+
+    if is_cjk:
         try:
-            label = await lookup_agent.resolve(
+            resolved = await lookup_agent.resolve(
                 text=selected,
                 native_language=native_language,
             )
         except WordLookupFailed as exc:
             raise agent_api_error(exc, WORD_LOOKUP_SPEC) from exc
-        label = normalize_label(label)
-    if not label:
-        raise ApiError(
-            "No English word was found.",
-            status_code=422,
-            code="word_not_resolved",
-        )
+        label = normalize_label(resolved) or selected
+        if not label:
+            raise ApiError(
+                "No English word was found.",
+                status_code=422,
+                code="word_not_resolved",
+            )
+        existing_out = await existing(label)
+        if existing_out is not None:
+            return existing_out
+    else:
+        existing_out = await existing(selected)
+        if existing_out is not None:
+            return existing_out
 
-    word, payload = await _get_or_create_word_content(
+        label = selected
+        try:
+            resolved = await lookup_agent.resolve(
+                text=selected,
+                native_language=native_language,
+            )
+            resolved = normalize_label(resolved)
+            if resolved:
+                label = resolved
+        except WordLookupFailed:
+            # A failed base-form resolution must not block a usable card.
+            label = selected
+
+        if label != selected:
+            existing_out = await existing(label)
+            if existing_out is not None:
+                return existing_out
+
+    word, payload = await _get_or_create_word_card(
         session,
         label,
-        None,
         native_language,
         settings,
-        content_agent,
-        context=None,
-        confirmed_label=label,
+        card_agent,
     )
-    audio = await audio_service.for_word(session, word)
-    saved = await _word_is_saved(session, account_id, word.id)
-    await session.commit()
-    return WordOut(
-        id=word.id,
-        label_en=word.label_en,
-        content=payload,
-        audio=audio,
-        saved=saved,
+    return await _word_out(
+        session,
+        account_id,
+        word,
+        payload,
+        "card",
+        audio_service,
     )
+
+
+_detail_locks: dict[tuple[int, str, str], asyncio.Lock] = {}
+
+
+def _detail_lock(word_id: str, native_language: str) -> asyncio.Lock:
+    key = (id(asyncio.get_running_loop()), word_id, native_language)
+    lock = _detail_locks.get(key)
+    if lock is None:
+        lock = asyncio.Lock()
+        _detail_locks[key] = lock
+    return lock
+
+
+async def get_word_details(
+    session: AsyncSession,
+    account_id: str,
+    word_id: str,
+    settings: Settings,
+    audio_service: WordAudioService,
+    agent: DiscoveryAgent,
+) -> WordOut:
+    word = await session.get(Word, word_id)
+    if word is None:
+        raise ApiError("Word not found.", status_code=404, code="word_not_found")
+
+    native_language = await _native_language(session, account_id)
+
+    async def full_out() -> WordOut | None:
+        content = await _latest_word_content(
+            session, word.id, native_language, settings, level="full"
+        )
+        if content is None:
+            return None
+        return await _word_out(
+            session,
+            account_id,
+            word,
+            WordPayload.model_validate(content.payload_json),
+            "full",
+            audio_service,
+        )
+
+    existing = await full_out()
+    if existing is not None:
+        return existing
+
+    async with _detail_lock(word.id, native_language):
+        existing = await full_out()
+        if existing is not None:
+            return existing
+
+        _, payload = await _get_or_create_word_content(
+            session,
+            word.label_en,
+            None,
+            native_language,
+            settings,
+            agent,
+            context=None,
+            confirmed_label=word.label_en,
+        )
+        return await _word_out(
+            session,
+            account_id,
+            word,
+            payload,
+            "full",
+            audio_service,
+        )
 
 
 async def delete_discovery(
@@ -666,6 +1003,7 @@ async def get_words(
             .where(
                 WordContent.word_id.in_(word_ids),
                 WordContent.native_language == native_language,
+                WordContent.content_level == "full",
             )
             .order_by(WordContent.created_at.desc())
         )
@@ -810,6 +1148,7 @@ async def save_talk_word(
         .where(
             WordContent.word_id == word.id,
             WordContent.native_language == native_language,
+            WordContent.content_level == "full",
         )
         .order_by(WordContent.created_at.desc())
         .limit(1)
@@ -839,6 +1178,7 @@ async def save_talk_word(
                 word_id=word.id,
                 native_language=native_language,
                 payload_json=word_payload.model_dump(mode="json"),
+                content_level="full",
                 source="talk",
                 model="talk-annotation",
                 prompt_version="v1",

@@ -6,6 +6,17 @@ sealed class TimelineItem {
   final DateTime createdAt;
 }
 
+class TimelinePendingItem extends TimelineItem {
+  const TimelinePendingItem({
+    required this.id,
+    required this.inputText,
+    required super.createdAt,
+  });
+
+  final String id;
+  final String inputText;
+}
+
 class TimelineWordItem extends TimelineItem {
   const TimelineWordItem({
     required this.id,

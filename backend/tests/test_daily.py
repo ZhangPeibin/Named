@@ -79,7 +79,7 @@ async def daily_env(tmp_path):
         FakeDiscoveryAgent(),
         tts,
         str(tmp_path),
-    ) as (http, sender, sessions):
+    ) as (http, sender, sessions, _discovery, _tts, _card, _lookup):
         app.dependency_overrides[get_daily_read_agent] = lambda: daily_agent
         app.dependency_overrides[get_daily_translation_agent] = lambda: translation_agent
         app.dependency_overrides[get_timed_speech_provider] = lambda: FakeTimedSpeechProvider()

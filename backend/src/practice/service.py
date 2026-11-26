@@ -132,6 +132,7 @@ async def get_next_practice(
         .where(
             WordContent.word_id == chosen_id,
             WordContent.native_language == native_language,
+            WordContent.content_level == "full",
         )
         .order_by(WordContent.created_at.desc())
         .limit(1)

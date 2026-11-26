@@ -229,7 +229,7 @@ The app defaults to **Ink & Linen**. Settings → Theme also exposes **Ink & Cob
 4. One sentence of context.
 5. One field group and one primary action.
 6. Secondary text action below.
-7. Step progress as 4 small bars; current step uses `primary`.
+7. Step progress as one small bar per real step (two in v1.0); the current bar is wider and uses `primary`.
 
 Do not show a marketing carousel, social login wall, or fake testimonials.
 

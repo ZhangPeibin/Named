@@ -49,6 +49,18 @@ class AppSize {
   static const double size40 = 40;
   static const double size54 = 54;
 
+  static const double logoLockupWidth = 200;
+  static const double logoLockupHeight = 74;
+  static const double splashMark = 96;
+  static const double splashProgressWidth = 96;
+  static const double splashProgressHeight = 2;
+  static const double stepBarActive = 26;
+  static const double stepBarIdle = 8;
+  static const double stepBarHeight = 6;
+  static const double buttonHeight = 52;
+  static const double touchMin = 44;
+  static const double touchTarget = 48;
+
   static const double assetIcon = size40;
   static const double textTabWidth = 74;
   static const double tabIndicatorWeight = 3;

@@ -429,6 +429,8 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get copyEnglish => '复制英文';
 	@override String get memoryLabel => '使用我的记忆';
 	@override String get memoryHint => '关闭后，这次对话不使用已保存的背景。';
+	@override String get playNaturalWay => '听一听更自然的说法';
+	@override String get playEnglish => '听英文说法';
 }
 
 // Path: timeline
@@ -472,6 +474,12 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get progressConversations => '对话';
 	@override String get progressReads => '阅读';
 	@override String get progressPractices => '练习';
+	@override String get speak => '说话';
+	@override String get stopRecording => '停止录音';
+	@override String get listening => '正在聆听…';
+	@override String get transcribing => '正在转写…';
+	@override String get micDenied => '麦克风未授权，请在系统设置中开启。';
+	@override String get naming => '正在命名…';
 }
 
 // Path: practice
@@ -592,6 +600,7 @@ class _Translations$words$zh implements Translations$words$en {
 	@override String get addedToWords => '已在词语中';
 	@override String get addFailed => '加入失败，请重试。';
 	@override String get lookingUp => '正在查这个词…';
+	@override String get loadingMore => '正在加载更多内容…';
 }
 
 // Path: history
@@ -1050,6 +1059,8 @@ extension on TranslationsZh {
 			'talk.copyEnglish' => '复制英文',
 			'talk.memoryLabel' => '使用我的记忆',
 			'talk.memoryHint' => '关闭后，这次对话不使用已保存的背景。',
+			'talk.playNaturalWay' => '听一听更自然的说法',
+			'talk.playEnglish' => '听英文说法',
 			'timeline.today' => '今天',
 			'timeline.yesterday' => '昨天',
 			'timeline.emptyTitle' => '今天看到了什么？',
@@ -1084,6 +1095,12 @@ extension on TranslationsZh {
 			'timeline.progressConversations' => '对话',
 			'timeline.progressReads' => '阅读',
 			'timeline.progressPractices' => '练习',
+			'timeline.speak' => '说话',
+			'timeline.stopRecording' => '停止录音',
+			'timeline.listening' => '正在聆听…',
+			'timeline.transcribing' => '正在转写…',
+			'timeline.micDenied' => '麦克风未授权，请在系统设置中开启。',
+			'timeline.naming' => '正在命名…',
 			'practice.title' => '练习',
 			'practice.understandTitle' => '理解',
 			'practice.pronounceTitle' => '发音',
@@ -1168,6 +1185,7 @@ extension on TranslationsZh {
 			'words.addedToWords' => '已在词语中',
 			'words.addFailed' => '加入失败，请重试。',
 			'words.lookingUp' => '正在查这个词…',
+			'words.loadingMore' => '正在加载更多内容…',
 			'history.title' => '回忆',
 			'history.empty' => '还没有可回看的经历。',
 			'history.emptyHint' => '一段有意义的对话会在 Milo 整理后出现在这里。',
@@ -1320,6 +1338,8 @@ extension on TranslationsZh {
 			'ask.emptyTitle' => '你对什么感到好奇？',
 			'ask.emptyBody' => '可以问一个词、一句话，或任何你想弄明白的事。',
 			'ask.thinking' => '正在想…',
+			_ => null,
+		} ?? switch (path) {
 			'ask.error' => '暂时无法回答，再试一次。',
 			'ask.loadFailed' => '暂时无法加载这个问题。',
 			'ask.retry' => '重试',
@@ -1329,8 +1349,6 @@ extension on TranslationsZh {
 			'ask.recent' => '最近提问',
 			'ask.thread' => '问答',
 			'ask.context' => '来自这里',
-			_ => null,
-		} ?? switch (path) {
 			'ask.followUpHint' => '继续追问…',
 			'ask.followUp' => '继续问',
 			'ask.delete' => '删除问答',

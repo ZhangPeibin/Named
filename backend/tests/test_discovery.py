@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from io import BytesIO
 
@@ -5,6 +6,7 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from PIL import Image
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
@@ -23,9 +25,11 @@ from discovery.schemas import (
     WordPayload,
     WordSense,
 )
+from discovery.word_card_agent import get_word_card_agent
+from discovery.word_lookup_agent import get_word_lookup_agent
 from mailer import get_email_sender
 from main import app
-from models import Base
+from models import Base, WordContent
 from tts.provider import TTSError, TTSResult, get_tts_provider
 
 
@@ -207,13 +211,64 @@ class FakeTTSProvider:
         return TTSResult(data=f"audio-{region}-{text}".encode(), format=fmt)
 
 
+class FakeWordCardAgent:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+
+    async def generate(self, *, word: str, native_language: str) -> WordPayload:
+        self.calls.append((word, native_language))
+        return WordPayload(
+            spelling=word,
+            ipa={"us": "/kɑːrd/", "uk": "/kɑːd/"},
+            pos=["n."],
+            senses=[
+                WordSense(
+                    definition_en="card definition",
+                    definition_zh="卡片释义",
+                    example_en="This is a card example.",
+                    example_zh="这是一个卡片例句。",
+                )
+            ],
+            chunks=[
+                WordChunk(
+                    phrase=f"a {word}",
+                    meaning_zh="一个卡片搭配",
+                    example_en=f"This is a {word}.",
+                )
+            ],
+        )
+
+
+class FakeWordLookupAgent:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+        self.fail = False
+
+    async def resolve(self, *, text: str, native_language: str) -> str:
+        self.calls.append((text, native_language))
+        if self.fail:
+            from discovery.word_lookup_agent import AgentFailed as WordLookupFailed
+
+            raise WordLookupFailed("provider failed")
+        return {
+            "树": "tree",
+            "running": "run",
+            "runs": "run",
+            "Paris": "Paris",
+        }.get(text, text)
+
+
 @asynccontextmanager
 async def discovery_client(
     agent: FakeDiscoveryAgent,
     tts: FakeTTSProvider,
     media_root: str,
     discover_limit: int = 1000,
+    card_agent: FakeWordCardAgent | None = None,
+    lookup_agent: FakeWordLookupAgent | None = None,
 ):
+    card_agent = card_agent or FakeWordCardAgent()
+    lookup_agent = lookup_agent or FakeWordLookupAgent()
     settings = Settings(
         auth_secret="test-secret",
         auth_code_resend_cooldown_seconds=0,
@@ -249,10 +304,12 @@ async def discovery_client(
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_discovery_agent] = lambda: agent
     app.dependency_overrides[get_tts_provider] = lambda: tts
+    app.dependency_overrides[get_word_card_agent] = lambda: card_agent
+    app.dependency_overrides[get_word_lookup_agent] = lambda: lookup_agent
 
     try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            yield client, sender, session_factory
+            yield client, sender, session_factory, agent, tts, card_agent, lookup_agent
     finally:
         app.dependency_overrides.clear()
         await engine.dispose()
@@ -262,8 +319,28 @@ async def discovery_client(
 async def discovery_env(tmp_path):
     agent = FakeDiscoveryAgent()
     tts = FakeTTSProvider()
-    async with discovery_client(agent, tts, str(tmp_path)) as (http, sender, sessions):
+    async with discovery_client(agent, tts, str(tmp_path)) as (
+        http,
+        sender,
+        sessions,
+        _,
+        _,
+        _,
+        _,
+    ):
         yield http, sender, sessions, agent, tts
+
+
+@pytest_asyncio.fixture
+async def lookup_env(tmp_path):
+    agent = FakeDiscoveryAgent()
+    tts = FakeTTSProvider()
+    card = FakeWordCardAgent()
+    lookup = FakeWordLookupAgent()
+    async with discovery_client(
+        agent, tts, str(tmp_path), card_agent=card, lookup_agent=lookup
+    ) as (http, sender, sessions, discovery, tts_service, card_agent, lookup_agent):
+        yield http, sender, sessions, discovery, tts_service, card_agent, lookup_agent
 
 
 def bearer(token: str) -> dict[str, str]:
@@ -340,7 +417,7 @@ async def test_scene_discovery_is_ready(discovery_env) -> None:
     assert body["scene"]["natural_english"] == "I rested in the park with my daughter."
     assert body["scene"]["key_chunks"][0]["phrase"] == "in the park"
     assert body["scene"]["correction"] is None
-    assert body["scene_audio"]["status"] == "ready"
+    assert body["scene_audio"] is None
     assert body["candidates"] == []
 
 
@@ -427,6 +504,312 @@ async def test_word_not_found_returns_404(discovery_env) -> None:
 
 
 @pytest.mark.asyncio
+async def test_cached_word_skips_the_discovery_agent(discovery_env) -> None:
+    http, sender, _, agent, _ = discovery_env
+    verified = await request_and_verify(http, sender, "cached-word@example.com")
+    headers = bearer(verified["session_token"])
+
+    first = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "树"},
+    )
+    assert first.status_code == 201, first.text
+    assert first.json()["word"]["spelling"] == "tree"
+    assert len(agent.calls) == 1
+
+    second = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "tree"},
+    )
+    assert second.status_code == 201, second.text
+    body = second.json()
+    assert body["word"]["spelling"] == "tree"
+    assert body["status"] == "ready"
+    assert body["audio"]["us"]["status"] == "unavailable"
+    assert len(agent.calls) == 1
+
+    third = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "Tree"},
+    )
+    assert third.status_code == 201, third.text
+    assert third.json()["word"]["spelling"] == "tree"
+    assert len(agent.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_card_content_is_not_returned_as_full(discovery_env) -> None:
+    http, sender, sessions, _, _ = discovery_env
+    verified = await request_and_verify(http, sender, "card-isolation@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "树"},
+    )
+    assert response.status_code == 201, response.text
+    body = response.json()
+    word_id = body["word_id"]
+
+    card_payload = WordPayload(
+        spelling="tree",
+        ipa={},
+        pos=[],
+        senses=[
+            WordSense(
+                definition_en="card definition",
+                definition_zh="卡片释义",
+                example_en="card example",
+                example_zh="卡片例句",
+            )
+        ],
+        grammar="CARD_MARKER",
+    )
+    async with sessions() as session:
+        session.add(
+            WordContent(
+                word_id=word_id,
+                native_language="zh",
+                payload_json=card_payload.model_dump(mode="json"),
+                content_level="card",
+                source="ai",
+                model="deepseek:deepseek-flash",
+                prompt_version="discover-v1",
+            )
+        )
+        await session.commit()
+
+    word = await http.get(f"/api/v1/words/{word_id}", headers=headers)
+    assert word.status_code == 200
+    assert word.json()["content_level"] == "full"
+    assert word.json()["content"]["grammar"] != "CARD_MARKER"
+
+    words = await http.get("/api/v1/words", headers=headers)
+    assert words.status_code == 200
+    item = next(item for item in words.json()["words"] if item["id"] == word_id)
+    assert item["content"]["grammar"] != "CARD_MARKER"
+
+
+@pytest.mark.asyncio
+async def test_lookup_card_returns_lightweight_content(lookup_env) -> None:
+    http, sender, _, discovery, tts, card, lookup = lookup_env
+    verified = await request_and_verify(http, sender, "lookup-card@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "tree", "level": "card"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["content_level"] == "card"
+    assert body["content"]["spelling"] == "tree"
+    assert body["content"]["grammar"] == ""
+    assert body["content"]["variety_notes"] == []
+    assert body["content"]["scene_extensions"] == []
+    assert len(body["content"]["senses"]) == 1
+    assert body["audio"]["us"]["status"] == "unavailable"
+    assert card.calls == [("tree", "zh")]
+    assert discovery.calls == []
+    assert tts.calls == []
+
+
+@pytest.mark.asyncio
+async def test_lookup_card_prefers_existing_full_content(lookup_env) -> None:
+    http, sender, _, discovery, tts, card, lookup = lookup_env
+    verified = await request_and_verify(http, sender, "lookup-full@example.com")
+    headers = bearer(verified["session_token"])
+
+    created = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "树"},
+    )
+    assert created.status_code == 201, created.text
+    assert len(discovery.calls) == 1
+
+    response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "tree", "level": "card"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["content_level"] == "full"
+    assert body["content"]["grammar"] == "可数名词；复数 trees。"
+    assert card.calls == []
+    assert lookup.calls == []
+    assert tts.calls == []
+
+
+@pytest.mark.asyncio
+async def test_lookup_card_resolves_english_base_form(lookup_env) -> None:
+    http, sender, _, discovery, _, card, lookup = lookup_env
+    verified = await request_and_verify(http, sender, "lookup-base@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "running", "level": "card"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["content"]["spelling"] == "run"
+    assert card.calls == [("run", "zh")]
+    assert discovery.calls == []
+
+    again = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "running", "level": "card"},
+    )
+    assert again.status_code == 200
+    assert again.json()["content"]["spelling"] == "run"
+    assert card.calls == [("run", "zh")]
+
+
+@pytest.mark.asyncio
+async def test_lookup_card_falls_back_when_english_resolution_fails(lookup_env) -> None:
+    http, sender, _, discovery, _, card, lookup = lookup_env
+    lookup.fail = True
+    verified = await request_and_verify(http, sender, "lookup-fallback@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "running", "level": "card"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["content"]["spelling"] == "running"
+    assert card.calls == [("running", "zh")]
+    assert discovery.calls == []
+
+
+@pytest.mark.asyncio
+async def test_lookup_card_resolves_cjk(lookup_env) -> None:
+    http, sender, _, discovery, _, card, lookup = lookup_env
+    verified = await request_and_verify(http, sender, "lookup-cjk@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "树", "level": "card"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["content_level"] == "card"
+    assert response.json()["content"]["spelling"] == "tree"
+    assert card.calls == [("tree", "zh")]
+    assert discovery.calls == []
+
+
+@pytest.mark.asyncio
+async def test_lookup_default_still_returns_full(lookup_env) -> None:
+    http, sender, _, discovery, tts, card, lookup = lookup_env
+    verified = await request_and_verify(http, sender, "lookup-default@example.com")
+    headers = bearer(verified["session_token"])
+
+    response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "树"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["content_level"] == "full"
+    assert response.json()["content"]["spelling"] == "tree"
+    assert len(discovery.calls) == 1
+    assert card.calls == []
+    assert len(tts.calls) == 2
+
+
+@pytest.mark.asyncio
+async def test_word_details_upgrades_card_to_full(lookup_env) -> None:
+    http, sender, sessions, discovery, tts, card, _ = lookup_env
+    verified = await request_and_verify(http, sender, "details-upgrade@example.com")
+    headers = bearer(verified["session_token"])
+
+    card_response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "tree", "level": "card"},
+    )
+    assert card_response.status_code == 200, card_response.text
+    word_id = card_response.json()["id"]
+    assert card_response.json()["content_level"] == "card"
+    assert card.calls == [("tree", "zh")]
+    assert discovery.calls == []
+
+    response = await http.get(f"/api/v1/words/{word_id}/details", headers=headers)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["content_level"] == "full"
+    assert body["content"]["spelling"] == "tree"
+    assert body["content"]["grammar"] != ""
+    assert body["audio"]["us"]["status"] == "unavailable"
+    assert card.calls == [("tree", "zh")]
+    assert len(discovery.calls) == 1
+    assert tts.calls == []
+
+    async with sessions() as session:
+        rows = list(
+            await session.scalars(select(WordContent).where(WordContent.word_id == word_id))
+        )
+    assert {row.content_level for row in rows} == {"card", "full"}
+
+
+@pytest.mark.asyncio
+async def test_word_details_returns_existing_full_without_generation(lookup_env) -> None:
+    http, sender, _, discovery, _, card, _ = lookup_env
+    verified = await request_and_verify(http, sender, "details-existing@example.com")
+    headers = bearer(verified["session_token"])
+
+    created = await http.post(
+        "/api/v1/discoveries",
+        headers=headers,
+        data={"text": "树"},
+    )
+    assert created.status_code == 201, created.text
+    word_id = created.json()["word_id"]
+    assert len(discovery.calls) == 1
+
+    response = await http.get(f"/api/v1/words/{word_id}/details", headers=headers)
+    assert response.status_code == 200, response.text
+    assert response.json()["content_level"] == "full"
+    assert response.json()["content"]["spelling"] == "tree"
+    assert len(discovery.calls) == 1
+    assert card.calls == []
+
+
+@pytest.mark.asyncio
+async def test_word_details_concurrent_requests_generate_once(lookup_env) -> None:
+    http, sender, _, discovery, _, card, _ = lookup_env
+    verified = await request_and_verify(http, sender, "details-concurrent@example.com")
+    headers = bearer(verified["session_token"])
+
+    card_response = await http.get(
+        "/api/v1/words/lookup",
+        headers=headers,
+        params={"text": "tree", "level": "card"},
+    )
+    assert card_response.status_code == 200, card_response.text
+    word_id = card_response.json()["id"]
+    assert card.calls == [("tree", "zh")]
+
+    responses = await asyncio.gather(
+        http.get(f"/api/v1/words/{word_id}/details", headers=headers),
+        http.get(f"/api/v1/words/{word_id}/details", headers=headers),
+    )
+    assert all(response.status_code == 200 for response in responses)
+    assert len(discovery.calls) == 1
+
+
+@pytest.mark.asyncio
 async def test_word_audio_is_generated_and_cached(discovery_env) -> None:
     http, sender, _, _, tts = discovery_env
     verified = await request_and_verify(http, sender, "audio@example.com")
@@ -439,19 +822,21 @@ async def test_word_audio_is_generated_and_cached(discovery_env) -> None:
     )
     assert response.status_code == 201, response.text
     body = response.json()
-    assert body["audio"]["us"]["status"] == "ready"
-    assert body["audio"]["uk"]["status"] == "ready"
+    assert body["word"]["spelling"] == "tree"
+    assert body["audio"]["us"]["status"] == "unavailable"
+    assert body["audio"]["uk"]["status"] == "unavailable"
+    assert len(tts.calls) == 0
+
+    word = await http.get(f"/api/v1/words/{body['word_id']}", headers=headers)
+    assert word.status_code == 200
+    assert word.json()["audio"]["us"]["status"] == "ready"
     assert len(tts.calls) == 2
 
-    us_url = body["audio"]["us"]["url"]
+    us_url = word.json()["audio"]["us"]["url"]
     assert us_url is not None
     audio = await http.get(us_url, headers=headers)
     assert audio.status_code == 200
     assert audio.content == b"audio-us-tree"
-
-    word = await http.get(f"/api/v1/words/{body['word_id']}", headers=headers)
-    assert word.status_code == 200
-    assert word.json()["audio"]["us"]["url"] == us_url
 
     cached = await http.get(f"/api/v1/discoveries/{body['id']}", headers=headers)
     assert cached.status_code == 200
@@ -588,6 +973,10 @@ async def test_discover_rate_limit(tmp_path) -> None:
     async with discovery_client(agent, tts, str(tmp_path), discover_limit=1) as (
         http,
         sender,
+        _,
+        _,
+        _,
+        _,
         _,
     ):
         verified = await request_and_verify(http, sender, "rate-discover@example.com")

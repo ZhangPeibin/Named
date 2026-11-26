@@ -61,6 +61,7 @@ class TimelineFeedController extends AsyncNotifier<TimelineFeedState> {
       TimelineTalkItem() => 'talk:${item.id}',
       TimelineDailyItem() => 'daily:${item.id}',
       TimelineQuestionItem() => 'question:${item.id}',
+      TimelinePendingItem() => 'pending:${item.id}',
     };
   }
 }

@@ -261,7 +261,9 @@
     "keyWords": "Key words",
     "copyEnglish": "Copy English",
     "memoryLabel": "Use my Soul",
-    "memoryHint": "Turn off to talk without your saved background."
+    "memoryHint": "Turn off to talk without your saved background.",
+    "playNaturalWay": "Listen to the natural way",
+    "playEnglish": "Listen in English"
   },
   "timeline": {
     "today": "Today",
@@ -297,7 +299,13 @@
     "progressWords": "Words",
     "progressConversations": "Talks",
     "progressReads": "Reads",
-    "progressPractices": "Practices"
+    "progressPractices": "Practices",
+    "speak": "Speak",
+    "stopRecording": "Stop recording",
+    "listening": "Listening…",
+    "transcribing": "Transcribing…",
+    "micDenied": "Microphone access is off. Turn it on in system settings.",
+    "naming": "Naming…"
   },
   "practice": {
     "title": "Practice",
@@ -389,7 +397,8 @@
     "addToWords": "Add to words",
     "addedToWords": "In your words",
     "addFailed": "Could not add this word. Try again.",
-    "lookingUp": "Looking up this word..."
+    "lookingUp": "Looking up this word...",
+    "loadingMore": "Loading more details…"
   },
   "history": {
     "title": "History",
@@ -432,9 +441,9 @@
     "filterAll": "All",
     "filterWords": "Words",
     "filterMoments": "Moments",
-    "chooseHint": "3\u20137 works well",
+    "chooseHint": "3–7 works well",
     "noMatches": "No matches.",
-    "planPreview": "{count} items \u00b7 {days} days",
+    "planPreview": "{count} items · {days} days",
     "planPreviewHint": "Your plan",
     "noContent": "Discover a word or moment first.",
     "addManual": "Add your own",
@@ -448,11 +457,9 @@
     "visitedOf": "{visited} / {total} practiced",
     "markPracticed": "Mark as practiced",
     "due": "Your plan is due. Continue or end when you are ready.",
-
     "daysLeft": "{count} days left",
     "dayLeft": "{count} day left",
     "dueToday": "Due today",
-
     "practiceStart": "Start practice",
     "practiceToday": "Practice today",
     "journey": "Day {day} of {total}",
@@ -466,18 +473,15 @@
     "seeAll": "See all",
     "plansCount": "{count} plans",
     "details": "Details",
-
-
     "practiceTitle": "Practice",
-
     "practiceListenSay": "Listen & say it",
-
     "practiceSayOk": "Sounds right",
-
-    "practiceSayRetry": "Try saying it again",    "practiceListen": "Listen",
+    "practiceSayRetry": "Try saying it again",
+    "practiceListen": "Listen",
     "practiceSpeak": "Say it",
     "practiceExercise": "Practice",
-    "practiceNext": "Next",    "practiceRecord": "Record",
+    "practiceNext": "Next",
+    "practiceRecord": "Record",
     "practiceStop": "Stop",
     "practicePlayback": "Play back",
     "practiceSkip": "Skip",
@@ -496,7 +500,7 @@
     "practiceDictation": "Listen and type the sentence.",
     "practiceCloze": "Fill in the blank.",
     "practiceTranslate": "Translate into English.",
-    "practiceFreePrompt": "Write your own sentence using \u201c{word}\u201d.",
+    "practiceFreePrompt": "Write your own sentence using “{word}”.",
     "practiceModel": "Sample: {answer}",
     "content": "This round",
     "open": "Open",

@@ -13,6 +13,8 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/audio/audio_playback_controller.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/speech/speech_audio_button.dart';
+import '../../../core/speech/speech_providers.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_error_view.dart';
@@ -141,6 +143,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       return;
     }
 
+    _composerFocusNode.unfocus();
     final clientMessageId = DateTime.now().microsecondsSinceEpoch.toString();
     final pending = TalkMessage(
       id: 'pending-$clientMessageId',
@@ -321,9 +324,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
       }
       final bytes = await File(path).readAsBytes();
       await File(path).delete();
-      final text = await ref
-          .read(talkRepositoryProvider)
-          .transcribeAudio(bytes);
+      final text = await ref.read(speechRepositoryProvider).transcribe(bytes);
       if (!mounted) {
         return;
       }
@@ -778,8 +779,8 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
       return cached;
     }
     final pronunciation = await ref
-        .read(talkRepositoryProvider)
-        .synthesizePronunciation(widget.annotation.text);
+        .read(speechRepositoryProvider)
+        .pronounce(widget.annotation.text);
     final url = pronunciation.urlFor(_accent);
     if (url == null || url.isEmpty) {
       return null;
@@ -1454,11 +1455,28 @@ class _MessageBubble extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 2),
-                                Text(
-                                  message.englishText!,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: palette.primary,
-                                  ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        message.englishText!,
+                                        style: textTheme.bodyMedium?.copyWith(
+                                          color: palette.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppSpacing.s8),
+                                    SpeechAudioButton(
+                                      text: message.englishText!,
+                                      sourceId: 'talk.english.${message.id}',
+                                      playTooltip: t.playEnglish,
+                                      pauseTooltip: t.pauseReply,
+                                      speedTooltip: t.speed,
+                                      errorText: t.audioUnavailable,
+                                      color: palette.primary,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -1724,9 +1742,28 @@ class _CorrectionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.s6),
-          Text(
-            correction.suggestion,
-            style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  correction.suggestion,
+                  style: textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s8),
+              SpeechAudioButton(
+                text: correction.suggestion,
+                sourceId: 'talk.correction.$messageId.$index',
+                playTooltip: t.playNaturalWay,
+                pauseTooltip: t.pauseReply,
+                speedTooltip: t.speed,
+                errorText: t.audioUnavailable,
+                color: palette.primary,
+              ),
+            ],
           ),
           if (correction.note.trim().isNotEmpty) ...[
             const SizedBox(height: AppSpacing.s4),

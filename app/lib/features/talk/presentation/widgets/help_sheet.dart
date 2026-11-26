@@ -7,9 +7,9 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/speech/speech_audio_button.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../../core/widgets/audio_control.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/talk.dart';
 import '../../providers/talk_providers.dart';
@@ -157,10 +157,13 @@ class _HelpSheetState extends ConsumerState<HelpSheet> {
                     style: textTheme.headlineMedium,
                   ),
                 ),
-                if (suggestion.audio?.isReady == true) ...[
-                  const SizedBox(width: AppSpacing.s8),
-                  _HelpAudioButton(audio: suggestion.audio),
-                ],
+                const SizedBox(width: AppSpacing.s8),
+                _HelpAudioButton(
+                  text: displayedEnglish,
+                  prefetchedUrl: _alternativeIndex == 0
+                      ? suggestion.audio?.url
+                      : null,
+                ),
               ],
             ),
             if (suggestion.note != null &&
@@ -195,31 +198,27 @@ class _HelpSheetState extends ConsumerState<HelpSheet> {
   }
 }
 
-class _HelpAudioButton extends ConsumerWidget {
-  const _HelpAudioButton({required this.audio});
+class _HelpAudioButton extends StatelessWidget {
+  const _HelpAudioButton({required this.text, this.prefetchedUrl});
 
-  final TalkAudio? audio;
+  final String text;
+  final String? prefetchedUrl;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final url = audio?.url;
-    if (audio?.isReady != true || url == null) {
-      return const SizedBox.shrink();
-    }
+  Widget build(BuildContext context) {
     final t = context.t.talk;
     return Semantics(
       container: true,
-      label: t.playReply,
+      label: t.playNaturalWay,
       excludeSemantics: true,
-      child: AudioControl(
-        sourceId: 'help.$url',
-        resolveUrl: () async => url,
-        playTooltip: t.playReply,
+      child: SpeechAudioButton(
+        text: text,
+        sourceId: 'help.$text',
+        prefetchedUrl: prefetchedUrl,
+        playTooltip: t.playNaturalWay,
         pauseTooltip: t.pauseReply,
         speedTooltip: t.speed,
         errorText: t.audioUnavailable,
-        playKey: const Key('talk.helpAudio'),
-        speedKey: const Key('talk.helpAudio.speed'),
       ),
     );
   }

@@ -22,6 +22,9 @@ class WordDetailsSheet extends StatefulWidget {
     this.onToggleKnown,
     this.saved,
     this.onAddToWords,
+    this.detailsLoading = false,
+    this.detailsError,
+    this.onRetryDetails,
   });
 
   final TimelineWordItem item;
@@ -29,6 +32,9 @@ class WordDetailsSheet extends StatefulWidget {
   final VoidCallback? onToggleKnown;
   final bool? saved;
   final Future<void> Function()? onAddToWords;
+  final bool detailsLoading;
+  final String? detailsError;
+  final VoidCallback? onRetryDetails;
 
   @override
   State<WordDetailsSheet> createState() => _WordDetailsSheetState();
@@ -128,7 +134,7 @@ class _WordDetailsSheetState extends State<WordDetailsSheet> {
                 style: textTheme.bodySmall?.copyWith(color: palette.muted),
               ),
             ],
-            if (item.audio?.hasAudio == true) ...[
+            if ((item.word?.spelling ?? '').trim().isNotEmpty) ...[
               const SizedBox(height: AppSpacing.s8),
               Row(
                 children: [
@@ -137,7 +143,11 @@ class _WordDetailsSheetState extends State<WordDetailsSheet> {
                     onChanged: (accent) => setState(() => _accent = accent),
                   ),
                   const SizedBox(width: AppSpacing.s8),
-                  WordAudioButton(audio: item.audio, accent: _accent),
+                  WordAudioButton(
+                    audio: item.audio,
+                    text: item.word?.spelling,
+                    accent: _accent,
+                  ),
                 ],
               ),
             ],
@@ -265,7 +275,94 @@ class _WordDetailsSheetState extends State<WordDetailsSheet> {
               for (final extension in word.sceneExtensions)
                 _SceneExtensionDetail(extension: extension, palette: palette),
             ],
+            if (widget.detailsLoading) ...[
+              _SectionDivider(color: palette.line),
+              Row(
+                key: const Key('wordDetails.loadingMore'),
+                children: [
+                  SizedBox.square(
+                    dimension: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: palette.primary,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s8),
+                  Text(
+                    context.t.words.loadingMore,
+                    style: textTheme.bodySmall?.copyWith(color: palette.muted),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.s16),
+              const _DetailsSkeleton(),
+            ],
+            if (widget.detailsError != null) ...[
+              _SectionDivider(color: palette.line),
+              Text(
+                widget.detailsError!,
+                style: textTheme.bodySmall?.copyWith(color: palette.error),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  key: const Key('wordDetails.retryDetails'),
+                  onPressed: widget.onRetryDetails,
+                  child: Text(context.t.common.retry),
+                ),
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailsSkeleton extends StatelessWidget {
+  const _DetailsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = context.appPalette.surfaceMuted;
+    return Column(
+      key: const Key('wordDetails.skeleton'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var section = 0; section < 3; section++) ...[
+          if (section > 0) const SizedBox(height: AppSpacing.s20),
+          _SkeletonBar(color: color, widthFactor: 0.28, height: 10),
+          const SizedBox(height: AppSpacing.s10),
+          _SkeletonBar(color: color, widthFactor: 0.92, height: 14),
+          const SizedBox(height: AppSpacing.s6),
+          _SkeletonBar(color: color, widthFactor: 0.72, height: 14),
+        ],
+      ],
+    );
+  }
+}
+
+class _SkeletonBar extends StatelessWidget {
+  const _SkeletonBar({
+    required this.color,
+    required this.widthFactor,
+    required this.height,
+  });
+
+  final Color color;
+  final double widthFactor;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      alignment: Alignment.centerLeft,
+      widthFactor: widthFactor,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(AppRadius.r8),
         ),
       ),
     );

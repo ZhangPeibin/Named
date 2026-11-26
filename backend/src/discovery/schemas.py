@@ -180,6 +180,7 @@ class WordOut(BaseModel):
     id: str
     label_en: str
     content: WordPayload | None
+    content_level: Literal["card", "full"] = "full"
     audio: AudioOut | None = None
     saved: bool = False
 

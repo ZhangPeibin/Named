@@ -53,7 +53,9 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def _new_code() -> str:
+def _new_code(settings: Settings) -> str:
+    if settings.auth_fixed_code:
+        return settings.auth_fixed_code
     return f"{secrets.randbelow(1_000_000):06d}"
 
 
@@ -101,7 +103,7 @@ async def request_auth_code(
     for row in previous:
         row.consumed_at = now
 
-    code = _new_code()
+    code = _new_code(settings)
     auth_code = AuthCode(
         email=normalized,
         code_hash=hash_code(settings.auth_secret, normalized, code),

@@ -993,7 +993,7 @@ async def test_p0_end_to_end_journey(talk_env) -> None:
     )
     assert response.status_code == 201
     word_id = response.json()["word_id"]
-    assert response.json()["audio"]["us"]["status"] == "ready"
+    assert response.json()["audio"]["us"]["status"] == "unavailable"
 
     response = await http.post(
         "/api/v1/discoveries",

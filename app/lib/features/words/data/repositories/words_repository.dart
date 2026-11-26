@@ -10,8 +10,12 @@ class WordsRepository {
     return (await _api.fetch()).toDomain();
   }
 
-  Future<WordShelfItem> lookup(String text) async {
-    return (await _api.lookup(text)).toDomain();
+  Future<WordShelfItem> lookup(String text, {String level = 'full'}) async {
+    return (await _api.lookup(text, level: level)).toDomain();
+  }
+
+  Future<WordShelfItem> fetchDetails(String wordId) async {
+    return (await _api.fetchDetails(wordId)).toDomain();
   }
 
   Future<bool> addToShelf(String wordId) {

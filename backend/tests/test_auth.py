@@ -5,6 +5,7 @@ from datetime import timedelta
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
@@ -294,6 +295,45 @@ async def test_resend_cooldown_returns_429() -> None:
 
         second = await http.post("/api/v1/auth/code", json={"email": "cooldown@example.com"})
         assert_problem(second, 429, "rate_limited", retry_after=True)
+
+
+@pytest.mark.asyncio
+async def test_fixed_code_login_in_staging() -> None:
+    settings = Settings(
+        auth_secret="test-secret",
+        app_env="staging",
+        auth_fixed_code="123456",
+        auth_code_resend_cooldown_seconds=0,
+        auth_code_max_per_hour=1000,
+    )
+    async with auth_client(settings) as (http, sender, _):
+        response = await http.post("/api/v1/auth/code", json={"email": "fixed-code@example.com"})
+        assert response.status_code == 202, response.text
+        assert sender.latest_code == "123456"
+
+        response = await http.post(
+            "/api/v1/auth/verify",
+            json={
+                "email": "fixed-code@example.com",
+                "code": "123456",
+                "initial_soul": {"native_language": "zh"},
+            },
+        )
+        assert response.status_code == 200, response.text
+
+
+def test_fixed_code_is_rejected_in_production() -> None:
+    with pytest.raises(ValidationError):
+        Settings(app_env="production", auth_fixed_code="123456")
+
+
+@pytest.mark.asyncio
+async def test_random_code_is_used_when_fixed_code_is_unset(client) -> None:
+    http, sender, _ = client
+    response = await http.post("/api/v1/auth/code", json={"email": "random-code@example.com"})
+    assert response.status_code == 202, response.text
+    assert len(sender.latest_code) == 6
+    assert sender.latest_code != "123456"
 
 
 @pytest.mark.asyncio

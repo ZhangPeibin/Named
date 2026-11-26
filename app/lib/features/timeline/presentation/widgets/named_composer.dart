@@ -14,10 +14,15 @@ class NamedComposer extends StatelessWidget {
     required this.sendTooltip,
     required this.meTooltip,
     required this.askTooltip,
+    required this.speakTooltip,
+    required this.stopTooltip,
     required this.isSubmitting,
+    required this.isRecording,
+    required this.isTranscribing,
     required this.onSend,
     required this.onOpenMe,
     required this.onOpenAsk,
+    required this.onToggleRecording,
     required this.onChanged,
   });
 
@@ -26,10 +31,15 @@ class NamedComposer extends StatelessWidget {
   final String sendTooltip;
   final String meTooltip;
   final String askTooltip;
+  final String speakTooltip;
+  final String stopTooltip;
   final bool isSubmitting;
+  final bool isRecording;
+  final bool isTranscribing;
   final VoidCallback onSend;
   final VoidCallback onOpenMe;
   final VoidCallback onOpenAsk;
+  final VoidCallback onToggleRecording;
   final ValueChanged<String> onChanged;
 
   @override
@@ -113,6 +123,45 @@ class NamedComposer extends StatelessWidget {
                           padding: EdgeInsets.zero,
                         ),
                         icon: const AppLineIcon(AppLineGlyph.chat, size: 18),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.s2),
+                    SizedBox.square(
+                      dimension: 38,
+                      child: IconButton.filledTonal(
+                        key: const Key('timeline.voice'),
+                        onPressed: isSubmitting || isTranscribing
+                            ? null
+                            : onToggleRecording,
+                        tooltip: isRecording ? stopTooltip : speakTooltip,
+                        style: IconButton.styleFrom(
+                          backgroundColor: isRecording
+                              ? palette.accent
+                              : palette.surfaceMuted,
+                          foregroundColor: isRecording
+                              ? palette.onPrimary
+                              : palette.primary,
+                          minimumSize: const Size.square(38),
+                          maximumSize: const Size.square(38),
+                          padding: EdgeInsets.zero,
+                        ),
+                        icon: isTranscribing
+                            ? SizedBox.square(
+                                dimension: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: palette.primary,
+                                ),
+                              )
+                            : AppLineIcon(
+                                isRecording
+                                    ? AppLineGlyph.stop
+                                    : AppLineGlyph.mic,
+                                size: 20,
+                                color: isRecording
+                                    ? palette.onPrimary
+                                    : palette.primary,
+                              ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.s2),

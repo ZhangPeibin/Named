@@ -68,9 +68,11 @@ void main() {
       'I saw a tree.',
     );
     await tester.pump();
+    expect(tester.testTextInput.isVisible, isTrue);
     await tester.tap(find.byKey(const Key('talk.send')));
     await tester.pump();
 
+    expect(tester.testTextInput.isVisible, isFalse);
     expect(find.text('I saw a tree.'), findsOneWidget);
     expect(find.byKey(const Key('talk.typing')), findsOneWidget);
     expect(find.byKey(const Key('talk.typing.avatar')), findsOneWidget);

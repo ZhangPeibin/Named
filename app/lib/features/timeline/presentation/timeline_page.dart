@@ -9,11 +9,13 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/speech/speech_providers.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../../assistant/domain/assistant_intent.dart';
+import '../../assistant/domain/command_hint.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
 import '../../progress/providers/progress_providers.dart';
@@ -26,6 +28,7 @@ import 'widgets/challenge_carousel.dart';
 import 'widgets/daily_task_card.dart';
 import 'widgets/moment_card.dart';
 import 'widgets/named_composer.dart';
+import 'widgets/pending_naming_card.dart';
 import 'widgets/question_thread_card.dart';
 import 'widgets/talk_event_card.dart';
 import 'widgets/timeline_progress_card.dart';
@@ -45,6 +48,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   String? _error;
   String? _startingTalkId;
   bool _isSubmitting = false;
+  bool _isRecording = false;
+  bool _isTranscribing = false;
   bool _isLoadingEarlier = false;
   bool _didInitialScroll = false;
   late final ComposerHintSelector _hintSelector;
@@ -262,6 +267,12 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   }
 
   String _hintText(Translations$timeline$en t) {
+    if (_isRecording) {
+      return t.listening;
+    }
+    if (_isTranscribing) {
+      return t.transcribing;
+    }
     return switch (_hintCategory) {
       ComposerHintCategory.discovery => t.composerHint,
       ComposerHintCategory.openWords => t.composerHintWords,
@@ -275,41 +286,48 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     if (text.isEmpty || _isSubmitting) {
       return;
     }
+    FocusScope.of(context).unfocus();
     setState(() {
       _error = null;
       _isSubmitting = true;
     });
     try {
-      final intent = await ref.read(assistantRepositoryProvider).route(text);
-      if (!mounted) {
-        return;
-      }
-      if (intent.hasAction) {
-        _textController.clear();
-        FocusScope.of(context).unfocus();
-        switch (intent.intent) {
-          case AssistantIntent.openWords:
-            unawaited(context.pushNamed(AppRouteNames.words));
-            break;
-          case AssistantIntent.viewChallenges:
-            unawaited(context.pushNamed(AppRouteNames.challenges));
-            break;
-          case AssistantIntent.startChallenge:
-            unawaited(context.pushNamed(AppRouteNames.challengeNew));
-            break;
-          case AssistantIntent.none:
-            break;
+      if (mightBeAppCommand(text)) {
+        final intent = await ref.read(assistantRepositoryProvider).route(text);
+        if (!mounted) {
+          return;
         }
-        return;
+        if (intent.hasAction) {
+          _textController.clear();
+          FocusScope.of(context).unfocus();
+          switch (intent.intent) {
+            case AssistantIntent.openWords:
+              unawaited(context.pushNamed(AppRouteNames.words));
+              break;
+            case AssistantIntent.viewChallenges:
+              unawaited(context.pushNamed(AppRouteNames.challenges));
+              break;
+            case AssistantIntent.startChallenge:
+              unawaited(context.pushNamed(AppRouteNames.challengeNew));
+              break;
+            case AssistantIntent.none:
+              break;
+          }
+          return;
+        }
       }
-      await ref.read(timelineControllerProvider.notifier).createNamed(text);
+      final naming = ref
+          .read(timelineControllerProvider.notifier)
+          .createNamed(text);
+      _scheduleScrollToBottom(animate: true);
+      await naming;
       if (!mounted) {
         return;
       }
       ref.invalidate(wordShelfProvider);
       ref.invalidate(progressProvider);
       _textController.clear();
-      _scheduleScrollToBottom(animate: true);
+      _settleScrollToBottom();
     } on ApiException catch (error) {
       if (mounted) {
         setState(() => _error = error.message);
@@ -320,6 +338,75 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         if (_textController.text.trim().isEmpty) {
           _advanceHint();
         }
+      }
+    }
+  }
+
+  Future<void> _toggleVoice() async {
+    if (_isSubmitting || _isTranscribing) {
+      return;
+    }
+    final voice = ref.read(voiceInputProvider);
+    if (_isRecording) {
+      setState(() {
+        _isRecording = false;
+        _isTranscribing = true;
+        _error = null;
+      });
+      try {
+        final text = await voice.stopAndTranscribe();
+        if (!mounted) {
+          return;
+        }
+        if (text == null) {
+          setState(() => _isTranscribing = false);
+          return;
+        }
+        _textController.text = text;
+        _textController.selection = TextSelection.collapsed(
+          offset: text.length,
+        );
+        setState(() => _isTranscribing = false);
+        await _send();
+      } on ApiException catch (error) {
+        if (mounted) {
+          setState(() {
+            _isTranscribing = false;
+            _error = error.code == 'no_speech' ? null : error.message;
+          });
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _isTranscribing = false;
+            _error = context.t.timeline.audioUnavailable;
+          });
+        }
+      }
+      return;
+    }
+
+    try {
+      if (!await voice.hasPermission()) {
+        if (mounted) {
+          setState(() => _error = context.t.timeline.micDenied);
+        }
+        return;
+      }
+      if (!mounted) {
+        return;
+      }
+      FocusScope.of(context).unfocus();
+      await voice.start();
+      if (mounted) {
+        setState(() {
+          _isRecording = true;
+          _error = null;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.t.timeline.micDenied);
       }
     }
   }
@@ -485,18 +572,22 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       body: Column(
         children: [
           Expanded(
-            child: async.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: AppErrorView(
-                  title: t.loadFailed,
-                  message: error is ApiException
-                      ? error.message
-                      : context.t.common.somethingWentWrong,
-                  onRetry: () => ref.invalidate(timelineControllerProvider),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: async.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: AppErrorView(
+                    title: t.loadFailed,
+                    message: error is ApiException
+                        ? error.message
+                        : context.t.common.somethingWentWrong,
+                    onRetry: () => ref.invalidate(timelineControllerProvider),
+                  ),
                 ),
+                data: (state) => _buildTimeline(context, state, t),
               ),
-              data: (state) => _buildTimeline(context, state, t),
             ),
           ),
           if (progress.hasValue)
@@ -537,10 +628,15 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
             sendTooltip: t.send,
             meTooltip: context.t.navigation.me,
             askTooltip: context.t.ask.entryTooltip,
+            speakTooltip: t.speak,
+            stopTooltip: t.stopRecording,
             isSubmitting: _isSubmitting,
+            isRecording: _isRecording,
+            isTranscribing: _isTranscribing,
             onSend: _send,
             onOpenMe: () => unawaited(context.pushNamed(AppRouteNames.me)),
             onOpenAsk: () => unawaited(_openAsk()),
+            onToggleRecording: () => unawaited(_toggleVoice()),
             onChanged: (_) => setState(() => _error = null),
           ),
         ],
@@ -640,6 +736,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         currentDay = day;
       }
       switch (item) {
+        case TimelinePendingItem():
+          widgets.add(PendingNamingCard(item: item));
         case TimelineWordItem():
           widgets.add(
             WordNamingCard(
@@ -679,6 +777,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     return ListView.separated(
       key: const Key('timeline.list'),
       controller: _scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.s16,
         AppSpacing.s12,

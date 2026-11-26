@@ -19,9 +19,12 @@ Future<void> showWordLookupSheet(BuildContext context, String text) {
     context: context,
     isScrollControlled: true,
     backgroundColor: context.appPalette.canvas,
-    builder: (context) => UncontrolledProviderScope(
+    builder: (sheetContext) => UncontrolledProviderScope(
       container: container,
-      child: _WordLookupSheet(text: text),
+      child: SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * 0.82,
+        child: _WordLookupSheet(text: text),
+      ),
     ),
   );
 }
@@ -75,10 +78,37 @@ class _WordLookupSheetState extends ConsumerState<_WordLookupSheet> {
                 onRetry: () => ref.invalidate(wordLookupProvider(widget.text)),
               );
             }
-            return WordDetailsSheet(
-              item: wordShelfToTimelineItem(item),
-              saved: item.saved,
-              onAddToWords: () => _addToWords(item),
+
+            AsyncValue<WordShelfItem>? details;
+            if (item.isCard) {
+              details = ref.watch(wordDetailsProvider(item.id));
+            }
+            final display = details?.value ?? item;
+            final detailsLoading =
+                item.isCard &&
+                (details == null || (details.isLoading && !details.hasValue));
+            final detailsError = details?.hasError == true
+                ? (details!.error is ApiException
+                      ? (details.error as ApiException).message
+                      : context.t.common.somethingWentWrong)
+                : null;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: WordDetailsSheet(
+                    item: wordShelfToTimelineItem(display),
+                    saved: display.saved,
+                    onAddToWords: () => _addToWords(display),
+                    detailsLoading: detailsLoading,
+                    detailsError: detailsError,
+                    onRetryDetails: item.isCard
+                        ? () => ref.invalidate(wordDetailsProvider(item.id))
+                        : null,
+                  ),
+                ),
+              ],
             );
           },
         ),
