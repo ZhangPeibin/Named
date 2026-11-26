@@ -7,6 +7,11 @@ Future<void> pumpWithTranslations(
   required Widget child,
   AppLocale locale = AppLocale.en,
 }) async {
+  tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(
+    tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue,
+  );
   await LocaleSettings.setLocale(locale);
   await tester.pumpWidget(TranslationProvider(child: MaterialApp(home: child)));
 }
@@ -16,6 +21,11 @@ Future<void> pumpTemplateApp(
   required Widget app,
   AppLocale locale = AppLocale.en,
 }) async {
+  tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(
+    tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue,
+  );
   await LocaleSettings.setLocale(locale);
   await tester.pumpWidget(TranslationProvider(child: app));
 }

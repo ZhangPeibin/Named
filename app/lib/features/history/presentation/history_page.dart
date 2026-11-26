@@ -15,6 +15,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../companion/providers/companion_providers.dart';
 import '../domain/history_experience.dart';
 import '../providers/history_providers.dart';
 
@@ -79,6 +80,10 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
   Widget build(BuildContext context) {
     final t = context.t.history;
     final async = ref.watch(historyControllerProvider);
+    final companion = ref.watch(companionProvider).value;
+    final companionName = companion?.isNamed == true
+        ? companion!.name!
+        : context.t.companion.title;
 
     return AppScaffold(
       title: t.title,
@@ -97,7 +102,10 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
         data: (state) {
           if (state.items.isEmpty) {
             return Center(
-              child: AppEmptyView(title: t.empty, message: t.emptyHint),
+              child: AppEmptyView(
+                title: t.empty,
+                message: t.emptyHint(name: companionName),
+              ),
             );
           }
           return RefreshIndicator(

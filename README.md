@@ -6,7 +6,7 @@
 
 **One word, one story.**
 
-Named gives you **Milo**, an AI English companion that turns what you notice into a word you keep, then builds a timeline, a notebook, practice, and a story from your own days.
+Named gives you **a companion**: a little cat who learns English with you, turning what you notice into a word you keep, then a timeline, a notebook, practice, and a story from your own days.
 
 Start with one word, and build your own English world.
 
@@ -75,7 +75,7 @@ The goal is not to complete a fixed curriculum. It is to build **your own world 
 | **Challenge** | Select Word/Moment discoveries, set a name and planned days, continue from Timeline, track opened content, and end the round manually. Named never deletes content or marks it mastered. |
 | **Help me say it** | Ask for a natural English expression, hear it, and insert it into Talk without turning the exchange into a grammar lecture. |
 | **Experience + History** | After Talk, an asynchronous agent extracts meaningful life and learning experiences. History lets the learner revisit them, and Talk/Help can use relevant experiences as context. |
-| **Companion memory** | Milo can use relevant prior context, recurring learning errors, and explicit memories without exposing an internal memory-management screen. |
+| **Companion memory** | Your companion can use relevant prior context, recurring learning errors, and explicit memories without exposing an internal memory-management screen. |
 | **Soul** | Keep a lightweight, user-owned profile that guides personalization. Named does not infer Soul from private content or rewrite it from practice. |
 | **Account lifecycle** | Email-code authentication, opaque sessions, account deletion, and a 30-day hard-delete purge. |
 
@@ -86,7 +86,7 @@ These are separate:
 | Layer | Purpose | Visible to learner |
 | --- | --- | --- |
 | **Conversation** | Original dialogue, corrections, annotations, and audio | Yes, Talk |
-| **MemoryItem** | Internal context for Milo, deduplicated and weighted | No |
+| **MemoryItem** | Internal context for your companion, deduplicated and weighted | No |
 | **Experience** | User-facing life/learning experience with provenance | Yes, History |
 | **Soul** | User-provided profile and explicit personal context | Yes |
 
@@ -99,7 +99,7 @@ Practice, hypotheticals, role-play, and AI-generated examples cannot become life
 
 ## Agent architecture
 
-Named uses **Pydantic AI** with a replaceable model string (currently DeepSeek text/vision). Agents are not free-form database writers. Each one returns a structured contract, and backend services validate and persist the result.
+Named runs a small team of **focused AI agents** coordinated by one shared runtime. Each agent handles one product job, such as naming a moment, replying in Talk, or keeping an experience. Each returns a structured result that the backend checks. The learner only meets the companion.
 
 ```mermaid
 %%{init: {
@@ -117,90 +117,87 @@ Named uses **Pydantic AI** with a replaceable model string (currently DeepSeek t
   }
 }}%%
 flowchart TB
-    App["Flutter app<br/>iOS + Android"] --> API["FastAPI<br/>/api/v1"]
+    You["You + your companion<br/>iOS + Android"] --> API["Named API<br/>/api/v1"]
+    API --> Runtime["Shared agent runtime<br/>one model · timeout · retry · usage log"]
 
-    API --> Auth["Auth + Soul"]
-    API --> Discover["Discover service"]
-    API --> Talk["Talk service"]
-    API --> History["History service"]
-
-    subgraph AgentLayer["Agent layer · shared Pydantic AI runtime"]
-        Runtime["AgentRuntime<br/>registry · timeout · retry · usage log"]
-        DiscoveryAgent["DiscoveryAgent<br/>focus + word/scene content"]
-        TalkAgent["TalkAgent<br/>reply + corrections + annotations + memory candidates"]
-        HelpAgent["HelpAgent<br/>natural expression suggestions"]
-        ExperienceAgent["ExperienceAgent<br/>life + learning extraction"]
-        WordLookupAgent["WordLookupAgent<br/>resolve Chinese or English word"]
-        SentenceAgent["SentenceAgent<br/>English + structure + chunks"]
+    subgraph Jobs["Focused agents · one product job each"]
+        Discover["Discover<br/>name a word, scene, or photo"]
+        Talk["Talk + Help<br/>reply · correct · suggest"]
+        Ask["Ask<br/>answer a question"]
+        Practice["Practice<br/>return to a saved word"]
+        Daily["Daily<br/>a story from your words"]
+        History["History<br/>keep what mattered"]
     end
 
-    Discover --> Runtime
-    Talk --> Runtime
-    API --> Runtime
-    Runtime --> DiscoveryAgent
-    Runtime --> TalkAgent
-    Runtime --> HelpAgent
-    Runtime --> ExperienceAgent
-    Runtime --> WordLookupAgent
-    Runtime --> SentenceAgent
+    Runtime --> Discover
+    Runtime --> Talk
+    Runtime --> Ask
+    Runtime --> Practice
+    Runtime --> Daily
+    Runtime --> History
 
-    subgraph ContextLayer["Talk context assembly"]
-        Context["Context assembler"]
-        Soul["Soul"]
-        Memory["MemoryItem"]
-        Errors["Recurring error profile"]
-        Experiences["Experience<br/>life + learning context"]
-    end
+    Discover --> Checked["Checked results<br/>validated before saving"]
+    Talk --> Checked
+    Ask --> Checked
+    Practice --> Checked
+    Daily --> Checked
+    History --> Checked
 
-    TalkAgent --> Context
-    Context --> Soul
-    Context --> Memory
-    Context --> Errors
-    Context --> Experiences
-
-    Talk --> Queue["experience_jobs<br/>durable debounced outbox"]
-    Queue --> Worker["Experience worker"]
-    Worker --> ExperienceAgent
-    ExperienceAgent --> ExperienceStore["experiences<br/>experience_sources"]
-    History --> ExperienceStore
-
-    Runtime --> Model["Model provider<br/>DeepSeek / replaceable"]
-    API --> DB["MySQL"]
-    API --> Media["Media store<br/>images + audio"]
-    API --> Speech["DashScope<br/>text-to-speech + speech recognition"]
+    Checked --> Data["Your data<br/>words · talks · stories · experiences"]
+    Runtime --> Model["Replaceable model<br/>text + vision"]
+    API --> Speech["Speech<br/>voice in · voice out"]
 
     classDef warm fill:#F7F0E3,stroke:#B86B45,stroke-width:1.7px,color:#2D2A26
     classDef blue fill:#E8F0F5,stroke:#456A7C,stroke-width:1.7px,color:#243746
     classDef sage fill:#EAF0E5,stroke:#6F8A62,stroke-width:1.7px,color:#2C3828
     classDef lavender fill:#EDE9F7,stroke:#7A6AA6,stroke-width:1.7px,color:#30294A
     classDef peach fill:#F8E8DF,stroke:#B86B45,stroke-width:1.7px,color:#3A2820
-    class App,API warm
-    class Soul,Memory,Errors,Experiences sage
-    class Runtime,DiscoveryAgent,TalkAgent,HelpAgent,ExperienceAgent,WordLookupAgent,SentenceAgent lavender
+    class You,API warm
+    class Runtime lavender
+    class Discover,Talk,Ask,Practice,Daily,History sage
+    class Checked,Data blue
     class Model,Speech peach
-    class DB,Media,Queue,ExperienceStore blue
-    style ContextLayer fill:#EAF0E5,stroke:#6F8A62,stroke-width:1.5px
-    style AgentLayer fill:#EDE9F7,stroke:#7A6AA6,stroke-width:1.5px
+    style Jobs fill:#EAF0E5,stroke:#6F8A62,stroke-width:1.5px
 ```
 
-### Agent contracts
+### What the agents do
 
-| Agent | Main input | Structured output | Consumer |
-| --- | --- | --- | --- |
-| **DiscoveryAgent** | Text, image, learner context | Focus kind, candidates, Word/Scene payload, warnings | Discover |
-| **TalkAgent** | Focus, Soul, memory, recurring errors, history, new message | Reply, native translation, user-English hint, corrections, annotations, memory candidates | Talk |
-| **HelpAgent** | Desired idea, focus, relevant history | Natural English, note, alternatives | "Help me say it" |
-| **ExperienceAgent** | Full conversation with message sequence numbers, focus, corrections, annotations | At most one life and one learning candidate with evidence and confidence | Experience worker |
-| **WordLookupAgent** | Selected Chinese or English word | One English word to look up | Word lookup |
-| **SentenceAgent** | Selected phrase or sentence | English version, explanation, structure, chunks, key words | Sentence details |
+| Agent | Learner-facing job | Surface |
+| --- | --- | --- |
+| **Intent router** | Recognizes "show my words" as an app command, not a word to learn. | Composer |
+| **Discover** | Turns a word, sentence, or photo into one clear word or scene card. | Discover |
+| **Word lookup** | Resolves a selected Chinese or English word to the right English word. | Word details |
+| **Word card** | Fills the first, fast card while the full entry loads. | Word details |
+| **Talk** | Replies in natural English, quietly corrects, and notes useful words. | Talk |
+| **Help** | Turns "how do I say this?" into one natural sentence. | Talk |
+| **Sentence** | Explains a selected sentence, its structure, and its chunks. | Talk / reading |
+| **Question** | Answers a free-form English question with the surrounding context. | Ask |
+| **Practice** | Brings a saved word back into a short conversation. | Practice |
+| **Experience** | Finds at most one life and one learning experience after a Talk. | History |
+| **Daily read** | Writes a short story from the learner's recent saved words. | Daily |
+| **Daily translation** | Lines up that story sentence by sentence in the learner's language. | Daily |
+| **Opener / Presence** (planned) | Lets the companion speak first and appear on the Timeline. | Talk / Timeline |
 
-### Guardrails
+### Why many agents
 
-- Agents return structured data; deterministic services enforce ownership, limits, source relationships, and persistence.
-- Experience evidence must reference real messages in the same conversation.
-- Life experiences require explicit user facts; practice and hypotheticals cannot be promoted to real life.
-- Talk and Help failures use a bounded, user-readable error contract. Experience extraction failure never fails the Talk turn.
-- Account deletion removes account-scoped data; the API retains shared content-addressed audio caches.
+- **Focused jobs.** Each agent has a short prompt and a small output, so results are more predictable.
+- **Lower cost and latency.** A one-word lookup does not pay for the whole conversation prompt.
+- **Local failure.** A failed Daily story never blocks a Talk reply; Experience failure never loses a message.
+- **Independent controls.** Each agent can be cached, rate-limited, and retried on its own.
+
+### Reliability and boundaries
+
+- Agents return structured results. The backend checks and saves them; agents never write learner data directly.
+- Experience extraction runs in the background, so a reply is never delayed by history work.
+- Life experiences require explicit learner facts. Practice lines, hypotheticals, and AI examples are never promoted to real life.
+- If an agent fails, the API returns a clear error instead of inventing content.
+- The model is replaceable. Product behavior and data contracts stay the same when the provider changes.
+
+### Go deeper
+
+- [Full agent system](docs/architecture/agents.md): every agent's responsibility, inputs and outputs, prompts, and known tradeoffs.
+- [Agent diagram](docs/architecture/named-agents.png) · [SVG](docs/architecture/named-agents.svg)
+- [API-level trigger reference](#ai-agents): routes, modules, and output contracts.
 
 ## Talk and Experience pipeline
 
@@ -314,6 +311,7 @@ flowchart LR
 ├── app/                  Flutter app (iOS + Android)
 ├── backend/              FastAPI + SQLAlchemy + Alembic backend
 ├── docs/
+│   ├── architecture/     Agent system, prompts, and diagrams
 │   ├── feature/          Pre-PRD requirements discussions
 │   ├── prototypes/       Interactive HTML/CSS/JS design prototype
 │   ├── prd-v1.0.md       Product definition and scope
@@ -335,6 +333,7 @@ Keep the prototype's HTML, CSS, JavaScript files, and `assets/` directory togeth
 ## Product documents
 
 - [PRD V1.0](docs/prd-v1.0.md): product definition, first-version scope, and acceptance criteria.
+- [Agent system](docs/architecture/agents.md): every AI agent, its job, inputs and outputs, prompts, and tradeoffs.
 - [UI/UX direction](docs/ui-ux-design.md): navigation, screen map, interaction direction, and visual system.
 - [Experience + History requirements](docs/feature/v1/experience-and-history/discussion.md): async agent decisions, evidence rules, and History scope.
 - [Companion memory requirements](docs/feature/v1/companion-memory/discussion.md): internal memory model and retrieval.
@@ -457,14 +456,19 @@ with thinking disabled. The runtime owns per-call timeout, bounded retry for
 transient provider failures, error normalization, and usage/latency logs. Prompts
 and output contracts stay in each feature module.
 
+This is the engineering view of the same system. For the learner and investor
+view, see [Agent architecture](#agent-architecture).
+
 | Agent | Module | Trigger | Responsibility | Output |
 | --- | --- | --- | --- | --- |
-| Intent router | `assistant/agent.py` | `POST /assistant/route` before every text composer submission | Decide whether the message is an app command (`open_words`, `review_words`, `start_challenge`, `view_challenges`) or ordinary learning content (`none`). The app executes the action; `none` continues to discovery. No keyword/regex parsing is done in the app. | `AssistantIntentOut` |
+| Intent router | `assistant/agent.py` | `POST /assistant/route` before every text composer submission | Decide whether the message is an app command (`open_words`, `start_challenge`, `view_challenges`) or ordinary learning content (`none`). The app executes the action; `none` continues to discovery. No keyword/regex parsing is done in the app. | `AssistantIntentOut` |
 | Discovery | `discovery/agent.py` | `POST /discoveries`; also generates missing Word content during lookup | Turn text or an image into one top-1 Word or Scene discovery, including native-language explanations, chunks, examples, and corrections where applicable. | `DiscoveryAgentOutput`, persisted as `Discovery` and optional `WordContent` |
 | Word lookup | `discovery/word_lookup_agent.py` | `GET /words/lookup?text=...` from Talk word details and Word lookups | Resolve selected text to one canonical English dictionary word or established compound. Discovery then reuses cached content or generates it. | `WordLookupOutput` |
+| Word card | `discovery/word_card_agent.py` | `GET /words/lookup?level=card` for a fast word sheet | Fill only the first-screen word fields so the sheet opens quickly; the full entry loads later. | `WordPayload` at card level |
 | Sentence | `sentence/agent.py` | `POST /sentences/lookup` from Talk long-press | Explain a selected sentence: natural English, native-language explanation, reusable chunks, grammar notes, and key words. | `SentenceAgentOutput` |
 | Talk | `talk/agent.py` | `POST /conversations/{id}/messages` | Produce the conversation reply plus corrections, annotations, memories, user-English hints, and suggested expressions. Injects Soul, memory, error-profile, and relevant Experience context. | `TalkResponse` |
 | Help | `talk/agent.py` | `POST /conversations/{id}/help` | Turn what the learner wants to say into one natural English sentence with an optional native-language note. This is not a chat reply. | `HelpSuggestion` |
+| Practice | `practice/agent.py` | `POST /practice/{word_id}/reply` from a saved word | Reply in the companion's voice, offer a gentle recast, and give an optional native translation. Progress is written by a separate endpoint. | `PracticeReplyOut` |
 | Experience | `experience/agent.py` | Async Experience worker after a Talk conversation ends; no direct public route | Extract at most one life experience and one learning experience from the conversation, with evidence sequences. Results are persisted and later read by History and Talk context. | `ExperienceExtraction` |
 | Daily read | `daily/agent.py` | `GET /daily/read`, once per account and day | Write a 220-320 word A2-B1 listening/reading story using recent saved words and a rotating theme. The passage is persisted and synthesized to audio; it is practice text, not a user experience. | `DailyReadAgentOutput` |
 | Daily translation | `daily/translation_agent.py` | `GET /daily/read/translation` on first translation toggle | Translate the stored reading sentence by sentence, preserving sentence order and offsets. The result is cached per account/day/language until the learner changes native language. | `DailyTranslationAgentOutput` |
@@ -524,7 +528,7 @@ Important behaviors:
 
 ## Current status
 
-Named with Milo is still **coming soon to iOS and Android**. The official website is live and the early-access list is open; the sections below describe what is implemented in this repository, not a public release.
+Named is still **coming soon to iOS and Android**. The official website is live and the early-access list is open; the sections below describe what is implemented in this repository, not a public release.
 
 Implemented:
 

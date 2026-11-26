@@ -9,6 +9,7 @@ import '../../features/challenge/presentation/challenge_create_page.dart';
 import '../../features/challenge/presentation/challenge_detail_page.dart';
 import '../../features/challenge/presentation/challenge_practice_page.dart';
 import '../../features/challenge/presentation/challenges_page.dart';
+import '../../features/companion/presentation/companion_page.dart';
 import '../../features/daily/presentation/daily_read_page.dart';
 import '../../features/history/presentation/experience_detail_page.dart';
 import '../../features/history/presentation/history_page.dart';
@@ -48,6 +49,7 @@ class AppRoutePaths {
   static const daily = '/daily';
   static const ask = '/ask';
   static const me = '/me';
+  static const companion = '/companion';
   static const settings = '/settings';
   static const theme = '/settings/theme';
   static const language = '/settings/language';
@@ -74,6 +76,7 @@ class AppRouteNames {
   static const daily = 'daily';
   static const ask = 'ask';
   static const me = 'me';
+  static const companion = 'companion';
   static const settings = 'settings';
   static const theme = 'theme';
   static const language = 'language';
@@ -224,6 +227,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutePaths.me,
         name: AppRouteNames.me,
         builder: (context, state) => const SoulPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.companion,
+        name: AppRouteNames.companion,
+        builder: (context, state) => const CompanionPage(),
       ),
       GoRoute(
         path: AppRoutePaths.settings,

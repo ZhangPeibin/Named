@@ -15,6 +15,7 @@ from assistant.router import router as assistant_router
 from auth.router import me_router
 from auth.router import router as auth_router
 from challenge.router import router as challenge_router
+from companion.router import router as companion_router
 from config import get_settings
 from daily.router import router as daily_router
 from database import engine
@@ -119,6 +120,7 @@ async def request_context(request: Request, call_next):
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(me_router, prefix=settings.api_v1_prefix)
 app.include_router(soul_router, prefix=settings.api_v1_prefix)
+app.include_router(companion_router, prefix=settings.api_v1_prefix)
 app.include_router(assistant_router, prefix=settings.api_v1_prefix)
 app.include_router(discovery_router, prefix=settings.api_v1_prefix)
 app.include_router(word_router, prefix=settings.api_v1_prefix)

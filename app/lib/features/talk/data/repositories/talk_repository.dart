@@ -21,6 +21,10 @@ class TalkRepository {
     return (await _api.fetch(conversationId)).toDomain();
   }
 
+  Future<TalkMessage> openConversation(String conversationId) async {
+    return (await _api.openConversation(conversationId)).toDomain();
+  }
+
   Future<Conversation> setUseMemory({
     required String conversationId,
     required bool useMemory,

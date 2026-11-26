@@ -33,7 +33,7 @@ class TalkEventCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const MiloMark(),
+          const CompanionMark(),
           const SizedBox(width: AppSpacing.s12),
           Expanded(
             child: Column(

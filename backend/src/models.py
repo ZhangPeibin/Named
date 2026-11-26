@@ -53,6 +53,37 @@ class SoulProfile(Base):
     )
 
 
+class CompanionProfile(Base):
+    __tablename__ = "companion_profiles"
+
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), primary_key=True
+    )
+    name: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    gender: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    hobby: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    avatar_key: Mapped[str] = mapped_column(String(64), default="companion_chill", nullable=False)
+    voice_key: Mapped[str] = mapped_column(String(64), default="companion_default", nullable=False)
+    setup_dismissed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+
+
+class CompanionPresence(Base):
+    __tablename__ = "companion_presence"
+
+    account_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("accounts.id", ondelete="CASCADE"), primary_key=True
+    )
+    key: Mapped[str] = mapped_column(String(32), nullable=False)
+    variant: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    params_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
 class AuthCode(Base):
     __tablename__ = "auth_codes"
 

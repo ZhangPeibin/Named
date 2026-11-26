@@ -4,6 +4,7 @@
 - **Date:** 2026-11-23
 - **Deciders:** 产品 / 客户端 / 后端
 - **Related:** ADR 0002（被本决定取代）；ADR 0005（取代本决定第 2、5、6 条）；PRD §5.10、§5.11；`docs/feature/v2/learner-model/discussion.md`
+- **2026-11-25 note:** The consumer named "Milo" is now the user-named companion. The Learner Model decisions below are unchanged; see ADR 0006 and `docs/feature/v2/companion-presence/discussion.md`.
 
 ## Context
 

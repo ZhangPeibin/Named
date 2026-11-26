@@ -9,6 +9,9 @@ import 'package:named/core/providers/app_config_provider.dart';
 import 'package:named/core/speech/speech_providers.dart';
 import 'package:named/core/speech/voice_input.dart';
 import 'package:named/features/auth/providers/auth_notifier.dart';
+import 'package:named/features/companion/data/api/companion_api.dart';
+import 'package:named/features/companion/data/repositories/companion_repository.dart';
+import 'package:named/features/companion/providers/companion_providers.dart';
 import 'package:named/features/discover/data/api/discover_api.dart';
 import 'package:named/features/discover/data/dto/discover_dto.dart';
 import 'package:named/features/discover/providers/discover_providers.dart';
@@ -19,6 +22,8 @@ import 'package:named/features/timeline/providers/timeline_providers.dart';
 import 'package:named/i18n/strings.g.dart';
 
 import 'support/i18n_test_helpers.dart';
+
+final _namedCompanion = CompanionRepository(MockCompanionApi(name: 'Momo'));
 
 void main() {
   testWidgets('name a thing, talk, and return to a talk event', (tester) async {
@@ -39,6 +44,7 @@ void main() {
       app: ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(config),
+          companionRepositoryProvider.overrideWithValue(_namedCompanion),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
           soulProvider.overrideWith(
             (ref) async => const Soul(nativeLanguage: 'en'),
@@ -80,7 +86,7 @@ void main() {
     expect(find.text(t.timeline.talkAboutIt), findsOneWidget);
     await tester.tap(find.byKey(const Key('timeline.talk.mock-discovery')));
     await tester.pumpAndSettle();
-    expect(find.text(t.talk.empty), findsOneWidget);
+    expect(find.text('What do you want to say about this?'), findsOneWidget);
     expect(find.text('tree'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('talk.help')));
@@ -172,6 +178,7 @@ void main() {
       app: ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(config),
+          companionRepositoryProvider.overrideWithValue(_namedCompanion),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
           soulProvider.overrideWith(
             (ref) async => const Soul(nativeLanguage: 'zh'),
@@ -225,6 +232,7 @@ void main() {
       app: ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(config),
+          companionRepositoryProvider.overrideWithValue(_namedCompanion),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
           soulProvider.overrideWith(
             (ref) async => const Soul(nativeLanguage: 'en'),
@@ -262,6 +270,7 @@ void main() {
       app: ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(config),
+          companionRepositoryProvider.overrideWithValue(_namedCompanion),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
           soulProvider.overrideWith(
             (ref) async => const Soul(nativeLanguage: 'en'),
@@ -310,6 +319,7 @@ void main() {
       app: ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(config),
+          companionRepositoryProvider.overrideWithValue(_namedCompanion),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
           soulProvider.overrideWith(
             (ref) async => const Soul(nativeLanguage: 'en'),
@@ -358,6 +368,7 @@ void main() {
       app: ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(config),
+          companionRepositoryProvider.overrideWithValue(_namedCompanion),
           authNotifierProvider.overrideWith(_SignedInAuthNotifier.new),
           soulProvider.overrideWith(
             (ref) async => const Soul(nativeLanguage: 'en'),

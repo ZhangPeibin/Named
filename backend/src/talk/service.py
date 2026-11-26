@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from agents import AgentFailed, agent_api_error
 from ai import AINotConfigured
 from clock import utcnow
+from companion.context import format_companion_context
+from companion.service import get_companion
 from config import Settings
 from discovery.schemas import WordPayload
 from errors import ApiError
@@ -24,7 +26,7 @@ from models import (
     WordContent,
     WordProgress,
 )
-from talk.agent import HELP_SPEC, HelpAgent, TalkAgent
+from talk.agent import HELP_SPEC, OPENER_SPEC, HelpAgent, OpenerAgent, TalkAgent
 from talk.agent import SPEC as TALK_SPEC
 from talk.errors import record_error_profile
 from talk.schemas import (
@@ -341,6 +343,99 @@ async def get_conversation(
     return await _conversation_out(session, conversation, settings)
 
 
+async def open_conversation(
+    session: AsyncSession,
+    account_id: str,
+    conversation_id: str,
+    agent: OpenerAgent,
+    speech_service: SpeechAudioService,
+    settings: Settings,
+) -> MessageOut:
+    conversation = await _get_conversation(session, account_id, conversation_id)
+    if conversation.status != "active":
+        raise ApiError(
+            "Conversation has ended.",
+            status_code=409,
+            code="conversation_ended",
+        )
+    first = await session.scalar(
+        select(ConversationMessage)
+        .where(ConversationMessage.conversation_id == conversation_id)
+        .order_by(ConversationMessage.sequence)
+        .limit(1)
+    )
+    if first is not None:
+        if first.role == "assistant":
+            return await _message_out(session, first, settings)
+        raise ApiError(
+            "Conversation already started.",
+            status_code=409,
+            code="conversation_already_started",
+        )
+
+    native_language = await _native_language(session, account_id)
+    focus_context = await _focus_context(session, conversation, native_language, settings)
+    learner_context = await build_learner_context(
+        session,
+        account_id,
+        focus_context=focus_context,
+        user_text="",
+        settings=settings,
+        use_memory=conversation.use_memory,
+    )
+    companion = await get_companion(session, account_id)
+    prior = await session.scalar(
+        select(func.count())
+        .select_from(Conversation)
+        .where(
+            Conversation.account_id == account_id,
+            Conversation.id != conversation_id,
+        )
+    )
+
+    try:
+        response = await agent.open(
+            native_language=native_language,
+            focus_context=focus_context,
+            learner_context=learner_context,
+            companion_name=companion.name,
+            companion_gender=companion.gender,
+            companion_hobby=companion.hobby,
+            first_conversation=(prior or 0) == 0,
+        )
+    except AINotConfigured as exc:
+        raise ApiError(
+            "AI provider is not configured.",
+            status_code=503,
+            code="ai_not_configured",
+        ) from exc
+    except AgentFailed as exc:
+        raise agent_api_error(exc, OPENER_SPEC) from exc
+
+    native_text = (response.native_reply or "").strip() or None
+    if native_language.lower().startswith("en"):
+        native_text = None
+
+    assistant = ConversationMessage(
+        conversation_id=conversation_id,
+        sequence=1,
+        role="assistant",
+        text=response.reply,
+        native_text=native_text,
+        source="text",
+        transcript_state="confirmed",
+        status="saved",
+    )
+    session.add(assistant)
+    await session.flush()
+    _, audio_key = await speech_service.synthesize(session, response.reply)
+    if audio_key is not None:
+        assistant.audio_key = audio_key
+    await session.commit()
+    await session.refresh(assistant)
+    return await _message_out(session, assistant, settings)
+
+
 async def update_conversation(
     session: AsyncSession,
     account_id: str,
@@ -433,12 +528,14 @@ async def send_message(
         use_memory=conversation.use_memory,
     )
     history = await _history(session, conversation_id, before_sequence=user_message.sequence)
+    companion_context = format_companion_context(await get_companion(session, account_id))
 
     try:
         response = await agent.respond(
             native_language=native_language,
             focus_context=focus_context,
             learner_context=learner_context,
+            companion_context=companion_context,
             history=history,
             user_text=user_message.text,
         )
@@ -579,12 +676,14 @@ async def help_expression(
         use_memory=conversation.use_memory,
     )
     history = await _history(session, conversation_id)
+    companion_context = format_companion_context(await get_companion(session, account_id))
 
     try:
         suggestion = await agent.suggest(
             native_language=native_language,
             focus_context=focus_context,
             learner_context=learner_context,
+            companion_context=companion_context,
             history=history,
             user_text=payload.text,
         )

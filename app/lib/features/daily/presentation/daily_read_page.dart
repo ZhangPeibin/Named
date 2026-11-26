@@ -16,6 +16,8 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/audio_speed_control.dart';
 import '../../../i18n/strings.g.dart';
+import '../../companion/presentation/widgets/companion_avatar.dart';
+import '../../companion/providers/companion_providers.dart';
 import '../../progress/providers/progress_providers.dart';
 import '../../question/presentation/ask_launcher.dart';
 import '../../sentence/presentation/sentence_detail_sheet.dart';
@@ -559,6 +561,7 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
     };
     final palette = isDark ? AppPalette.readerDark : AppPalette.readerLight;
     final async = ref.watch(dailyReadProvider(widget.date));
+    final companion = ref.watch(companionProvider).value;
     final reading = async.value;
     if (reading != null) {
       _maybeScheduleShortContentCompletion(reading);
@@ -588,6 +591,28 @@ class _DailyReadPageState extends ConsumerState<DailyReadPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            if (companion?.isNamed == true)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  24,
+                                  0,
+                                  24,
+                                  12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const CompanionAvatar(size: 24),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        context.t.companion.dailyIntro,
+                                        style: baseTheme.textTheme.bodySmall
+                                            ?.copyWith(color: palette.muted),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             async.when(
                               loading: () => const _DailyLoading(),
                               error: (error, stack) => Center(

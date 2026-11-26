@@ -24,13 +24,13 @@ class TalkAvatar extends StatelessWidget {
 
     return Semantics(
       image: true,
-      label: isUser ? t.youAvatar : t.miloAvatar,
+      label: isUser ? t.youAvatar : context.t.companion.title,
       excludeSemantics: true,
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: isUser ? palette.warm : palette.surfaceMuted,
+          color: palette.warm,
           shape: BoxShape.circle,
           border: Border.all(color: palette.line),
         ),
@@ -67,7 +67,7 @@ class _FallbackAvatar extends StatelessWidget {
     }
 
     return Image.asset(
-      'assets/images/companion.jpg',
+      'assets/images/companion_avatar.png',
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) => AppLineIcon(
         AppLineGlyph.person,

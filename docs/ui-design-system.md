@@ -140,7 +140,8 @@ The app defaults to **Ink & Linen**. Settings → Theme also exposes **Ink & Cob
 
 - Interface icons are **brand line icons**: a 24×24 grid, 1.6 px stroke, round caps and round joins, drawn with `AppLineIcon` (`lib/core/widgets/app_line_icon.dart`). Do not add new filled Material glyphs to product surfaces.
 - Default icon color is `ink`. Use `muted` for quiet or completed states. Use `primary` (the accent) only for selected, interactive, or high-emphasis icon actions — not for every icon.
-- Inline content marks are **glyph-only**: no rounded-square tile, fill, or 1 px border around them. Timeline marks: read = book, ask = chat, me = person. The talk mark uses the companion photo, borderless.
+- Inline content marks are **glyph-only**: no rounded-square tile, fill, or 1 px border around them. Timeline marks: read = book, ask = chat, me = person. The talk mark uses the companion avatar, borderless.
+- The companion avatar is the original black cat on a cream circular plate in both themes; the plate keeps the black character visible on the dark canvas.
 - Keep icon weight closest to its adjacent text weight; never mix filled and line icons in the same group.
 
 ## 5. Core components

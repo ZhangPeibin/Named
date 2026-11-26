@@ -60,6 +60,11 @@ class TalkResponse(BaseModel):
     needs_confirmation: bool = False
 
 
+class OpenerResponse(BaseModel):
+    reply: str = Field(min_length=1, max_length=2000)
+    native_reply: str | None = Field(default=None, max_length=2000)
+
+
 class HelpRequest(BaseModel):
     text: str = Field(min_length=1, max_length=1000)
 

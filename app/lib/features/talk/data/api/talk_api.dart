@@ -11,6 +11,8 @@ abstract class TalkApi {
 
   Future<ConversationDto> fetch(String conversationId);
 
+  Future<TalkMessageDto> openConversation(String conversationId);
+
   Future<ConversationDto> updateConversation({
     required String conversationId,
     required bool useMemory,
@@ -53,6 +55,34 @@ class RemoteTalkApi implements TalkApi {
         '/api/v1/conversations/$conversationId',
       ),
     );
+  }
+
+  @override
+  Future<TalkMessageDto> openConversation(String conversationId) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/v1/conversations/$conversationId/opener',
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const ApiException(
+          type: ApiExceptionType.badResponse,
+          message: 'Conversation opener response was empty',
+        );
+      }
+      return TalkMessageDto.fromJson(data);
+    } on DioException catch (error) {
+      final apiException = error.error;
+      if (apiException is ApiException) {
+        throw apiException;
+      }
+      throw ApiException.fromDioException(error);
+    } on FormatException catch (error) {
+      throw ApiException(
+        type: ApiExceptionType.badResponse,
+        message: error.message,
+      );
+    }
   }
 
   @override
@@ -185,6 +215,18 @@ class MockTalkApi implements TalkApi {
   @override
   Future<ConversationDto> fetch(String conversationId) async {
     return _conversation(conversationId, 'word', 'mock-word');
+  }
+
+  @override
+  Future<TalkMessageDto> openConversation(String conversationId) async {
+    return const TalkMessageDto(
+      id: 'mock-opener',
+      role: 'assistant',
+      text: 'What do you want to say about this?',
+      nativeText: '关于这个，你想说点什么？',
+      corrections: [],
+      annotations: [],
+    );
   }
 
   @override

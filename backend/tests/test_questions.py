@@ -17,6 +17,7 @@ class FakeQuestionAgent:
         *,
         text: str,
         native_language: str,
+        companion_context: str,
         context_type: str | None = None,
         context_quote: str | None = None,
         history: list[dict[str, str]] | None = None,
@@ -25,6 +26,7 @@ class FakeQuestionAgent:
             {
                 "text": text,
                 "native_language": native_language,
+                "companion_context": companion_context,
                 "context_type": context_type,
                 "context_quote": context_quote,
                 "history": history or [],

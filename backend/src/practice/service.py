@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from agents.errors import AgentFailed, agent_api_error
 from ai import AINotConfigured
 from clock import utcnow
+from companion.context import format_companion_context
+from companion.service import get_companion
 from discovery.schemas import WordPayload
 from errors import ApiError
 from models import Discovery, SoulProfile, Word, WordContent, WordProgress
@@ -197,12 +199,14 @@ async def practice_reply(
     context = await _saved_context(session, account_id, word_id)
     native_language = await _native_language(session, account_id)
     history = [{"role": item.role, "text": item.text} for item in payload.history]
+    companion_context = format_companion_context(await get_companion(session, account_id))
 
     try:
         response = await agent.respond(
             word=word.label_en,
             context=context,
             native_language=native_language,
+            companion_context=companion_context,
             history=history,
             user_text=payload.text,
         )

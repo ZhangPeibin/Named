@@ -18,6 +18,8 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../i18n/strings.g.dart';
 import '../../auth/providers/auth_notifier.dart';
+import '../../companion/presentation/widgets/companion_setup_sheet.dart';
+import '../../companion/providers/companion_providers.dart';
 import '../domain/soul.dart';
 import '../providers/soul_providers.dart';
 
@@ -30,6 +32,7 @@ class SoulPage extends ConsumerWidget {
     final palette = context.appPalette;
     final textTheme = Theme.of(context).textTheme;
     final soul = ref.watch(soulProvider);
+    final companion = ref.watch(companionProvider).value;
 
     return AppScaffold(
       key: const Key('me.page'),
@@ -96,6 +99,22 @@ class SoulPage extends ConsumerWidget {
               years: t.years,
               notSet: t.notSet,
               onEdit: () => _edit(context, ref, value),
+            ),
+            const SizedBox(height: AppSpacing.s24),
+            _LinkRow(
+              icon: AppLineGlyph.chat,
+              color: ContentAccents.ask(context),
+              title: context.t.companion.title,
+              body: companion?.isNamed == true
+                  ? context.t.companion.namedSubtitle(name: companion!.name!)
+                  : context.t.companion.unnamedSubtitle,
+              onTap: () {
+                if (companion?.isNamed == true) {
+                  unawaited(context.pushNamed(AppRouteNames.companion));
+                } else {
+                  unawaited(showCompanionSetupSheet(context));
+                }
+              },
             ),
             const SizedBox(height: AppSpacing.s24),
             _SectionHeader(

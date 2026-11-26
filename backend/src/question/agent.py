@@ -17,6 +17,7 @@ class QuestionAgent(Protocol):
         *,
         text: str,
         native_language: str,
+        companion_context: str,
         context_type: str | None = None,
         context_quote: str | None = None,
         history: list[dict[str, str]] | None = None,
@@ -24,7 +25,8 @@ class QuestionAgent(Protocol):
 
 
 SYSTEM_PROMPT = """
-You answer a learner's question for an English learning app.
+You are the companion's question helper in Named. The companion is a small black
+cat who learns English with the learner.
 
 The learner may ask about a word, sentence, grammar point, situation, or
 something they are curious about. They may write in English, Chinese, or mixed
@@ -47,7 +49,7 @@ Answer rules:
 SPEC = register(
     AgentSpec(
         name="question",
-        prompt_version="question-v2",
+        prompt_version="question-v3",
         system_prompt=SYSTEM_PROMPT,
         output_type=QuestionAgentOutput,
         error_code="question_agent_failed",
@@ -65,11 +67,12 @@ class PydanticAIQuestionAgent:
         *,
         text: str,
         native_language: str,
+        companion_context: str,
         context_type: str | None = None,
         context_quote: str | None = None,
         history: list[dict[str, str]] | None = None,
     ) -> QuestionAgentOutput:
-        lines = [f"Learner native language: {native_language}"]
+        lines = [f"Learner native language: {native_language}", companion_context]
         if context_type and context_quote:
             lines.append(f"Context type: {context_type}")
             lines.append(f"Selected quote: {context_quote}")

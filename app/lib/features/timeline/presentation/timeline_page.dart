@@ -18,6 +18,11 @@ import '../../assistant/domain/assistant_intent.dart';
 import '../../assistant/domain/command_hint.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
+import '../../companion/presentation/companion_presence_line.dart';
+import '../../companion/presentation/widgets/companion_card.dart';
+import '../../companion/presentation/widgets/companion_presence_row.dart';
+import '../../companion/presentation/widgets/companion_setup_sheet.dart';
+import '../../companion/providers/companion_providers.dart';
 import '../../progress/providers/progress_providers.dart';
 import '../../words/providers/words_providers.dart';
 import '../domain/timeline_item.dart';
@@ -47,6 +52,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   final _scrollController = ScrollController();
   String? _error;
   String? _startingTalkId;
+  bool _hideCompanionInvite = false;
   bool _isSubmitting = false;
   bool _isRecording = false;
   bool _isTranscribing = false;
@@ -552,6 +558,25 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     final t = context.t.timeline;
     final async = ref.watch(timelineControllerProvider);
     final progress = ref.watch(progressProvider);
+    final companion = ref.watch(companionProvider).value;
+    final presence = companion?.isNamed == true
+        ? ref.watch(companionPresenceProvider)
+        : null;
+    final cachedPresence = ref.watch(companionPresenceCacheProvider);
+    if (companion?.isNamed == true) {
+      ref.listen(companionPresenceProvider, (previous, next) {
+        final value = next.value;
+        if (value != null) {
+          ref.read(companionPresenceCacheProvider.notifier).set(value);
+        }
+      });
+    }
+    final presenceValue = presence?.value ?? cachedPresence;
+    final presenceLine = presenceValue != null
+        ? companionPresenceLine(context, presenceValue)
+        : presence?.hasError == true
+        ? context.t.companion.presence.fallback
+        : null;
     ref
       ..listen(challengesProvider, (previous, next) {
         if (next.hasValue) {
@@ -564,6 +589,22 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         }
       });
 
+    Widget? companionEntry;
+    final profile = companion;
+    if (profile != null &&
+        !profile.isNamed &&
+        !(profile.setupDismissed && _hideCompanionInvite)) {
+      companionEntry = profile.setupDismissed
+          ? CompanionInviteRow(
+              onName: () => unawaited(_openCompanionSetup()),
+              onHide: () => setState(() => _hideCompanionInvite = true),
+            )
+          : CompanionFirstRunCard(
+              onName: () => unawaited(_openCompanionSetup()),
+              onLater: () => unawaited(_dismissCompanionSetup()),
+            );
+    }
+
     return AppScaffold(
       title: '',
       showAppBar: false,
@@ -571,6 +612,20 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       padding: EdgeInsets.zero,
       body: Column(
         children: [
+          if (companion?.isNamed == true && presenceLine != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.pageHorizontalPadding,
+                AppSpacing.s4,
+                AppSpacing.pageHorizontalPadding,
+                0,
+              ),
+              child: CompanionPresenceRow(
+                line: presenceLine,
+                onTap: () =>
+                    unawaited(context.pushNamed(AppRouteNames.companion)),
+              ),
+            ),
           Expanded(
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -586,7 +641,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
                     onRetry: () => ref.invalidate(timelineControllerProvider),
                   ),
                 ),
-                data: (state) => _buildTimeline(context, state, t),
+                data: (state) =>
+                    _buildTimeline(context, state, t, companionEntry),
               ),
             ),
           ),
@@ -642,6 +698,20 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         ],
       ),
     );
+  }
+
+  Future<void> _openCompanionSetup() async {
+    await showCompanionSetupSheet(context);
+  }
+
+  Future<void> _dismissCompanionSetup() async {
+    try {
+      await ref.read(companionControllerProvider).dismissSetup();
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => _error = error.message);
+      }
+    }
   }
 
   Future<void> _openAsk({String? threadId}) async {
@@ -703,9 +773,26 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     BuildContext context,
     TimelineState state,
     Translations$timeline$en t,
+    Widget? companionEntry,
   ) {
     if (state.items.isEmpty) {
-      return _EmptyTimeline(t: t);
+      return ListView(
+        key: const Key('timeline.list'),
+        controller: _scrollController,
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.s16,
+          AppSpacing.s24,
+          AppSpacing.s16,
+          AppSpacing.s24,
+        ),
+        children: [
+          _EmptyTimeline(t: t),
+          if (companionEntry != null) ...[
+            const SizedBox(height: AppSpacing.s12),
+            companionEntry,
+          ],
+        ],
+      );
     }
 
     if (!_didInitialScroll) {
@@ -773,6 +860,14 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     }
     if (hasActiveChallenge) {
       widgets.add(const ChallengeCarousel());
+    }
+    if (companionEntry != null) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.s4),
+          child: companionEntry,
+        ),
+      );
     }
     return ListView.separated(
       key: const Key('timeline.list'),

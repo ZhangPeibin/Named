@@ -5,6 +5,8 @@
 **Feature:** experience-and-history
 **PRD:** #36
 
+> **2026-11-25 修订：** "Milo" 现在指用户命名的 companion；本文保留当时的 v1 决定，命名与存在感见 `docs/feature/v2/companion-presence/discussion.md` 和 ADR 0006。
+
 ## 问题
 
 Talk 已经能保存完整对话、纠正和标注，但这些交流还没有沉淀成用户能回访的个人经历。

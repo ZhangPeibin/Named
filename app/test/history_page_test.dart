@@ -122,7 +122,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(t.history.empty), findsOneWidget);
-    expect(find.text(t.history.emptyHint), findsOneWidget);
+    expect(
+      find.text(t.history.emptyHint(name: t.companion.title)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows experience evidence and source action', (tester) async {

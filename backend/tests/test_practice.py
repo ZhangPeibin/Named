@@ -15,12 +15,22 @@ class FakePracticeAgent:
         self.calls: list[dict] = []
         self.fail = False
 
-    async def respond(self, *, word, context, native_language, history, user_text):
+    async def respond(
+        self,
+        *,
+        word,
+        context,
+        native_language,
+        companion_context,
+        history,
+        user_text,
+    ):
         self.calls.append(
             {
                 "word": word,
                 "context": context,
                 "native_language": native_language,
+                "companion_context": companion_context,
                 "history": history,
                 "user_text": user_text,
             }

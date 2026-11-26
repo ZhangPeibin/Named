@@ -16,7 +16,8 @@ The reference PDF supplies visual and interaction guidance only. Its “Everyday
 - Soft paper is the light canvas; cool charcoal is the dark canvas. Cobalt carries primary actions and selected states; terracotta is a small warm accent.
 - Editorial serif headlines and large English words sit alongside legible Chinese interface and native-language support.
 - Bounded white or dark surfaces, restrained borders and clear hierarchy replace repetitive colored cards.
-- A quiet photographic reference portrait presents Milo as a virtual partner. It does not identify a real tutor.
+- A quiet original black-cat companion presents the product's partner. It is a small classmate rather than a tutor, is named by the learner, and does not represent a real person.
+- The companion has a fixed appearance; learners choose its name, gender, and hobby, not its look. A cream circular plate keeps the black cat visible in both themes.
 - Optional correction details and sentence/word help keep natural conversation in focus.
 - No decorative gradients, glass panels or AI glow. Reduced-motion settings disable waveform animation.
 

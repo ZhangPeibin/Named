@@ -61,7 +61,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(t.talk.empty), findsOneWidget);
-    expect(find.text(t.talk.miloName), findsOneWidget);
+    expect(find.text(t.companion.title), findsOneWidget);
 
     await tester.enterText(
       find.byKey(const Key('talk.input')),

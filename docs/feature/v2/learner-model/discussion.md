@@ -6,6 +6,8 @@
 **Related:** PRD #70；PRD §5.10、§5.11；ADR 0004（部分被 ADR 0005 取代）；ADR 0005；ADR 0002（被 ADR 0004 取代）；`docs/feature/v1/companion-memory/discussion.md`
 
 > **2026-11-23 修订：** 可见性决定由 ADR 0005 取代。about 保持可见 / 可改 / 可删；learned 与 boundary 保持内部；`use_memory` 保留，且只门控 about。下方「Memory 完全不可见」「Me 页移除 Soul notes」「移除 use_memory」等表述为历史记录，不再适用。
+>
+> **2026-11-25 修订：** 本文中的 "Milo" 现在指用户命名的 companion；Learner Model 的消费者角色和数据决定不变。命名、Presence 与人格见 `docs/feature/v2/companion-presence/discussion.md` 和 ADR 0006。
 
 ## Problem
 

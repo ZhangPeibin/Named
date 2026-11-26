@@ -12,6 +12,8 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
+import '../../companion/presentation/widgets/companion_avatar.dart';
+import '../../companion/providers/companion_providers.dart';
 import '../../timeline/providers/timeline_providers.dart';
 import '../domain/question.dart';
 import '../providers/question_providers.dart';
@@ -347,6 +349,10 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
   Widget build(BuildContext context) {
     final t = context.t.ask;
     final thread = _thread;
+    final companion = ref.watch(companionProvider).value;
+    final companionName = companion?.isNamed == true
+        ? companion!.name!
+        : context.t.companion.title;
 
     return AppScaffold(
       key: const Key('ask.page'),
@@ -387,8 +393,8 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
                     },
                   )
                 : thread == null
-                ? _buildIntro(t)
-                : _buildThread(thread),
+                ? _buildIntro(t, companionName)
+                : _buildThread(thread, companionName),
           ),
           _AskComposer(
             controller: _controller,
@@ -403,7 +409,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     );
   }
 
-  Widget _buildIntro(Translations$ask$en t) {
+  Widget _buildIntro(Translations$ask$en t, String companionName) {
     return ListView(
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(
@@ -420,7 +426,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
           ),
           const SizedBox(height: AppSpacing.s20),
         ],
-        _AgentGreeting(text: t.agentGreeting),
+        _AgentGreeting(text: t.companionGreeting(name: companionName)),
         const SizedBox(height: AppSpacing.s16),
         _SuggestionList(t: t, onSelected: _useSuggestion),
         if (_pendingQuestion != null) ...[
@@ -437,6 +443,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
               feedback: null,
               createdAt: DateTime.now(),
             ),
+            named: companionName,
           ),
           const SizedBox(height: AppSpacing.s10),
           _ThinkingRow(text: t.thinking),
@@ -445,7 +452,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
     );
   }
 
-  Widget _buildThread(QuestionThread thread) {
+  Widget _buildThread(QuestionThread thread, String companionName) {
     return ListView(
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(
@@ -468,6 +475,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
         for (final message in thread.messages) ...[
           _QuestionMessageView(
             message: message,
+            named: companionName,
             onSuggestion: _useSuggestion,
             onFeedback: message.isUser
                 ? null
@@ -488,6 +496,7 @@ class _QuestionPageState extends ConsumerState<QuestionPage> {
               feedback: null,
               createdAt: DateTime.now(),
             ),
+            named: companionName,
           ),
           const SizedBox(height: AppSpacing.s10),
           Row(
@@ -531,11 +540,7 @@ class _AskAgentAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: palette.line),
       ),
-      child: AppLineIcon(
-        AppLineGlyph.chat,
-        size: size * 0.5,
-        color: palette.primary,
-      ),
+      child: CompanionAvatar(size: size),
     );
   }
 }
@@ -707,11 +712,13 @@ class _ThreadRow extends StatelessWidget {
 class _QuestionMessageView extends StatelessWidget {
   const _QuestionMessageView({
     required this.message,
+    required this.named,
     this.onSuggestion,
     this.onFeedback,
   });
 
   final QuestionMessage message;
+  final String named;
   final ValueChanged<String>? onSuggestion;
   final Future<void> Function(String)? onFeedback;
 
@@ -770,7 +777,7 @@ class _QuestionMessageView extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      t.named,
+                      named,
                       style: textTheme.labelLarge?.copyWith(color: palette.ink),
                     ),
                     if (confidence != null) ...[

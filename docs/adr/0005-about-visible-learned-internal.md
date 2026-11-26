@@ -4,6 +4,7 @@
 - **Date:** 2026-11-23
 - **Deciders:** 产品 / 客户端 / 后端
 - **Related:** ADR 0004（部分被本决定取代）；ADR 0002（可见性部分恢复）；PRD §5.10、§5.11；#70、#71；`docs/feature/v2/learner-model/discussion.md`
+- **2026-11-25 note:** The consumer named "Milo" is now the user-named companion. The visibility decisions below are unchanged; see ADR 0006 and `docs/feature/v2/companion-presence/discussion.md`.
 
 ## Context
 

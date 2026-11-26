@@ -6,6 +6,8 @@
 | Release | v1.1 |
 | Feature | Ask |
 | Owner | TBD |
+
+> **2026-11-25 修订：** "Milo" 现在指用户命名的 companion；本文保留当时的 v1.1 决定，命名与存在感见 `docs/feature/v2/companion-presence/discussion.md` 和 ADR 0006。
 | Parent issue | [#49](https://github.com/ZhangPeibin/Named/issues/49) |
 | Baseline | Ask v1 is implemented: standalone Ask page, one-shot question, saved exchange |
 | Target | 9/10 |

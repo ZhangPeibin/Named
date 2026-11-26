@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from agents import AgentFailed
 from clock import utcnow
+from companion.context import format_companion_context
+from companion.service import get_companion
 from errors import ApiError
 from models import QuestionMessage, QuestionThread, SoulProfile
 from question.agent import QuestionAgent
@@ -96,11 +98,16 @@ async def _native_language(session: AsyncSession, account_id: str) -> str:
     return profile.native_language if profile is not None else "en"
 
 
+async def _companion_context(session: AsyncSession, account_id: str) -> str:
+    return format_companion_context(await get_companion(session, account_id))
+
+
 async def _run_agent(
     agent: QuestionAgent,
     *,
     text: str,
     native_language: str,
+    companion_context: str,
     context_type: str | None,
     context_quote: str | None,
     history: list[dict[str, str]],
@@ -109,6 +116,7 @@ async def _run_agent(
         return await agent.ask(
             text=text,
             native_language=native_language,
+            companion_context=companion_context,
             context_type=context_type,
             context_quote=context_quote,
             history=history,
@@ -140,6 +148,7 @@ async def ask_question(
         agent,
         text=text,
         native_language=native_language,
+        companion_context=await _companion_context(session, account_id),
         context_type=context_type,
         context_quote=context_quote,
         history=[],
@@ -197,6 +206,7 @@ async def follow_up(
         agent,
         text=text,
         native_language=native_language,
+        companion_context=await _companion_context(session, account_id),
         context_type=thread.context_type,
         context_quote=thread.context_quote,
         history=_history(messages),

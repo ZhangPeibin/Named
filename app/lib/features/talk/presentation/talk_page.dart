@@ -22,6 +22,8 @@ import '../../../core/widgets/app_line_icon.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/audio_control.dart';
 import '../../../i18n/strings.g.dart';
+import '../../companion/presentation/widgets/companion_talk_gate.dart';
+import '../../companion/providers/companion_providers.dart';
 import '../../question/presentation/ask_launcher.dart';
 import '../../sentence/presentation/sentence_detail_sheet.dart';
 import '../../words/presentation/word_lookup_sheet.dart';
@@ -52,6 +54,8 @@ class _TalkPageState extends ConsumerState<TalkPage> {
   String? _error;
   bool _isLoading = true;
   bool _isSending = false;
+  bool _isOpening = false;
+  bool _didRequestOpener = false;
   TalkMessage? _pendingMessage;
   final _visibleNativeMessageIds = <String>{};
   final _unlockedNativeMessageIds = <String>{};
@@ -106,6 +110,10 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           _isLoading = false;
         });
         _scrollToBottom(animate: false);
+        if (conversation.messages.isEmpty &&
+            ref.read(companionProvider).value?.isNamed == true) {
+          unawaited(_openConversation());
+        }
       }
     } on ApiException catch (error) {
       if (mounted) {
@@ -114,6 +122,55 @@ class _TalkPageState extends ConsumerState<TalkPage> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _openConversation() async {
+    if (_didRequestOpener || _messages.isNotEmpty || _isOpening) {
+      return;
+    }
+    _didRequestOpener = true;
+    final fallback = context.t.talk.openerFallback;
+    setState(() => _isOpening = true);
+    try {
+      final message = await ref
+          .read(talkRepositoryProvider)
+          .openConversation(widget.conversationId);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _messages = [message];
+        _unlockedNativeMessageIds.add(message.id);
+        _isOpening = false;
+      });
+      _scrollToBottom(animate: true);
+      if (message.audio?.isReady == true) {
+        unawaited(
+          ref
+              .read(audioPlaybackControllerProvider.notifier)
+              .play(
+                'talk.opener.${message.id}',
+                () async => message.audio?.url,
+              ),
+        );
+      }
+    } on ApiException {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isOpening = false;
+        _messages = [
+          TalkMessage(
+            id: 'opener-fallback',
+            role: 'assistant',
+            text: fallback,
+            corrections: const [],
+            annotations: const [],
+          ),
+        ];
+      });
     }
   }
 
@@ -139,7 +196,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
 
   Future<void> _send() async {
     final text = _controller.text.trim();
-    if (text.isEmpty || _isSending) {
+    if (text.isEmpty || _isSending || _isOpening) {
       return;
     }
 
@@ -456,7 +513,17 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     final textTheme = Theme.of(context).textTheme;
     final title = _title ?? widget.title ?? t.titleFallback;
     final visibleMessages = <TalkMessage>[..._messages, ?_pendingMessage];
-    final showTyping = _isSending && _pendingMessage != null;
+    final showTyping = (_isSending && _pendingMessage != null) || _isOpening;
+    final companion = ref.watch(companionProvider).value;
+    final companionUnnamed = companion?.isNamed == false;
+    final companionName = companion?.isNamed == true
+        ? companion!.name!
+        : context.t.companion.title;
+    ref.listen(companionProvider, (previous, next) {
+      if (next.value?.isNamed == true && _messages.isEmpty) {
+        unawaited(_openConversation());
+      }
+    });
 
     return AppScaffold(
       title: '',
@@ -467,13 +534,16 @@ class _TalkPageState extends ConsumerState<TalkPage> {
         children: [
           _TalkHeader(
             title: title,
+            companionName: companionName,
             isTyping: showTyping,
             useMemory: _useMemory,
             onToggleMemory: () => unawaited(_toggleMemory()),
             onBack: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
-            child: _isLoading
+            child: companionUnnamed
+                ? const CompanionTalkGate()
+                : _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null && _messages.isEmpty
                 ? Center(
@@ -483,7 +553,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                       onRetry: _load,
                     ),
                   )
-                : visibleMessages.isEmpty
+                : visibleMessages.isEmpty && !showTyping
                 ? Center(
                     child: Text(
                       _focusType == 'scene' ? t.emptyScene : t.empty,
@@ -507,7 +577,9 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                         const SizedBox(height: AppSpacing.s12),
                     itemBuilder: (context, index) {
                       if (index == visibleMessages.length) {
-                        return const _TypingMessage();
+                        return _TypingMessage(
+                          typingLabel: t.typing(name: companionName),
+                        );
                       }
                       final message = visibleMessages[index];
                       return _MessageBubble(
@@ -537,47 +609,48 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                     },
                   ),
           ),
-          SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_error != null && _messages.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.pageHorizontalPadding,
-                      AppSpacing.s8,
-                      AppSpacing.pageHorizontalPadding,
-                      0,
-                    ),
-                    child: Text(
-                      _error!,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: palette.error,
+          if (!companionUnnamed)
+            SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_error != null && _messages.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.pageHorizontalPadding,
+                        AppSpacing.s8,
+                        AppSpacing.pageHorizontalPadding,
+                        0,
+                      ),
+                      child: Text(
+                        _error!,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: palette.error,
+                        ),
                       ),
                     ),
+                  _TalkComposer(
+                    controller: _controller,
+                    focusNode: _composerFocusNode,
+                    hintText: _isRecording
+                        ? t.listening
+                        : _isTranscribing
+                        ? t.transcribing
+                        : t.inputHint,
+                    sendTooltip: t.send,
+                    helpTooltip: t.helpMeSayIt,
+                    isSending: _isSending || _isOpening,
+                    isRecording: _isRecording,
+                    isTranscribing: _isTranscribing,
+                    onToggleRecording: _toggleRecording,
+                    onSend: _send,
+                    onOpenHelp: _openHelp,
+                    onChanged: (_) => setState(() => _error = null),
                   ),
-                _TalkComposer(
-                  controller: _controller,
-                  focusNode: _composerFocusNode,
-                  hintText: _isRecording
-                      ? t.listening
-                      : _isTranscribing
-                      ? t.transcribing
-                      : t.inputHint,
-                  sendTooltip: t.send,
-                  helpTooltip: t.helpMeSayIt,
-                  isSending: _isSending,
-                  isRecording: _isRecording,
-                  isTranscribing: _isTranscribing,
-                  onToggleRecording: _toggleRecording,
-                  onSend: _send,
-                  onOpenHelp: _openHelp,
-                  onChanged: (_) => setState(() => _error = null),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -1072,6 +1145,7 @@ class _AnnotationSheetState extends ConsumerState<_AnnotationSheet> {
 class _TalkHeader extends StatelessWidget {
   const _TalkHeader({
     required this.title,
+    required this.companionName,
     required this.isTyping,
     required this.useMemory,
     required this.onToggleMemory,
@@ -1079,6 +1153,7 @@ class _TalkHeader extends StatelessWidget {
   });
 
   final String title;
+  final String companionName;
   final bool isTyping;
   final bool useMemory;
   final VoidCallback onToggleMemory;
@@ -1126,7 +1201,7 @@ class _TalkHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t.miloName,
+                  companionName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium?.copyWith(
@@ -1135,7 +1210,7 @@ class _TalkHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s2),
                 Text(
-                  isTyping ? t.typing : title,
+                  isTyping ? t.typing(name: companionName) : title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodySmall?.copyWith(color: palette.muted),
@@ -1594,12 +1669,13 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _TypingMessage extends StatelessWidget {
-  const _TypingMessage();
+  const _TypingMessage({required this.typingLabel});
+
+  final String typingLabel;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
-    final t = context.t.talk;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1623,7 +1699,7 @@ class _TypingMessage extends StatelessWidget {
           ),
           child: Semantics(
             liveRegion: true,
-            label: t.typing,
+            label: typingLabel,
             child: const _TypingDots(),
           ),
         ),

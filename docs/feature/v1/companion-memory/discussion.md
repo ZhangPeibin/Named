@@ -4,6 +4,8 @@
 **Release:** v1
 **Feature:** companion-memory
 
+> **2026-11-25 修订：** "Milo" 现在指用户命名的 companion；本文保留当时的 v1 决定，命名与存在感见 `docs/feature/v2/companion-presence/discussion.md` 和 ADR 0006。
+
 ## Problem
 
 Named currently keeps independent Talk conversations, but Milo does not carry a durable, account-scoped understanding of what the learner has studied, struggled with, or shared. The learner has to re-establish context, and Talk cannot make use of learning history unless it happens to be in the current conversation.

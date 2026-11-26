@@ -20,6 +20,7 @@ AGENT_MODULES = [
     "experience.agent",
     "question.agent",
     "practice.agent",
+    "companion.presence_agent",
 ]
 
 EXPECTED_AGENTS = {
@@ -33,6 +34,8 @@ EXPECTED_AGENTS = {
     "experience",
     "question",
     "practice",
+    "talk_opener",
+    "companion_presence",
 }
 
 

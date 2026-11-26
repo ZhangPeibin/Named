@@ -43,8 +43,15 @@ from sentence.agent import get_sentence_agent
 from sentence.schemas import SentenceAgentOutput, SentenceChunk, SentenceKeyWord
 from stt.deps import get_transcription_provider
 from stt.provider import STTNoSpeech, STTNotConfigured
-from talk.agent import AgentFailed, get_help_agent, get_talk_agent
-from talk.schemas import Annotation, Correction, HelpSuggestion, MemoryCandidate, TalkResponse
+from talk.agent import AgentFailed, get_help_agent, get_opener_agent, get_talk_agent
+from talk.schemas import (
+    Annotation,
+    Correction,
+    HelpSuggestion,
+    MemoryCandidate,
+    OpenerResponse,
+    TalkResponse,
+)
 from tts.provider import get_tts_provider
 
 
@@ -163,6 +170,7 @@ class FakeTalkAgent:
         native_language: str,
         focus_context: str,
         learner_context: str,
+        companion_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> TalkResponse:
@@ -171,6 +179,7 @@ class FakeTalkAgent:
                 "native_language": native_language,
                 "focus_context": focus_context,
                 "learner_context": learner_context,
+                "companion_context": companion_context,
                 "history": history,
                 "user_text": user_text,
             }
@@ -195,6 +204,7 @@ class FakeHelpAgent:
         native_language: str,
         focus_context: str,
         learner_context: str,
+        companion_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> HelpSuggestion:
@@ -203,8 +213,42 @@ class FakeHelpAgent:
                 "native_language": native_language,
                 "focus_context": focus_context,
                 "learner_context": learner_context,
+                "companion_context": companion_context,
                 "history": history,
                 "user_text": user_text,
+            }
+        )
+        return self.response
+
+
+class FakeOpenerAgent:
+    def __init__(self) -> None:
+        self.calls: list[dict] = []
+        self.response = OpenerResponse(
+            reply="What do you want to say about this tree?",
+            native_reply="关于这棵树，你想说点什么？",
+        )
+
+    async def open(
+        self,
+        *,
+        native_language: str,
+        focus_context: str,
+        learner_context: str,
+        companion_name: str | None,
+        companion_gender: str | None,
+        companion_hobby: str | None,
+        first_conversation: bool,
+    ) -> OpenerResponse:
+        self.calls.append(
+            {
+                "native_language": native_language,
+                "focus_context": focus_context,
+                "learner_context": learner_context,
+                "companion_name": companion_name,
+                "companion_gender": companion_gender,
+                "companion_hobby": companion_hobby,
+                "first_conversation": first_conversation,
             }
         )
         return self.response
@@ -307,6 +351,45 @@ async def create_conversation(http, headers, word_id: str) -> str:
     )
     assert response.status_code == 201, response.text
     return response.json()["id"]
+
+
+@pytest.mark.asyncio
+async def test_opener_is_persisted_and_idempotent(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    opener = FakeOpenerAgent()
+    app.dependency_overrides[get_opener_agent] = lambda: opener
+    try:
+        _, headers, word_id = await create_word(http, sender, "opener@example.com")
+        conversation_id = await create_conversation(http, headers, word_id)
+
+        response = await http.post(
+            f"/api/v1/conversations/{conversation_id}/opener",
+            headers=headers,
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["role"] == "assistant"
+        assert body["text"] == "What do you want to say about this tree?"
+        assert body["native_text"] == "关于这棵树，你想说点什么？"
+
+        again = await http.post(
+            f"/api/v1/conversations/{conversation_id}/opener",
+            headers=headers,
+        )
+        assert again.status_code == 200, again.text
+        assert again.json()["id"] == body["id"]
+
+        conversation = await http.get(
+            f"/api/v1/conversations/{conversation_id}",
+            headers=headers,
+        )
+        messages = conversation.json()["messages"]
+        assert len(messages) == 1
+        assert messages[0]["role"] == "assistant"
+        assert opener.calls[0]["first_conversation"] is True
+        assert opener.calls[0]["companion_name"] is None
+    finally:
+        app.dependency_overrides.pop(get_opener_agent, None)
 
 
 @pytest.mark.asyncio

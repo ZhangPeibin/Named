@@ -2,6 +2,7 @@ from functools import lru_cache
 from typing import Protocol
 
 from agents import AgentRuntime, AgentSpec, get_agent_runtime, register
+from agents.persona import companion_prompt
 from practice.schemas import PracticeReplyOut
 
 
@@ -12,14 +13,13 @@ class PracticeAgent(Protocol):
         word: str,
         context: str | None,
         native_language: str,
+        companion_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> PracticeReplyOut: ...
 
 
-SYSTEM_PROMPT = """
-You are Named's Practice conversation partner.
-
+SYSTEM_PROMPT = companion_prompt("""
 The learner is practicing one saved English word by using it in a short
 conversation about their own life. The conversation lasts two learner turns.
 
@@ -48,13 +48,13 @@ Output fields:
 - reply: the assistant message in English. Plain text only.
 - recast: the optional natural version of the learner's sentence.
 - native_reply: the optional translation of reply.
-""".strip()
+""")
 
 
 SPEC = register(
     AgentSpec(
         name="practice",
-        prompt_version="practice-v1",
+        prompt_version="practice-v2",
         system_prompt=SYSTEM_PROMPT,
         output_type=PracticeReplyOut,
         error_code="practice_agent_failed",
@@ -73,10 +73,11 @@ class PydanticAIPracticeAgent:
         word: str,
         context: str | None,
         native_language: str,
+        companion_context: str,
         history: list[dict[str, str]],
         user_text: str,
     ) -> PracticeReplyOut:
-        lines = [f"Target word: {word}"]
+        lines = [f"Target word: {word}", companion_context]
         if context:
             lines.append(f'Learner\'s original context: "{context}"')
         lines.append(f"Learner's native language: {native_language}")

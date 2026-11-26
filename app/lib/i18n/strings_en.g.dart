@@ -51,6 +51,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$webView$en webView = Translations$webView$en._(_root);
 	late final Translations$explore$en explore = Translations$explore$en._(_root);
 	late final Translations$soul$en soul = Translations$soul$en._(_root);
+	late final Translations$companion$en companion = Translations$companion$en._(_root);
 	late final Translations$navigation$en navigation = Translations$navigation$en._(_root);
 	late final Translations$write$en write = Translations$write$en._(_root);
 	late final Translations$understand$en understand = Translations$understand$en._(_root);
@@ -603,6 +604,146 @@ class Translations$soul$en {
 	String get memoryHint => 'Turn off to talk without your saved background.';
 }
 
+// Path: companion
+class Translations$companion$en {
+	Translations$companion$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Your companion'
+	String get title => 'Your companion';
+
+	/// en: 'No name yet'
+	String get unnamedSubtitle => 'No name yet';
+
+	/// en: '${name} · learning English with you'
+	String namedSubtitle({required Object name}) => '${name} · learning English with you';
+
+	/// en: 'I'm a little cat.'
+	String get firstRunTitle => 'I\'m a little cat.';
+
+	/// en: 'I don't have a name yet. Will you give me one?'
+	String get firstRunBody => 'I don\'t have a name yet. Will you give me one?';
+
+	/// en: 'Name me'
+	String get nameMe => 'Name me';
+
+	/// en: 'Maybe later'
+	String get maybeLater => 'Maybe later';
+
+	/// en: 'I still don't have a name. Name me?'
+	String get invite => 'I still don\'t have a name. Name me?';
+
+	/// en: 'Hide for now'
+	String get hideForNow => 'Hide for now';
+
+	/// en: 'What should I call myself?'
+	String get setupTitle => 'What should I call myself?';
+
+	/// en: 'Name'
+	String get nameLabel => 'Name';
+
+	/// en: 'e.g. Pip, Momo, Nori'
+	String get nameHint => 'e.g. Pip, Momo, Nori';
+
+	/// en: 'I'm a… (optional)'
+	String get genderLabel => 'I\'m a… (optional)';
+
+	/// en: 'girl'
+	String get genderFemale => 'girl';
+
+	/// en: 'boy'
+	String get genderMale => 'boy';
+
+	/// en: 'rather not say'
+	String get genderPreferNotToSay => 'rather not say';
+
+	/// en: 'I like… (optional)'
+	String get hobbyLabel => 'I like… (optional)';
+
+	/// en: 'e.g. watching clouds, collecting small stones'
+	String get hobbyHint => 'e.g. watching clouds, collecting small stones';
+
+	/// en: 'That's my name'
+	String get save => 'That\'s my name';
+
+	/// en: 'Save'
+	String get saveEdit => 'Save';
+
+	/// en: 'I still need a name.'
+	String get nameRequired => 'I still need a name.';
+
+	/// en: 'That name is a little long. Try a shorter one.'
+	String get nameTooLong => 'That name is a little long. Try a shorter one.';
+
+	/// en: 'That hobby is a little long. Try a shorter one.'
+	String get hobbyTooLong => 'That hobby is a little long. Try a shorter one.';
+
+	/// en: 'I can't quite read that name. Try another?'
+	String get nameRejected => 'I can\'t quite read that name. Try another?';
+
+	/// en: 'I can't quite remember that hobby. Try another?'
+	String get hobbyRejected => 'I can\'t quite remember that hobby. Try another?';
+
+	/// en: 'How about ${name}?'
+	String randomSuggestion({required Object name}) => 'How about ${name}?';
+
+	/// en: 'Use ${name}'
+	String useRandom({required Object name}) => 'Use ${name}';
+
+	/// en: 'Could not save. Try again.'
+	String get saveFailed => 'Could not save. Try again.';
+
+	/// en: 'Thank you, ${name}. Let's begin.'
+	String namedFirstLine({required Object name}) => 'Thank you, ${name}. Let\'s begin.';
+
+	/// en: 'Let's begin'
+	String get start => 'Let\'s begin';
+
+	/// en: 'Let's give me a name first.'
+	String get gateTitle => 'Let\'s give me a name first.';
+
+	/// en: 'I can't start talking until I have a name.'
+	String get gateBody => 'I can\'t start talking until I have a name.';
+
+	/// en: 'Name me'
+	String get gateName => 'Name me';
+
+	/// en: 'Pick one for me'
+	String get gateRandom => 'Pick one for me';
+
+	/// en: 'Edit'
+	String get edit => 'Edit';
+
+	/// en: 'Gender'
+	String get gender => 'Gender';
+
+	/// en: 'Hobby'
+	String get hobby => 'Hobby';
+
+	/// en: 'Not set'
+	String get notSet => 'Not set';
+
+	/// en: 'Could not load your companion.'
+	String get loadFailed => 'Could not load your companion.';
+
+	/// en: 'Could not pick a name. Try again.'
+	String get randomFailed => 'Could not pick a name. Try again.';
+
+	/// en: 'Today'
+	String get today => 'Today';
+
+	/// en: 'Profile'
+	String get profile => 'Profile';
+
+	/// en: 'I found a little story for you.'
+	String get dailyIntro => 'I found a little story for you.';
+
+	late final Translations$companion$presence$en presence = Translations$companion$presence$en._(_root);
+}
+
 // Path: navigation
 class Translations$navigation$en {
 	Translations$navigation$en._(this._root);
@@ -710,6 +851,9 @@ class Translations$talk$en {
 	/// en: 'Start with a sentence about this word.'
 	String get empty => 'Start with a sentence about this word.';
 
+	/// en: 'What should we talk about today?'
+	String get openerFallback => 'What should we talk about today?';
+
 	/// en: 'Say something...'
 	String get inputHint => 'Say something...';
 
@@ -767,17 +911,11 @@ class Translations$talk$en {
 	/// en: 'Conversation'
 	String get titleFallback => 'Conversation';
 
-	/// en: 'Milo'
-	String get miloName => 'Milo';
-
-	/// en: 'Milo'
-	String get miloAvatar => 'Milo';
-
 	/// en: 'You'
 	String get youAvatar => 'You';
 
-	/// en: 'Milo is typing...'
-	String get typing => 'Milo is typing...';
+	/// en: '${name} is typing...'
+	String typing({required Object name}) => '${name} is typing...';
 
 	/// en: 'Word'
 	String get wordSheetTitle => 'Word';
@@ -1340,8 +1478,8 @@ class Translations$history$en {
 	/// en: 'No experiences yet.'
 	String get empty => 'No experiences yet.';
 
-	/// en: 'A meaningful Talk will appear here after Milo has time to reflect.'
-	String get emptyHint => 'A meaningful Talk will appear here after Milo has time to reflect.';
+	/// en: '${name} will bring something back here after your talks.'
+	String emptyHint({required Object name}) => '${name} will bring something back here after your talks.';
 
 	/// en: 'Could not load your history.'
 	String get loadFailed => 'Could not load your history.';
@@ -1829,6 +1967,9 @@ class Translations$ask$en {
 	/// en: 'Named'
 	String get named => 'Named';
 
+	/// en: 'I'm ${name}. Let's look at English together — a word, a sentence, or why something sounds the way it does.'
+	String companionGreeting({required Object name}) => 'I\'m ${name}. Let\'s look at English together — a word, a sentence, or why something sounds the way it does.';
+
 	/// en: 'In your language'
 	String get native => 'In your language';
 
@@ -1897,6 +2038,66 @@ class Translations$ask$en {
 
 	/// en: 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.'
 	String get agentGreeting => 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.';
+}
+
+// Path: companion.presence
+class Translations$companion$presence$en {
+	Translations$companion$presence$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Morning. What will you notice today?'
+	String get morning0 => 'Morning. What will you notice today?';
+
+	/// en: 'Morning. Take your time. Look outside first.'
+	String get morning1 => 'Morning. Take your time. Look outside first.';
+
+	/// en: 'Morning. I'm waiting for your first word today.'
+	String get morning2 => 'Morning. I\'m waiting for your first word today.';
+
+	/// en: 'Afternoon. If you're tired, rest a little.'
+	String get afternoon0 => 'Afternoon. If you\'re tired, rest a little.';
+
+	/// en: 'Afternoon. Any moment you want to keep today?'
+	String get afternoon1 => 'Afternoon. Any moment you want to keep today?';
+
+	/// en: 'It's afternoon. I'm here. No rush.'
+	String get afternoon2 => 'It\'s afternoon. I\'m here. No rush.';
+
+	/// en: 'Evening. You kept ${word} today.'
+	String evening0({required Object word}) => 'Evening. You kept ${word} today.';
+
+	/// en: 'Evening. How was your day?'
+	String get evening1 => 'Evening. How was your day?';
+
+	/// en: 'It's dark now. Keep a little of today.'
+	String get evening2 => 'It\'s dark now. Keep a little of today.';
+
+	/// en: 'It's late. You did enough today.'
+	String get night0 => 'It\'s late. You did enough today.';
+
+	/// en: 'Time to rest. Tomorrow, take it slow.'
+	String get night1 => 'Time to rest. Tomorrow, take it slow.';
+
+	/// en: 'Good night. I'll be here.'
+	String get night2 => 'Good night. I\'ll be here.';
+
+	/// en: 'You kept ${word}. Want to come back to it?'
+	String word({required Object word}) => 'You kept ${word}. Want to come back to it?';
+
+	/// en: 'That was a good talk.'
+	String get talk => 'That was a good talk.';
+
+	/// en: 'I'm thinking about something I like. What about you?'
+	String get hobby => 'I\'m thinking about something I like. What about you?';
+
+	/// en: 'You're back.'
+	String get returning => 'You\'re back.';
+
+	/// en: 'I'm here. Take your time.'
+	String get fallback => 'I\'m here. Take your time.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2053,6 +2254,66 @@ extension on Translations {
 			'soul.sourceAi' => 'Learned from talks',
 			'soul.memoryLabel' => 'Use my Soul',
 			'soul.memoryHint' => 'Turn off to talk without your saved background.',
+			'companion.title' => 'Your companion',
+			'companion.unnamedSubtitle' => 'No name yet',
+			'companion.namedSubtitle' => ({required Object name}) => '${name} · learning English with you',
+			'companion.firstRunTitle' => 'I\'m a little cat.',
+			'companion.firstRunBody' => 'I don\'t have a name yet. Will you give me one?',
+			'companion.nameMe' => 'Name me',
+			'companion.maybeLater' => 'Maybe later',
+			'companion.invite' => 'I still don\'t have a name. Name me?',
+			'companion.hideForNow' => 'Hide for now',
+			'companion.setupTitle' => 'What should I call myself?',
+			'companion.nameLabel' => 'Name',
+			'companion.nameHint' => 'e.g. Pip, Momo, Nori',
+			'companion.genderLabel' => 'I\'m a… (optional)',
+			'companion.genderFemale' => 'girl',
+			'companion.genderMale' => 'boy',
+			'companion.genderPreferNotToSay' => 'rather not say',
+			'companion.hobbyLabel' => 'I like… (optional)',
+			'companion.hobbyHint' => 'e.g. watching clouds, collecting small stones',
+			'companion.save' => 'That\'s my name',
+			'companion.saveEdit' => 'Save',
+			'companion.nameRequired' => 'I still need a name.',
+			'companion.nameTooLong' => 'That name is a little long. Try a shorter one.',
+			'companion.hobbyTooLong' => 'That hobby is a little long. Try a shorter one.',
+			'companion.nameRejected' => 'I can\'t quite read that name. Try another?',
+			'companion.hobbyRejected' => 'I can\'t quite remember that hobby. Try another?',
+			'companion.randomSuggestion' => ({required Object name}) => 'How about ${name}?',
+			'companion.useRandom' => ({required Object name}) => 'Use ${name}',
+			'companion.saveFailed' => 'Could not save. Try again.',
+			'companion.namedFirstLine' => ({required Object name}) => 'Thank you, ${name}. Let\'s begin.',
+			'companion.start' => 'Let\'s begin',
+			'companion.gateTitle' => 'Let\'s give me a name first.',
+			'companion.gateBody' => 'I can\'t start talking until I have a name.',
+			'companion.gateName' => 'Name me',
+			'companion.gateRandom' => 'Pick one for me',
+			'companion.edit' => 'Edit',
+			'companion.gender' => 'Gender',
+			'companion.hobby' => 'Hobby',
+			'companion.notSet' => 'Not set',
+			'companion.loadFailed' => 'Could not load your companion.',
+			'companion.randomFailed' => 'Could not pick a name. Try again.',
+			'companion.today' => 'Today',
+			'companion.profile' => 'Profile',
+			'companion.dailyIntro' => 'I found a little story for you.',
+			'companion.presence.morning0' => 'Morning. What will you notice today?',
+			'companion.presence.morning1' => 'Morning. Take your time. Look outside first.',
+			'companion.presence.morning2' => 'Morning. I\'m waiting for your first word today.',
+			'companion.presence.afternoon0' => 'Afternoon. If you\'re tired, rest a little.',
+			'companion.presence.afternoon1' => 'Afternoon. Any moment you want to keep today?',
+			'companion.presence.afternoon2' => 'It\'s afternoon. I\'m here. No rush.',
+			'companion.presence.evening0' => ({required Object word}) => 'Evening. You kept ${word} today.',
+			'companion.presence.evening1' => 'Evening. How was your day?',
+			'companion.presence.evening2' => 'It\'s dark now. Keep a little of today.',
+			'companion.presence.night0' => 'It\'s late. You did enough today.',
+			'companion.presence.night1' => 'Time to rest. Tomorrow, take it slow.',
+			'companion.presence.night2' => 'Good night. I\'ll be here.',
+			'companion.presence.word' => ({required Object word}) => 'You kept ${word}. Want to come back to it?',
+			'companion.presence.talk' => 'That was a good talk.',
+			'companion.presence.hobby' => 'I\'m thinking about something I like. What about you?',
+			'companion.presence.returning' => 'You\'re back.',
+			'companion.presence.fallback' => 'I\'m here. Take your time.',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -2077,6 +2338,7 @@ extension on Translations {
 			'talk.title' => 'Talk',
 			'talk.emptyScene' => 'Start with a sentence about this moment.',
 			'talk.empty' => 'Start with a sentence about this word.',
+			'talk.openerFallback' => 'What should we talk about today?',
 			'talk.inputHint' => 'Say something...',
 			'talk.send' => 'Send',
 			'talk.failed' => 'Could not send. Try again.',
@@ -2096,10 +2358,8 @@ extension on Translations {
 			'talk.helpEmptyInput' => 'Write something first.',
 			'talk.audioUnavailable' => 'Audio is unavailable.',
 			'talk.titleFallback' => 'Conversation',
-			'talk.miloName' => 'Milo',
-			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => 'You',
-			'talk.typing' => 'Milo is typing...',
+			'talk.typing' => ({required Object name}) => '${name} is typing...',
 			'talk.wordSheetTitle' => 'Word',
 			'talk.expressionSheetTitle' => 'Expression',
 			'talk.grammarSheetTitle' => 'Grammar note',
@@ -2269,7 +2529,7 @@ extension on Translations {
 			'words.loadingMore' => 'Loading more details…',
 			'history.title' => 'History',
 			'history.empty' => 'No experiences yet.',
-			'history.emptyHint' => 'A meaningful Talk will appear here after Milo has time to reflect.',
+			'history.emptyHint' => ({required Object name}) => '${name} will bring something back here after your talks.',
 			'history.loadFailed' => 'Could not load your history.',
 			'history.detailFailed' => 'Could not load this experience.',
 			'history.life' => 'Life experience',
@@ -2360,6 +2620,8 @@ extension on Translations {
 			'challenge.practiceSpeakHint' => 'Say it out loud, then play it back.',
 			'challenge.practiceExerciseHint' => 'Finish this to mark it practiced.',
 			'challenge.practiceMicDenied' => 'Microphone unavailable; you can skip.',
+			_ => null,
+		} ?? switch (path) {
 			'challenge.practiceSentenceHint' => 'Listen, then say the whole sentence.',
 			'challenge.practiceDictation' => 'Listen and type the sentence.',
 			'challenge.practiceCloze' => 'Fill in the blank.',
@@ -2419,12 +2681,11 @@ extension on Translations {
 			'ask.emptyTitle' => 'What are you curious about?',
 			'ask.emptyBody' => 'Ask about a word, a sentence, or anything you want to understand.',
 			'ask.thinking' => 'Thinking...',
-			_ => null,
-		} ?? switch (path) {
 			'ask.error' => 'Could not answer that. Try again.',
 			'ask.loadFailed' => 'Could not load this question.',
 			'ask.retry' => 'Try again',
 			'ask.named' => 'Named',
+			'ask.companionGreeting' => ({required Object name}) => 'I\'m ${name}. Let\'s look at English together — a word, a sentence, or why something sounds the way it does.',
 			'ask.native' => 'In your language',
 			'ask.send' => 'Send question',
 			'ask.recent' => 'Recent questions',

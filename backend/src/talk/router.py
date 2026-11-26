@@ -4,7 +4,14 @@ from fastapi import APIRouter, Depends, status
 
 from auth.router import CurrentAuthDep, SessionDep, SettingsDep
 from ratelimit import TalkRateLimitDep
-from talk.agent import HelpAgent, TalkAgent, get_help_agent, get_talk_agent
+from talk.agent import (
+    HelpAgent,
+    OpenerAgent,
+    TalkAgent,
+    get_help_agent,
+    get_opener_agent,
+    get_talk_agent,
+)
 from talk.schemas import (
     ConversationCreate,
     ConversationOut,
@@ -13,6 +20,7 @@ from talk.schemas import (
     HelpRequest,
     HelpResponse,
     MessageCreate,
+    MessageOut,
     TurnOut,
 )
 from talk.service import (
@@ -20,6 +28,7 @@ from talk.service import (
     end_conversation,
     get_conversation,
     help_expression,
+    open_conversation,
     send_message,
     update_conversation,
 )
@@ -29,6 +38,7 @@ router = APIRouter(prefix="/conversations", tags=["talk"])
 
 TalkAgentDep = Annotated[TalkAgent, Depends(get_talk_agent)]
 HelpAgentDep = Annotated[HelpAgent, Depends(get_help_agent)]
+OpenerAgentDep = Annotated[OpenerAgent, Depends(get_opener_agent)]
 
 
 @router.post("", response_model=ConversationOut, status_code=status.HTTP_201_CREATED)
@@ -64,6 +74,26 @@ async def update(
         current.account.id,
         conversation_id,
         payload,
+        settings,
+    )
+
+
+@router.post("/{conversation_id}/opener", response_model=MessageOut)
+async def open(
+    conversation_id: str,
+    current: CurrentAuthDep,
+    session: SessionDep,
+    settings: SettingsDep,
+    agent: OpenerAgentDep,
+    speech_service: SpeechAudioServiceDep,
+    _: TalkRateLimitDep,
+) -> MessageOut:
+    return await open_conversation(
+        session,
+        current.account.id,
+        conversation_id,
+        agent,
+        speech_service,
         settings,
     )
 

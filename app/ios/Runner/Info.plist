@@ -42,7 +42,7 @@
 		<key>NSLocalNetworkUsageDescription</key>
 		<string>Named connects to your local development server.</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>Named uses the microphone so you can speak with Milo.</string>
+		<string>Named uses the microphone so you can speak with your companion.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

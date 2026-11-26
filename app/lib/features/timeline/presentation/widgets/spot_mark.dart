@@ -44,32 +44,30 @@ class AskMark extends StatelessWidget {
   }
 }
 
-/// Talk card mark: the companion photo, borderless.
-class MiloMark extends StatelessWidget {
-  const MiloMark({super.key, this.size = 28});
+/// Talk card mark: the companion avatar, borderless.
+class CompanionMark extends StatelessWidget {
+  const CompanionMark({super.key, this.size = 28});
 
   final double size;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appPalette;
-    return SizedBox.square(
-      dimension: size,
-      child: ClipOval(
-        child: Image.asset(
-          'assets/images/companion.jpg',
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => ColoredBox(
-            color: palette.surfaceMuted,
-            child: Center(
-              child: AppLineIcon(
-                AppLineGlyph.person,
-                size: size * 0.7,
-                color: palette.muted,
-              ),
-            ),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: palette.warm, shape: BoxShape.circle),
+      clipBehavior: Clip.antiAlias,
+      child: Image.asset(
+        'assets/images/companion_avatar.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Center(
+          child: AppLineIcon(
+            AppLineGlyph.person,
+            size: size * 0.7,
+            color: palette.muted,
           ),
         ),
       ),

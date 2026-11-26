@@ -25,7 +25,7 @@ class AgentFailed(Exception):
 
 
 SYSTEM_PROMPT = """
-You are Named's daily reading writer for an English learner.
+You write a short daily reading for the companion's learner in Named.
 
 Write one short, gentle daily reading that gives the learner a reason to listen
 and read again.

@@ -48,6 +48,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$webView$zh webView = _Translations$webView$zh._(_root);
 	@override late final _Translations$explore$zh explore = _Translations$explore$zh._(_root);
 	@override late final _Translations$soul$zh soul = _Translations$soul$zh._(_root);
+	@override late final _Translations$companion$zh companion = _Translations$companion$zh._(_root);
 	@override late final _Translations$navigation$zh navigation = _Translations$navigation$zh._(_root);
 	@override late final _Translations$write$zh write = _Translations$write$zh._(_root);
 	@override late final _Translations$understand$zh understand = _Translations$understand$zh._(_root);
@@ -308,6 +309,59 @@ class _Translations$soul$zh implements Translations$soul$en {
 	@override String get memoryHint => '关闭后，这次对话不使用已保存的背景。';
 }
 
+// Path: companion
+class _Translations$companion$zh implements Translations$companion$en {
+	_Translations$companion$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '你的小伙伴';
+	@override String get unnamedSubtitle => '还没有名字';
+	@override String namedSubtitle({required Object name}) => '${name} · 和你一起学英语';
+	@override String get firstRunTitle => '我是一只小猫咪。';
+	@override String get firstRunBody => '我还没有名字。可以帮我取一个吗？';
+	@override String get nameMe => '给我取名';
+	@override String get maybeLater => '以后再说';
+	@override String get invite => '我还没有名字。给我取名？';
+	@override String get hideForNow => '先不显示';
+	@override String get setupTitle => '你喜欢怎么称呼我？';
+	@override String get nameLabel => '名字';
+	@override String get nameHint => '比如 Pip、Momo、Nori';
+	@override String get genderLabel => '我是…（可不填）';
+	@override String get genderFemale => '女孩子';
+	@override String get genderMale => '男孩子';
+	@override String get genderPreferNotToSay => '不想说';
+	@override String get hobbyLabel => '我平时喜欢…（可不填）';
+	@override String get hobbyHint => '比如看云、收集小石头';
+	@override String get save => '就叫这个名字';
+	@override String get saveEdit => '保存';
+	@override String get nameRequired => '还没有名字呢。';
+	@override String get nameTooLong => '这个名字有点长，换一个短一点的？';
+	@override String get hobbyTooLong => '这个爱好有点长，换一个短一点的？';
+	@override String get nameRejected => '这个名字我读不出来，换一个？';
+	@override String get hobbyRejected => '这个爱好我记不住，换一个？';
+	@override String randomSuggestion({required Object name}) => '要不要试试 ${name}？';
+	@override String useRandom({required Object name}) => '用 ${name}';
+	@override String get saveFailed => '没有保存成功，再试一次？';
+	@override String namedFirstLine({required Object name}) => '谢谢你，${name}。我们开始吧。';
+	@override String get start => '开始吧';
+	@override String get gateTitle => '先给我取个名字吧。';
+	@override String get gateBody => '有了名字，我才知道怎么和你说话。';
+	@override String get gateName => '取名';
+	@override String get gateRandom => '用随机名字';
+	@override String get edit => '编辑';
+	@override String get gender => '性别';
+	@override String get hobby => '爱好';
+	@override String get notSet => '还没有填';
+	@override String get loadFailed => '没有加载到你的小伙伴。';
+	@override String get randomFailed => '没有取到名字，再试一次？';
+	@override String get today => '今天';
+	@override String get profile => '档案';
+	@override String get dailyIntro => '我找到一个小故事。';
+	@override late final _Translations$companion$presence$zh presence = _Translations$companion$presence$zh._(_root);
+}
+
 // Path: navigation
 class _Translations$navigation$zh implements Translations$navigation$en {
 	_Translations$navigation$zh._(this._root);
@@ -366,6 +420,7 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get title => '聊聊';
 	@override String get emptyScene => '围绕这个场景说一句吧。';
 	@override String get empty => '从这个词说一句话开始。';
+	@override String get openerFallback => '今天想聊点什么？';
 	@override String get inputHint => '说点什么...';
 	@override String get send => '发送';
 	@override String get failed => '发送失败，请重试。';
@@ -385,10 +440,8 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get helpEmptyInput => '先写一句想说的话。';
 	@override String get audioUnavailable => '音频暂时不可用。';
 	@override String get titleFallback => '对话';
-	@override String get miloName => 'Milo';
-	@override String get miloAvatar => 'Milo';
 	@override String get youAvatar => '你';
-	@override String get typing => 'Milo 正在输入...';
+	@override String typing({required Object name}) => '${name} 正在输入...';
 	@override String get wordSheetTitle => '词义';
 	@override String get expressionSheetTitle => '表达';
 	@override String get grammarSheetTitle => '语法提示';
@@ -612,7 +665,7 @@ class _Translations$history$zh implements Translations$history$en {
 	// Translations
 	@override String get title => '回忆';
 	@override String get empty => '还没有可回看的经历。';
-	@override String get emptyHint => '一段有意义的对话会在 Milo 整理后出现在这里。';
+	@override String emptyHint({required Object name}) => '等 ${name} 整理之后，一段有意义的对话会出现在这里。';
 	@override String get loadFailed => '暂时无法加载回忆。';
 	@override String get detailFailed => '暂时无法加载这段经历。';
 	@override String get life => '生活经历';
@@ -793,6 +846,7 @@ class _Translations$ask$zh implements Translations$ask$en {
 	@override String get loadFailed => '暂时无法加载这个问题。';
 	@override String get retry => '重试';
 	@override String get named => 'Named';
+	@override String companionGreeting({required Object name}) => '我是 ${name}。关于英语，我们可以一起看看。一个词、一句话，或者为什么这样说。';
 	@override String get native => '中文解释';
 	@override String get send => '发送问题';
 	@override String get recent => '最近提问';
@@ -816,6 +870,32 @@ class _Translations$ask$zh implements Translations$ask$en {
 	@override String get notHelpful => '没帮助';
 	@override String get feedbackError => '暂时无法保存反馈。';
 	@override String get agentGreeting => '关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。';
+}
+
+// Path: companion.presence
+class _Translations$companion$presence$zh implements Translations$companion$presence$en {
+	_Translations$companion$presence$zh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get morning0 => '早上好。今天想注意到什么？';
+	@override String get morning1 => '早。慢慢来，先看看窗外。';
+	@override String get morning2 => '早上好。我在等你今天的第一句话。';
+	@override String get afternoon0 => '下午好。累的话，歇一会儿。';
+	@override String get afternoon1 => '下午好。今天有没有哪个瞬间想留下来？';
+	@override String get afternoon2 => '下午了。我在这儿，不急。';
+	@override String evening0({required Object word}) => '晚上好。今天你留下了 ${word}。';
+	@override String get evening1 => '晚上好。今天过得怎么样？';
+	@override String get evening2 => '天黑了。把今天的一点点留下来吧。';
+	@override String get night0 => '夜深了。今天也辛苦了。';
+	@override String get night1 => '该休息了。明天再慢慢来。';
+	@override String get night2 => '晚安。我会在这儿。';
+	@override String word({required Object word}) => '你留下了 ${word}。要回来看看吗？';
+	@override String get talk => '刚才聊得不错。';
+	@override String get hobby => '我在想一件喜欢的事。你呢？';
+	@override String get returning => '你回来了。';
+	@override String get fallback => '我在。慢慢来。';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -972,6 +1052,66 @@ extension on TranslationsZh {
 			'soul.sourceAi' => 'AI 提炼',
 			'soul.memoryLabel' => '使用我的 Soul',
 			'soul.memoryHint' => '关闭后，这次对话不使用已保存的背景。',
+			'companion.title' => '你的小伙伴',
+			'companion.unnamedSubtitle' => '还没有名字',
+			'companion.namedSubtitle' => ({required Object name}) => '${name} · 和你一起学英语',
+			'companion.firstRunTitle' => '我是一只小猫咪。',
+			'companion.firstRunBody' => '我还没有名字。可以帮我取一个吗？',
+			'companion.nameMe' => '给我取名',
+			'companion.maybeLater' => '以后再说',
+			'companion.invite' => '我还没有名字。给我取名？',
+			'companion.hideForNow' => '先不显示',
+			'companion.setupTitle' => '你喜欢怎么称呼我？',
+			'companion.nameLabel' => '名字',
+			'companion.nameHint' => '比如 Pip、Momo、Nori',
+			'companion.genderLabel' => '我是…（可不填）',
+			'companion.genderFemale' => '女孩子',
+			'companion.genderMale' => '男孩子',
+			'companion.genderPreferNotToSay' => '不想说',
+			'companion.hobbyLabel' => '我平时喜欢…（可不填）',
+			'companion.hobbyHint' => '比如看云、收集小石头',
+			'companion.save' => '就叫这个名字',
+			'companion.saveEdit' => '保存',
+			'companion.nameRequired' => '还没有名字呢。',
+			'companion.nameTooLong' => '这个名字有点长，换一个短一点的？',
+			'companion.hobbyTooLong' => '这个爱好有点长，换一个短一点的？',
+			'companion.nameRejected' => '这个名字我读不出来，换一个？',
+			'companion.hobbyRejected' => '这个爱好我记不住，换一个？',
+			'companion.randomSuggestion' => ({required Object name}) => '要不要试试 ${name}？',
+			'companion.useRandom' => ({required Object name}) => '用 ${name}',
+			'companion.saveFailed' => '没有保存成功，再试一次？',
+			'companion.namedFirstLine' => ({required Object name}) => '谢谢你，${name}。我们开始吧。',
+			'companion.start' => '开始吧',
+			'companion.gateTitle' => '先给我取个名字吧。',
+			'companion.gateBody' => '有了名字，我才知道怎么和你说话。',
+			'companion.gateName' => '取名',
+			'companion.gateRandom' => '用随机名字',
+			'companion.edit' => '编辑',
+			'companion.gender' => '性别',
+			'companion.hobby' => '爱好',
+			'companion.notSet' => '还没有填',
+			'companion.loadFailed' => '没有加载到你的小伙伴。',
+			'companion.randomFailed' => '没有取到名字，再试一次？',
+			'companion.today' => '今天',
+			'companion.profile' => '档案',
+			'companion.dailyIntro' => '我找到一个小故事。',
+			'companion.presence.morning0' => '早上好。今天想注意到什么？',
+			'companion.presence.morning1' => '早。慢慢来，先看看窗外。',
+			'companion.presence.morning2' => '早上好。我在等你今天的第一句话。',
+			'companion.presence.afternoon0' => '下午好。累的话，歇一会儿。',
+			'companion.presence.afternoon1' => '下午好。今天有没有哪个瞬间想留下来？',
+			'companion.presence.afternoon2' => '下午了。我在这儿，不急。',
+			'companion.presence.evening0' => ({required Object word}) => '晚上好。今天你留下了 ${word}。',
+			'companion.presence.evening1' => '晚上好。今天过得怎么样？',
+			'companion.presence.evening2' => '天黑了。把今天的一点点留下来吧。',
+			'companion.presence.night0' => '夜深了。今天也辛苦了。',
+			'companion.presence.night1' => '该休息了。明天再慢慢来。',
+			'companion.presence.night2' => '晚安。我会在这儿。',
+			'companion.presence.word' => ({required Object word}) => '你留下了 ${word}。要回来看看吗？',
+			'companion.presence.talk' => '刚才聊得不错。',
+			'companion.presence.hobby' => '我在想一件喜欢的事。你呢？',
+			'companion.presence.returning' => '你回来了。',
+			'companion.presence.fallback' => '我在。慢慢来。',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -996,6 +1136,7 @@ extension on TranslationsZh {
 			'talk.title' => '聊聊',
 			'talk.emptyScene' => '围绕这个场景说一句吧。',
 			'talk.empty' => '从这个词说一句话开始。',
+			'talk.openerFallback' => '今天想聊点什么？',
 			'talk.inputHint' => '说点什么...',
 			'talk.send' => '发送',
 			'talk.failed' => '发送失败，请重试。',
@@ -1015,10 +1156,8 @@ extension on TranslationsZh {
 			'talk.helpEmptyInput' => '先写一句想说的话。',
 			'talk.audioUnavailable' => '音频暂时不可用。',
 			'talk.titleFallback' => '对话',
-			'talk.miloName' => 'Milo',
-			'talk.miloAvatar' => 'Milo',
 			'talk.youAvatar' => '你',
-			'talk.typing' => 'Milo 正在输入...',
+			'talk.typing' => ({required Object name}) => '${name} 正在输入...',
 			'talk.wordSheetTitle' => '词义',
 			'talk.expressionSheetTitle' => '表达',
 			'talk.grammarSheetTitle' => '语法提示',
@@ -1188,7 +1327,7 @@ extension on TranslationsZh {
 			'words.loadingMore' => '正在加载更多内容…',
 			'history.title' => '回忆',
 			'history.empty' => '还没有可回看的经历。',
-			'history.emptyHint' => '一段有意义的对话会在 Milo 整理后出现在这里。',
+			'history.emptyHint' => ({required Object name}) => '等 ${name} 整理之后，一段有意义的对话会出现在这里。',
 			'history.loadFailed' => '暂时无法加载回忆。',
 			'history.detailFailed' => '暂时无法加载这段经历。',
 			'history.life' => '生活经历',
@@ -1279,6 +1418,8 @@ extension on TranslationsZh {
 			'challenge.practiceSpeakHint' => '大声说一遍，再回放听听。',
 			'challenge.practiceExerciseHint' => '完成这题才算练过。',
 			'challenge.practiceMicDenied' => '麦克风不可用，可跳过。',
+			_ => null,
+		} ?? switch (path) {
 			'challenge.practiceSentenceHint' => '听整句，再说一遍。',
 			'challenge.practiceDictation' => '听句子，再打出来。',
 			'challenge.practiceCloze' => '填空',
@@ -1338,12 +1479,11 @@ extension on TranslationsZh {
 			'ask.emptyTitle' => '你对什么感到好奇？',
 			'ask.emptyBody' => '可以问一个词、一句话，或任何你想弄明白的事。',
 			'ask.thinking' => '正在想…',
-			_ => null,
-		} ?? switch (path) {
 			'ask.error' => '暂时无法回答，再试一次。',
 			'ask.loadFailed' => '暂时无法加载这个问题。',
 			'ask.retry' => '重试',
 			'ask.named' => 'Named',
+			'ask.companionGreeting' => ({required Object name}) => '我是 ${name}。关于英语，我们可以一起看看。一个词、一句话，或者为什么这样说。',
 			'ask.native' => '中文解释',
 			'ask.send' => '发送问题',
 			'ask.recent' => '最近提问',
