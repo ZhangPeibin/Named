@@ -252,7 +252,11 @@ class ConversationDto {
 }
 
 class TurnDto {
-  const TurnDto({required this.userMessage, required this.assistantMessage});
+  const TurnDto({
+    required this.userMessage,
+    required this.assistantMessage,
+    this.companionName,
+  });
 
   factory TurnDto.fromJson(Map<String, dynamic> json) {
     return TurnDto(
@@ -262,23 +266,31 @@ class TurnDto {
       assistantMessage: TalkMessageDto.fromJson(
         json['assistant_message'] as Map<String, dynamic>? ?? const {},
       ),
+      companionName: json['companion_name'] as String?,
     );
   }
 
   final TalkMessageDto userMessage;
   final TalkMessageDto assistantMessage;
+  final String? companionName;
 
   Turn toDomain() {
     return Turn(
       userMessage: userMessage.toDomain(),
       assistantMessage: assistantMessage.toDomain(),
+      companionName: companionName,
     );
   }
 }
 
 class Turn {
-  const Turn({required this.userMessage, required this.assistantMessage});
+  const Turn({
+    required this.userMessage,
+    required this.assistantMessage,
+    this.companionName,
+  });
 
   final TalkMessage userMessage;
   final TalkMessage assistantMessage;
+  final String? companionName;
 }

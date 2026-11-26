@@ -7,9 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 from test_discovery import FakeEmailSender, bearer, request_and_verify
 
-from agents import AgentFailed
 from companion.moderation import BLOCKED_TERMS, RESERVED_NAMES
-from companion.presence_agent import PresenceContext, get_presence_agent
 from companion.service import RANDOM_NAMES
 from config import Settings, get_settings
 from database import get_session
@@ -58,19 +56,6 @@ async def companion_client():
 async def companion_env():
     async with companion_client() as env:
         yield env
-
-
-class FakePresenceAgent:
-    def __init__(self) -> None:
-        self.calls = 0
-        self.fail = False
-        self.context = PresenceContext()
-
-    async def analyze(self, **kwargs) -> PresenceContext:
-        self.calls += 1
-        if self.fail:
-            raise AgentFailed("failed")
-        return self.context
 
 
 async def signed_in(http, sender, email: str = "companion@example.com") -> dict[str, str]:
@@ -211,48 +196,6 @@ async def test_blocked_companion_inputs(companion_env) -> None:
     )
     assert blocked_hobby.status_code == 400
     assert blocked_hobby.json()["code"] == "companion_hobby_rejected"
-
-
-@pytest.mark.asyncio
-async def test_presence_uses_time_bucket_and_cache(companion_env) -> None:
-    http, sender = companion_env
-    headers = await signed_in(http, sender)
-    agent = FakePresenceAgent()
-    app.dependency_overrides[get_presence_agent] = lambda: agent
-    try:
-        first = await http.get(
-            "/api/v1/companion/presence?local_hour=7",
-            headers=headers,
-        )
-        assert first.status_code == 200, first.text
-        body = first.json()
-        assert body["key"] == "morning"
-        assert 0 <= body["variant"] <= 2
-
-        second = await http.get(
-            "/api/v1/companion/presence?local_hour=7",
-            headers=headers,
-        )
-        assert second.status_code == 200
-        assert second.json() == body
-        assert agent.calls == 1
-
-        invalid = await http.get(
-            "/api/v1/companion/presence?local_hour=25",
-            headers=headers,
-        )
-        assert invalid.status_code == 422
-
-        other = await signed_in(http, sender, "presence@example.com")
-        agent.fail = True
-        fallback = await http.get(
-            "/api/v1/companion/presence?local_hour=7",
-            headers=other,
-        )
-        assert fallback.status_code == 200, fallback.text
-        assert fallback.json()["key"] == "morning"
-    finally:
-        app.dependency_overrides.pop(get_presence_agent, None)
 
 
 @pytest.mark.asyncio

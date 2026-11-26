@@ -6,8 +6,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:record/record.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
@@ -174,6 +176,15 @@ class _TalkPageState extends ConsumerState<TalkPage> {
     }
   }
 
+  void _goBack() {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      unawaited(navigator.maybePop());
+    } else {
+      context.go(AppRoutePaths.timeline);
+    }
+  }
+
   Future<void> _toggleMemory() async {
     final next = !_useMemory;
     setState(() => _useMemory = next);
@@ -241,6 +252,9 @@ class _TalkPageState extends ConsumerState<TalkPage> {
                   () async => assistant.audio?.url,
                 ),
           );
+        }
+        if (turn.companionName != null) {
+          ref.invalidate(companionProvider);
         }
       }
     } on ApiException catch (error) {
@@ -538,7 +552,7 @@ class _TalkPageState extends ConsumerState<TalkPage> {
             isTyping: showTyping,
             useMemory: _useMemory,
             onToggleMemory: () => unawaited(_toggleMemory()),
-            onBack: () => Navigator.of(context).maybePop(),
+            onBack: _goBack,
           ),
           Expanded(
             child: companionUnnamed

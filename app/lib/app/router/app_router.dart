@@ -90,13 +90,11 @@ final _publicRoutePaths = <String>{AppRoutePaths.loading, AppRoutePaths.signIn};
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = _AuthRefreshListenable(ref);
   ref.onDispose(refreshListenable.dispose);
-
   final router = GoRouter(
     initialLocation: AppRoutePaths.timeline,
     refreshListenable: refreshListenable,
     redirect: (context, state) {
       final auth = ref.read(authNotifierProvider);
-
       if (auth.isLoading && !auth.hasValue) {
         return state.matchedLocation == AppRoutePaths.loading
             ? null
@@ -125,7 +123,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutePaths.loading,
         name: AppRouteNames.loading,
-        builder: (context, state) => const LoadingPage(),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: LoadingPage()),
       ),
       GoRoute(
         path: AppRoutePaths.signIn,
@@ -135,7 +134,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutePaths.timeline,
         name: AppRouteNames.timeline,
-        builder: (context, state) => const TimelinePage(),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: TimelinePage()),
       ),
       GoRoute(
         path: AppRoutePaths.history,

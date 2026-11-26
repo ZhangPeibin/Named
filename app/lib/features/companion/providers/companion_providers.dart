@@ -4,7 +4,6 @@ import '../../../core/providers/app_config_provider.dart';
 import '../../../core/providers/dio_provider.dart';
 import '../data/api/companion_api.dart';
 import '../data/repositories/companion_repository.dart';
-import '../domain/companion_presence.dart';
 import '../domain/companion_profile.dart';
 
 final companionApiProvider = Provider<CompanionApi>((ref) {
@@ -22,28 +21,6 @@ final companionRepositoryProvider = Provider<CompanionRepository>((ref) {
 final companionProvider = FutureProvider.autoDispose<CompanionProfile>((ref) {
   return ref.watch(companionRepositoryProvider).fetch();
 });
-
-final companionPresenceProvider = FutureProvider.autoDispose<CompanionPresence>(
-  (ref) {
-    return ref
-        .watch(companionRepositoryProvider)
-        .fetchPresence(localHour: DateTime.now().hour);
-  },
-);
-
-class CompanionPresenceCache extends Notifier<CompanionPresence?> {
-  @override
-  CompanionPresence? build() => null;
-
-  void set(CompanionPresence presence) {
-    state = presence;
-  }
-}
-
-final companionPresenceCacheProvider =
-    NotifierProvider<CompanionPresenceCache, CompanionPresence?>(
-      CompanionPresenceCache.new,
-    );
 
 final companionControllerProvider = Provider<CompanionController>((ref) {
   return CompanionController(ref);

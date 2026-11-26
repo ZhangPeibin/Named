@@ -9,6 +9,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/providers/key_value_storage_provider.dart';
 import '../../../core/speech/speech_providers.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_line_icon.dart';
@@ -18,9 +19,9 @@ import '../../assistant/domain/assistant_intent.dart';
 import '../../assistant/domain/command_hint.dart';
 import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
-import '../../companion/presentation/companion_presence_line.dart';
+import '../../companion/presentation/companion_greeting_line.dart';
 import '../../companion/presentation/widgets/companion_card.dart';
-import '../../companion/presentation/widgets/companion_presence_row.dart';
+import '../../companion/presentation/widgets/companion_greeting.dart';
 import '../../companion/presentation/widgets/companion_setup_sheet.dart';
 import '../../companion/providers/companion_providers.dart';
 import '../../progress/providers/progress_providers.dart';
@@ -47,7 +48,7 @@ class TimelinePage extends ConsumerStatefulWidget {
 }
 
 class _TimelinePageState extends ConsumerState<TimelinePage>
-    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   String? _error;
@@ -68,6 +69,12 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   Timer? _trailEnableTimer;
   bool _trailVisibilityReady = false;
   bool _trailVisible = true;
+  Timer? _greetingTimer;
+  String? _greetingText;
+  bool _greetingVisible = false;
+  bool _greetingShownForEntry = false;
+  bool _preparingGreeting = false;
+  late final AnimationController _greetingController;
 
   static const _hintInterval = Duration(seconds: 6);
 
@@ -85,17 +92,25 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     _trailEnableTimer = Timer(const Duration(milliseconds: 500), () {
       _trailVisibilityReady = true;
     });
+    _greetingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+      reverseDuration: const Duration(milliseconds: 260),
+    )..addStatusListener(_handleGreetingStatus);
     _hintTimer = Timer.periodic(_hintInterval, (_) => _advanceHint());
     _dayTimer = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _refreshIfDayChanged(),
     );
     WidgetsBinding.instance.addObserver(this);
+    unawaited(_prepareGreeting());
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _greetingShownForEntry = false;
+      unawaited(_prepareGreeting());
       _refreshIfDayChanged();
     }
   }
@@ -110,11 +125,85 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     ref.invalidate(progressProvider);
   }
 
+  Future<void> _prepareGreeting() async {
+    if (_greetingShownForEntry || _preparingGreeting) {
+      return;
+    }
+    _preparingGreeting = true;
+    try {
+      final profile = await ref.read(companionProvider.future);
+      if (!mounted || !profile.isNamed) {
+        return;
+      }
+      final progress = await ref.read(progressProvider.future);
+      if (!mounted) {
+        return;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      if (!mounted) {
+        return;
+      }
+      final storage = ref.read(keyValueStorageProvider);
+      final now = DateTime.now();
+      final lastVisitRaw = await storage.getString('app.lastVisit');
+      final lastVisit = lastVisitRaw == null
+          ? null
+          : DateTime.tryParse(lastVisitRaw);
+      final returning =
+          lastVisit != null && now.difference(lastVisit).inDays >= 3;
+      await storage.setString('app.lastVisit', now.toIso8601String());
+      if (!mounted) {
+        return;
+      }
+      final line = companionGreetingLine(
+        context,
+        progress,
+        returning: returning,
+      );
+      _greetingTimer?.cancel();
+      setState(() {
+        _greetingText = line;
+        _greetingVisible = true;
+        _greetingShownForEntry = true;
+      });
+      unawaited(_greetingController.forward(from: 0));
+      _greetingTimer = Timer(const Duration(seconds: 5), _dismissGreeting);
+    } catch (_) {
+      return;
+    } finally {
+      _preparingGreeting = false;
+    }
+  }
+
+  void _dismissGreeting() {
+    _greetingTimer?.cancel();
+    _greetingTimer = null;
+    if (!mounted || !_greetingVisible) {
+      return;
+    }
+    unawaited(_greetingController.reverse());
+  }
+
+  void _handleGreetingStatus(AnimationStatus status) {
+    if (status != AnimationStatus.dismissed || !mounted) {
+      return;
+    }
+    if (_greetingText == null) {
+      return;
+    }
+    setState(() {
+      _greetingText = null;
+      _greetingVisible = false;
+    });
+  }
+
   @override
   void dispose() {
     _hintTimer?.cancel();
     _dayTimer?.cancel();
     _trailEnableTimer?.cancel();
+    _greetingTimer?.cancel();
+    _greetingController.dispose();
     _trailVisibility.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _textController
@@ -559,24 +648,11 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     final async = ref.watch(timelineControllerProvider);
     final progress = ref.watch(progressProvider);
     final companion = ref.watch(companionProvider).value;
-    final presence = companion?.isNamed == true
-        ? ref.watch(companionPresenceProvider)
-        : null;
-    final cachedPresence = ref.watch(companionPresenceCacheProvider);
-    if (companion?.isNamed == true) {
-      ref.listen(companionPresenceProvider, (previous, next) {
-        final value = next.value;
-        if (value != null) {
-          ref.read(companionPresenceCacheProvider.notifier).set(value);
-        }
-      });
-    }
-    final presenceValue = presence?.value ?? cachedPresence;
-    final presenceLine = presenceValue != null
-        ? companionPresenceLine(context, presenceValue)
-        : presence?.hasError == true
-        ? context.t.companion.presence.fallback
-        : null;
+    ref.listen(companionProvider, (previous, next) {
+      if (next.value?.isNamed == true && !_greetingShownForEntry) {
+        unawaited(_prepareGreeting());
+      }
+    });
     ref
       ..listen(challengesProvider, (previous, next) {
         if (next.hasValue) {
@@ -588,6 +664,9 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
           _advanceHint();
         }
       });
+
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     Widget? companionEntry;
     final profile = companion;
@@ -612,38 +691,43 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       padding: EdgeInsets.zero,
       body: Column(
         children: [
-          if (companion?.isNamed == true && presenceLine != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.pageHorizontalPadding,
-                AppSpacing.s4,
-                AppSpacing.pageHorizontalPadding,
-                0,
-              ),
-              child: CompanionPresenceRow(
-                line: presenceLine,
-                onTap: () =>
-                    unawaited(context.pushNamed(AppRouteNames.companion)),
-              ),
-            ),
           Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: async.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Center(
-                  child: AppErrorView(
-                    title: t.loadFailed,
-                    message: error is ApiException
-                        ? error.message
-                        : context.t.common.somethingWentWrong,
-                    onRetry: () => ref.invalidate(timelineControllerProvider),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: async.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stack) => Center(
+                      child: AppErrorView(
+                        title: t.loadFailed,
+                        message: error is ApiException
+                            ? error.message
+                            : context.t.common.somethingWentWrong,
+                        onRetry: () =>
+                            ref.invalidate(timelineControllerProvider),
+                      ),
+                    ),
+                    data: (state) =>
+                        _buildTimeline(context, state, t, companionEntry),
                   ),
                 ),
-                data: (state) =>
-                    _buildTimeline(context, state, t, companionEntry),
-              ),
+                if (_greetingText != null)
+                  Positioned(
+                    left: AppSpacing.s16,
+                    right: AppSpacing.s16,
+                    bottom: AppSpacing.s8,
+                    child: CompanionGreeting(
+                      text: _greetingText!,
+                      onTap: _dismissGreeting,
+                      animation: _greetingController,
+                      reduceMotion: reduceMotion,
+                    ),
+                  ),
+              ],
             ),
           ),
           if (progress.hasValue)

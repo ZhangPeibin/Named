@@ -25,9 +25,3 @@ class CompanionUpdate(BaseModel):
 
 class NameSuggestionOut(BaseModel):
     name: str
-
-
-class PresenceOut(BaseModel):
-    key: str
-    variant: int
-    params: dict[str, str] = Field(default_factory=dict)

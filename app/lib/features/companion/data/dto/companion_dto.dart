@@ -1,4 +1,3 @@
-import '../../domain/companion_presence.dart';
 import '../../domain/companion_profile.dart';
 
 class CompanionProfileDto {
@@ -55,30 +54,4 @@ class CompanionNameSuggestionDto {
   }
 
   final String name;
-}
-
-class CompanionPresenceDto {
-  const CompanionPresenceDto({
-    required this.key,
-    required this.variant,
-    this.word,
-  });
-
-  factory CompanionPresenceDto.fromJson(Map<String, dynamic> json) {
-    final params = json['params'] as Map<String, dynamic>? ?? const {};
-    final word = params['word'];
-    return CompanionPresenceDto(
-      key: json['key'] as String? ?? 'fallback',
-      variant: json['variant'] as int? ?? 0,
-      word: word is String && word.trim().isNotEmpty ? word : null,
-    );
-  }
-
-  final String key;
-  final int variant;
-  final String? word;
-
-  CompanionPresence toDomain() {
-    return CompanionPresence(key: key, variant: variant, word: word);
-  }
 }

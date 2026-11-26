@@ -35,9 +35,18 @@ MAX_MEMORY_CONTEXT_CHARS = 1800
 MAX_CANDIDATE_ROWS = 200
 
 BOUNDARY_KINDS = frozenset({"do_not_mention", "do_not_remember"})
+ABOUT_KINDS = frozenset({"identity", "preference"})
 AI_SOURCE_TYPES = frozenset({"ai_inference", "agent_inference"})
 NEGATION_MARKERS = ("not", "n't", "never", "no longer", "不再", "不", "没", "讨厌")
 MIN_SUPERSEDE_CONFIDENCE = 0.9
+
+
+def _scope_for_kind(kind: str) -> str:
+    if kind in BOUNDARY_KINDS:
+        return "boundary"
+    if kind in ABOUT_KINDS:
+        return "about"
+    return "learned"
 
 
 def _canonical_key(kind: str, text: str) -> str:
@@ -114,7 +123,7 @@ def _new_memory(
     current_time: datetime,
     status: str = "active",
 ) -> MemoryItem:
-    scope = "boundary" if candidate.kind in BOUNDARY_KINDS else "learned"
+    scope = _scope_for_kind(candidate.kind)
     return MemoryItem(
         account_id=account_id,
         scope=scope,
@@ -150,6 +159,8 @@ def _merge_memory(
     row.mention_count += 1
     row.last_seen_at = current_time
     row.expires_at = None
+    if _scope_for_kind(candidate.kind) == "about" and row.scope == "learned":
+        row.scope = "about"
     if row.status != "active":
         row.status = "active"
         row.valid_from = current_time

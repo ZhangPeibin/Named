@@ -74,11 +74,6 @@ class _FakeCompanionApi implements CompanionApi {
     return _dto();
   }
 
-  @override
-  Future<CompanionPresenceDto> fetchPresence({required int localHour}) async {
-    return const CompanionPresenceDto(key: 'morning', variant: 0);
-  }
-
   CompanionProfileDto _dto() {
     return CompanionProfileDto(
       name: name,

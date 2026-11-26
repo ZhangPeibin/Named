@@ -35,8 +35,6 @@ abstract class CompanionApi {
   Future<String> suggestName();
 
   Future<CompanionProfileDto> assignRandomName();
-
-  Future<CompanionPresenceDto> fetchPresence({required int localHour});
 }
 
 class RemoteCompanionApi implements CompanionApi {
@@ -90,35 +88,6 @@ class RemoteCompanionApi implements CompanionApi {
     return _guard(
       () => _dio.post<Map<String, dynamic>>('/api/v1/companion/random-name'),
     );
-  }
-
-  @override
-  Future<CompanionPresenceDto> fetchPresence({required int localHour}) async {
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/api/v1/companion/presence',
-        queryParameters: {'local_hour': localHour},
-      );
-      final data = response.data;
-      if (data == null) {
-        throw const ApiException(
-          type: ApiExceptionType.badResponse,
-          message: 'Companion presence response was empty',
-        );
-      }
-      return CompanionPresenceDto.fromJson(data);
-    } on DioException catch (error) {
-      final apiException = error.error;
-      if (apiException is ApiException) {
-        throw apiException;
-      }
-      throw ApiException.fromDioException(error);
-    } on FormatException catch (error) {
-      throw ApiException(
-        type: ApiExceptionType.badResponse,
-        message: error.message,
-      );
-    }
   }
 
   Future<CompanionProfileDto> _guard(
@@ -191,18 +160,6 @@ class MockCompanionApi implements CompanionApi {
   Future<CompanionProfileDto> assignRandomName() async {
     _name = _nextName();
     return _dto();
-  }
-
-  @override
-  Future<CompanionPresenceDto> fetchPresence({required int localHour}) async {
-    final key = localHour >= 5 && localHour < 12
-        ? 'morning'
-        : localHour < 18
-        ? 'afternoon'
-        : localHour < 22
-        ? 'evening'
-        : 'night';
-    return CompanionPresenceDto(key: key, variant: 0);
   }
 
   String _nextName() {

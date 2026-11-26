@@ -8,6 +8,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_line_icon.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/companion_profile.dart';
@@ -189,7 +190,22 @@ class _CompanionSetupSheetState extends ConsumerState<CompanionSetupSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(t.setupTitle, style: textTheme.headlineMedium),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(t.setupTitle, style: textTheme.headlineMedium),
+              ),
+              IconButton(
+                key: const Key('companion.close'),
+                tooltip: context.t.common.close,
+                onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                icon: const AppLineIcon(AppLineGlyph.close, size: 20),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.s20),
           AppTextField(
             key: const Key('companion.nameInput'),
@@ -268,12 +284,6 @@ class _CompanionSetupSheetState extends ConsumerState<CompanionSetupSheet> {
             label: _isEditing ? t.saveEdit : t.save,
             isLoading: _isSaving,
             onPressed: _isSaving ? null : _save,
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          AppButton(
-            label: context.t.common.cancel,
-            variant: AppButtonVariant.text,
-            onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
           ),
         ],
       ),

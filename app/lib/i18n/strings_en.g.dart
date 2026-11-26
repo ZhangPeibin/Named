@@ -129,6 +129,9 @@ class Translations$common$en {
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 
+	/// en: 'Close'
+	String get close => 'Close';
+
 	/// en: 'Coming next.'
 	String get comingSoon => 'Coming next.';
 }
@@ -732,16 +735,13 @@ class Translations$companion$en {
 	/// en: 'Could not pick a name. Try again.'
 	String get randomFailed => 'Could not pick a name. Try again.';
 
-	/// en: 'Today'
-	String get today => 'Today';
-
 	/// en: 'Profile'
 	String get profile => 'Profile';
 
 	/// en: 'I found a little story for you.'
 	String get dailyIntro => 'I found a little story for you.';
 
-	late final Translations$companion$presence$en presence = Translations$companion$presence$en._(_root);
+	late final Translations$companion$greeting$en greeting = Translations$companion$greeting$en._(_root);
 }
 
 // Path: navigation
@@ -2040,64 +2040,34 @@ class Translations$ask$en {
 	String get agentGreeting => 'Ask me anything about English — a word, a sentence, or why something sounds the way it does.';
 }
 
-// Path: companion.presence
-class Translations$companion$presence$en {
-	Translations$companion$presence$en._(this._root);
+// Path: companion.greeting
+class Translations$companion$greeting$en {
+	Translations$companion$greeting$en._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
 
-	/// en: 'Morning. What will you notice today?'
-	String get morning0 => 'Morning. What will you notice today?';
+	/// en: 'Hi.'
+	String get hi => 'Hi.';
 
-	/// en: 'Morning. Take your time. Look outside first.'
-	String get morning1 => 'Morning. Take your time. Look outside first.';
+	/// en: 'Welcome back.'
+	String get welcomeBack => 'Welcome back.';
 
-	/// en: 'Morning. I'm waiting for your first word today.'
-	String get morning2 => 'Morning. I\'m waiting for your first word today.';
+	/// en: 'You've kept ${count} words. Keep going.'
+	String words({required Object count}) => 'You\'ve kept ${count} words. Keep going.';
 
-	/// en: 'Afternoon. If you're tired, rest a little.'
-	String get afternoon0 => 'Afternoon. If you\'re tired, rest a little.';
+	/// en: 'You've had ${count} talks. Keep going.'
+	String talks({required Object count}) => 'You\'ve had ${count} talks. Keep going.';
 
-	/// en: 'Afternoon. Any moment you want to keep today?'
-	String get afternoon1 => 'Afternoon. Any moment you want to keep today?';
+	/// en: 'You've practiced ${count} words. Keep going.'
+	String practices({required Object count}) => 'You\'ve practiced ${count} words. Keep going.';
 
-	/// en: 'It's afternoon. I'm here. No rush.'
-	String get afternoon2 => 'It\'s afternoon. I\'m here. No rush.';
+	/// en: 'You've finished ${count} reads. Keep going.'
+	String reads({required Object count}) => 'You\'ve finished ${count} reads. Keep going.';
 
-	/// en: 'Evening. You kept ${word} today.'
-	String evening0({required Object word}) => 'Evening. You kept ${word} today.';
-
-	/// en: 'Evening. How was your day?'
-	String get evening1 => 'Evening. How was your day?';
-
-	/// en: 'It's dark now. Keep a little of today.'
-	String get evening2 => 'It\'s dark now. Keep a little of today.';
-
-	/// en: 'It's late. You did enough today.'
-	String get night0 => 'It\'s late. You did enough today.';
-
-	/// en: 'Time to rest. Tomorrow, take it slow.'
-	String get night1 => 'Time to rest. Tomorrow, take it slow.';
-
-	/// en: 'Good night. I'll be here.'
-	String get night2 => 'Good night. I\'ll be here.';
-
-	/// en: 'You kept ${word}. Want to come back to it?'
-	String word({required Object word}) => 'You kept ${word}. Want to come back to it?';
-
-	/// en: 'That was a good talk.'
-	String get talk => 'That was a good talk.';
-
-	/// en: 'I'm thinking about something I like. What about you?'
-	String get hobby => 'I\'m thinking about something I like. What about you?';
-
-	/// en: 'You're back.'
-	String get returning => 'You\'re back.';
-
-	/// en: 'I'm here. Take your time.'
-	String get fallback => 'I\'m here. Take your time.';
+	/// en: 'What did you notice today?'
+	String get empty => 'What did you notice today?';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2123,6 +2093,7 @@ extension on Translations {
 			'common.sendingCode' => 'Sending...',
 			'common.confirm' => 'Confirm',
 			'common.cancel' => 'Cancel',
+			'common.close' => 'Close',
 			'common.comingSoon' => 'Coming next.',
 			'notFound.title' => 'Page not found',
 			'notFound.description' => 'The page you requested does not exist.',
@@ -2294,26 +2265,15 @@ extension on Translations {
 			'companion.notSet' => 'Not set',
 			'companion.loadFailed' => 'Could not load your companion.',
 			'companion.randomFailed' => 'Could not pick a name. Try again.',
-			'companion.today' => 'Today',
 			'companion.profile' => 'Profile',
 			'companion.dailyIntro' => 'I found a little story for you.',
-			'companion.presence.morning0' => 'Morning. What will you notice today?',
-			'companion.presence.morning1' => 'Morning. Take your time. Look outside first.',
-			'companion.presence.morning2' => 'Morning. I\'m waiting for your first word today.',
-			'companion.presence.afternoon0' => 'Afternoon. If you\'re tired, rest a little.',
-			'companion.presence.afternoon1' => 'Afternoon. Any moment you want to keep today?',
-			'companion.presence.afternoon2' => 'It\'s afternoon. I\'m here. No rush.',
-			'companion.presence.evening0' => ({required Object word}) => 'Evening. You kept ${word} today.',
-			'companion.presence.evening1' => 'Evening. How was your day?',
-			'companion.presence.evening2' => 'It\'s dark now. Keep a little of today.',
-			'companion.presence.night0' => 'It\'s late. You did enough today.',
-			'companion.presence.night1' => 'Time to rest. Tomorrow, take it slow.',
-			'companion.presence.night2' => 'Good night. I\'ll be here.',
-			'companion.presence.word' => ({required Object word}) => 'You kept ${word}. Want to come back to it?',
-			'companion.presence.talk' => 'That was a good talk.',
-			'companion.presence.hobby' => 'I\'m thinking about something I like. What about you?',
-			'companion.presence.returning' => 'You\'re back.',
-			'companion.presence.fallback' => 'I\'m here. Take your time.',
+			'companion.greeting.hi' => 'Hi.',
+			'companion.greeting.welcomeBack' => 'Welcome back.',
+			'companion.greeting.words' => ({required Object count}) => 'You\'ve kept ${count} words. Keep going.',
+			'companion.greeting.talks' => ({required Object count}) => 'You\'ve had ${count} talks. Keep going.',
+			'companion.greeting.practices' => ({required Object count}) => 'You\'ve practiced ${count} words. Keep going.',
+			'companion.greeting.reads' => ({required Object count}) => 'You\'ve finished ${count} reads. Keep going.',
+			'companion.greeting.empty' => 'What did you notice today?',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -2620,8 +2580,6 @@ extension on Translations {
 			'challenge.practiceSpeakHint' => 'Say it out loud, then play it back.',
 			'challenge.practiceExerciseHint' => 'Finish this to mark it practiced.',
 			'challenge.practiceMicDenied' => 'Microphone unavailable; you can skip.',
-			_ => null,
-		} ?? switch (path) {
 			'challenge.practiceSentenceHint' => 'Listen, then say the whole sentence.',
 			'challenge.practiceDictation' => 'Listen and type the sentence.',
 			'challenge.practiceCloze' => 'Fill in the blank.',
@@ -2632,6 +2590,8 @@ extension on Translations {
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',
 			'challenge.moment' => 'Moment',
+			_ => null,
+		} ?? switch (path) {
 			'challenge.loadFailed' => 'Could not load challenges.',
 			'challenge.detailFailed' => 'Could not load this challenge.',
 			'challenge.complete' => 'Done',

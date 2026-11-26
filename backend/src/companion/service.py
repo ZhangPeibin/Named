@@ -136,7 +136,10 @@ async def update_companion(
                 "A companion name is required.",
                 code="companion_name_required",
             )
+        was_named = bool(profile.name and profile.name.strip())
         profile.name = _validate_name(payload.name)
+        if not was_named and profile.named_at is None:
+            profile.named_at = utcnow()
     if "gender" in fields:
         profile.gender = payload.gender
     if "hobby" in fields:
@@ -152,7 +155,21 @@ async def update_companion(
 async def assign_random_name(session: AsyncSession, account_id: str) -> CompanionOut:
     profile = await get_companion(session, account_id)
     profile.name = _random_name(profile.name)
+    if profile.named_at is None:
+        profile.named_at = utcnow()
     profile.updated_at = utcnow()
     await session.commit()
     await session.refresh(profile)
     return _to_out(profile)
+
+
+async def rename_companion(
+    session: AsyncSession,
+    account_id: str,
+    name: str,
+) -> CompanionOut:
+    return await update_companion(
+        session,
+        account_id,
+        CompanionUpdate(name=name),
+    )

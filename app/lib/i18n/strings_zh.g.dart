@@ -95,6 +95,7 @@ class _Translations$common$zh implements Translations$common$en {
 	@override String get sendingCode => '发送中...';
 	@override String get confirm => '确认';
 	@override String get cancel => '取消';
+	@override String get close => '关闭';
 	@override String get comingSoon => '下一步接入。';
 }
 
@@ -356,10 +357,9 @@ class _Translations$companion$zh implements Translations$companion$en {
 	@override String get notSet => '还没有填';
 	@override String get loadFailed => '没有加载到你的小伙伴。';
 	@override String get randomFailed => '没有取到名字，再试一次？';
-	@override String get today => '今天';
 	@override String get profile => '档案';
 	@override String get dailyIntro => '我找到一个小故事。';
-	@override late final _Translations$companion$presence$zh presence = _Translations$companion$presence$zh._(_root);
+	@override late final _Translations$companion$greeting$zh greeting = _Translations$companion$greeting$zh._(_root);
 }
 
 // Path: navigation
@@ -872,30 +872,20 @@ class _Translations$ask$zh implements Translations$ask$en {
 	@override String get agentGreeting => '关于英语的任何问题都可以问我：一个词、一句话，或者某个表达为什么这样说。';
 }
 
-// Path: companion.presence
-class _Translations$companion$presence$zh implements Translations$companion$presence$en {
-	_Translations$companion$presence$zh._(this._root);
+// Path: companion.greeting
+class _Translations$companion$greeting$zh implements Translations$companion$greeting$en {
+	_Translations$companion$greeting$zh._(this._root);
 
 	final TranslationsZh _root; // ignore: unused_field
 
 	// Translations
-	@override String get morning0 => '早上好。今天想注意到什么？';
-	@override String get morning1 => '早。慢慢来，先看看窗外。';
-	@override String get morning2 => '早上好。我在等你今天的第一句话。';
-	@override String get afternoon0 => '下午好。累的话，歇一会儿。';
-	@override String get afternoon1 => '下午好。今天有没有哪个瞬间想留下来？';
-	@override String get afternoon2 => '下午了。我在这儿，不急。';
-	@override String evening0({required Object word}) => '晚上好。今天你留下了 ${word}。';
-	@override String get evening1 => '晚上好。今天过得怎么样？';
-	@override String get evening2 => '天黑了。把今天的一点点留下来吧。';
-	@override String get night0 => '夜深了。今天也辛苦了。';
-	@override String get night1 => '该休息了。明天再慢慢来。';
-	@override String get night2 => '晚安。我会在这儿。';
-	@override String word({required Object word}) => '你留下了 ${word}。要回来看看吗？';
-	@override String get talk => '刚才聊得不错。';
-	@override String get hobby => '我在想一件喜欢的事。你呢？';
-	@override String get returning => '你回来了。';
-	@override String get fallback => '我在。慢慢来。';
+	@override String get hi => '嗨。';
+	@override String get welcomeBack => '欢迎回来。';
+	@override String words({required Object count}) => '你已经留下 ${count} 个词了，继续加油。';
+	@override String talks({required Object count}) => '你已经聊过 ${count} 次了，继续加油。';
+	@override String practices({required Object count}) => '你已经练习过 ${count} 个词了，继续加油。';
+	@override String reads({required Object count}) => '你已经读完 ${count} 篇了，继续加油。';
+	@override String get empty => '今天想注意到什么？';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -921,6 +911,7 @@ extension on TranslationsZh {
 			'common.sendingCode' => '发送中...',
 			'common.confirm' => '确认',
 			'common.cancel' => '取消',
+			'common.close' => '关闭',
 			'common.comingSoon' => '下一步接入。',
 			'notFound.title' => '页面不存在',
 			'notFound.description' => '你访问的页面不存在。',
@@ -1092,26 +1083,15 @@ extension on TranslationsZh {
 			'companion.notSet' => '还没有填',
 			'companion.loadFailed' => '没有加载到你的小伙伴。',
 			'companion.randomFailed' => '没有取到名字，再试一次？',
-			'companion.today' => '今天',
 			'companion.profile' => '档案',
 			'companion.dailyIntro' => '我找到一个小故事。',
-			'companion.presence.morning0' => '早上好。今天想注意到什么？',
-			'companion.presence.morning1' => '早。慢慢来，先看看窗外。',
-			'companion.presence.morning2' => '早上好。我在等你今天的第一句话。',
-			'companion.presence.afternoon0' => '下午好。累的话，歇一会儿。',
-			'companion.presence.afternoon1' => '下午好。今天有没有哪个瞬间想留下来？',
-			'companion.presence.afternoon2' => '下午了。我在这儿，不急。',
-			'companion.presence.evening0' => ({required Object word}) => '晚上好。今天你留下了 ${word}。',
-			'companion.presence.evening1' => '晚上好。今天过得怎么样？',
-			'companion.presence.evening2' => '天黑了。把今天的一点点留下来吧。',
-			'companion.presence.night0' => '夜深了。今天也辛苦了。',
-			'companion.presence.night1' => '该休息了。明天再慢慢来。',
-			'companion.presence.night2' => '晚安。我会在这儿。',
-			'companion.presence.word' => ({required Object word}) => '你留下了 ${word}。要回来看看吗？',
-			'companion.presence.talk' => '刚才聊得不错。',
-			'companion.presence.hobby' => '我在想一件喜欢的事。你呢？',
-			'companion.presence.returning' => '你回来了。',
-			'companion.presence.fallback' => '我在。慢慢来。',
+			'companion.greeting.hi' => '嗨。',
+			'companion.greeting.welcomeBack' => '欢迎回来。',
+			'companion.greeting.words' => ({required Object count}) => '你已经留下 ${count} 个词了，继续加油。',
+			'companion.greeting.talks' => ({required Object count}) => '你已经聊过 ${count} 次了，继续加油。',
+			'companion.greeting.practices' => ({required Object count}) => '你已经练习过 ${count} 个词了，继续加油。',
+			'companion.greeting.reads' => ({required Object count}) => '你已经读完 ${count} 篇了，继续加油。',
+			'companion.greeting.empty' => '今天想注意到什么？',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -1418,8 +1398,6 @@ extension on TranslationsZh {
 			'challenge.practiceSpeakHint' => '大声说一遍，再回放听听。',
 			'challenge.practiceExerciseHint' => '完成这题才算练过。',
 			'challenge.practiceMicDenied' => '麦克风不可用，可跳过。',
-			_ => null,
-		} ?? switch (path) {
 			'challenge.practiceSentenceHint' => '听整句，再说一遍。',
 			'challenge.practiceDictation' => '听句子，再打出来。',
 			'challenge.practiceCloze' => '填空',
@@ -1430,6 +1408,8 @@ extension on TranslationsZh {
 			'challenge.open' => '打开',
 			'challenge.word' => '词语',
 			'challenge.moment' => '场景',
+			_ => null,
+		} ?? switch (path) {
 			'challenge.loadFailed' => '暂时无法加载挑战。',
 			'challenge.detailFailed' => '暂时无法加载这轮挑战。',
 			'challenge.complete' => '完成',

@@ -1,4 +1,3 @@
-import '../../domain/companion_presence.dart';
 import '../../domain/companion_profile.dart';
 import '../api/companion_api.dart';
 
@@ -34,9 +33,5 @@ class CompanionRepository {
 
   Future<CompanionProfile> assignRandomName() async {
     return (await _api.assignRandomName()).toDomain();
-  }
-
-  Future<CompanionPresence> fetchPresence({required int localHour}) async {
-    return (await _api.fetchPresence(localHour: localHour)).toDomain();
   }
 }

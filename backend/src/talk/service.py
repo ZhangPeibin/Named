@@ -8,7 +8,7 @@ from agents import AgentFailed, agent_api_error
 from ai import AINotConfigured
 from clock import utcnow
 from companion.context import format_companion_context
-from companion.service import get_companion
+from companion.service import get_companion, rename_companion
 from config import Settings
 from discovery.schemas import WordPayload
 from errors import ApiError
@@ -384,7 +384,7 @@ async def open_conversation(
         use_memory=conversation.use_memory,
     )
     companion = await get_companion(session, account_id)
-    prior = await session.scalar(
+    prior_query = (
         select(func.count())
         .select_from(Conversation)
         .where(
@@ -392,6 +392,11 @@ async def open_conversation(
             Conversation.id != conversation_id,
         )
     )
+    if companion.named_at is not None:
+        prior_query = prior_query.where(
+            Conversation.started_at >= companion.named_at,
+        )
+    prior = await session.scalar(prior_query)
 
     try:
         response = await agent.open(
@@ -624,6 +629,18 @@ async def send_message(
     await session.commit()
     await session.refresh(assistant)
 
+    renamed_name = None
+    if response.companion_name:
+        try:
+            renamed = await rename_companion(
+                session,
+                account_id,
+                response.companion_name,
+            )
+            renamed_name = renamed.name
+        except ApiError:
+            logger.warning("Companion rename rejected")
+
     try:
         await enqueue_experience_job(session, account_id, conversation_id, settings)
         await session.commit()
@@ -634,6 +651,7 @@ async def send_message(
     return TurnOut(
         user_message=await _message_out(session, user_message, settings),
         assistant_message=await _message_out(session, assistant, settings),
+        companion_name=renamed_name,
     )
 
 

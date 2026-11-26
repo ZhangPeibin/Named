@@ -17,6 +17,7 @@
     "sendingCode": "Sending...",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "close": "Close",
     "comingSoon": "Coming next."
   },
   "notFound": {
@@ -209,27 +210,16 @@
     "notSet": "Not set",
     "loadFailed": "Could not load your companion.",
     "randomFailed": "Could not pick a name. Try again.",
-    "today": "Today",
     "profile": "Profile",
     "dailyIntro": "I found a little story for you.",
-    "presence": {
-      "morning0": "Morning. What will you notice today?",
-      "morning1": "Morning. Take your time. Look outside first.",
-      "morning2": "Morning. I'm waiting for your first word today.",
-      "afternoon0": "Afternoon. If you're tired, rest a little.",
-      "afternoon1": "Afternoon. Any moment you want to keep today?",
-      "afternoon2": "It's afternoon. I'm here. No rush.",
-      "evening0": "Evening. You kept ${word} today.",
-      "evening1": "Evening. How was your day?",
-      "evening2": "It's dark now. Keep a little of today.",
-      "night0": "It's late. You did enough today.",
-      "night1": "Time to rest. Tomorrow, take it slow.",
-      "night2": "Good night. I'll be here.",
-      "word": "You kept ${word}. Want to come back to it?",
-      "talk": "That was a good talk.",
-      "hobby": "I'm thinking about something I like. What about you?",
-      "returning": "You're back.",
-      "fallback": "I'm here. Take your time."
+    "greeting": {
+      "hi": "Hi.",
+      "welcomeBack": "Welcome back.",
+      "words": "You've kept ${count} words. Keep going.",
+      "talks": "You've had ${count} talks. Keep going.",
+      "practices": "You've practiced ${count} words. Keep going.",
+      "reads": "You've finished ${count} reads. Keep going.",
+      "empty": "What did you notice today?"
     }
   },
   "navigation": {

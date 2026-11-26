@@ -393,6 +393,40 @@ async def test_opener_is_persisted_and_idempotent(talk_env) -> None:
 
 
 @pytest.mark.asyncio
+async def test_opener_first_flag_uses_named_at(talk_env) -> None:
+    http, sender, _, _, _, _ = talk_env
+    opener = FakeOpenerAgent()
+    app.dependency_overrides[get_opener_agent] = lambda: opener
+    try:
+        _, headers, word_id = await create_word(http, sender, "named@example.com")
+        named = await http.patch(
+            "/api/v1/companion",
+            headers=headers,
+            json={"name": "Momo"},
+        )
+        assert named.status_code == 200, named.text
+
+        first_id = await create_conversation(http, headers, word_id)
+        first = await http.post(
+            f"/api/v1/conversations/{first_id}/opener",
+            headers=headers,
+        )
+        assert first.status_code == 200, first.text
+
+        second_id = await create_conversation(http, headers, word_id)
+        second = await http.post(
+            f"/api/v1/conversations/{second_id}/opener",
+            headers=headers,
+        )
+        assert second.status_code == 200, second.text
+
+        assert opener.calls[0]["first_conversation"] is True
+        assert opener.calls[1]["first_conversation"] is False
+    finally:
+        app.dependency_overrides.pop(get_opener_agent, None)
+
+
+@pytest.mark.asyncio
 async def test_create_conversation_and_send_message(talk_env) -> None:
     http, sender, _, _, agent, _ = talk_env
     _, headers, word_id = await create_word(http, sender, "talk@example.com")
@@ -427,6 +461,48 @@ async def test_create_conversation_and_send_message(talk_env) -> None:
     assert detail.status_code == 200
     assert detail.json()["title"] == "tree"
     assert len(detail.json()["messages"]) == 2
+
+
+@pytest.mark.asyncio
+async def test_identity_memory_is_saved_to_about(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "identity@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.memories = [
+        MemoryCandidate(kind="identity", text="my name is Li", confidence=0.95),
+    ]
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "identity-1", "text": "My name is Li."},
+    )
+    assert response.status_code == 200, response.text
+
+    soul = await http.get("/api/v1/soul", headers=headers)
+    assert soul.status_code == 200, soul.text
+    items = soul.json()["items"]
+    assert any(item["kind"] == "identity" and "Li" in item["text"] for item in items)
+
+
+@pytest.mark.asyncio
+async def test_talk_can_rename_companion(talk_env) -> None:
+    http, sender, _, _, agent, _ = talk_env
+    _, headers, word_id = await create_word(http, sender, "rename@example.com")
+    conversation_id = await create_conversation(http, headers, word_id)
+    agent.response.companion_name = "Momo"
+
+    response = await http.post(
+        f"/api/v1/conversations/{conversation_id}/messages",
+        headers=headers,
+        json={"client_message_id": "rename-1", "text": "Call yourself Momo."},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["companion_name"] == "Momo"
+
+    companion = await http.get("/api/v1/companion", headers=headers)
+    assert companion.status_code == 200, companion.text
+    assert companion.json()["name"] == "Momo"
 
 
 @pytest.mark.asyncio

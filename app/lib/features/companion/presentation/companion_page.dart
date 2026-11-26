@@ -11,7 +11,6 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../i18n/strings.g.dart';
 import '../domain/companion_profile.dart';
 import '../providers/companion_providers.dart';
-import 'companion_presence_line.dart';
 import 'widgets/companion_avatar.dart';
 import 'widgets/companion_setup_sheet.dart';
 
@@ -22,10 +21,6 @@ class CompanionPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t.companion;
     final companion = ref.watch(companionProvider);
-    final presence = ref.watch(companionPresenceProvider);
-    final presenceLine = presence.hasValue
-        ? companionPresenceLine(context, presence.value!)
-        : context.t.companion.presence.fallback;
 
     return AppScaffold(
       key: const Key('companion.page'),
@@ -39,18 +34,16 @@ class CompanionPage extends ConsumerWidget {
               : context.t.common.pleaseTryAgain,
           onRetry: () => ref.invalidate(companionProvider),
         ),
-        data: (profile) =>
-            _CompanionBody(profile: profile, presenceLine: presenceLine),
+        data: (profile) => _CompanionBody(profile: profile),
       ),
     );
   }
 }
 
 class _CompanionBody extends StatelessWidget {
-  const _CompanionBody({required this.profile, required this.presenceLine});
+  const _CompanionBody({required this.profile});
 
   final CompanionProfile profile;
-  final String presenceLine;
 
   @override
   Widget build(BuildContext context) {
@@ -67,21 +60,6 @@ class _CompanionBody extends StatelessWidget {
           profile.isNamed ? profile.name! : t.unnamedSubtitle,
           textAlign: TextAlign.center,
           style: textTheme.headlineMedium,
-        ),
-        const SizedBox(height: AppSpacing.s16),
-        Text(
-          t.today.toUpperCase(),
-          textAlign: TextAlign.center,
-          style: textTheme.labelSmall?.copyWith(
-            color: palette.muted,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.s4),
-        Text(
-          presenceLine,
-          textAlign: TextAlign.center,
-          style: textTheme.bodyMedium?.copyWith(color: palette.muted),
         ),
         const SizedBox(height: AppSpacing.s24),
         Text(

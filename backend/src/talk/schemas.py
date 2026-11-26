@@ -57,6 +57,7 @@ class TalkResponse(BaseModel):
     annotations: list[Annotation] = Field(default_factory=list)
     memories: list[MemoryCandidate] = Field(default_factory=list, max_length=5)
     suggested_expressions: list[str] = Field(default_factory=list)
+    companion_name: str | None = Field(default=None, max_length=64)
     needs_confirmation: bool = False
 
 
@@ -155,6 +156,7 @@ class ConversationOut(BaseModel):
 class TurnOut(BaseModel):
     user_message: MessageOut
     assistant_message: MessageOut
+    companion_name: str | None = None
     save_status: Literal["saved"] = "saved"
 
 
