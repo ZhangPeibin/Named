@@ -4,41 +4,44 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <title>Named · A little cat who learns English with you</title>
+    <title>Named · Keep the words you meet</title>
     <meta
       name="description"
-      content="Named gives you a small black cat who learns English with you. Name what you notice, talk about it, keep the word, and meet it again in a story made from your days."
+      content="Named helps you keep the English words you meet. Name what you notice, talk about it, and meet the word again in practice and in a story from your own days."
     />
-    <meta name="theme-color" content="#fbf8f2" />
+    <meta name="theme-color" content="#efe8db" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Named" />
-    <meta property="og:title" content="Named · A little cat who learns English with you" />
+    <meta property="og:title" content="Named · Keep the words you meet" />
     <meta
       property="og:description"
-      content="Name what you notice. Talk about it. Keep the word. Your companion turns each moment into English you actually use."
+      content="Name what you notice. Talk it through. Your companion turns the moment into English you actually use, then brings it back in practice and in a story."
     />
     <meta property="og:image" content="assets/forest.jpg" />
     <meta property="og:image:alt" content="Sunlight falling through tall trees in a quiet forest" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Named · A little cat who learns English with you" />
+    <meta name="twitter:title" content="Named · Keep the words you meet" />
     <meta
       name="twitter:description"
-      content="Name what you notice. Talk about it. Keep the word. Your companion turns each moment into English you actually use."
+      content="Name what you notice. Talk it through. Your companion turns the moment into English you actually use, then brings it back in practice and in a story."
     />
     <meta name="twitter:image" content="assets/forest.jpg" />
     <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="assets/favicon/favicon-32.png" sizes="32x32" />
     <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
-    <link rel="preload" href="assets/fonts/Lora-Variable.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="preload" href="assets/fonts/Lora-Italic-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="assets/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/manrope-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="assets/forest.jpg" as="image" />
+    <link rel="preload" href="assets/coffee.jpg" as="image" />
+    <link rel="preload" href="assets/watering-can.jpg" as="image" />
     <link rel="stylesheet" href="styles.css" />
     <script>
       document.documentElement.classList.remove("no-js");
       document.documentElement.classList.add("js");
-      window.setTimeout(function () {
-        if (document.body) document.body.classList.add("is-ready");
-      }, 1200);
+      document.addEventListener("DOMContentLoaded", function () {
+        document.body.classList.add("is-ready");
+      });
     </script>
     <script src="main.js" defer></script>
   </head>
@@ -47,45 +50,41 @@
 
     <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+      <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" /></symbol>
       <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" fill="currentColor" stroke="none" /></symbol>
       <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-10" /></symbol>
       <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" /></symbol>
       <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></symbol>
-      <symbol id="i-signal" viewBox="0 0 18 12">
-        <rect x="0" y="8" width="3" height="4" rx="1" />
-        <rect x="5" y="6" width="3" height="6" rx="1" />
-        <rect x="10" y="3" width="3" height="9" rx="1" />
-        <rect x="15" y="0" width="3" height="12" rx="1" />
-      </symbol>
-      <symbol id="i-wifi" viewBox="0 0 16 12">
-        <path d="M1 4a10 10 0 0 1 14 0M3.5 6.5a6.5 6.5 0 0 1 9 0M6 9a3 3 0 0 1 4 0" />
-        <circle cx="8" cy="11" r="1" />
-      </symbol>
-      <symbol id="i-battery" viewBox="0 0 26 12">
-        <rect x="0.5" y="0.5" width="22" height="11" rx="3" />
-        <rect class="battery-fill" x="2.5" y="2.5" width="18" height="7" rx="1.5" />
-        <path d="M24.5 4v4" />
-      </symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" /></symbol>
+      <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z" /></symbol>
+      <symbol id="i-thread" viewBox="0 0 24 24"><path d="M3 7c4 0 4 10 8 10s4-10 8-10" /><circle cx="20" cy="7" r="2" /></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a3 3 0 0 1 3-1h5v16H7a3 3 0 0 0-3 1zM20 5a3 3 0 0 0-3-1h-5v16h5a3 3 0 0 1 3 1z" /></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4-4" /></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></symbol>
+      <symbol id="i-signal" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="6" width="3" height="6" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></symbol>
+      <symbol id="i-wifi" viewBox="0 0 16 12"><path d="M1 4a10 10 0 0 1 14 0M3.5 6.5a6.5 6.5 0 0 1 9 0M6 9a3 3 0 0 1 4 0" /><circle cx="8" cy="11" r="1" /></symbol>
+      <symbol id="i-battery" viewBox="0 0 26 12"><rect x="0.5" y="0.5" width="22" height="11" rx="3" /><rect class="battery-fill" x="2.5" y="2.5" width="18" height="7" rx="1.5" /><path d="M24.5 4v4" /></symbol>
     </svg>
 
     <header class="nav" id="nav">
       <div class="nav-inner container">
-        <a class="brand" href="#top" aria-label="Named · home" data-i18n-aria-label="nav.home">
+        <nav class="nav-links" aria-label="Primary" data-i18n-aria-label="nav.primary">
+          <a href="#loop"><span>01</span><b data-i18n="nav.loop">The loop</b></a>
+          <a href="#companion"><span>02</span><b data-i18n="nav.companion">Companion</b></a>
+          <a href="#features"><span>03</span><b data-i18n="nav.features">Features</b></a>
+          <a href="#privacy"><span>04</span><b data-i18n="nav.privacy">Privacy</b></a>
+        </nav>
+        <a class="brand" href="#top" aria-label="Named home" data-i18n-aria-label="nav.home">
           <img src="assets/brand/c-lockup-horizontal.svg" alt="Named" width="700" height="256" />
         </a>
-        <nav class="nav-links" aria-label="Primary" data-i18n-aria-label="nav.primary">
-          <a href="#loop" data-i18n="nav.loop">The loop</a>
-          <a href="#companion" data-i18n="nav.companion">Companion</a>
-          <a href="#story" data-i18n="nav.story">A story</a>
-          <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
-          <a class="nav-github" href="https://github.com/ZhangPeibin/Named" target="_blank" rel="noopener noreferrer" data-i18n="nav.github">GitHub</a>
-        </nav>
         <div class="nav-actions">
           <div class="lang-toggle" role="group" aria-label="Language" data-i18n-aria-label="nav.language">
             <button type="button" data-lang="en" aria-pressed="true">EN</button>
             <button type="button" data-lang="zh" aria-pressed="false">中文</button>
           </div>
-          <a class="btn btn-small nav-try" href="#try" data-i18n="nav.early">Get early access</a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open menu">
             <svg class="icon icon-menu"><use href="#i-menu" /></svg>
             <svg class="icon icon-close"><use href="#i-close" /></svg>
@@ -93,146 +92,119 @@
         </div>
       </div>
       <div class="nav-drawer" id="drawer">
-        <a href="#loop" data-i18n="nav.loop">The loop</a>
-        <a href="#companion" data-i18n="nav.companion">Companion</a>
-        <a href="#story" data-i18n="nav.story">A story</a>
-        <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
-        <a href="https://github.com/ZhangPeibin/Named" target="_blank" rel="noopener noreferrer" data-i18n="nav.github">GitHub</a>
-        <a href="#try" class="drawer-cta" data-i18n="nav.early">Get early access</a>
+        <a href="#loop"><span>01</span><b data-i18n="nav.loop">The loop</b></a>
+        <a href="#companion"><span>02</span><b data-i18n="nav.companion">Companion</b></a>
+        <a href="#features"><span>03</span><b data-i18n="nav.features">Features</b></a>
+        <a href="#privacy"><span>04</span><b data-i18n="nav.privacy">Privacy</b></a>
+        <a href="https://github.com/ZhangPeibin/Named" target="_blank" rel="noopener noreferrer"><span>↗</span><b data-i18n="nav.github">GitHub</b></a>
       </div>
     </header>
 
     <main id="main">
       <section class="hero" id="top">
-        <div class="container hero-grid">
-          <div class="hero-copy">
-            <p class="eyebrow intro" data-i18n="hero.eyebrow">A companion for your English</p>
-            <h1 class="hero-title intro" data-i18n-html="hero.title">A little cat<br /><em>who learns<br />with you.</em></h1>
-            <p class="hero-lede intro" data-i18n="hero.lede">
-              Name what you notice. Talk about it. Keep the word. Your companion turns each moment into English you actually use.
-            </p>
-            <div class="hero-actions intro">
-              <a class="btn" href="#try" data-i18n="hero.cta">Get early access</a>
-              <a class="link-arrow" href="#loop">
-                <span data-i18n="hero.see">See the loop</span>
-                <svg class="icon"><use href="#i-arrow" /></svg>
-              </a>
-            </div>
-            <ul class="hero-facts intro">
-              <li data-i18n="hero.fact1">iOS + Android</li>
-              <li data-i18n="hero.fact2">Private by default</li>
-              <li data-i18n="hero.fact3">No streaks</li>
-            </ul>
+        <div class="container hero-inner">
+          <span class="pill reveal">
+            <span class="pill-dot"><img src="assets/companion/companion_chill.png" alt="" /></span>
+            <span data-i18n="hero.pill">A companion for your English</span>
+          </span>
+          <h1 class="hero-title reveal" data-i18n-html="hero.title">
+            Keep the words<br /><em>you meet.</em>
+          </h1>
+          <p class="hero-lede reveal" data-i18n="hero.lede">
+            Name what you notice. Talk it through. Your companion turns the moment into English you actually use, then brings it back in practice and in a story.
+          </p>
+
+          <div class="hero-fan reveal" aria-hidden="true">
+            <span class="fan-pill fan-pill-1" data-i18n="hero.pill1">One word</span>
+            <span class="fan-pill fan-pill-2" data-i18n="hero.pill2">Kept</span>
+            <span class="fan-pill fan-pill-3" data-i18n="hero.pill3">Met again</span>
+            <figure class="fan-cat"><img src="assets/companion/companion_chill.png" alt="" /></figure>
+
+            <article class="fan-card" style="--r: -10deg; --y: 18px">
+              <div class="fan-photo"><img src="assets/forest.jpg" alt="" /></div>
+              <p class="fan-word">tree</p>
+              <p class="fan-meta">/triː/ · noun · 树</p>
+              <span class="fan-check"><svg class="icon"><use href="#i-check" /></svg></span>
+            </article>
+            <article class="fan-card" style="--r: -5deg; --y: 6px">
+              <div class="fan-photo"><img src="assets/coffee.jpg" alt="" /></div>
+              <p class="fan-word">coffee</p>
+              <p class="fan-meta">/ˈkɒfi/ · noun · 咖啡</p>
+              <span class="fan-check"><svg class="icon"><use href="#i-check" /></svg></span>
+            </article>
+            <article class="fan-card" style="--r: 0deg; --y: 0">
+              <div class="fan-photo"><img src="assets/watering-can.jpg" alt="" /></div>
+              <p class="fan-word">watering can</p>
+              <p class="fan-meta">/ˈwɔːtərɪŋ kæn/ · noun · 洒水壶</p>
+              <span class="fan-check"><svg class="icon"><use href="#i-check" /></svg></span>
+            </article>
+            <article class="fan-card" style="--r: 5deg; --y: 6px">
+              <div class="fan-photo"><img src="assets/forest.jpg" alt="" /></div>
+              <p class="fan-word">leaf</p>
+              <p class="fan-meta">/liːf/ · noun · 叶子</p>
+              <span class="fan-check"><svg class="icon"><use href="#i-check" /></svg></span>
+            </article>
+            <article class="fan-card" style="--r: 10deg; --y: 18px">
+              <div class="fan-photo"><img src="assets/forest.jpg" alt="" /></div>
+              <p class="fan-word">under the tree</p>
+              <p class="fan-meta">/ˈʌndə ðə triː/ · phrase · 在树下</p>
+              <span class="fan-check"><svg class="icon"><use href="#i-check" /></svg></span>
+            </article>
           </div>
 
-          <div class="hero-visual intro">
-            <figure class="hero-cat">
-              <img src="assets/companion/companion_chill.png" alt="Momo, your companion" data-i18n-aria-label="hero.altCat" />
-            </figure>
-            <div class="phone phone-hero" aria-hidden="true">
-              <div class="phone-screen">
-                <div class="statusbar">
-                  <span>9:41</span>
-                  <span class="status-icons">
-                    <svg class="icon"><use href="#i-signal" /></svg>
-                    <svg class="icon"><use href="#i-wifi" /></svg>
-                    <svg class="icon"><use href="#i-battery" /></svg>
-                  </span>
-                </div>
-                <div class="app-header"><span>Timeline</span></div>
-                <div class="presence">
-                  <img class="presence-avatar" src="assets/companion/companion_hmm.png" alt="" />
-                  <div>
-                    <p class="presence-name" data-i18n="hero.presenceName">Momo</p>
-                    <p class="presence-line" data-i18n="hero.presence">Morning. What did you notice today?</p>
-                  </div>
-                </div>
-                <div class="phone-photo"><img src="assets/forest.jpg" alt="" /></div>
-                <article class="word-card">
-                  <div class="word-head">
-                    <div>
-                      <p class="word">tree</p>
-                      <p class="ipa">/triː/ · noun · <span lang="zh-CN">树</span></p>
-                    </div>
-                    <span class="play"><svg class="icon"><use href="#i-play" /></svg></span>
-                  </div>
-                  <p class="def">A tall plant with a trunk, branches, and leaves.</p>
-                  <p class="def-zh" lang="zh-CN">一种有树干、树枝和叶子的高大植物。</p>
-                  <span class="chunk">under the tree <span lang="zh-CN">在树下</span></span>
-                  <div class="word-card-foot">
-                    <span>From your walk in the park.</span>
-                    <span class="word-card-talk">Talk about it</span>
-                  </div>
-                </article>
-                <div class="composer">
-                  <span data-i18n="hero.composer">What did you see today?</span>
-                  <span class="composer-send"><svg class="icon"><use href="#i-arrow" /></svg></span>
-                </div>
-              </div>
-            </div>
+          <div class="hero-foot">
+            <span data-i18n="hero.fact1">iOS + Android</span>
+            <span data-i18n="hero.fact2">Private by default</span>
+            <span data-i18n="hero.fact3">No streaks</span>
           </div>
         </div>
       </section>
 
-      <section class="loop" id="loop">
+      <section class="problem section-white">
         <div class="container">
-          <div class="section-head reveal">
-            <p class="eyebrow" data-i18n="loop.eyebrow">The loop</p>
-            <h2 class="display" data-i18n-html="loop.title">One word,<br /><em>five quiet moves.</em></h2>
-            <p class="lede" data-i18n="loop.lede">See it, say it, keep it, practice it, meet it again. No units to finish, no streak to protect.</p>
+          <div class="section-center reveal">
+            <span class="pill"><span class="pill-dot pink"><svg class="icon"><use href="#i-eye" /></svg></span><span data-i18n="problem.pill">Problem</span></span>
+            <h2 class="section-title" data-i18n-html="problem.title">You already know the word.<br /><em>You just don’t keep it.</em></h2>
+            <p class="section-lede" data-i18n="problem.lede">You notice something real. The word never stays with you.</p>
           </div>
+          <div class="problem-stack reveal">
+            <span class="problem-dot" aria-hidden="true"></span>
+            <article class="problem-card">
+              <span class="card-num">01</span>
+              <div>
+                <h3 data-i18n="problem.card1.title">You see it, then lose it.</h3>
+                <p data-i18n="problem.card1.desc">A tree, a word, a moment. By the evening, it is gone.</p>
+              </div>
+            </article>
+            <article class="problem-card is-filled">
+              <span class="card-num">02</span>
+              <div>
+                <h3 data-i18n="problem.card2.title">Practice feels like a test.</h3>
+                <p data-i18n="problem.card2.desc">Scores and streaks turn a small habit into a chore.</p>
+              </div>
+            </article>
+            <article class="problem-card">
+              <span class="card-num">03</span>
+              <div>
+                <h3 data-i18n="problem.card3.title">Nothing ties it to your life.</h3>
+                <p data-i18n="problem.card3.desc">Words live in an app, not in your days.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
 
-          <div class="loop-layout">
-            <ol class="loop-tabs" role="tablist" aria-label="The five steps" data-i18n-aria-label="loop.tablist">
-              <li role="presentation">
-                <button class="loop-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="step-see" id="tab-see">
-                  <span>01</span>
-                  <span class="loop-tab-copy">
-                    <b data-i18n="loop.step1.title">See</b>
-                    <small data-i18n="loop.step1.desc">Name what you noticed.</small>
-                  </span>
-                </button>
-              </li>
-              <li role="presentation">
-                <button class="loop-tab" type="button" role="tab" aria-selected="false" aria-controls="step-say" id="tab-say" tabindex="-1">
-                  <span>02</span>
-                  <span class="loop-tab-copy">
-                    <b data-i18n="loop.step2.title">Say</b>
-                    <small data-i18n="loop.step2.desc">Talk it through.</small>
-                  </span>
-                </button>
-              </li>
-              <li role="presentation">
-                <button class="loop-tab" type="button" role="tab" aria-selected="false" aria-controls="step-keep" id="tab-keep" tabindex="-1">
-                  <span>03</span>
-                  <span class="loop-tab-copy">
-                    <b data-i18n="loop.step3.title">Keep</b>
-                    <small data-i18n="loop.step3.desc">Save the word you used.</small>
-                  </span>
-                </button>
-              </li>
-              <li role="presentation">
-                <button class="loop-tab" type="button" role="tab" aria-selected="false" aria-controls="step-practice" id="tab-practice" tabindex="-1">
-                  <span>04</span>
-                  <span class="loop-tab-copy">
-                    <b data-i18n="loop.step4.title">Practice</b>
-                    <small data-i18n="loop.step4.desc">Use it once more.</small>
-                  </span>
-                </button>
-              </li>
-              <li role="presentation">
-                <button class="loop-tab" type="button" role="tab" aria-selected="false" aria-controls="step-daily" id="tab-daily" tabindex="-1">
-                  <span>05</span>
-                  <span class="loop-tab-copy">
-                    <b data-i18n="loop.step5.title">Meet again</b>
-                    <small data-i18n="loop.step5.desc">Read it in a new story.</small>
-                  </span>
-                </button>
-              </li>
-            </ol>
-
-            <div class="loop-stage">
-              <div class="phone phone-loop">
+      <section class="solution section-beige">
+        <div class="container solution-grid">
+          <div class="solution-copy reveal">
+            <span class="pill"><span class="pill-dot blue"><svg class="icon"><use href="#i-thread" /></svg></span><span data-i18n="solution.pill">Solution</span></span>
+            <h2 class="section-title" data-i18n-html="solution.title">One companion.<br /><em>One loop.</em></h2>
+            <p class="section-lede" data-i18n="solution.lede">Name what you notice, talk it through, keep the word, and meet it again.</p>
+            <a class="link-arrow" href="#loop"><span data-i18n="solution.link">See the loop</span><svg class="icon"><use href="#i-arrow" /></svg></a>
+          </div>
+          <div class="solution-bento reveal">
+            <div class="bento-phone">
+              <div class="phone" aria-hidden="true">
                 <div class="phone-screen">
                   <div class="statusbar">
                     <span>9:41</span>
@@ -242,219 +214,322 @@
                       <svg class="icon"><use href="#i-battery" /></svg>
                     </span>
                   </div>
-
-                  <div class="loop-panel is-active" id="step-see" role="tabpanel" aria-labelledby="tab-see">
-                    <div class="app-header"><span>Timeline</span></div>
-                    <div class="presence">
-                      <img class="presence-avatar" src="assets/companion/companion_hmm.png" alt="" />
+                  <div class="app-header"><span data-i18n="mock.timeline">Timeline</span></div>
+                  <div class="presence">
+                    <img class="presence-avatar" src="assets/companion/companion_hmm.png" alt="" />
+                    <div>
+                      <p class="presence-name">Momo</p>
+                      <p class="presence-line" data-i18n="solution.phoneLine">Morning. What did you notice today?</p>
+                    </div>
+                  </div>
+                  <div class="phone-photo"><img src="assets/forest.jpg" alt="" /></div>
+                  <article class="word-card">
+                    <div class="word-head">
                       <div>
-                        <p class="presence-name">Momo</p>
-                        <p class="presence-line">What did the leaves look like?</p>
+                        <p class="word">tree</p>
+                        <p class="ipa">/triː/ · noun · <span lang="zh-CN">树</span></p>
                       </div>
+                      <span class="play"><svg class="icon"><use href="#i-play" /></svg></span>
                     </div>
-                    <div class="phone-photo"><img src="assets/forest.jpg" alt="" /></div>
-                    <div class="mini-card">
-                      <p class="word">tree</p>
-                      <p class="ipa">/triː/ · <span lang="zh-CN">树</span> · noun</p>
-                      <p class="def">A tall plant with a trunk, branches, and leaves.</p>
-                      <div class="word-card-foot">
-                        <span>From your walk in the park.</span>
-                        <span class="word-card-talk">Talk about it</span>
-                      </div>
+                    <p class="def">A tall plant with a trunk, branches, and leaves.</p>
+                    <p class="def-zh" lang="zh-CN">一种有树干、树枝和叶子的高大植物。</p>
+                    <div class="word-card-foot">
+                      <span data-i18n="mock.from">From your walk in the park.</span>
+                      <span class="word-card-talk" data-i18n="mock.talk">Talk about it</span>
                     </div>
-                  </div>
-
-                  <div class="loop-panel" id="step-say" role="tabpanel" aria-labelledby="tab-say" hidden>
-                    <div class="chat-head">
-                      <img src="assets/companion/companion_hmm.png" alt="" />
-                      <span>Momo</span>
-                    </div>
-                    <div class="bubbles">
-                      <p class="bubble user">I sit under tree with my daughter yesterday.</p>
-                      <div class="bubble cat">
-                        <p>I sat under the tree with my daughter yesterday.</p>
-                        <span class="bubble-note">sit → sat; add “the” before tree.</span>
-                      </div>
-                      <p class="bubble cat">That sounds like a lovely morning. What did she notice?</p>
-                    </div>
-                    <div class="composer">
-                      <span>Write in English or 中文…</span>
-                      <span class="composer-send"><svg class="icon"><use href="#i-arrow" /></svg></span>
-                    </div>
-                  </div>
-
-                  <div class="loop-panel" id="step-keep" role="tabpanel" aria-labelledby="tab-keep" hidden>
-                    <div class="app-header"><span>Words</span></div>
-                    <p class="panel-kicker">Kept from your walk in the park</p>
-                    <ul class="word-list">
-                      <li><span class="word-list-word">tree</span><span class="word-list-meta">树 · noun</span></li>
-                      <li><span class="word-list-word">under the tree</span><span class="word-list-meta">在树下</span></li>
-                      <li><span class="word-list-word">leaf</span><span class="word-list-meta">叶子</span></li>
-                      <li><span class="word-list-word">branch</span><span class="word-list-meta">树枝</span></li>
-                    </ul>
-                  </div>
-
-                  <div class="loop-panel" id="step-practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
-                    <div class="app-header"><span>Practice</span></div>
-                    <div class="practice-card">
-                      <p class="panel-kicker">One quiet return</p>
-                      <p class="practice-prompt">I sat <span class="blank">___</span> the tree with my daughter.</p>
-                      <p class="practice-answer">under.</p>
-                      <p class="practice-note">Yes. No score, no streak.</p>
-                    </div>
-                  </div>
-
-                  <div class="loop-panel" id="step-daily" role="tabpanel" aria-labelledby="tab-daily" hidden>
-                    <div class="app-header"><span>Daily</span></div>
-                    <div class="daily-card">
-                      <p class="panel-kicker">From your words</p>
-                      <h3>The Tree by the Path</h3>
-                      <p>At seven in the morning, the path was still cool under the <span class="u">tree</span>. She stood there with her daughter and listened to the leaves.</p>
-                      <span class="chunk">tree · under the tree</span>
-                    </div>
-                  </div>
-
+                  </article>
                 </div>
+              </div>
+            </div>
+            <div class="bento-stats">
+              <div class="stat-card"><span class="stat-num">18</span><span class="stat-label" data-i18n="solution.stat1">Words kept</span></div>
+              <div class="stat-card"><span class="stat-num">6</span><span class="stat-label" data-i18n="solution.stat2">Talks</span></div>
+              <div class="stat-card"><span class="stat-num">3</span><span class="stat-label" data-i18n="solution.stat3">Stories</span></div>
+              <div class="stat-card stat-zero">
+                <span class="stat-num">0</span>
+                <span class="stat-label" data-i18n="solution.stat4">Streaks</span>
+                <p data-i18n="solution.zeroNote">No scores. No pressure.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="companion" id="companion">
-        <div class="container companion-grid">
-          <figure class="companion-visual reveal">
-            <div class="cat-plate"><img src="assets/companion/companion_chill.png" alt="Momo, a small black cat" data-i18n-aria-label="companion.alt" /></div>
-            <figcaption>
-              <span class="companion-name" data-i18n="companion.name">Momo</span>
-              <span class="companion-role" data-i18n="companion.role">Your companion</span>
-            </figcaption>
-          </figure>
-          <div class="companion-copy">
-            <p class="eyebrow reveal" data-i18n="companion.eyebrow">Your companion</p>
-            <h2 class="display reveal" style="--d: 0.05s" data-i18n="companion.title">It stays with you.</h2>
-            <p class="lede reveal" style="--d: 0.1s" data-i18n="companion.lede">
-              A small black cat who learns English with you. You give it a name. It remembers your words, the mistakes you make twice, and the moments you kept.
-            </p>
-            <ul class="traits">
-              <li class="reveal">
-                <h3 data-i18n="companion.trait1.title">You name it.</h3>
-                <p data-i18n="companion.trait1.desc">Momo, Pip, Nori. The name is yours, and it can change.</p>
-              </li>
-              <li class="reveal" style="--d: 0.06s">
-                <h3 data-i18n="companion.trait2.title">It remembers.</h3>
-                <p data-i18n="companion.trait2.desc">Your words, your recurring mistakes, and the moments you saved.</p>
-              </li>
-              <li class="reveal" style="--d: 0.12s">
-                <h3 data-i18n="companion.trait3.title">It speaks first.</h3>
-                <p data-i18n="companion.trait3.desc">A small line on the timeline, or the first message in Talk.</p>
-              </li>
-            </ul>
-            <p class="companion-note reveal" style="--d: 0.18s" data-i18n="companion.note">A character, not a tutor.</p>
+      <section class="why section-white">
+        <div class="container why-grid">
+          <div class="why-copy reveal">
+            <span class="pill"><span class="pill-dot pink"><svg class="icon"><use href="#i-spark" /></svg></span><span data-i18n="why.pill">Why</span></span>
+            <h2 class="section-title" data-i18n="why.title">Why it works differently.</h2>
+            <p class="section-lede" data-i18n="why.lede">A small habit only survives if it belongs to your day.</p>
+          </div>
+          <div class="why-cards">
+            <article class="why-card reveal">
+              <span class="icon-circle pink"><svg class="icon"><use href="#i-eye" /></svg></span>
+              <h3 data-i18n="why.card1.title">It starts from your life.</h3>
+              <p data-i18n="why.card1.desc">A photo, a sentence, a moment. The word comes from what you already noticed.</p>
+            </article>
+            <article class="why-card reveal" style="--d: 0.06s">
+              <span class="icon-circle blue"><svg class="icon"><use href="#i-chat" /></svg></span>
+              <h3 data-i18n="why.card2.title">It corrects quietly.</h3>
+              <p data-i18n="why.card2.desc">A more natural sentence, not a red pen. The conversation keeps going.</p>
+            </article>
+            <article class="why-card reveal" style="--d: 0.12s">
+              <span class="icon-circle black"><svg class="icon"><use href="#i-thread" /></svg></span>
+              <h3 data-i18n="why.card3.title">It remembers the thread.</h3>
+              <p data-i18n="why.card3.desc">Your words, your recurring mistakes, and the moments you kept come back when they matter.</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="story" id="story">
-        <div class="container story-grid">
-          <div class="story-copy">
-            <p class="eyebrow reveal" data-i18n="story.eyebrow">A story</p>
-            <h2 class="display reveal" style="--d: 0.05s" data-i18n-html="story.title">Your words<br /><em>become a story.</em></h2>
-            <p class="lede reveal" style="--d: 0.1s" data-i18n="story.lede">
-              Every day, your companion writes a short story from the words you kept. Read it, or let it read to you.
-            </p>
-            <blockquote class="pullquote reveal" style="--d: 0.16s" data-i18n="story.quote">Not a quiz. Not a streak. Just a story.</blockquote>
+      <section class="how section-beige" id="loop">
+        <div class="container">
+          <div class="section-center reveal">
+            <span class="pill"><span class="pill-dot pink"><svg class="icon"><use href="#i-thread" /></svg></span><span data-i18n="how.pill">How it works</span></span>
+            <h2 class="section-title" data-i18n="how.title">From a word to a story in five quiet moves.</h2>
+            <p class="section-lede" data-i18n="how.lede">No units to finish, no streak to protect.</p>
           </div>
-          <article class="reading-card reveal" style="--d: 0.1s">
+          <div class="how-grid">
+            <article class="how-card how-wide reveal">
+              <span class="card-num">01</span>
+              <div class="how-visual how-see" aria-hidden="true">
+                <div class="see-photo"><img src="assets/forest.jpg" alt="" /></div>
+                <div class="see-card">
+                  <p class="word">tree</p>
+                  <p class="ipa">/triː/ · noun</p>
+                  <p class="def">A tall plant with a trunk, branches, and leaves.</p>
+                </div>
+              </div>
+              <h3 data-i18n="how.step1.title">See it.</h3>
+              <p data-i18n="how.step1.desc">Name what you noticed.</p>
+            </article>
+            <article class="how-card reveal" style="--d: 0.05s">
+              <span class="card-num">02</span>
+              <div class="how-visual how-chat" aria-hidden="true">
+                <p class="mini-bubble user">I sit under tree with my daughter yesterday.</p>
+                <p class="mini-bubble cat">I sat under the tree with my daughter yesterday.</p>
+                <span class="mini-note" data-i18n="mock.sayNote">sit → sat; add “the” before tree.</span>
+              </div>
+              <h3 data-i18n="how.step2.title">Say it.</h3>
+              <p data-i18n="how.step2.desc">Talk it through. A quiet correction follows.</p>
+            </article>
+            <article class="how-card reveal">
+              <span class="card-num">03</span>
+              <ul class="mini-list" aria-hidden="true">
+                <li><span>tree</span><span>树</span></li>
+                <li><span>under the tree</span><span>在树下</span></li>
+                <li><span>leaf</span><span>叶子</span></li>
+              </ul>
+              <h3 data-i18n="how.step3.title">Keep it.</h3>
+              <p data-i18n="how.step3.desc">Sound, meaning, and one usable chunk.</p>
+            </article>
+            <article class="how-card reveal" style="--d: 0.05s">
+              <span class="card-num">04</span>
+              <div class="mini-practice" aria-hidden="true">
+                <p>I sat <span class="blank">___</span> the tree with my daughter.</p>
+                <p class="answer">under.</p>
+              </div>
+              <h3 data-i18n="how.step4.title">Practice it.</h3>
+              <p data-i18n="how.step4.desc">One small return. No score.</p>
+            </article>
+            <article class="how-card reveal" style="--d: 0.1s">
+              <span class="card-num">05</span>
+              <div class="mini-story" aria-hidden="true">
+                <p class="mini-kicker" data-i18n="mock.fromWords">From your words</p>
+                <p class="mini-story-title">The Tree by the Path</p>
+                <p class="mini-story-text">At seven in the morning, the path was still cool under the tree.</p>
+              </div>
+              <h3 data-i18n="how.step5.title">Meet it again.</h3>
+              <p data-i18n="how.step5.desc">A story made from your words.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="features section-white" id="features">
+        <div class="container">
+          <div class="features-head reveal">
+            <div>
+              <span class="pill"><span class="pill-dot blue"><svg class="icon"><use href="#i-spark" /></svg></span><span data-i18n="features.pill">Features</span></span>
+              <h2 class="section-title" data-i18n="features.title">Everything you need to keep the word.</h2>
+            </div>
+            <p class="section-lede" data-i18n="features.lede">Six small tools, one loop.</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card feature-discover reveal">
+              <div class="feature-copy">
+                <span class="icon-circle pink"><svg class="icon"><use href="#i-search" /></svg></span>
+                <h3 data-i18n="features.f1.title">Discover</h3>
+                <p data-i18n="features.f1.desc">A word, a sentence, or a photo becomes one clear card.</p>
+              </div>
+              <div class="feature-visual" aria-hidden="true">
+                <div class="feature-word-card">
+                  <img src="assets/forest.jpg" alt="" />
+                  <p class="feature-word">tree</p>
+                  <p class="feature-ipa">/triː/ · noun · 树</p>
+                </div>
+              </div>
+            </article>
+            <article class="feature-card reveal" style="--d: 0.05s">
+              <span class="icon-circle blue"><svg class="icon"><use href="#i-chat" /></svg></span>
+              <h3 data-i18n="features.f2.title">Talk</h3>
+              <p data-i18n="features.f2.desc">Natural replies, quiet corrections, useful notes.</p>
+              <div class="feature-chat" aria-hidden="true">
+                <span class="feature-bubble user">I sit under tree with my daughter.</span>
+                <span class="feature-bubble cat">I sat under the tree with my daughter.</span>
+              </div>
+            </article>
+            <article class="feature-card reveal">
+              <span class="icon-circle black"><svg class="icon"><use href="#i-bookmark" /></svg></span>
+              <h3 data-i18n="features.f3.title">Words</h3>
+              <p data-i18n="features.f3.desc">Sound, meaning, and one chunk you can use.</p>
+            </article>
+            <article class="feature-card reveal" style="--d: 0.05s">
+              <span class="icon-circle pink"><svg class="icon"><use href="#i-mic" /></svg></span>
+              <h3 data-i18n="features.f4.title">Practice</h3>
+              <p data-i18n="features.f4.desc">A short return, without a score.</p>
+            </article>
+            <article class="feature-card reveal" style="--d: 0.1s">
+              <span class="icon-circle blue"><svg class="icon"><use href="#i-book" /></svg></span>
+              <h3 data-i18n="features.f5.title">Daily</h3>
+              <p data-i18n="features.f5.desc">A story written from the words you kept.</p>
+            </article>
+            <article class="feature-card feature-ask reveal">
+              <span class="icon-circle black"><svg class="icon"><use href="#i-spark" /></svg></span>
+              <div class="feature-ask-copy">
+                <h3 data-i18n="features.f6.title">Ask</h3>
+                <p data-i18n="features.f6.desc">A direct answer, with the context you were reading.</p>
+              </div>
+              <div class="ask-card" aria-hidden="true">
+                <p class="ask-q" data-i18n="features.askQ">“What’s the difference between say and tell?”</p>
+                <p class="ask-a" data-i18n="features.askA">Say is the words you speak. Tell needs a listener: tell me, tell her.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="companion section-beige" id="companion">
+        <div class="container companion-grid">
+          <div class="companion-visual reveal">
+            <div class="cat-stage">
+              <span class="cat-pill cat-pill-1" data-i18n="companion.pill1">You named me.</span>
+              <span class="cat-pill cat-pill-2" data-i18n="companion.pill2">I remember.</span>
+              <img class="cat-main" src="assets/companion/companion_chill.png" alt="Momo, a small black cat" data-i18n-aria-label="companion.alt" />
+              <span class="cat-name" data-i18n="companion.name">Momo</span>
+              <span class="cat-role" data-i18n="companion.role">Your companion</span>
+            </div>
+            <div class="cat-expressions" aria-label="Companion expressions" data-i18n-aria-label="companion.expressionsAria">
+              <img src="assets/companion/companion_hmm.png" alt="" />
+              <img src="assets/companion/companion_you_got_this.png" alt="" />
+              <img src="assets/companion/companion_its_ok.png" alt="" />
+            </div>
+          </div>
+          <div class="companion-copy">
+            <span class="pill reveal"><span class="pill-dot pink"><svg class="icon"><use href="#i-spark" /></svg></span><span data-i18n="companion.pill">Companion</span></span>
+            <h2 class="section-title reveal" data-i18n="companion.title">Meet your companion.</h2>
+            <p class="section-lede reveal" data-i18n="companion.lede">A small black cat who learns English with you. You give it a name.</p>
+            <ul class="trait-list">
+              <li class="reveal">
+                <span class="icon-circle pink"><svg class="icon"><use href="#i-spark" /></svg></span>
+                <div>
+                  <h3 data-i18n="companion.trait1.title">You name it.</h3>
+                  <p data-i18n="companion.trait1.desc">Momo, Pip, Nori. The name is yours, and it can change.</p>
+                </div>
+              </li>
+              <li class="reveal" style="--d: 0.06s">
+                <span class="icon-circle blue"><svg class="icon"><use href="#i-bookmark" /></svg></span>
+                <div>
+                  <h3 data-i18n="companion.trait2.title">It remembers.</h3>
+                  <p data-i18n="companion.trait2.desc">Your words, the mistakes you make twice, and the moments you kept.</p>
+                </div>
+              </li>
+              <li class="reveal" style="--d: 0.12s">
+                <span class="icon-circle black"><svg class="icon"><use href="#i-chat" /></svg></span>
+                <div>
+                  <h3 data-i18n="companion.trait3.title">It speaks first.</h3>
+                  <p data-i18n="companion.trait3.desc">A small line on the timeline, or the first message in Talk.</p>
+                </div>
+              </li>
+            </ul>
+            <p class="companion-note reveal" data-i18n="companion.note">A character, not a tutor.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="story section-white" id="story">
+        <div class="container story-grid">
+          <div class="story-copy reveal">
+            <span class="pill"><span class="pill-dot pink"><svg class="icon"><use href="#i-book" /></svg></span><span data-i18n="story.pill">A story</span></span>
+            <h2 class="section-title" data-i18n-html="story.title">Your words<br /><em>become a story.</em></h2>
+            <p class="section-lede" data-i18n="story.lede">Every day, your companion writes a short story from the words you kept.</p>
+            <blockquote class="story-quote" data-i18n="story.quote">Not a quiz. Not a streak. Just a story.</blockquote>
+          </div>
+          <article class="reading-card reveal">
             <div class="reading-top">
               <span data-i18n="story.date">Mon, Nov 23</span>
               <button
                 class="reading-listen"
                 type="button"
-                data-speak="At seven in the morning, the path was still cool under the tree. She stood there with her daughter and listened to the leaves. A small wind moved through the branches. Her daughter pointed at the light and said, “It looks like a door.”"
+                data-speak="At seven in the morning, the path was still cool under the tree. She stood there with her daughter and listened to the leaves. A small wind moved through the branches. Her daughter pointed at the light and said, It looks like a door."
               >
                 <svg class="icon"><use href="#i-play" /></svg><span data-i18n="story.listen">Listen</span>
               </button>
             </div>
             <h3 data-i18n="story.title2">The Tree by the Path</h3>
-            <p>
-              At seven in the morning, the path was still cool under the <span class="u">tree</span>. She stood there with her daughter
-              and listened to the leaves.
-            </p>
+            <p>At seven in the morning, the path was still cool under the <span class="u">tree</span>. She stood there with her daughter and listened to the leaves.</p>
             <p>A small wind moved through the branches. Her daughter pointed at the light and said, “It looks like a door.”</p>
             <div class="reading-foot">
               <span data-i18n="story.foot">Written from your words</span>
-              <span class="reading-words">tree · under the tree · leaves</span>
+              <span class="reading-words">tree · under the tree</span>
             </div>
           </article>
         </div>
       </section>
 
       <section class="privacy" id="privacy">
-        <div class="container privacy-grid">
-          <div>
-            <p class="eyebrow reveal" data-i18n="privacy.eyebrow">Privacy</p>
-            <h2 class="display reveal" style="--d: 0.05s" data-i18n="privacy.title">Private by design.</h2>
-            <p class="lede reveal" style="--d: 0.1s" data-i18n="privacy.lede">
-              Your words and moments are yours. The AI suggests; Named checks and saves. The model can change without changing your data.
-            </p>
-            <p class="privacy-stat reveal" style="--d: 0.16s" data-i18n="privacy.stat">12 focused agents · 6 surfaces · 1 shared runtime</p>
-            <a class="link-arrow privacy-link reveal" style="--d: 0.2s" href="https://github.com/ZhangPeibin/Named#agent-architecture" target="_blank" rel="noopener noreferrer">
-              <span data-i18n="privacy.link">Read the full agent system</span>
-              <svg class="icon"><use href="#i-arrow" /></svg>
-            </a>
+        <div class="container">
+          <div class="privacy-head reveal">
+            <span class="pill pill-dark"><span class="pill-dot pink"><svg class="icon"><use href="#i-lock" /></svg></span><span data-i18n="privacy.pill">Privacy</span></span>
+            <h2 class="section-title" data-i18n="privacy.title">Private by design.</h2>
+            <p class="section-lede" data-i18n="privacy.lede">Your words and moments are yours. Named checks and saves; the model can change without changing your data.</p>
           </div>
-          <ul class="privacy-facts">
-            <li class="reveal">
-              <h3 data-i18n="privacy.fact1.title">Your data stays yours.</h3>
-              <p data-i18n="privacy.fact1.desc">Words, talks, and stories are account-scoped and deleted with your account.</p>
-            </li>
-            <li class="reveal" style="--d: 0.06s">
-              <h3 data-i18n="privacy.fact2.title">Checked before saving.</h3>
-              <p data-i18n="privacy.fact2.desc">Agents return structured results. The backend validates them before they touch your data.</p>
-            </li>
-            <li class="reveal" style="--d: 0.12s">
-              <h3 data-i18n="privacy.fact3.title">One model, replaceable.</h3>
-              <p data-i18n="privacy.fact3.desc">Twelve focused agents share one runtime. Swapping the model does not rewrite the product.</p>
-            </li>
-          </ul>
+          <div class="privacy-body">
+            <div class="privacy-stats reveal">
+              <div class="privacy-stat"><span class="stat-num">12</span><span data-i18n="privacy.stat1">focused agents</span></div>
+              <div class="privacy-stat"><span class="stat-num">6</span><span data-i18n="privacy.stat2">product surfaces</span></div>
+              <div class="privacy-stat"><span class="stat-num">1</span><span data-i18n="privacy.stat3">shared runtime</span></div>
+            </div>
+            <ul class="privacy-facts">
+              <li class="reveal">
+                <span class="icon-circle pink"><svg class="icon"><use href="#i-lock" /></svg></span>
+                <div>
+                  <h3 data-i18n="privacy.fact1.title">Your data stays yours.</h3>
+                  <p data-i18n="privacy.fact1.desc">Words, talks, and stories are account-scoped and deleted with your account.</p>
+                </div>
+              </li>
+              <li class="reveal" style="--d: 0.06s">
+                <span class="icon-circle blue"><svg class="icon"><use href="#i-check" /></svg></span>
+                <div>
+                  <h3 data-i18n="privacy.fact2.title">Checked before saving.</h3>
+                  <p data-i18n="privacy.fact2.desc">Agents return structured results. The backend validates them before they touch your data.</p>
+                </div>
+              </li>
+              <li class="reveal" style="--d: 0.12s">
+                <span class="icon-circle pink"><svg class="icon"><use href="#i-thread" /></svg></span>
+                <div>
+                  <h3 data-i18n="privacy.fact3.title">One model, replaceable.</h3>
+                  <p data-i18n="privacy.fact3.desc">Twelve focused agents share one runtime. Swapping the model does not rewrite the product.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <a class="link-arrow privacy-link reveal" href="https://github.com/ZhangPeibin/Named#agent-architecture" target="_blank" rel="noopener noreferrer">
+            <span data-i18n="privacy.link">Read the full agent system</span><svg class="icon"><use href="#i-arrow" /></svg>
+          </a>
         </div>
       </section>
 
-      <section class="cta" id="try">
-        <div class="container cta-inner">
-          <img class="cta-cat reveal" src="assets/companion/companion_you_got_this.png" alt="Momo, your companion" data-i18n-aria-label="cta.catAlt" />
-          <p class="eyebrow reveal" data-i18n="cta.eyebrow">Begin</p>
-          <h2 class="display reveal" style="--d: 0.05s" data-i18n-html="cta.title">Start with<br /><em>one word.</em></h2>
-          <p class="lede reveal" style="--d: 0.1s" data-i18n="cta.lede">
-            Named is coming to iOS and Android. Leave a note and we will write when it is ready.
-          </p>
-          <form class="waitlist reveal" id="waitlist" style="--d: 0.16s" novalidate>
-            <label class="sr-only" for="email" data-i18n="cta.emailLabel">Email address</label>
-            <div class="field-row">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                inputmode="email"
-                autocomplete="email"
-                data-i18n-placeholder="cta.placeholder"
-                placeholder="you@example.com"
-                required
-              />
-              <button class="btn" type="submit">
-                <span data-i18n="cta.button">Join the waitlist</span>
-                <svg class="icon"><use href="#i-arrow" /></svg>
-              </button>
-            </div>
-            <p class="form-note" id="form-note" data-i18n="cta.note">One email when it is ready. No noise.</p>
-            <p class="form-success" id="form-success" role="status" hidden>
-              <svg class="icon"><use href="#i-check" /></svg>
-              <span data-i18n="cta.success">You are on the list. We will write when Named is ready.</span>
-            </p>
-          </form>
-        </div>
-      </section>
     </main>
 
     <footer class="footer">
@@ -467,13 +542,13 @@
             <p class="footer-support" data-i18n="footer.support">A little cat, a word you keep, and a story from your own days.</p>
           </div>
         </div>
-        <div class="footer-links">
+        <nav class="footer-links" aria-label="Footer" data-i18n-aria-label="footer.nav">
           <a href="#loop" data-i18n="nav.loop">The loop</a>
           <a href="#companion" data-i18n="nav.companion">Companion</a>
-          <a href="#story" data-i18n="nav.story">A story</a>
+          <a href="#features" data-i18n="nav.features">Features</a>
           <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
           <a href="https://github.com/ZhangPeibin/Named" target="_blank" rel="noopener noreferrer" data-i18n="nav.github">GitHub</a>
-        </div>
+        </nav>
       </div>
       <div class="container footer-bottom">
         <span data-i18n="footer.note">© 2026 Named</span>
