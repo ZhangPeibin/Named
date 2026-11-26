@@ -76,7 +76,7 @@
     const active = [...s.challenges].reverse().find(c => c.status === 'active');
     const banner = `<button class="challenge-banner" ${active ? `data-open-challenge="${active.id}"` : 'data-action="new-challenge"'}><span class="challenge-icon">${icon('flag', 18)}</span><span class="grow"><strong>${active ? esc(active.name) : '开始一轮小挑战'}</strong><small>${active ? active.days + ' 天计划 · 继续探索' : '两天、一周，按你的节奏'}</small></span>${icon('arrow', 14)}</button>`;
     return `<div class="body">
-      <header class="topbar"><div class="brand">Named<span class="brand-mark">${icon('leaf', 17)}</span></div><span class="journal-label">YOUR EVERYDAY, IN ENGLISH</span></header>
+      <header class="topbar"><div class="brand">Named<span class="brand-mark">${A.brandMark(17)}</span></div><span class="journal-label">YOUR EVERYDAY, IN ENGLISH</span></header>
       <div class="home-heading"><h1 class="editorial-title">Explore your world.</h1><p class="sub">今天，什么吸引了你？</p></div>
       <div class="explore-photo art">${A.scene('tree')}</div>
       <div class="capture-actions">${act(icon('camera', 22) + '<span>拍一张</span>', 'quick-photo', 'capture-primary')}${act(icon('mic', 22) + '<span>聊一聊</span>', 'quick-talk', 'capture-secondary')}${act(icon('edit', 21) + '<span>写点什么</span>', 'quick-text', 'capture-secondary')}</div>

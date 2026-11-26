@@ -21,7 +21,7 @@
       "source": "asset:../../../app/assets/branding/marks/symbol_light.png",
       "dimensions": { "width": 512, "height": 512 },
       "fit": "contain",
-      "description": "The Weave N, ink stems + terracotta thread on transparent, for light grounds."
+      "description": "Loop-and-dot mark in brand red on transparent, for light grounds."
     },
     {
       "id": "splash_symbol_dark",
@@ -29,7 +29,7 @@
       "source": "asset:../../../app/assets/branding/marks/symbol_dark.png",
       "dimensions": { "width": 512, "height": 512 },
       "fit": "contain",
-      "description": "The Weave N, paper stems + terracotta thread on transparent, for dark grounds."
+      "description": "Loop-and-dot mark in paper on transparent, for dark grounds."
     },
     {
       "id": "brand_lockup",
@@ -37,7 +37,7 @@
       "source": "asset:../../../app/assets/branding/marks/lockup_light.png",
       "dimensions": { "width": 1400, "height": 512 },
       "fit": "contain",
-      "description": "Primary horizontal lockup: woven N + Manrope 800 Named wordmark, ink on transparent."
+      "description": "Primary horizontal lockup: red loop mark + Manrope 800 Named wordmark, ink on transparent."
     },
     {
       "id": "brand_lockup_dark",
@@ -45,7 +45,7 @@
       "source": "asset:../../../app/assets/branding/marks/lockup_dark.png",
       "dimensions": { "width": 1400, "height": 512 },
       "fit": "contain",
-      "description": "Horizontal lockup with paper stems and paper wordmark on transparent, for dark grounds."
+      "description": "Horizontal lockup with paper loop mark and paper wordmark on transparent, for dark grounds."
     }
   ],
   "screens": [

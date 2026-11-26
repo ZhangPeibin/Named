@@ -25,6 +25,7 @@ window.NamedMedia = (() => {
     moon: '<path d="M20 14A8 8 0 0 1 10 4 9 9 0 1 0 20 14Z"/>',
   };
   const icon = (name, size = 20) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.leaf}</svg>`;
+  const brandMark = (size = 18) => `<svg width="${size}" height="${size}" viewBox="546.5 348.5 960 960" fill="currentColor" aria-hidden="true"><path d="M1062 402C1138 403 1181 442 1175 502C1169 563 1119 584 1046 595C963 607 897 646 847 706C794 769 770 839 785 908C807 1005 899 1062 1003 1064C1099 1066 1180 1027 1225 958C1254 913 1261 866 1273 824C1287 775 1317 749 1358 753C1417 759 1449 808 1447 868C1443 999 1381 1111 1277 1179C1194 1234 1091 1255 987 1247C866 1238 754 1188 684 1099C612 1008 586 907 606 800C625 692 674 597 748 526C842 435 961 397 1062 402Z"/><circle cx="1161" cy="739" r="86"/></svg>`;
   const images = { tree: ['assets/forest.jpg', '阳光穿过林间树木'], can: ['assets/watering-can.jpg', '真实生活中的洒水壶'], coffee: ['assets/coffee.jpg', '日常生活中的咖啡'] };
   function scene(type = 'tree') {
     if (type === 'moment') return `<div class="moment-placeholder">${icon('chat', 34)}<span>来自你的一段生活</span></div>`;
@@ -32,5 +33,5 @@ window.NamedMedia = (() => {
     return `<img class="scene-photo photo-${type}" src="${src}" alt="${alt}" width="1200" height="800">`;
   }
   const avatar = () => '<img class="companion-photo" src="assets/companion.jpg" alt="Milo 虚拟伙伴的示例人物形象" width="900" height="1350">';
-  return { icon, scene, avatar };
+  return { icon, brandMark, scene, avatar };
 })();

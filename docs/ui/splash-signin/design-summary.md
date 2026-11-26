@@ -8,14 +8,14 @@ Branch: `feature/splash-signin-refresh`
 ## Purpose
 
 Cold start should feel like one continuous brand moment: the native splash hands off to an
-in-app splash with the same ground and the same woven-N mark, then the sign-in screen carries
+in-app splash with the same ground and the same loop-and-dot mark, then the sign-in screen carries
 the brand lockup while asking for native language and an email code.
 
 ## Hierarchy
 
 **Splash**
 
-1. The woven-N symbol, centered.
+1. The loop-and-dot symbol, centered.
 2. A 96 × 2 px indeterminate line near the bottom.
 
 There is no title, no wordmark, and no action. The screen exists for under a second and its
@@ -23,7 +23,7 @@ only job is to avoid a visual jump from the native splash.
 
 **Sign in**
 
-1. Primary element: the horizontal brand lockup (woven N + `Named`), fixed across both steps.
+1. Primary element: the horizontal brand lockup (loop mark + `Named`), fixed across both steps.
 2. Step indicator: two bars, active bar wider and in `primary`.
 3. Primary action: `Continue` on step 1, `Verify` on step 2.
 4. Secondary: `I already have an account` (text button), `Send code` (outlined), back
@@ -32,9 +32,9 @@ only job is to avoid a visual jump from the native splash.
 
 ## Why these choices
 
-- The brand kit (`docs/brand-identity.md`, `docs/brand/logo/round7/c-weave/`) retires the old
-  Lora + leaf mark. The lockup is the primary horizontal lockup, rendered from the outlined
-  Manrope 800 artwork so the wordmark is not retyped in Lora.
+- The brand kit (`docs/brand-identity.md`, `docs/brand/logo/round8/`) defines the loop-and-dot
+  mark. The lockup is the primary horizontal lockup, rendered from the outlined Manrope 800
+  artwork so the wordmark is not retyped in Lora.
 - The native splash is `#FBF8F2` light and `#171A1D` dark. The in-app splash uses the same
   fixed grounds (`color.splash_ground`) instead of the family `canvas`, so the first Flutter
   frame cannot flash a different paper. Sign-in then moves to the family `canvas`, which is
@@ -117,7 +117,7 @@ text scaling cannot clip the primary action.
 
 ## What changed
 
-- Replaced the old Lora + leaf header with the woven-N horizontal lockup from the brand kit.
+- Replaced the old Lora + leaf header with the round 8 horizontal lockup from the brand kit.
 - Removed the `Named` + leaf title from the splash; the symbol alone now matches the native
   splash, and the ground is fixed brand paper instead of the family canvas.
 - Added the branded eyebrow (`YOUR EVERYDAY, IN ENGLISH`) to the language step, using the
@@ -147,7 +147,7 @@ Standards:
 - image → Image.asset with semanticLabel
 
 Invariants:
-1. Screen hierarchy: splash = centered woven-N mark + 2 px line; sign in = centered lockup, 2-bar step indicator, one step panel at a time, one primary action per step.
+1. Screen hierarchy: splash = centered loop-and-dot mark + 2 px line; sign in = centered lockup, 2-bar step indicator, one step panel at a time, one primary action per step.
 2. States: language step → email step → code sent → verifying; errors stay inline and keep typed input; loading lives in the acting button.
 3. Tokens only; no color or spacing literal in feature code — the splash ground comes from the theme layer, not a feature widget.
 

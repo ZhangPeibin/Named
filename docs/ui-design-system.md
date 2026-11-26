@@ -224,7 +224,7 @@ The app defaults to **Ink & Linen**. Settings → Theme also exposes **Ink & Cob
 
 ### Sign in / onboarding
 
-1. Brand mark: the woven `N` symbol (Ink stems + Terracotta thread) + `Named` wordmark in Manrope 800. See [Brand identity](brand-identity.md).
+1. Brand mark: the loop-and-dot symbol in Brand Red `#D94F58` + `Named` wordmark in Manrope 800. See [Brand identity](brand-identity.md).
 2. Eyebrow: `YOUR EVERYDAY, IN ENGLISH`.
 3. Editorial title: short, human, one idea.
 4. One sentence of context.

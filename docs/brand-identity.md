@@ -1,29 +1,28 @@
 # Named · Logo 与 App 图标设计规范
 
-**状态:** 定稿（源自 identity round 7，选定方案 C · The Weave / Thread 细化）
+**状态:** 定稿（identity round 8，新标志由 `纯图标.svg` 提供）
 **产品权威:** [PRD V1.0](prd-v1.0.md)
 **体验方向:** [UI/UX 设计](ui-ux-design.md)
 **组件契约:** [Mobile UI Design System](ui-design-system.md)
-**源文件:** `docs/brand/logo/round7/c-weave/`
+**源文件:** `docs/brand/logo/round8/`
 
-本文是 Named 品牌标识与 App 图标的唯一使用规范。所有界面、启动屏、图标与对外物料都以此为准。它取代旧的「Lora + 叶片」临时标识。
+本文是 Named 品牌标识与 App 图标的唯一使用规范。所有界面、启动屏、图标与对外物料都以此为准。它取代 round 7 的编织 N 标识。
 
 ---
 
 ## 1. 设计理念
 
-**One thread over and under: the new word tied to what you already know.**
+**One line, one point. 一条线，一个点。**
 
-一条线，一上一下，把刚命名的词，和已经知道的经历、对话与记忆系在一起。
+标志是一条连续的品牌红线，绕成一个开口的环，环内收着一个圆点。线条不封口，视线从开口进入，被中心的点接住。它不读作某个字母，而是一个记号：把注意力收束到一个点上，再回到这条线上。
 
-标志取品牌首字母 **N**，但它不是一条简单的字母轮廓，而是一段**编织**：
+这个形状承担三件事：
 
-- 两条竖笔（Ink）构成 N 的骨架，是「你知道的」；
-- 一条 terracotta 斜线从上往下穿过，先在**左竖笔之上**、再钻到**右竖笔之下**，是「正在命名的那个词」。
+- **收束**：环把分散的信息围在一起。
+- **回访**：开口让线可以再次进入，对应复习与重访。
+- **落点**：圆点是那个被命名、被记住的瞬间。
 
-这条线由细渐宽、再收细，看起来是「画出来的一根线」而非「拼出来的笔画」。它把 Named 的产品差异——词与经历之间的关系——直接画进了标志里。
-
-识别原则：**一个标志，一个想法。** 标志是「关系的记号」，不是教学产品的图解。
+识别原则不变：**一个标志，一个想法。** 新标志比编织 N 更抽象，因此不叠加任何装饰或第二层含义。
 
 ---
 
@@ -33,32 +32,30 @@
 
 | 属性 | 值 |
 | --- | --- |
-| 画布 | `viewBox 0 0 256 256` |
-| 结构 | 两条弯曲竖笔（Ink `#232A31`）+ 一条斜向 terracotta 线（`#B05230`） |
-| 编织顺序 | 线在左竖笔**之上**、右竖笔**之下**（over / under 固定，不可颠倒） |
-| 竖笔宽 | 23–27 |
-| 线宽 | 由细渐宽再收细：`8 → 26 → 16`（Thread 细化版） |
-| 细节 | 竖笔轻微弯曲，整体感偏「手绘」，而非几何构造 |
+| 源画布 | `viewBox 480 280 1080 1080`（`纯图标.svg`） |
+| 导出画布 | `viewBox 0 0 256 256` |
+| 结构 | 一条连续曲线围成开口环 + 环内一个实心圆点 |
+| 颜色 | 单色 Brand Red `#D94F58`（浅色底） |
+| 线宽 | 由源图形定义，不得单独缩放线宽 |
+| 圆点 | 与线条同色；半径由源图形定义，不得拆出单独使用 |
 
 ### 2.2 颜色
 
 | 名称 | HEX | 用途 |
 | --- | --- | --- |
-| Cobalt 钴蓝 | `#2F4A6B` | UI 主色（深色备选图标底） |
-| Terracotta 陶土 | `#B05230` | 那根「系住词的线」 |
-| Ink 墨 | `#232A31` | N 竖笔、标准字 |
-| Paper 纸 | `#FBF8F2` | 反白竖笔、浅色底 |
+| Brand Red 品牌红 | `#D94F58` | 浅色底上的标志 |
+| Ink 墨 | `#232A31` | 标准字、正文 |
+| Paper 纸 | `#FBF8F2` | App 图标底、深色底上的反白标志与标准字 |
 
 规则：
 
-- 标志**最多两色**（Ink + Terracotta）。Terracotta 只作那根线，不作大面积底色，也**不是**唯一承载含义的元素。
-- 单色场景用 `exports/named-c-symbol-black.svg` / `-white.svg` / `-mono-2f4a6b.svg`。
-- 深色底上用 `c-symbol-on-dark.svg`（Paper 竖笔 + Terracotta 线）。
-- 线在钴蓝底上的小尺寸对比会下降，但 Paper 竖笔仍保住 N 的剪影，可读性不依赖那根线。
+- 标志**只有一色**。浅色底用 Brand Red，深色底用 Paper 反白。
+- Cobalt `#2F4A6B` 和 Terracotta `#B05230` 仍是 UI 语义色，不参与标志配色。
+- 不要给标志加渐变、描边、投影或第二种颜色。
 
-### 2.3 小尺寸截断（Small cut）
+### 2.3 小尺寸
 
-16 px 及 favicon / PWA 使用 `c-symbol-small.svg`（反白 `c-symbol-small-on-dark.svg`）。细线起点在小尺寸下会弱化，靠竖笔与 terracotta 斜线保留 N 的辨识度。
+新标志是实心形状，缩小时比细线标志更稳。16 px、favicon 与 PWA 直接使用同一图形，不做断线或简化版本；导出时把内容放大到画布的 86%。
 
 ---
 
@@ -74,8 +71,7 @@
 说明：
 
 - 界面展示字体仍用 **Lora**；Manrope 仅用于标准字，二者不混用。
-- 编织的 N 比 Manrope 800 轻，因此**主组合把 N 作为独立符号 + 标准字**，不把 N 直接嵌进词首。
-- 「编织字标」（`c-wordmark-woven.svg`）是备选，仅用于允许较浅 N 作为词首的场合；默认不使用。
+- 标准字文件沿用已转轮廓的 Manrope 800 路径，不因新标志重新排版。
 
 ---
 
@@ -83,13 +79,12 @@
 
 | 组合 | 文件 | 用途 |
 | --- | --- | --- |
-| **横排（主）** | `c-lockup-horizontal.svg` | 通用、App 内页脚、网站 |
-| **竖排（主）** | `c-lockup-stacked.svg` | 方形画布、社交头像 |
-| 横排·编织字标（备选） | `c-lockup-horizontal-woven.svg` | 少数需要 N 作词首的场合 |
-| 竖排·编织字标（备选） | `c-lockup-stacked-woven.svg` | 同上 |
-| 深色底变体 | 对应 `-on-dark.svg` | 钴蓝 / 墨色背景 |
+| **横排（主）** | `named-lockup-horizontal.svg` | 通用、网站导航、App 内页脚 |
+| **竖排** | `named-lockup-stacked.svg` | 方形画布、社交头像 |
+| 深色底横排 | `named-lockup-horizontal-on-dark.svg` | 深色背景 |
+| 深色底竖排 | `named-lockup-stacked-on-dark.svg` | 深色方形画布 |
 
-主横排 = **N 符号 + 标准字**（符号与文字分离，让符号承载「编织」的个性）。
+主横排 = **符号 + 标准字**，符号与文字分离。符号高度约为标准字高度的 1.5 倍，间距为符号内容宽度的约 0.2 倍。不要重新调整这个比例。
 
 ---
 
@@ -97,7 +92,7 @@
 
 ### 5.1 安全间距（Clear space）
 
-标志四周留白 **≥ 一个竖笔宽度**。在此范围内不得放置文字、图片或其他元素。
+标志四周留白 **≥ 一个圆点直径**。在此范围内不得放置文字、图片或其他元素。
 
 ### 5.2 最小尺寸
 
@@ -114,13 +109,13 @@
 
 ### 6.1 构图
 
-| 版本 | 底色 | N 竖笔 | 线 | 文件 |
-| --- | --- | --- | --- | --- |
-| **主图标** | Paper `#FBF8F2` | Ink `#232A31` | Terracotta `#B05230` | `app_icon.png` |
-| 深色备选 | Cobalt `#2F4A6B` | Paper `#FBF8F2` | Terracotta `#B05230` | `c-app-icon.svg` / `c-app-icon-square.svg` |
+| 版本 | 底色 | 标志 | 文件 |
+| --- | --- | --- | --- |
+| **主图标** | Paper `#FBF8F2` | Brand Red `#D94F58` | `named-app-icon.svg` |
+| iOS / 商店母版 | Paper `#FBF8F2` | Brand Red `#D94F58` | `named-app-icon-square.svg` |
 
-- 圆角底：`rx = 54`（256 画布）。iOS / 商店用**全出血方版** `c-app-icon-square.svg`，遮罩由系统处理。
-- 符号居中，组缩放 `1.06 × 1.1`（相对 256 画布中心）。
+- 预览版圆角 `rx = 54`（256 画布）。iOS / 商店用**全出血方版**，遮罩由系统处理。
+- 标志居中，内容约占画布 74%。不要为了“填满”继续放大。
 
 ### 6.2 平台尺寸
 
@@ -142,21 +137,21 @@
 
 **Flutter 落地**
 
-- `app/assets/branding/app_icon.png` ← `c-weave/exports/c-app-icon-1024.png`
+- `app/assets/branding/app_icon.png` ← `round8/exports/app-icon-1024.png`
 - 由 `flutter_launcher_icons` 生成全部 mipmap；改源后重跑 `make icons`。
 
 ### 6.3 启动屏（Splash）
 
 | 场景 | 文件 |
 | --- | --- |
-| 浅色 | `c-splash-mark.svg` / `app/assets/branding/splash_mark.png` |
-| 深色 | `c-splash-mark-dark.svg` / `app/assets/branding/splash_mark_dark.png` |
+| 浅色 | `named-splash-mark.svg` / `app/assets/branding/splash_mark.png` |
+| 深色 | `named-splash-mark-dark.svg` / `app/assets/branding/splash_mark_dark.png` |
 
-改源后重跑 `make splash`。
+浅色启动屏用 Brand Red，深色启动屏用 Paper 反白；两者是同一图形。改源后重跑 `make splash`。
 
 ### 6.4 主题适配
 
-App 图标与启动屏是**品牌常数**，不随 Ink & Cobalt / Ink & Parchment / Plum & Sand 三套主题或浅色/深色模式切换。标识永远是纸底 + 墨色 N（主图标）。
+App 图标与启动屏是**品牌常数**，不随 Ink & Cobalt / Ink & Parchment / Plum & Sand 三套主题或浅色/深色模式切换。App 图标永远是纸底 + 品牌红标志。
 
 ---
 
@@ -164,37 +159,36 @@ App 图标与启动屏是**品牌常数**，不随 Ink & Cobalt / Ink & Parchmen
 
 以下一律禁止：
 
-- 增加第二条线，或改变线的 over / under 顺序。
-- 旋转、拉伸、倾斜或改变 N 的比例。
-- 把 terracotta 线从 N 上拆离，或让线成为唯一载体。
-- 用字体重新输入标准字或 N。
-- 加投影、描边、渐变或装饰光晕。
-- 把标志做成对话气泡、地球、猫头鹰等教学类陈词滥调的变体。
+- 旋转、拉伸、倾斜或改变环与圆点的比例。
+- 把开口闭合，或把圆点移出环外。
+- 把圆点拆出来当作列表符号、加载指示或按钮图标。
+- 改变标志颜色，或给标志加第二种颜色、描边、渐变、投影。
+- 用字体重新输入标准字。
 - 在真实照片上直接叠彩色标志（应使用 Paper 或单色反白版，且置于不透明色块上）。
 
 ---
 
 ## 8. 交付物清单
 
-源文件位于 `docs/brand/logo/round7/c-weave/`：
+源文件位于 `docs/brand/logo/round8/`：
 
 | 类别 | 文件 |
 | --- | --- |
-| 符号 | `c-symbol.svg` · `c-symbol-on-dark.svg` · `c-symbol-small.svg` · `c-symbol-small-on-dark.svg` |
-| 标准字 | `c-wordmark.svg` · `c-wordmark-on-dark.svg` · `c-wordmark-woven*.svg` |
-| 组合 | `c-lockup-horizontal.svg` · `c-lockup-stacked.svg` · `*-woven.svg` · 各 `-on-dark.svg` |
-| App 图标 | `c-app-icon.svg` · `c-app-icon-square.svg` · `c-app-icon-paper.svg` |
-| 启动屏 | `c-splash-mark.svg` · `c-splash-mark-dark.svg` |
-| 导出 | `exports/`（单色/反白 SVG、1200 / 1024 / 512 PNG、favicon / PWA 全套、webmanifest、head snippet） |
-| 演示 | `board.html` · `board.png` · `slides/` |
+| 符号 | `named-symbol.svg` · `named-symbol-on-dark.svg` |
+| 标准字 | `named-wordmark.svg` · `named-wordmark-on-dark.svg` |
+| 组合 | `named-lockup-horizontal.svg` · `named-lockup-horizontal-on-dark.svg` · `named-lockup-stacked.svg` · `named-lockup-stacked-on-dark.svg` |
+| App 图标 | `named-app-icon.svg` · `named-app-icon-square.svg` |
+| 启动屏 | `named-splash-mark.svg` · `named-splash-mark-dark.svg` |
+| 导出 | `exports/`（app icon、splash、lockup PNG、favicon / PWA 全套） |
+| 生成脚本 | `generate.py` |
 
 ---
 
 ## 9. 与设计系统的关系
 
-- 本文取代 `ui-design-system.md` 第 6 节中「Lora + 叶片」的旧描述。
+- 本文取代 `ui-design-system.md` 第 6 节中编织 N 的描述。
 - 界面显示字体（Lora）与标准字字体（Manrope 800）分工明确，不混用。
-- 品牌色与语义色一致：Cobalt `#2F4A6B` = 系统 `primary`（浅色）；Terracotta `#B05230` = 系统 `accent`。
+- 品牌红是标志专用色；Cobalt `#2F4A6B` = 系统 `primary`，Terracotta `#B05230` = 系统 `accent`。三者不互换。
 
 ---
 
@@ -202,4 +196,4 @@ App 图标与启动屏是**品牌常数**，不随 Ink & Cobalt / Ink & Parchmen
 
 - 尚未做商标检索；上线前需委托专业检索（商标库 + 反向图片）。
 - Manrope 为 SIL OFL，标准字已转轮廓，可商用。
-- 若日后加「编织字标」为正式主标，需重新评估 N 与 Manrope 800 的字重匹配。
+- 新标志的源文件只有 `纯图标.svg`；其余 SVG 由 `round8/generate.py` 生成，不要手工修改导出文件。

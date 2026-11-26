@@ -16,7 +16,7 @@
     "opacity": "docs/ui-design-system.md \u00a75 (disabled 40%)",
     "dimensions": "app/lib/app/theme/app_spacing.dart AppSize + docs/ui-design-system.md \u00a75",
     "motion": "docs/ui-design-system.md \u00a77",
-    "brand": "docs/brand-identity.md + docs/brand/logo/round7/c-weave/README.md"
+    "brand": "docs/brand-identity.md + docs/brand/logo/round8/README.md"
   },
   "tokens": {
     "colors": {
