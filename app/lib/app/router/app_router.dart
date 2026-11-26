@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -87,12 +87,15 @@ class AppRouteNames {
 
 final _publicRoutePaths = <String>{AppRoutePaths.loading, AppRoutePaths.signIn};
 
+final appRouteObserver = RouteObserver<ModalRoute<dynamic>>();
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = _AuthRefreshListenable(ref);
   ref.onDispose(refreshListenable.dispose);
   final router = GoRouter(
     initialLocation: AppRoutePaths.timeline,
     refreshListenable: refreshListenable,
+    observers: [appRouteObserver],
     redirect: (context, state) {
       final auth = ref.read(authNotifierProvider);
       if (auth.isLoading && !auth.hasValue) {

@@ -48,7 +48,7 @@ class TimelinePage extends ConsumerStatefulWidget {
 }
 
 class _TimelinePageState extends ConsumerState<TimelinePage>
-    with WidgetsBindingObserver, TickerProviderStateMixin {
+    with WidgetsBindingObserver, TickerProviderStateMixin, RouteAware {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   String? _error;
@@ -74,6 +74,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   bool _greetingVisible = false;
   bool _greetingShownForEntry = false;
   bool _preparingGreeting = false;
+  bool _greetingRecheck = false;
   late final AnimationController _greetingController;
 
   static const _hintInterval = Duration(seconds: 6);
@@ -107,12 +108,30 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      appRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _greetingShownForEntry = false;
       unawaited(_prepareGreeting());
       _refreshIfDayChanged();
     }
+  }
+
+  @override
+  void didPopNext() {
+    if (_preparingGreeting) {
+      _greetingRecheck = true;
+      return;
+    }
+    unawaited(_prepareGreeting());
   }
 
   void _refreshIfDayChanged() {
@@ -124,6 +143,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     ref.invalidate(timelineControllerProvider);
     ref.invalidate(progressProvider);
   }
+
+  bool get _isTimelineVisible => ModalRoute.of(context)?.isCurrent ?? false;
 
   Future<void> _prepareGreeting() async {
     if (_greetingShownForEntry || _preparingGreeting) {
@@ -140,7 +161,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
         return;
       }
       await Future<void>.delayed(const Duration(milliseconds: 200));
-      if (!mounted) {
+      if (!mounted || !_isTimelineVisible) {
         return;
       }
       final storage = ref.read(keyValueStorageProvider);
@@ -172,6 +193,10 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       return;
     } finally {
       _preparingGreeting = false;
+      if (_greetingRecheck) {
+        _greetingRecheck = false;
+        unawaited(_prepareGreeting());
+      }
     }
   }
 
@@ -199,6 +224,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
 
   @override
   void dispose() {
+    appRouteObserver.unsubscribe(this);
     _hintTimer?.cancel();
     _dayTimer?.cancel();
     _trailEnableTimer?.cancel();
