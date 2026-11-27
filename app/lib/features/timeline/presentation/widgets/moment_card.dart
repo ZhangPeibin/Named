@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/timeline_item.dart';
 import 'scene_audio_button.dart';
+import 'scene_translation.dart';
 import 'talk_action.dart';
 
 class MomentCard extends StatelessWidget {
@@ -74,6 +75,10 @@ class MomentCard extends StatelessWidget {
                 ),
               ],
             ],
+          ),
+          SceneTranslation(
+            key: ValueKey(scene.naturalEnglish),
+            text: scene.naturalEnglish,
           ),
           if (chunk != null) ...[
             const SizedBox(height: AppSpacing.s10),

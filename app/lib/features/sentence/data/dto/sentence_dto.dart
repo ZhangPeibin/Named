@@ -60,6 +60,7 @@ class SentenceDetailDto {
   const SentenceDetailDto({
     required this.original,
     required this.naturalEnglish,
+    required this.translationNative,
     required this.explanationNative,
     required this.grammarNotes,
     required this.chunks,
@@ -70,6 +71,7 @@ class SentenceDetailDto {
     return SentenceDetailDto(
       original: json['original'] as String? ?? '',
       naturalEnglish: json['natural_english'] as String? ?? '',
+      translationNative: json['translation_native'] as String? ?? '',
       explanationNative: json['explanation_native'] as String? ?? '',
       grammarNotes: json['grammar_notes'] as String? ?? '',
       chunks: (json['chunks'] as List<dynamic>? ?? const [])
@@ -85,6 +87,7 @@ class SentenceDetailDto {
 
   final String original;
   final String naturalEnglish;
+  final String translationNative;
   final String explanationNative;
   final String grammarNotes;
   final List<SentenceChunkDto> chunks;
@@ -94,6 +97,7 @@ class SentenceDetailDto {
     return SentenceDetail(
       original: original,
       naturalEnglish: naturalEnglish,
+      translationNative: translationNative,
       explanationNative: explanationNative,
       grammarNotes: grammarNotes,
       chunks: chunks.map((chunk) => chunk.toDomain()).toList(),

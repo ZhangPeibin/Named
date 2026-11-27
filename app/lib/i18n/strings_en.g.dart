@@ -812,8 +812,8 @@ class Translations$understand$en {
 	/// en: 'Which one did you mean?'
 	String get chooseTitle => 'Which one did you mean?';
 
-	/// en: 'Meaning'
-	String get translation => 'Meaning';
+	/// en: 'Translation'
+	String get translation => 'Translation';
 
 	/// en: 'Example'
 	String get example => 'Example';
@@ -1016,6 +1016,9 @@ class Translations$talk$en {
 	/// en: 'Could not load this sentence.'
 	String get sentenceLoadFailed => 'Could not load this sentence.';
 
+	/// en: 'Translation'
+	String get translation => 'Translation';
+
 	/// en: 'Explanation'
 	String get explanation => 'Explanation';
 
@@ -1108,6 +1111,18 @@ class Translations$timeline$en {
 
 	/// en: 'Word details'
 	String get wordDetails => 'Word details';
+
+	/// en: 'See translation'
+	String get showTranslation => 'See translation';
+
+	/// en: 'Hide translation'
+	String get hideTranslation => 'Hide translation';
+
+	/// en: 'Translating…'
+	String get translating => 'Translating…';
+
+	/// en: 'Could not load the translation.'
+	String get translationFailed => 'Could not load the translation.';
 
 	/// en: 'Play sentence'
 	String get playMoment => 'Play sentence';
@@ -2292,7 +2307,7 @@ extension on Translations {
 			'write.emptyInput' => 'Write something first.',
 			'understand.title' => 'Understand',
 			'understand.chooseTitle' => 'Which one did you mean?',
-			'understand.translation' => 'Meaning',
+			'understand.translation' => 'Translation',
 			'understand.example' => 'Example',
 			'understand.related' => 'Related',
 			'understand.talk' => 'Talk about it',
@@ -2357,6 +2372,7 @@ extension on Translations {
 			'talk.copied' => 'Copied',
 			'talk.sentenceDetails' => 'Sentence details',
 			'talk.sentenceLoadFailed' => 'Could not load this sentence.',
+			'talk.translation' => 'Translation',
 			'talk.explanation' => 'Explanation',
 			'talk.grammarNotes' => 'Structure',
 			'talk.chunks' => 'Chunks',
@@ -2385,6 +2401,10 @@ extension on Translations {
 			'timeline.grammar' => 'Grammar',
 			'timeline.moreDetails' => 'More details',
 			'timeline.wordDetails' => 'Word details',
+			'timeline.showTranslation' => 'See translation',
+			'timeline.hideTranslation' => 'Hide translation',
+			'timeline.translating' => 'Translating…',
+			'timeline.translationFailed' => 'Could not load the translation.',
 			'timeline.playMoment' => 'Play sentence',
 			'timeline.pauseMoment' => 'Pause sentence',
 			'timeline.play' => 'Play word',

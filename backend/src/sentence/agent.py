@@ -22,6 +22,8 @@ Return:
 - natural_english: the complete, accurate English version. If the input is
   already natural English, preserve it. If it is Chinese or mixed language,
   express exactly its meaning in natural English.
+- translation_native: the full sentence translated into the learner's native
+  language. Make it read naturally, like something a native speaker would write.
 - explanation_native: a short explanation in the learner's native language.
 - grammar_notes: concise, reusable grammar or structure notes in the learner's
   native language.
@@ -34,14 +36,16 @@ Rules:
 - Preserve names, facts, tone, and the learner's intended meaning.
 - Do not add events, places, people, or feelings the learner did not provide.
 - Do not use Markdown.
-- Do not provide a separate line-by-line translation of the whole sentence.
-- Prefer a useful explanation over a literal word-for-word rewrite.
+- translation_native must be a complete translation, not a summary or an
+  explanation.
+- Do not translate word by word; both the English and the native translation
+  should sound natural.
 """.strip()
 
 SPEC = register(
     AgentSpec(
         name="sentence",
-        prompt_version="sentence-v1",
+        prompt_version="sentence-v2",
         system_prompt=SYSTEM_PROMPT,
         output_type=SentenceAgentOutput,
         error_code="sentence_agent_failed",

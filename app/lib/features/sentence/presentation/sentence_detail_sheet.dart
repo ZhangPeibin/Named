@@ -99,6 +99,12 @@ class _SentenceDetailView extends StatelessWidget {
         Text(detail.naturalEnglish, style: textTheme.headlineMedium),
         const SizedBox(height: AppSpacing.s8),
         _SentenceAudioButton(text: detail.naturalEnglish),
+        if (detail.translationNative.trim().isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s20),
+          _SectionLabel(label: t.translation),
+          const SizedBox(height: AppSpacing.s6),
+          Text(detail.translationNative, style: textTheme.bodyMedium),
+        ],
         const SizedBox(height: AppSpacing.s20),
         _SectionLabel(label: t.explanation),
         const SizedBox(height: AppSpacing.s6),

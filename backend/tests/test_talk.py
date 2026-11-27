@@ -77,6 +77,7 @@ class FakeSentenceAgent:
     async def explain(self, *, text: str, native_language: str) -> SentenceAgentOutput:
         return SentenceAgentOutput(
             natural_english="I am happy today.",
+            translation_native="我今天很开心。",
             explanation_native="这是一句表达今天心情的话。",
             grammar_notes="主语 + be 动词 + 形容词。",
             chunks=[
@@ -863,6 +864,7 @@ async def test_sentence_lookup_and_speech(talk_env) -> None:
     body = response.json()
     assert body["original"] == "我今天很开心"
     assert body["natural_english"] == "I am happy today."
+    assert body["translation_native"] == "我今天很开心。"
     assert body["explanation_native"]
     assert body["chunks"][0]["phrase"] == "be happy"
     assert body["key_words"][0]["word"] == "happy"

@@ -48,6 +48,7 @@ class MockSentenceApi implements SentenceApi {
     return const SentenceDetailDto(
       original: '我今天很开心',
       naturalEnglish: 'I am happy today.',
+      translationNative: '我今天很开心。',
       explanationNative: '这是一句表达今天心情的话。',
       grammarNotes: '主语 + be 动词 + 形容词。',
       chunks: [SentenceChunkDto(phrase: 'be happy', meaningNative: '开心')],

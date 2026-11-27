@@ -401,7 +401,7 @@ class _Translations$understand$zh implements Translations$understand$en {
 	// Translations
 	@override String get title => '理解';
 	@override String get chooseTitle => '你指的是哪一个？';
-	@override String get translation => '意思';
+	@override String get translation => '翻译';
 	@override String get example => '例句';
 	@override String get related => '相关';
 	@override String get talk => '聊聊它';
@@ -475,6 +475,7 @@ class _Translations$talk$zh implements Translations$talk$en {
 	@override String get copied => '已复制';
 	@override String get sentenceDetails => '句子详情';
 	@override String get sentenceLoadFailed => '暂时无法加载这句话。';
+	@override String get translation => '翻译';
 	@override String get explanation => '说明';
 	@override String get grammarNotes => '结构';
 	@override String get chunks => '表达片段';
@@ -512,6 +513,10 @@ class _Translations$timeline$zh implements Translations$timeline$en {
 	@override String get grammar => '语法';
 	@override String get moreDetails => '更多内容';
 	@override String get wordDetails => '词语详情';
+	@override String get showTranslation => '看翻译';
+	@override String get hideTranslation => '收起翻译';
+	@override String get translating => '正在翻译…';
+	@override String get translationFailed => '翻译没加载出来。';
 	@override String get playMoment => '播放句子';
 	@override String get pauseMoment => '暂停句子';
 	@override String get play => '播放发音';
@@ -1108,7 +1113,7 @@ extension on TranslationsZh {
 			'write.emptyInput' => '先写点什么。',
 			'understand.title' => '理解',
 			'understand.chooseTitle' => '你指的是哪一个？',
-			'understand.translation' => '意思',
+			'understand.translation' => '翻译',
 			'understand.example' => '例句',
 			'understand.related' => '相关',
 			'understand.talk' => '聊聊它',
@@ -1173,6 +1178,7 @@ extension on TranslationsZh {
 			'talk.copied' => '已复制',
 			'talk.sentenceDetails' => '句子详情',
 			'talk.sentenceLoadFailed' => '暂时无法加载这句话。',
+			'talk.translation' => '翻译',
 			'talk.explanation' => '说明',
 			'talk.grammarNotes' => '结构',
 			'talk.chunks' => '表达片段',
@@ -1201,6 +1207,10 @@ extension on TranslationsZh {
 			'timeline.grammar' => '语法',
 			'timeline.moreDetails' => '更多内容',
 			'timeline.wordDetails' => '词语详情',
+			'timeline.showTranslation' => '看翻译',
+			'timeline.hideTranslation' => '收起翻译',
+			'timeline.translating' => '正在翻译…',
+			'timeline.translationFailed' => '翻译没加载出来。',
 			'timeline.playMoment' => '播放句子',
 			'timeline.pauseMoment' => '暂停句子',
 			'timeline.play' => '播放发音',

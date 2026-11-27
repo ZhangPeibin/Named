@@ -37,6 +37,7 @@ async def lookup_sentence(
     return SentenceOut(
         original=text,
         natural_english=result.natural_english,
+        translation_native=result.translation_native,
         explanation_native=result.explanation_native,
         grammar_notes=result.grammar_notes,
         chunks=result.chunks,

@@ -15,6 +15,7 @@ class SentenceKeyWord(BaseModel):
 
 class SentenceAgentOutput(BaseModel):
     natural_english: str = Field(min_length=1, max_length=2000)
+    translation_native: str = Field(min_length=1, max_length=2000)
     explanation_native: str = Field(min_length=1, max_length=2000)
     grammar_notes: str = Field(default="", max_length=2000)
     chunks: list[SentenceChunk] = Field(default_factory=list, max_length=6)
@@ -28,6 +29,7 @@ class SentenceLookupRequest(BaseModel):
 class SentenceOut(BaseModel):
     original: str
     natural_english: str
+    translation_native: str
     explanation_native: str
     grammar_notes: str = ""
     chunks: list[SentenceChunk] = Field(default_factory=list)

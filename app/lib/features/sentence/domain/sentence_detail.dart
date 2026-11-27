@@ -26,6 +26,7 @@ class SentenceDetail {
   const SentenceDetail({
     required this.original,
     required this.naturalEnglish,
+    required this.translationNative,
     required this.explanationNative,
     required this.grammarNotes,
     required this.chunks,
@@ -34,6 +35,7 @@ class SentenceDetail {
 
   final String original;
   final String naturalEnglish;
+  final String translationNative;
   final String explanationNative;
   final String grammarNotes;
   final List<SentenceChunk> chunks;
