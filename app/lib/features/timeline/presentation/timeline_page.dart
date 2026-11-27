@@ -21,7 +21,7 @@ import '../../assistant/providers/assistant_providers.dart';
 import '../../challenge/providers/challenge_providers.dart';
 import '../../companion/presentation/companion_greeting_line.dart';
 import '../../companion/presentation/widgets/companion_card.dart';
-import '../../companion/presentation/widgets/companion_greeting.dart';
+import '../../companion/presentation/widgets/companion_greeting_dialog.dart';
 import '../../companion/presentation/widgets/companion_setup_sheet.dart';
 import '../../companion/providers/companion_providers.dart';
 import '../../progress/providers/progress_providers.dart';
@@ -69,15 +69,12 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   Timer? _trailEnableTimer;
   bool _trailVisibilityReady = false;
   bool _trailVisible = true;
-  Timer? _greetingTimer;
-  String? _greetingText;
-  bool _greetingVisible = false;
-  bool _greetingShownForEntry = false;
   bool _preparingGreeting = false;
-  bool _greetingRecheck = false;
-  late final AnimationController _greetingController;
+  bool _greetingChecked = false;
 
   static const _hintInterval = Duration(seconds: 6);
+  static const _lastVisitKey = 'app.lastVisit';
+  static const _lastGreetingDayKey = 'app.lastGreetingDay';
 
   @override
   void initState() {
@@ -93,18 +90,13 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     _trailEnableTimer = Timer(const Duration(milliseconds: 500), () {
       _trailVisibilityReady = true;
     });
-    _greetingController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 280),
-      reverseDuration: const Duration(milliseconds: 260),
-    )..addStatusListener(_handleGreetingStatus);
     _hintTimer = Timer.periodic(_hintInterval, (_) => _advanceHint());
     _dayTimer = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _refreshIfDayChanged(),
     );
     WidgetsBinding.instance.addObserver(this);
-    unawaited(_prepareGreeting());
+    unawaited(_maybeShowDailyGreeting());
   }
 
   @override
@@ -119,19 +111,14 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _greetingShownForEntry = false;
-      unawaited(_prepareGreeting());
       _refreshIfDayChanged();
+      unawaited(_maybeShowDailyGreeting());
     }
   }
 
   @override
   void didPopNext() {
-    if (_preparingGreeting) {
-      _greetingRecheck = true;
-      return;
-    }
-    unawaited(_prepareGreeting());
+    unawaited(_maybeShowDailyGreeting());
   }
 
   void _refreshIfDayChanged() {
@@ -140,20 +127,33 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       return;
     }
     _currentDay = today;
+    _greetingChecked = false;
     ref.invalidate(timelineControllerProvider);
     ref.invalidate(progressProvider);
+    unawaited(_maybeShowDailyGreeting());
   }
 
   bool get _isTimelineVisible => ModalRoute.of(context)?.isCurrent ?? false;
 
-  Future<void> _prepareGreeting() async {
-    if (_greetingShownForEntry || _preparingGreeting) {
+  Future<void> _maybeShowDailyGreeting() async {
+    if (_greetingChecked || _preparingGreeting) {
       return;
     }
     _preparingGreeting = true;
     try {
       final profile = await ref.read(companionProvider.future);
       if (!mounted || !profile.isNamed) {
+        return;
+      }
+      final storage = ref.read(keyValueStorageProvider);
+      final now = DateTime.now();
+      final todayKey = DateUtils.dateOnly(now).toIso8601String();
+      final lastGreetingDay = await storage.getString(_lastGreetingDayKey);
+      if (!mounted) {
+        return;
+      }
+      if (lastGreetingDay == todayKey) {
+        _greetingChecked = true;
         return;
       }
       final progress = await ref.read(progressProvider.future);
@@ -164,62 +164,33 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
       if (!mounted || !_isTimelineVisible) {
         return;
       }
-      final storage = ref.read(keyValueStorageProvider);
-      final now = DateTime.now();
-      final lastVisitRaw = await storage.getString('app.lastVisit');
+      final lastVisitRaw = await storage.getString(_lastVisitKey);
       final lastVisit = lastVisitRaw == null
           ? null
           : DateTime.tryParse(lastVisitRaw);
       final returning =
           lastVisit != null && now.difference(lastVisit).inDays >= 3;
-      await storage.setString('app.lastVisit', now.toIso8601String());
-      if (!mounted) {
+      await storage.setString(_lastVisitKey, now.toIso8601String());
+      await storage.setString(_lastGreetingDayKey, todayKey);
+      if (!mounted || !_isTimelineVisible) {
         return;
       }
+      _greetingChecked = true;
       final line = companionGreetingLine(
         context,
         progress,
         returning: returning,
       );
-      _greetingTimer?.cancel();
-      setState(() {
-        _greetingText = line;
-        _greetingVisible = true;
-        _greetingShownForEntry = true;
-      });
-      unawaited(_greetingController.forward(from: 0));
-      _greetingTimer = Timer(const Duration(seconds: 5), _dismissGreeting);
+      await showDialog<void>(
+        context: context,
+        builder: (context) =>
+            CompanionGreetingDialog(name: profile.name ?? '', text: line),
+      );
     } catch (_) {
       return;
     } finally {
       _preparingGreeting = false;
-      if (_greetingRecheck) {
-        _greetingRecheck = false;
-        unawaited(_prepareGreeting());
-      }
     }
-  }
-
-  void _dismissGreeting() {
-    _greetingTimer?.cancel();
-    _greetingTimer = null;
-    if (!mounted || !_greetingVisible) {
-      return;
-    }
-    unawaited(_greetingController.reverse());
-  }
-
-  void _handleGreetingStatus(AnimationStatus status) {
-    if (status != AnimationStatus.dismissed || !mounted) {
-      return;
-    }
-    if (_greetingText == null) {
-      return;
-    }
-    setState(() {
-      _greetingText = null;
-      _greetingVisible = false;
-    });
   }
 
   @override
@@ -228,8 +199,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     _hintTimer?.cancel();
     _dayTimer?.cancel();
     _trailEnableTimer?.cancel();
-    _greetingTimer?.cancel();
-    _greetingController.dispose();
     _trailVisibility.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _textController
@@ -675,8 +644,8 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
     final progress = ref.watch(progressProvider);
     final companion = ref.watch(companionProvider).value;
     ref.listen(companionProvider, (previous, next) {
-      if (next.value?.isNamed == true && !_greetingShownForEntry) {
-        unawaited(_prepareGreeting());
+      if (next.value?.isNamed == true && !_greetingChecked) {
+        unawaited(_maybeShowDailyGreeting());
       }
     });
     ref
@@ -690,9 +659,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
           _advanceHint();
         }
       });
-
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     Widget? companionEntry;
     final profile = companion;
@@ -741,18 +707,6 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
                         _buildTimeline(context, state, t, companionEntry),
                   ),
                 ),
-                if (_greetingText != null)
-                  Positioned(
-                    left: AppSpacing.s16,
-                    right: AppSpacing.s16,
-                    bottom: AppSpacing.s8,
-                    child: CompanionGreeting(
-                      text: _greetingText!,
-                      onTap: _dismissGreeting,
-                      animation: _greetingController,
-                      reduceMotion: reduceMotion,
-                    ),
-                  ),
               ],
             ),
           ),

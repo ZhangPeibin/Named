@@ -219,7 +219,8 @@
       "talks": "You've had ${count} talks. Keep going.",
       "practices": "You've practiced ${count} words. Keep going.",
       "reads": "You've finished ${count} reads. Keep going.",
-      "empty": "What did you notice today?"
+      "empty": "What did you notice today?",
+      "dismiss": "Got it"
     }
   },
   "navigation": {

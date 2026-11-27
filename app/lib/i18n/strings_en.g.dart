@@ -2068,6 +2068,9 @@ class Translations$companion$greeting$en {
 
 	/// en: 'What did you notice today?'
 	String get empty => 'What did you notice today?';
+
+	/// en: 'Got it'
+	String get dismiss => 'Got it';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2274,6 +2277,7 @@ extension on Translations {
 			'companion.greeting.practices' => ({required Object count}) => 'You\'ve practiced ${count} words. Keep going.',
 			'companion.greeting.reads' => ({required Object count}) => 'You\'ve finished ${count} reads. Keep going.',
 			'companion.greeting.empty' => 'What did you notice today?',
+			'companion.greeting.dismiss' => 'Got it',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -2589,9 +2593,9 @@ extension on Translations {
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',
-			'challenge.moment' => 'Moment',
 			_ => null,
 		} ?? switch (path) {
+			'challenge.moment' => 'Moment',
 			'challenge.loadFailed' => 'Could not load challenges.',
 			'challenge.detailFailed' => 'Could not load this challenge.',
 			'challenge.complete' => 'Done',

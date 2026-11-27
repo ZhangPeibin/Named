@@ -219,7 +219,8 @@
       "talks": "你已经聊过 ${count} 次了，继续加油。",
       "practices": "你已经练习过 ${count} 个词了，继续加油。",
       "reads": "你已经读完 ${count} 篇了，继续加油。",
-      "empty": "今天想注意到什么？"
+      "empty": "今天想注意到什么？",
+      "dismiss": "知道啦"
     }
   },
   "navigation": {

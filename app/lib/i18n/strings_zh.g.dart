@@ -886,6 +886,7 @@ class _Translations$companion$greeting$zh implements Translations$companion$gree
 	@override String practices({required Object count}) => '你已经练习过 ${count} 个词了，继续加油。';
 	@override String reads({required Object count}) => '你已经读完 ${count} 篇了，继续加油。';
 	@override String get empty => '今天想注意到什么？';
+	@override String get dismiss => '知道啦';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -1092,6 +1093,7 @@ extension on TranslationsZh {
 			'companion.greeting.practices' => ({required Object count}) => '你已经练习过 ${count} 个词了，继续加油。',
 			'companion.greeting.reads' => ({required Object count}) => '你已经读完 ${count} 篇了，继续加油。',
 			'companion.greeting.empty' => '今天想注意到什么？',
+			'companion.greeting.dismiss' => '知道啦',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -1407,9 +1409,9 @@ extension on TranslationsZh {
 			'challenge.content' => '本轮发现',
 			'challenge.open' => '打开',
 			'challenge.word' => '词语',
-			'challenge.moment' => '场景',
 			_ => null,
 		} ?? switch (path) {
+			'challenge.moment' => '场景',
 			'challenge.loadFailed' => '暂时无法加载挑战。',
 			'challenge.detailFailed' => '暂时无法加载这轮挑战。',
 			'challenge.complete' => '完成',
