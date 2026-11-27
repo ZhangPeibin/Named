@@ -16,7 +16,7 @@ void main() {
             context: context,
             builder: (context) => const CompanionGreetingDialog(
               name: 'Momo',
-              text: 'Hi. What did you notice today?',
+              text: "Hi, I'm glad you're here. What caught your eye today?",
             ),
           ),
           child: const Text('open'),
@@ -29,7 +29,10 @@ void main() {
 
     expect(find.byKey(const Key('companion.greeting')), findsOneWidget);
     expect(find.text('Momo'), findsOneWidget);
-    expect(find.text('Hi. What did you notice today?'), findsOneWidget);
+    expect(
+      find.text("Hi, I'm glad you're here. What caught your eye today?"),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const Key('companion.greeting.dismiss')));
     await tester.pumpAndSettle();

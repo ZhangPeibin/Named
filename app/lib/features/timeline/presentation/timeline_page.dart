@@ -74,7 +74,7 @@ class _TimelinePageState extends ConsumerState<TimelinePage>
 
   static const _hintInterval = Duration(seconds: 6);
   static const _lastVisitKey = 'app.lastVisit';
-  static const _lastGreetingDayKey = 'app.lastGreetingDay';
+  static const _lastGreetingDayKey = 'app.lastGreetingDay.v2';
 
   @override
   void initState() {

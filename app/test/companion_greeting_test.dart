@@ -27,7 +27,10 @@ void main() {
         },
       ),
     );
-    expect(line, "Hi. You've kept 12 words. Keep going.");
+    expect(
+      line,
+      "Hi, I'm glad you're here. You've kept 12 words. Each one is a little piece of your world.",
+    );
   });
 
   testWidgets('greeting welcomes back a returning learner', (tester) async {
@@ -50,7 +53,10 @@ void main() {
         },
       ),
     );
-    expect(line, "Welcome back. You've kept 4 words. Keep going.");
+    expect(
+      line,
+      "Welcome back. It's good to see you. You've kept 4 words. Each one is a little piece of your world.",
+    );
   });
 
   testWidgets('greeting is friendly with no progress', (tester) async {
@@ -72,6 +78,9 @@ void main() {
         },
       ),
     );
-    expect(line, 'Hi. What did you notice today?');
+    expect(
+      line,
+      "Hi, I'm glad you're here. What caught your eye today? I'd love to hear about it.",
+    );
   });
 }

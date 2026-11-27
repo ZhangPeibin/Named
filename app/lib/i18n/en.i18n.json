@@ -213,14 +213,14 @@
     "profile": "Profile",
     "dailyIntro": "I found a little story for you.",
     "greeting": {
-      "hi": "Hi.",
-      "welcomeBack": "Welcome back.",
-      "words": "You've kept ${count} words. Keep going.",
-      "talks": "You've had ${count} talks. Keep going.",
-      "practices": "You've practiced ${count} words. Keep going.",
-      "reads": "You've finished ${count} reads. Keep going.",
-      "empty": "What did you notice today?",
-      "dismiss": "Got it"
+      "hi": "Hi, I'm glad you're here.",
+      "welcomeBack": "Welcome back. It's good to see you.",
+      "words": "You've kept ${count} words. Each one is a little piece of your world.",
+      "talks": "You've had ${count} talks. Each one made your English a little more yours.",
+      "practices": "You've practiced ${count} words. They're starting to feel like yours.",
+      "reads": "You've finished ${count} reads. That's ${count} stories you get to keep.",
+      "empty": "What caught your eye today? I'd love to hear about it.",
+      "dismiss": "Let's begin"
     }
   },
   "navigation": {

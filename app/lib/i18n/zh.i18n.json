@@ -213,14 +213,14 @@
     "profile": "档案",
     "dailyIntro": "我找到一个小故事。",
     "greeting": {
-      "hi": "嗨。",
-      "welcomeBack": "欢迎回来。",
-      "words": "你已经留下 ${count} 个词了，继续加油。",
-      "talks": "你已经聊过 ${count} 次了，继续加油。",
-      "practices": "你已经练习过 ${count} 个词了，继续加油。",
-      "reads": "你已经读完 ${count} 篇了，继续加油。",
-      "empty": "今天想注意到什么？",
-      "dismiss": "知道啦"
+      "hi": "嗨，看到你真好。",
+      "welcomeBack": "欢迎回来，很高兴又见到你。",
+      "words": "你已经留下 ${count} 个词了，每一个都是你生活里的小片段。",
+      "talks": "你已经聊过 ${count} 次了，每一次都让你的英语更像你自己。",
+      "practices": "你已经练习过 ${count} 个词了，它们正在慢慢变成你的。",
+      "reads": "你已经读完 ${count} 篇了，这是 ${count} 个你可以带走的故事。",
+      "empty": "今天有什么让你多看了一眼？我很想听听。",
+      "dismiss": "一起开始吧"
     }
   },
   "navigation": {

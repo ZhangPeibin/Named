@@ -84,6 +84,9 @@ class CompanionGreetingDialog extends StatelessWidget {
                 child: FilledButton(
                   key: const Key('companion.greeting.dismiss'),
                   style: FilledButton.styleFrom(
+                    backgroundColor: palette.warm,
+                    foregroundColor: palette.ink,
+                    side: BorderSide(color: palette.line),
                     minimumSize: const Size.fromHeight(AppSize.buttonHeight),
                     textStyle: AppTextStyles.button,
                   ),

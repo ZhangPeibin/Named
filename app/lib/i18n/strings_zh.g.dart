@@ -879,14 +879,14 @@ class _Translations$companion$greeting$zh implements Translations$companion$gree
 	final TranslationsZh _root; // ignore: unused_field
 
 	// Translations
-	@override String get hi => '嗨。';
-	@override String get welcomeBack => '欢迎回来。';
-	@override String words({required Object count}) => '你已经留下 ${count} 个词了，继续加油。';
-	@override String talks({required Object count}) => '你已经聊过 ${count} 次了，继续加油。';
-	@override String practices({required Object count}) => '你已经练习过 ${count} 个词了，继续加油。';
-	@override String reads({required Object count}) => '你已经读完 ${count} 篇了，继续加油。';
-	@override String get empty => '今天想注意到什么？';
-	@override String get dismiss => '知道啦';
+	@override String get hi => '嗨，看到你真好。';
+	@override String get welcomeBack => '欢迎回来，很高兴又见到你。';
+	@override String words({required Object count}) => '你已经留下 ${count} 个词了，每一个都是你生活里的小片段。';
+	@override String talks({required Object count}) => '你已经聊过 ${count} 次了，每一次都让你的英语更像你自己。';
+	@override String practices({required Object count}) => '你已经练习过 ${count} 个词了，它们正在慢慢变成你的。';
+	@override String reads({required Object count}) => '你已经读完 ${count} 篇了，这是 ${count} 个你可以带走的故事。';
+	@override String get empty => '今天有什么让你多看了一眼？我很想听听。';
+	@override String get dismiss => '一起开始吧';
 }
 
 /// The flat map containing all translations for locale <zh>.
@@ -1086,14 +1086,14 @@ extension on TranslationsZh {
 			'companion.randomFailed' => '没有取到名字，再试一次？',
 			'companion.profile' => '档案',
 			'companion.dailyIntro' => '我找到一个小故事。',
-			'companion.greeting.hi' => '嗨。',
-			'companion.greeting.welcomeBack' => '欢迎回来。',
-			'companion.greeting.words' => ({required Object count}) => '你已经留下 ${count} 个词了，继续加油。',
-			'companion.greeting.talks' => ({required Object count}) => '你已经聊过 ${count} 次了，继续加油。',
-			'companion.greeting.practices' => ({required Object count}) => '你已经练习过 ${count} 个词了，继续加油。',
-			'companion.greeting.reads' => ({required Object count}) => '你已经读完 ${count} 篇了，继续加油。',
-			'companion.greeting.empty' => '今天想注意到什么？',
-			'companion.greeting.dismiss' => '知道啦',
+			'companion.greeting.hi' => '嗨，看到你真好。',
+			'companion.greeting.welcomeBack' => '欢迎回来，很高兴又见到你。',
+			'companion.greeting.words' => ({required Object count}) => '你已经留下 ${count} 个词了，每一个都是你生活里的小片段。',
+			'companion.greeting.talks' => ({required Object count}) => '你已经聊过 ${count} 次了，每一次都让你的英语更像你自己。',
+			'companion.greeting.practices' => ({required Object count}) => '你已经练习过 ${count} 个词了，它们正在慢慢变成你的。',
+			'companion.greeting.reads' => ({required Object count}) => '你已经读完 ${count} 篇了，这是 ${count} 个你可以带走的故事。',
+			'companion.greeting.empty' => '今天有什么让你多看了一眼？我很想听听。',
+			'companion.greeting.dismiss' => '一起开始吧',
 			'navigation.explore' => '探索',
 			'navigation.words' => '词语',
 			'navigation.history' => '回忆',
@@ -1404,13 +1404,13 @@ extension on TranslationsZh {
 			'challenge.practiceDictation' => '听句子，再打出来。',
 			'challenge.practiceCloze' => '填空',
 			'challenge.practiceTranslate' => '译成英文',
+			_ => null,
+		} ?? switch (path) {
 			'challenge.practiceFreePrompt' => '用「{word}」自己写一句话。',
 			'challenge.practiceModel' => '参考：{answer}',
 			'challenge.content' => '本轮发现',
 			'challenge.open' => '打开',
 			'challenge.word' => '词语',
-			_ => null,
-		} ?? switch (path) {
 			'challenge.moment' => '场景',
 			'challenge.loadFailed' => '暂时无法加载挑战。',
 			'challenge.detailFailed' => '暂时无法加载这轮挑战。',

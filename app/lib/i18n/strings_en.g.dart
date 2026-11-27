@@ -2048,29 +2048,29 @@ class Translations$companion$greeting$en {
 
 	// Translations
 
-	/// en: 'Hi.'
-	String get hi => 'Hi.';
+	/// en: 'Hi, I'm glad you're here.'
+	String get hi => 'Hi, I\'m glad you\'re here.';
 
-	/// en: 'Welcome back.'
-	String get welcomeBack => 'Welcome back.';
+	/// en: 'Welcome back. It's good to see you.'
+	String get welcomeBack => 'Welcome back. It\'s good to see you.';
 
-	/// en: 'You've kept ${count} words. Keep going.'
-	String words({required Object count}) => 'You\'ve kept ${count} words. Keep going.';
+	/// en: 'You've kept ${count} words. Each one is a little piece of your world.'
+	String words({required Object count}) => 'You\'ve kept ${count} words. Each one is a little piece of your world.';
 
-	/// en: 'You've had ${count} talks. Keep going.'
-	String talks({required Object count}) => 'You\'ve had ${count} talks. Keep going.';
+	/// en: 'You've had ${count} talks. Each one made your English a little more yours.'
+	String talks({required Object count}) => 'You\'ve had ${count} talks. Each one made your English a little more yours.';
 
-	/// en: 'You've practiced ${count} words. Keep going.'
-	String practices({required Object count}) => 'You\'ve practiced ${count} words. Keep going.';
+	/// en: 'You've practiced ${count} words. They're starting to feel like yours.'
+	String practices({required Object count}) => 'You\'ve practiced ${count} words. They\'re starting to feel like yours.';
 
-	/// en: 'You've finished ${count} reads. Keep going.'
-	String reads({required Object count}) => 'You\'ve finished ${count} reads. Keep going.';
+	/// en: 'You've finished ${count} reads. That's ${count} stories you get to keep.'
+	String reads({required Object count}) => 'You\'ve finished ${count} reads. That\'s ${count} stories you get to keep.';
 
-	/// en: 'What did you notice today?'
-	String get empty => 'What did you notice today?';
+	/// en: 'What caught your eye today? I'd love to hear about it.'
+	String get empty => 'What caught your eye today? I\'d love to hear about it.';
 
-	/// en: 'Got it'
-	String get dismiss => 'Got it';
+	/// en: 'Let's begin'
+	String get dismiss => 'Let\'s begin';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2270,14 +2270,14 @@ extension on Translations {
 			'companion.randomFailed' => 'Could not pick a name. Try again.',
 			'companion.profile' => 'Profile',
 			'companion.dailyIntro' => 'I found a little story for you.',
-			'companion.greeting.hi' => 'Hi.',
-			'companion.greeting.welcomeBack' => 'Welcome back.',
-			'companion.greeting.words' => ({required Object count}) => 'You\'ve kept ${count} words. Keep going.',
-			'companion.greeting.talks' => ({required Object count}) => 'You\'ve had ${count} talks. Keep going.',
-			'companion.greeting.practices' => ({required Object count}) => 'You\'ve practiced ${count} words. Keep going.',
-			'companion.greeting.reads' => ({required Object count}) => 'You\'ve finished ${count} reads. Keep going.',
-			'companion.greeting.empty' => 'What did you notice today?',
-			'companion.greeting.dismiss' => 'Got it',
+			'companion.greeting.hi' => 'Hi, I\'m glad you\'re here.',
+			'companion.greeting.welcomeBack' => 'Welcome back. It\'s good to see you.',
+			'companion.greeting.words' => ({required Object count}) => 'You\'ve kept ${count} words. Each one is a little piece of your world.',
+			'companion.greeting.talks' => ({required Object count}) => 'You\'ve had ${count} talks. Each one made your English a little more yours.',
+			'companion.greeting.practices' => ({required Object count}) => 'You\'ve practiced ${count} words. They\'re starting to feel like yours.',
+			'companion.greeting.reads' => ({required Object count}) => 'You\'ve finished ${count} reads. That\'s ${count} stories you get to keep.',
+			'companion.greeting.empty' => 'What caught your eye today? I\'d love to hear about it.',
+			'companion.greeting.dismiss' => 'Let\'s begin',
 			'navigation.explore' => 'Explore',
 			'navigation.words' => 'Words',
 			'navigation.history' => 'History',
@@ -2588,13 +2588,13 @@ extension on Translations {
 			'challenge.practiceDictation' => 'Listen and type the sentence.',
 			'challenge.practiceCloze' => 'Fill in the blank.',
 			'challenge.practiceTranslate' => 'Translate into English.',
+			_ => null,
+		} ?? switch (path) {
 			'challenge.practiceFreePrompt' => 'Write your own sentence using “{word}”.',
 			'challenge.practiceModel' => 'Sample: {answer}',
 			'challenge.content' => 'This round',
 			'challenge.open' => 'Open',
 			'challenge.word' => 'Word',
-			_ => null,
-		} ?? switch (path) {
 			'challenge.moment' => 'Moment',
 			'challenge.loadFailed' => 'Could not load challenges.',
 			'challenge.detailFailed' => 'Could not load this challenge.',
